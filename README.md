@@ -1,4 +1,4 @@
-# Meet ReverseMarkdown.Net
+# Meet ReverseMarkdown.Net [![Build status](https://ci.appveyor.com/api/projects/status/xse0bia9olr5shxr?svg=true)](https://ci.appveyor.com/project/BabuAnnamalai/reversemarkdown-net)
 
 ReverseMarkdown.Net is a Html to Markdown (http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since HtmlAgilityPack (HAP) library is used for traversing the Html DOM.
 
