@@ -2,7 +2,7 @@
 
 ReverseMarkdown.Net is a Html to Markdown (http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since HtmlAgilityPack (HAP) library is used for traversing the Html DOM.
 
-Note that the library implementation is based Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
+Note that the library implementation is based Ruby based on Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
 ## Usage
 
