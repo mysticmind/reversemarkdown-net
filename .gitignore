@@ -9,3 +9,4 @@ _ReSharper.*
 *.cache
 *.Cache
 Thumbs.db
+**/packages
