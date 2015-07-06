@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReverseMarkdown", "ReverseMarkdown\ReverseMarkdown.csproj", "{518A6D79-4596-4086-BA5D-DD353BCEC9A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReverseMarkdown.Test", "ReverseMarkdown.Test\ReverseMarkdown.Test.csproj", "{1756FE48-2619-459C-A0D0-2D2A1D163A03}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{518A6D79-4596-4086-BA5D-DD353BCEC9A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{518A6D79-4596-4086-BA5D-DD353BCEC9A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{518A6D79-4596-4086-BA5D-DD353BCEC9A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{518A6D79-4596-4086-BA5D-DD353BCEC9A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

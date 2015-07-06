@@ -1,0 +1,11 @@
+obj
+bin
+bin/*
+deploy
+deploy/*
+_ReSharper.*
+*.user
+*.suo
+*.cache
+*.Cache
+Thumbs.db
