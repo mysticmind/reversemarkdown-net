@@ -8,17 +8,15 @@
     <owners/>
     <licenseUrl>https://github.com/mysticmind/reversemarkdown-net/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/mysticmind/reversemarkdown-net/blob/master/README.md</projectUrl>
-    <iconUrl/>
     <description>ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since HtmlAgilityPack (HAP) library is used for traversing the Html DOM.</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright (C) Babu Annamalai</copyright>
     <tags>html markdown c# .net converter</tags>
-  </metadata>
-  <dependencies>
+	<dependencies>
     <group targetFramework=".NETFramework4.5">
-		<dependency id="HtmlAgilityPack"/>
+		<dependency id="HtmlAgilityPack" />
 	</group>
   </dependencies>
+  </metadata>
   <files>
 	<file src="..\..\LICENSE" target="LICENSE"/>
 	<file src="bin\Release\ReverseMarkdown.dll" target="lib\net45"/>
