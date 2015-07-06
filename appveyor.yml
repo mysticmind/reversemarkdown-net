@@ -1,0 +1,13 @@
+version: 1.0.{build}
+
+# Fix line endings on windows
+init:  
+ - git config --global core.autocrlf true
+ 
+before_build:
+- cd src
+- nuget restore
+- cd ..
+
+build:
+  verbosity: minimal
