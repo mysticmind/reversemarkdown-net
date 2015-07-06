@@ -1,5 +1,8 @@
 version: 0.1.{build}
 
+# build Configuration, i.e. Debug, Release, etc.
+configuration: Release
+
 # Fix line endings on windows
 init:  
  - git config --global core.autocrlf true
@@ -11,11 +14,21 @@ before_build:
 
 build:
   verbosity: minimal
+  publish_nuget: true
+  publish_nuget_symbols: true
+  include_nuget_references: true
   
  # enable patching of AssemblyInfo.* files
 assembly_info:
   patch: true
   file: AssemblyInfo.*
-  assembly_version: "0.1.{build}"
+  assembly_version: "{version}"
   assembly_file_version: "{version}"
   assembly_informational_version: "{version}"
+  
+ deploy:
+  # Deploying to NuGet feed
+  - provider: NuGet
+    api_key:
+      secure: 1XMgADnmiLunXwBT7K0CMDcHyoC5tUFE4Cf+X7VkuzoRZiWnIL2P9mP7oPEtGPHg
+    skip_symbols: true
