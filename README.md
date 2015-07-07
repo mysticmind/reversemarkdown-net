@@ -6,6 +6,8 @@ Note that the library implementation is based Ruby based on Html to Markdown con
 
 ## Usage
 
+You can install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself. 
+
 ```csharp
 var converter = new ReverseMarkdown.Converter();
 
