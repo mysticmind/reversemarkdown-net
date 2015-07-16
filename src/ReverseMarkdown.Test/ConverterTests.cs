@@ -273,7 +273,15 @@ Next line of text";
 			CheckConversion(html, expected);
 		}
 
-		//TODO : Add remaining unit tests
+		[Fact]
+		public void WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_TheConvertToMarkdownListItemWithSpacesAndTabsStripped()
+		{
+			const string html = @"<ol><li>	    This is a text with leading and trailing spaces and tabs		</li></ol>";
+			const string expected = @"
+1. This is a text with leading and trailing spaces and tabs
+";
+			CheckConversion(html, expected);
+		}
 
 		private static void CheckConversion(string html, string expected)
 		{

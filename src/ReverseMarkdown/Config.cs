@@ -14,7 +14,7 @@ namespace ReverseMarkdown
 		{
 		}
 
-		public Config(string unknownTagsConverter, bool githubFlavored)
+		public Config(string unknownTagsConverter="pass_through", bool githubFlavored=false)
 		{
 			this._unknownTagsConverter = unknownTagsConverter;
 			this._githubFlavored = githubFlavored;
