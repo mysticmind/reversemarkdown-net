@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cleaner.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Converters\A.cs" />
     <Compile Include="Converters\Blockquote.cs" />

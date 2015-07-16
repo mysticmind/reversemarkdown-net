@@ -283,6 +283,21 @@ Next line of text";
 			CheckConversion(html, expected);
 		}
 
+		[Fact]
+		public void WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown()
+		{
+			const string html = @"<ol>
+	<li>
+		<strong>Item1</strong></li>
+	<li>
+		Item2</li></ol>";
+			const string expected = @"
+1. **Item1**
+2. Item2
+";
+			CheckConversion(html, expected);
+		}
+
 		private static void CheckConversion(string html, string expected)
 		{
 			var converter = new Converter();

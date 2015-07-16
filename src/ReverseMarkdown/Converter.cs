@@ -32,6 +32,10 @@ namespace ReverseMarkdown
 
 		public string Convert(string html)
 		{
+			var cleaner = new Cleaner();
+
+			html = cleaner.PreTidy(html);
+
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(html);
 
