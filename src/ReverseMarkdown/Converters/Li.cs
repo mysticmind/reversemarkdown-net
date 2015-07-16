@@ -27,7 +27,7 @@ namespace ReverseMarkdown.Converters
 			if (node.ParentNode != null && node.ParentNode.Name == "ol")
 			{
 				// index are zero based hence add one
-				int index = node.ParentNode.ChildNodes.IndexOf(node) + 1;
+				int index = node.ParentNode.SelectNodes("./li").IndexOf(node) + 1;
 				return string.Format("{0}. ",index);
 			}
 			else
