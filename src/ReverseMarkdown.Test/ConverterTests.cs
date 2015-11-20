@@ -298,7 +298,25 @@ Next line of text";
 			CheckConversion(html, expected);
 		}
 
-		private static void CheckConversion(string html, string expected)
+        [Fact]
+        public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
+        {
+            const string html = @"<ol>
+	<li>
+		<p>Item1</p>
+        <p>Item2</p></li>
+	<li>
+		<p>Item3</p></li></ol>";
+            const string expected = @"
+1. Item1
+
+    Item2
+2. Item3
+";
+            CheckConversion(html, expected);
+        }
+
+        private static void CheckConversion(string html, string expected)
 		{
 			var converter = new Converter();
 			var result = converter.Convert(html);
