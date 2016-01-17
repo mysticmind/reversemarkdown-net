@@ -1,4 +1,6 @@
 ﻿
+using System.Web;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -37,7 +39,7 @@ namespace ReverseMarkdown.Converters
 		}
 
 		public string Treat(HtmlNode node){
-			return this.Converter.Lookup(node.Name).Convert(node); 
+			return this.Converter.Lookup(node.Name).Convert(node);
 		}
 
 		public string ExtractTitle(HtmlNode node)
@@ -45,6 +47,12 @@ namespace ReverseMarkdown.Converters
 			string title = node.GetAttributeValue("title", "");
 
 			return title;
+		}
+
+		public string DecodeHtml(string html)
+		{
+			var text = HttpUtility.HtmlDecode(html);
+			return text.Trim();
 		}
 
 		public abstract string Convert(HtmlNode node); 

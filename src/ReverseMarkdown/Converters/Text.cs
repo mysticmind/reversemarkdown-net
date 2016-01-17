@@ -68,7 +68,7 @@ namespace ReverseMarkdown.Converters
 
 		private string TreatText(HtmlNode node)
 		{
-			string content = node.InnerText;
+			string content = this.DecodeHtml(node.InnerText);
 
 			//strip leading spaces and tabs for text within list item 
 			HtmlNode parent = node.ParentNode;
