@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using Xunit;
-using ReverseMarkdown;
 
 namespace ReverseMarkdown.Test
 {
 	public class ConverterTests
-    {
+	{
 		[Fact]
 		public void WhenThereIsHtmlLink_ThenConvertToMarkdownLink()
 		{
@@ -298,29 +295,29 @@ Next line of text";
 			CheckConversion(html, expected);
 		}
 
-        [Fact]
-        public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
-        {
-            const string html = @"<ol>
+		[Fact]
+		public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
+		{
+			const string html = @"<ol>
 	<li>
 		<p>Item1</p>
         <p>Item2</p></li>
 	<li>
 		<p>Item3</p></li></ol>";
-            const string expected = @"
+			const string expected = @"
 1. Item1
 
     Item2
 2. Item3
 ";
-            CheckConversion(html, expected);
-        }
+			CheckConversion(html, expected);
+		}
 
-        private static void CheckConversion(string html, string expected)
+		private static void CheckConversion(string html, string expected)
 		{
 			var converter = new Converter();
 			var result = converter.Convert(html);
 			Assert.Equal<string>(expected, result);
 		}
-    }
+	}
 }
