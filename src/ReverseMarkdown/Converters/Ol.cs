@@ -17,7 +17,7 @@ namespace ReverseMarkdown.Converters
 
 		public override string Convert(HtmlNode node)
 		{
-			return Environment.NewLine + this.TreatChildren(node);
+			return Environment.NewLine + this.TreatChildren(node) + Environment.NewLine;
 		}
 	}
 }
