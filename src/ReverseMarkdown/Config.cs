@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace ReverseMarkdown
 {
 	public class Config
@@ -10,7 +6,7 @@ namespace ReverseMarkdown
 		private string _unknownTagsConverter = "pass_through";
 		private bool _githubFlavored = false;
 		
-		public Config() 
+		public Config()
 		{
 		}
 

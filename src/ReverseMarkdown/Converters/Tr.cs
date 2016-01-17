@@ -1,11 +1,14 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Tr: ConverterBase
+	public class Tr
+		: ConverterBase
 	{
 		public Tr(Converter converter)
 			: base(converter)
@@ -39,8 +42,6 @@ namespace ReverseMarkdown.Converters
 			}
 
 			return "| " + cols.Aggregate((item1,item2) => item1 + " | " + item2) + " |" + Environment.NewLine;
-
-			 
 		}
 	}
 }

@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
+using System;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Ol: ConverterBase
+	public class Ol
+		: ConverterBase
 	{
 		public Ol(Converter converter)
 			: base(converter)

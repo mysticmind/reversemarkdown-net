@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class ByPass: ConverterBase
+	public class ByPass
+		: ConverterBase
 	{
-		public ByPass(Converter converter):base(converter)
+		public ByPass(Converter converter)
+			: base(converter)
 		{
 			this.Converter.Register("#document", this);
 			this.Converter.Register("html", this);

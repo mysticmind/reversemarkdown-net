@@ -1,13 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System;
 using System.Linq;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Blockquote: ConverterBase
+	public class Blockquote
+		: ConverterBase
 	{
-		public Blockquote(Converter converter):base(converter)
+		public Blockquote(Converter converter)
+			: base(converter)
 		{
 			this.Converter.Register("blockquote", this);
 		}

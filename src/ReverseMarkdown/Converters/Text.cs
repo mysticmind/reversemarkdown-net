@@ -1,12 +1,13 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Text : ConverterBase
+	public class Text
+		: ConverterBase
 	{
 		private Dictionary<string, string> _escapedKeyChars = new Dictionary<string, string>();
 
