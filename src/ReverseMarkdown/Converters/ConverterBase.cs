@@ -38,7 +38,7 @@ namespace ReverseMarkdown.Converters
 			return result;
 		}
 
-		public string Treat(HtmlNode node){
+		public string Treat(HtmlNode node) {
 			return this.Converter.Lookup(node.Name).Convert(node);
 		}
 
@@ -51,8 +51,7 @@ namespace ReverseMarkdown.Converters
 
 		public string DecodeHtml(string html)
 		{
-			var text = HttpUtility.HtmlDecode(html);
-			return text.Trim();
+			return HttpUtility.HtmlDecode(html);
 		}
 
 		public abstract string Convert(HtmlNode node); 
