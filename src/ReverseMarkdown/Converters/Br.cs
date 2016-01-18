@@ -16,6 +16,11 @@ namespace ReverseMarkdown.Converters
 
 		public override string Convert(HtmlNode node)
 		{
+			if (this.Converter.Config.GithubFlavored)
+			{
+				return Environment.NewLine;
+			}
+
 			return "  " + Environment.NewLine;
 		}
 	}
