@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Converters
 			if (this.Converter.Config.GithubFlavored)
 			{
 				return Environment.NewLine + string.Format("```{0}", GetLanguage(node)) + Environment.NewLine
-					+ this.DecodeHtml(node.InnerText.Trim()) + Environment.NewLine
+					+ this.DecodeHtml(node.InnerText) + Environment.NewLine
 					+ "```" + Environment.NewLine;
 			}
 			else
