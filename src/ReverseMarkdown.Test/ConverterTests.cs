@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using Xunit;
-using ReverseMarkdown;
 
 namespace ReverseMarkdown.Test
 {
 	public class ConverterTests
-    {
+	{
 		[Fact]
 		public void WhenThereIsHtmlLink_ThenConvertToMarkdownLink()
 		{
@@ -234,6 +231,7 @@ Next line of text";
 			const string expected = @"This text has unordered list.
 - Item1
 - Item2
+
 ";
 			CheckConversion(html, expected);
 		}
@@ -245,6 +243,7 @@ Next line of text";
 			const string expected = @"This text has ordered list.
 1. Item1
 2. Item2
+
 ";
 			CheckConversion(html, expected);
 		}
@@ -257,6 +256,7 @@ Next line of text";
 1. - InnerItem1
  - InnerItem2
 2. Item2
+
 ";
 			CheckConversion(html, expected);
 		}
@@ -269,6 +269,7 @@ Next line of text";
 - 1. InnerItem1
  2. InnerItem2
 - Item2
+
 ";
 			CheckConversion(html, expected);
 		}
@@ -279,6 +280,7 @@ Next line of text";
 			const string html = @"<ol><li>	    This is a text with leading and trailing spaces and tabs		</li></ol>";
 			const string expected = @"
 1. This is a text with leading and trailing spaces and tabs
+
 ";
 			CheckConversion(html, expected);
 		}
@@ -294,33 +296,35 @@ Next line of text";
 			const string expected = @"
 1. **Item1**
 2. Item2
+
 ";
 			CheckConversion(html, expected);
 		}
 
-        [Fact]
-        public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
-        {
-            const string html = @"<ol>
+		[Fact]
+		public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
+		{
+			const string html = @"<ol>
 	<li>
 		<p>Item1</p>
         <p>Item2</p></li>
 	<li>
 		<p>Item3</p></li></ol>";
-            const string expected = @"
+			const string expected = @"
 1. Item1
 
     Item2
 2. Item3
-";
-            CheckConversion(html, expected);
-        }
 
-        private static void CheckConversion(string html, string expected)
+";
+			CheckConversion(html, expected);
+		}
+
+		private static void CheckConversion(string html, string expected)
 		{
 			var converter = new Converter();
 			var result = converter.Convert(html);
 			Assert.Equal<string>(expected, result);
 		}
-    }
+	}
 }

@@ -1,7 +1,10 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using HtmlAgilityPack;
+
 using ReverseMarkdown.Converters;
 
 namespace ReverseMarkdown
@@ -11,7 +14,8 @@ namespace ReverseMarkdown
 		private IDictionary<string, IConverter> _converters = new Dictionary<string, IConverter>();
 		private Config _config;
 
-		public Converter():this(new Config())
+		public Converter()
+			: this(new Config())
 		{
 		}
 

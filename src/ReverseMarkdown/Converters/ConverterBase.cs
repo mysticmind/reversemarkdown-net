@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
+using System.Web;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-    public abstract class ConverterBase : IConverter
-    {
+	public abstract class ConverterBase
+		: IConverter
+	{
 		private Converter _converter;
 
 		public ConverterBase(Converter converter) 
@@ -30,15 +31,15 @@ namespace ReverseMarkdown.Converters
 			{
 				foreach(HtmlNode nd in node.ChildNodes)
 				{
-					result+=this.Treat(nd);
+					result += this.Treat(nd);
 				}
 			}
 
 			return result;
 		}
 
-		public string Treat(HtmlNode node){
-			return this.Converter.Lookup(node.Name).Convert(node); 
+		public string Treat(HtmlNode node) {
+			return this.Converter.Lookup(node.Name).Convert(node);
 		}
 
 		public string ExtractTitle(HtmlNode node)
@@ -48,6 +49,11 @@ namespace ReverseMarkdown.Converters
 			return title;
 		}
 
+		public string DecodeHtml(string html)
+		{
+			return HttpUtility.HtmlDecode(html);
+		}
+
 		public abstract string Convert(HtmlNode node); 
-    }
+	}
 }

@@ -1,12 +1,13 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Text : ConverterBase
+	public class Text
+		: ConverterBase
 	{
 		private Dictionary<string, string> _escapedKeyChars = new Dictionary<string, string>();
 
@@ -67,7 +68,9 @@ namespace ReverseMarkdown.Converters
 
 		private string TreatText(HtmlNode node)
 		{
-			string content = node.InnerText;
+			string content = this.DecodeHtml(node.InnerText);
+			content = content.Replace("\r", "");
+			content = content.Replace("\n", "");
 
 			//strip leading spaces and tabs for text within list item 
 			HtmlNode parent = node.ParentNode;

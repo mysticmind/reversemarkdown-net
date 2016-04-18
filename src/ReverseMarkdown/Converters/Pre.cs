@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Pre : ConverterBase
+	public class Pre
+		: ConverterBase
 	{
 		public Pre(Converter converter)
 			: base(converter)
@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Converters
 			if (this.Converter.Config.GithubFlavored)
 			{
 				return Environment.NewLine + string.Format("```{0}", GetLanguage(node)) + Environment.NewLine
-					+ node.InnerText.Trim() + Environment.NewLine
+					+ this.DecodeHtml(node.InnerText) + Environment.NewLine
 					+ "```" + Environment.NewLine;
 			}
 			else
@@ -35,7 +35,6 @@ namespace ReverseMarkdown.Converters
 			}
 		}
 
-
 		private string GetLanguage(HtmlNode node)
 		{
 			string lang = GetLanguageFromHighlightClassAttribute(node);
@@ -44,7 +43,7 @@ namespace ReverseMarkdown.Converters
 
 		private string GetLanguageFromHighlightClassAttribute(HtmlNode node)
 		{
-			string val = node.GetAttributeValue("class","");
+			string val = node.GetAttributeValue("class", "");
 			var rx = new System.Text.RegularExpressions.Regex("highlight-([a-zA-Z0-9]+)");
 			var res = rx.Match(val);
 			return res.Success ? res.Value : "";

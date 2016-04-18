@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Code: ConverterBase
+	public class Code
+		: ConverterBase
 	{
-		public Code(Converter converter):base(converter)
+		public Code(Converter converter)
+			: base(converter)
 		{
 			this.Converter.Register("code", this);
 		}
