@@ -225,6 +225,17 @@ Next line of text";
 		}
 
 		[Fact]
+		public void WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre()
+		{
+			const string html = @"This text has pre tag content <pre><br/ ></pre>Next line of text";
+			const string expected = @"This text has pre tag content 
+
+
+Next line of text";
+			CheckConversion(html, expected);
+		}
+
+		[Fact]
 		public void WhenThereIsUnorderedList_ThenConvertToMarkdownList()
 		{
 			const string html = @"This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>";

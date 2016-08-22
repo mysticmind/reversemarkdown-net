@@ -29,7 +29,7 @@ namespace ReverseMarkdown.Converters
 				var lines = node.InnerText.ReadLines().Select(item => "    " + item + Environment.NewLine);
 
 				// join all the lines to a single line
-				var result = lines.Aggregate((curr, next) => curr + next);
+				var result = lines.Aggregate(string.Empty, (curr, next) => curr + next);
 
 				return Environment.NewLine + Environment.NewLine + result + Environment.NewLine;
 			}
