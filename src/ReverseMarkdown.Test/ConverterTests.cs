@@ -167,6 +167,17 @@ This line appears after break.";
 		}
 
 		[Fact]
+		public void WhenThereIsEmptyBlockquoteTag_ThenConvertToMarkdownBlockquote()
+		{
+			const string html = @"This text has <blockquote></blockquote>. This text appear after header.";
+			const string expected = @"This text has 
+
+
+. This text appear after header.";
+			CheckConversion(html, expected);
+		}
+
+		[Fact]
 		public void WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter()
 		{
 			const string html = @"This text has markup <p>paragraph.</p> Next line of text";
