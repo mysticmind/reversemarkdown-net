@@ -1,4 +1,6 @@
 ﻿
+using System;
+using System.Linq;
 using Xunit;
 
 namespace ReverseMarkdown.Test
@@ -81,8 +83,7 @@ namespace ReverseMarkdown.Test
 		public void WhenThereIsBreakTag_ThenConvertToMarkdownDoubleSpacesCarriagleReturn()
 		{
 			const string html = @"This is a paragraph.<br />This line appears after break.";
-			string expected = @"This is a paragraph.  
-This line appears after break.";
+			string expected = $"This is a paragraph.  {Environment.NewLine}This line appears after break.";
 			CheckConversion(html, expected);
 		}
 
@@ -98,29 +99,23 @@ This line appears after break.";
 		public void WhenThereIsH1Tag_ThenConvertToMarkdownHeader()
 		{
 			const string html = @"This text has <h1>header</h1>. This text appear after header.";
-			const string expected = @"This text has 
-# header
-. This text appear after header.";
-			CheckConversion(html, expected);
+            string expected = $"This text has {Environment.NewLine}# header{Environment.NewLine}. This text appear after header.";
+            CheckConversion(html, expected);
 		}
 
 		[Fact]
 		public void WhenThereIsH2Tag_ThenConvertToMarkdownHeader()
 		{
 			const string html = @"This text has <h2>header</h2>. This text appear after header.";
-			const string expected = @"This text has 
-## header
-. This text appear after header.";
-			CheckConversion(html, expected);
+			string expected = $"This text has {Environment.NewLine}## header{Environment.NewLine}. This text appear after header.";
+            CheckConversion(html, expected);
 		}
 
 		[Fact]
 		public void WhenThereIsH3Tag_ThenConvertToMarkdownHeader()
 		{
 			const string html = @"This text has <h3>header</h3>. This text appear after header.";
-			const string expected = @"This text has 
-### header
-. This text appear after header.";
+			string expected = $"This text has {Environment.NewLine}### header{Environment.NewLine}. This text appear after header.";
 			CheckConversion(html, expected);
 		}
 
@@ -128,29 +123,23 @@ This line appears after break.";
 		public void WhenThereIsH4Tag_ThenConvertToMarkdownHeader()
 		{
 			const string html = @"This text has <h4>header</h4>. This text appear after header.";
-			const string expected = @"This text has 
-#### header
-. This text appear after header.";
-			CheckConversion(html, expected);
+			string expected = $"This text has {Environment.NewLine}#### header{Environment.NewLine}. This text appear after header.";
+            CheckConversion(html, expected);
 		}
 
 		[Fact]
 		public void WhenThereIsH5Tag_ThenConvertToMarkdownHeader()
 		{
 			const string html = @"This text has <h5>header</h5>. This text appear after header.";
-			const string expected = @"This text has 
-##### header
-. This text appear after header.";
-			CheckConversion(html, expected);
+            string expected = $"This text has {Environment.NewLine}##### header{Environment.NewLine}. This text appear after header.";
+            CheckConversion(html, expected);
 		}
 
 		[Fact]
 		public void WhenThereIsH6Tag_ThenConvertToMarkdownHeader()
 		{
 			const string html = @"This text has <h6>header</h6>. This text appear after header.";
-			const string expected = @"This text has 
-###### header
-. This text appear after header.";
+			string expected = $"This text has {Environment.NewLine}###### header{Environment.NewLine}. This text appear after header.";
 			CheckConversion(html, expected);
 		}
 
@@ -158,11 +147,7 @@ This line appears after break.";
 		public void WhenThereIsBlockquoteTag_ThenConvertToMarkdownBlockquote()
 		{
 			const string html = @"This text has <blockquote>blockquote</blockquote>. This text appear after header.";
-			const string expected = @"This text has 
-
-> blockquote
-
-. This text appear after header.";
+			string expected = $"This text has {Environment.NewLine}{Environment.NewLine}> blockquote{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
 			CheckConversion(html, expected);
 		}
 
@@ -170,10 +155,7 @@ This line appears after break.";
 		public void WhenThereIsEmptyBlockquoteTag_ThenConvertToMarkdownBlockquote()
 		{
 			const string html = @"This text has <blockquote></blockquote>. This text appear after header.";
-			const string expected = @"This text has 
-
-
-. This text appear after header.";
+			string expected = $"This text has {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
 			CheckConversion(html, expected);
 		}
 
@@ -181,11 +163,7 @@ This line appears after break.";
 		public void WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter()
 		{
 			const string html = @"This text has markup <p>paragraph.</p> Next line of text";
-			const string expected = @"This text has markup 
-
-paragraph.
-
- Next line of text";
+			string expected = $"This text has markup {Environment.NewLine}{Environment.NewLine}paragraph.{Environment.NewLine}{Environment.NewLine} Next line of text";
 			CheckConversion(html, expected);
 		}
 
@@ -193,9 +171,7 @@ paragraph.
 		public void WhenThereIsHorizontalRule_ThenConvertToMarkdownHorizontalRule()
 		{
 			const string html = @"This text has horizontal rule.<hr/>Next line of text";
-			const string expected = @"This text has horizontal rule.
-* * *
-Next line of text";
+			string expected = $"This text has horizontal rule.{Environment.NewLine}* * *{Environment.NewLine}Next line of text";
 			CheckConversion(html, expected);
 		}
 
@@ -227,11 +203,7 @@ Next line of text";
 		public void WhenThereIsPreTag_ThenConvertToMarkdownPre()
 		{
 			const string html = @"This text has pre tag content <pre>Predefined text</pre>Next line of text";
-			const string expected = @"This text has pre tag content 
-
-    Predefined text
-
-Next line of text";
+			string expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}    Predefined text{Environment.NewLine}{Environment.NewLine}Next line of text";
 			CheckConversion(html, expected);
 		}
 
@@ -239,10 +211,7 @@ Next line of text";
 		public void WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre()
 		{
 			const string html = @"This text has pre tag content <pre><br/ ></pre>Next line of text";
-			const string expected = @"This text has pre tag content 
-
-
-Next line of text";
+			string expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Next line of text";
 			CheckConversion(html, expected);
 		}
 
@@ -250,11 +219,7 @@ Next line of text";
 		public void WhenThereIsUnorderedList_ThenConvertToMarkdownList()
 		{
 			const string html = @"This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>";
-			const string expected = @"This text has unordered list.
-- Item1
-- Item2
-
-";
+			string expected = $"This text has unordered list.{Environment.NewLine}- Item1{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
@@ -262,11 +227,7 @@ Next line of text";
 		public void WhenThereIsOrderedList_ThenConvertToMarkdownList()
 		{
 			const string html = @"This text has ordered list.<ol><li>Item1</li><li>Item2</li></ol>";
-			const string expected = @"This text has ordered list.
-1. Item1
-2. Item2
-
-";
+			string expected = $"This text has ordered list.{Environment.NewLine}1. Item1{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
@@ -274,12 +235,7 @@ Next line of text";
 		public void WhenThereIsOrderedListWithNestedUnorderedList_ThenConvertToMarkdownListWithNestedList()
 		{
 			const string html = @"This text has ordered list.<ol><li><ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
-			const string expected = @"This text has ordered list.
-1. - InnerItem1
- - InnerItem2
-2. Item2
-
-";
+			string expected = $"This text has ordered list.{Environment.NewLine}1. - InnerItem1{Environment.NewLine} - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
@@ -287,12 +243,7 @@ Next line of text";
 		public void WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList()
 		{
 			const string html = @"This text has ordered list.<ul><li><ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
-			const string expected = @"This text has ordered list.
-- 1. InnerItem1
- 2. InnerItem2
-- Item2
-
-";
+			string expected = $"This text has ordered list.{Environment.NewLine}- 1. InnerItem1{Environment.NewLine} 2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
@@ -300,45 +251,23 @@ Next line of text";
 		public void WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_TheConvertToMarkdownListItemWithSpacesAndTabsStripped()
 		{
 			const string html = @"<ol><li>	    This is a text with leading and trailing spaces and tabs		</li></ol>";
-			const string expected = @"
-1. This is a text with leading and trailing spaces and tabs
-
-";
+			string expected = $"{Environment.NewLine}1. This is a text with leading and trailing spaces and tabs{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
 		[Fact]
 		public void WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown()
 		{
-			const string html = @"<ol>
-	<li>
-		<strong>Item1</strong></li>
-	<li>
-		Item2</li></ol>";
-			const string expected = @"
-1. **Item1**
-2. Item2
-
-";
+			string html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
+			string expected = $"{Environment.NewLine}1. **Item1**{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
 		[Fact]
 		public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
 		{
-			const string html = @"<ol>
-	<li>
-		<p>Item1</p>
-        <p>Item2</p></li>
-	<li>
-		<p>Item3</p></li></ol>";
-			const string expected = @"
-1. Item1
-
-    Item2
-2. Item3
-
-";
+			string html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
+			string expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
 			CheckConversion(html, expected);
 		}
 
