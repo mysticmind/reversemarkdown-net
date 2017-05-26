@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Reflection;
 using HtmlAgilityPack;
-
 using ReverseMarkdown.Converters;
 
 namespace ReverseMarkdown
@@ -19,17 +18,17 @@ namespace ReverseMarkdown
 		{
 		}
 
-		public Converter(Config config)
-		{
-			this._config = config;
+        public Converter(Config config)
+        {
+            this._config = config;
 
-			foreach (Type ctype in System.Reflection.Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IConverter)) && !t.IsAbstract))
-			{
-				Activator.CreateInstance(ctype, this);
-			}
-		}
+            foreach (Type ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes().Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && !t.GetTypeInfo().IsAbstract))
+            {
+                Activator.CreateInstance(ctype, this);
+            }
+        }
 
-		public Config Config 
+        public Config Config 
 		{
 			get { return this._config; }
 		}

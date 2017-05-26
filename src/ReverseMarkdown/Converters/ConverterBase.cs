@@ -1,6 +1,4 @@
 ﻿
-using System.Web;
-
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -51,7 +49,7 @@ namespace ReverseMarkdown.Converters
 
 		public string DecodeHtml(string html)
 		{
-			return HttpUtility.HtmlDecode(html);
+			return System.Net.WebUtility.HtmlDecode(html);
 		}
 
 		public abstract string Convert(HtmlNode node); 
