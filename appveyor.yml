@@ -25,7 +25,6 @@ after_build:
   - dotnet pack .\src\ReverseMarkdown --configuration Release /p:Version=%TARGET_BUILD_VERSION%
 
 test_script:
-  - npm run test
   - dotnet test .\src\ReverseMarkdown.Test\ReverseMarkdown.Test.csproj --configuration Release
 
 artifacts:
