@@ -14,6 +14,11 @@ environment:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   TARGET_BUILD_VERSION: '1.0.0-beta1'
 
+nuget:
+  account_feed: true
+  project_feed: true
+  disable_publish_on_pr: true
+
 before_build:
 - dotnet --info
 - dotnet restore .\src\ReverseMarkdown.sln
@@ -30,9 +35,8 @@ test_script:
 artifacts:
   - path: '**\ReverseMarkdown.*.nupkg' # find all NuGet packages recursively
 
-# Deploying to NuGet feed  
-# deploy:
-#  - provider: NuGet
-#    api_key:
-#     secure: 1XMgADnmiLunXwBT7K0CMDcHyoC5tUFE4Cf+X7VkuzoRZiWnIL2P9mP7oPEtGPHg
-#    skip_symbols: true
+deploy:
+ - provider: NuGet
+   api_key:
+    secure: 1XMgADnmiLunXwBT7K0CMDcHyoC5tUFE4Cf+X7VkuzoRZiWnIL2P9mP7oPEtGPHg
+   skip_symbols: true
