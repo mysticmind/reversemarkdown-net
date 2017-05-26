@@ -36,8 +36,8 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Copyright
 
-Copyright © 2015 Babu Annamalai
+Copyright © 2017 Babu Annamalai
 
 ## License
 
-ReverseMarkdown is licensed under [MIT](http://www.opensource.org/licenses/mit-license.php "Read more about the MIT license form"). Refer to license.txt for more information.
+ReverseMarkdown is licensed under [MIT](http://www.opensource.org/licenses/mit-license.php "Read more about the MIT license form"). Refer to [License file](https://github.com/mysticmind/reversemarkdown-net/blob/master/LICENSE) for more information.
