@@ -11,7 +11,7 @@ branches:
 
 before_build:
 - dotnet --info
-- dotnet restore .src\ReverseMarkdown.sln
+- dotnet restore .\src\ReverseMarkdown.sln
 
 build_script:
 - dotnet build .\src\ReverseMarkdown.sln --configuration Release /p:Version=%APPVEYOR_BUILD_VERSION%
