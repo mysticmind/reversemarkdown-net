@@ -15,8 +15,6 @@ environment:
   TARGET_BUILD_VERSION: '1.0.0-beta1'
 
 nuget:
-  account_feed: true
-  project_feed: true
   disable_publish_on_pr: true
 
 before_build:
