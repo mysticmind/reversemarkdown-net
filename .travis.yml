@@ -1,0 +1,18 @@
+language: csharp
+sudo: required
+dist: trusty
+mono: none
+dotnet: 1.0.3
+
+branches:
+  only:
+    - travisci_integration
+
+before_script:
+  - export DOTNET_CLI_TELEMETRY_OPTOUT=1
+  - export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+
+script:
+  - dotnet restore ./src/ReverseMarkdown.sln --runtime netstandard1.6
+  - dotnet build ./src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework netcoreapp1.0 --configuration Release
+  - dotnet test ./src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework netcoreapp1.0 --configuration Release
