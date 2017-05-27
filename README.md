@@ -1,12 +1,12 @@
 # Meet ReverseMarkdown
 
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/xse0bia9olr5shxr?svg=true)](https://ci.appveyor.com/project/BabuAnnamalai/reversemarkdown-net) [![Windows Build status](https://api.travis-ci.org/mysticmind/reversemarkdown-net.svg)](https://travis-ci.org/mysticmind/reversemarkdown-net) [![NuGet Version](http://img.shields.io/nuget/v/ReverseMarkdown.svg?style=flat)](https://www.nuget.org/packages/ReverseMarkdown/) [![NuGet Pre-release Version](https://img.shields.io/nuget/vpre/ReverseMarkdown.svg?style=flat)](https://www.nuget.org/packages/ReverseMarkdown/1.0.0-beta1)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/xse0bia9olr5shxr?svg=true)](https://ci.appveyor.com/project/BabuAnnamalai/reversemarkdown-net) [![Windows Build status](https://api.travis-ci.org/mysticmind/reversemarkdown-net.svg)](https://travis-ci.org/mysticmind/reversemarkdown-net) [![NuGet Version](http://img.shields.io/nuget/v/ReverseMarkdown.svg?style=flat)](https://www.nuget.org/packages/ReverseMarkdown/)
 
 ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since HtmlAgilityPack (HAP) library is used for traversing the Html DOM.
 
 Note that the library implementation is based on the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
-> A new pre-release version is available in nuget which targets .Net 4.5, .Net 4.6 and .Net Standard 1.6
+> A new release version is available in nuget which targets .Net 4.5, .Net 4.6 and .Net Standard 1.6
 
 ## Usage
 
