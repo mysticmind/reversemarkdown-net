@@ -1,20 +1,20 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-
 using HtmlAgilityPack;
+using static System.String;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Text
-		: ConverterBase
-	{
-		private Dictionary<string, string> _escapedKeyChars = new Dictionary<string, string>();
+    public class Text
+        : ConverterBase
+    {
+        private readonly Dictionary<string, string> _escapedKeyChars = new Dictionary<string, string>();
 
-		public Text(Converter converter)
-			: base(converter)
-		{
-			/*
+        public Text(Converter converter)
+            : base(converter)
+        {
+            /*
 			this._escapedKeyChars.Add("\\",@"\\");
 			this._escapedKeyChars.Add("`",@"\`");
 			this._escapedKeyChars.Add("*",@"\*");
@@ -31,81 +31,61 @@ namespace ReverseMarkdown.Converters
 			this._escapedKeyChars.Add("!",@"\!");
 			 */
 
-			this._escapedKeyChars.Add("*", @"\*");
-			this._escapedKeyChars.Add("_", @"\_");
+            _escapedKeyChars.Add("*", @"\*");
+            _escapedKeyChars.Add("_", @"\_");
 
-			this.Converter.Register("#text", this);
-		}
+            Converter.Register("#text", this);
+        }
 
-		public override string Convert(HtmlNode node)
-		{
-			string content = "";
+        public override string Convert(HtmlNode node)
+        {
+            return node.InnerText.Trim()?.Length == 0 ? TreatEmpty(node) : TreatText(node);
+        }
 
-			if (node.InnerText.Trim() == string.Empty)
-				content = TreatEmpty(node);
-			else
-				content = TreatText(node);
+        private static string TreatEmpty(HtmlNode node)
+        {
+            var parent = node.ParentNode;
+            if (parent.Name == "ol" || parent.Name == "ul")
+                return Empty;
 
-			return content;
-		}
+            return node.InnerText == " " ? " " : Empty;
+        }
 
-		private string TreatEmpty(HtmlNode node)
-		{
-			string content = "";
+        private string TreatText(HtmlNode node)
+        {
+            var content = DecodeHtml(node.InnerText)
+                .Replace("\r", Empty)
+                .Replace("\n", Empty);
 
-			HtmlNode parent = node.ParentNode;
-			if (parent.Name == "ol" || parent.Name == "ul")
-			{
-				content = "";
-			}
-			else if(node.InnerText == " ")
-			{
-				content = " ";
-			}
-			
-			return content;
-		}
+            //strip leading spaces and tabs for text within list item
+            var parent = node.ParentNode;
+            if (parent.Name == "ol" || parent.Name == "ul")
+                content = content.Trim();
 
-		private string TreatText(HtmlNode node)
-		{
-			string content = this.DecodeHtml(node.InnerText);
-			content = content.Replace("\r", "");
-			content = content.Replace("\n", "");
+            content = EscapeKeyChars(content);
 
-			//strip leading spaces and tabs for text within list item 
-			HtmlNode parent = node.ParentNode;
-			if (parent.Name == "ol" || parent.Name == "ul")
-			{
-				content = content.Trim();
-			}
+            content = PreserveKeyCharswithinBackTicks(content);
 
-			content =  this.EscapeKeyChars(content);
-			
-			content = this.PreserveKeyCharswithinBackTicks(content);
+            return content;
+        }
 
-			return content;
-		}
+        private string EscapeKeyChars(string content)
+        {
+            return _escapedKeyChars.Aggregate(
+                content,
+                (current, item) => current.Replace(item.Key, item.Value));
+        }
 
-		private string EscapeKeyChars(string content)
-		{
-			foreach(var item in this._escapedKeyChars)
-			{
-				content = content.Replace(item.Key, item.Value);
-			}
-			
-			return content;
-		}
-		
-		private string PreserveKeyCharswithinBackTicks(string content)
-		{
-			Regex rx = new Regex("`.*?`");
+        private static string PreserveKeyCharswithinBackTicks(string content)
+        {
+            var regex = new Regex("`.*?`", RegexOptions.Compiled);
 
-			content = rx.Replace(content, (Match p) =>
-			{
-				return p.Value.Replace(@"\*", "*").Replace(@"\_", "_");
-			});
+            content = regex.Replace(content, p => p
+                .Value
+                .Replace(@"\*", "*")
+                .Replace(@"\_", "_"));
 
-			return content;
-		}
-	}
+            return content;
+        }
+    }
 }

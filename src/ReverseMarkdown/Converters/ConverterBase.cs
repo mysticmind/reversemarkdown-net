@@ -1,57 +1,47 @@
-﻿
+﻿using System.Linq;
 using HtmlAgilityPack;
+using static System.Net.WebUtility;
+using static System.String;
 
 namespace ReverseMarkdown.Converters
 {
-	public abstract class ConverterBase
-		: IConverter
-	{
-		private Converter _converter;
+    public abstract class ConverterBase
+        : IConverter
+    {
+        protected ConverterBase(Converter converter)
+        {
+            Converter = converter;
+        }
 
-		public ConverterBase(Converter converter) 
-		{
-			this._converter = converter;
-		}
+        protected Converter Converter { get; }
 
-		protected Converter Converter 
-		{
-			get 
-			{
-				return this._converter;
-			}
-		}
+        public abstract string Convert(HtmlNode node);
 
-		public string TreatChildren(HtmlNode node)
-		{
-			string result = string.Empty;
+        public string TreatChildren(HtmlNode node)
+        {
 
-			if (node.HasChildNodes)
-			{
-				foreach(HtmlNode nd in node.ChildNodes)
-				{
-					result += this.Treat(nd);
-				}
-			}
+            // TreatChildren is one of the most frequently called routines so it needs to maximally optimized.
 
-			return result;
-		}
+            return !node.HasChildNodes
+                ? Empty
+                : node
+                    .ChildNodes
+                    .Aggregate(Empty, (current, nd) => current + Treat(nd));
+        }
 
-		public string Treat(HtmlNode node) {
-			return this.Converter.Lookup(node.Name).Convert(node);
-		}
+        public string Treat(HtmlNode node)
+        {
+            return Converter.Lookup(node.Name).Convert(node);
+        }
 
-		public string ExtractTitle(HtmlNode node)
-		{
-			string title = node.GetAttributeValue("title", "");
+        public string ExtractTitle(HtmlNode node)
+        {
+            return node.GetAttributeValue("title", Empty);
+        }
 
-			return title;
-		}
-
-		public string DecodeHtml(string html)
-		{
-			return System.Net.WebUtility.HtmlDecode(html);
-		}
-
-		public abstract string Convert(HtmlNode node); 
-	}
+        public string DecodeHtml(string html)
+        {
+            return HtmlDecode(html);
+        }
+    }
 }

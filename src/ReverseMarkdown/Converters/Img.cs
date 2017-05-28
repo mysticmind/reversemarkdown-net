@@ -1,26 +1,28 @@
-﻿
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
+using static System.String;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Img
-		: ConverterBase
-	{
-		public Img(Converter converter)
-			: base(converter)
-		{
-			this.Converter.Register("img", this);
-		}
+    public class Img
+        : ConverterBase
+    {
+        public Img(Converter converter)
+            : base(converter)
+        {
+            Converter.Register("img", this);
+        }
 
-		public override string Convert(HtmlNode node)
-		{
-			string alt = node.GetAttributeValue("alt", string.Empty);
-			string src = node.GetAttributeValue("src", string.Empty);
-			string title = this.ExtractTitle(node);
+        public override string Convert(HtmlNode node)
+        {
+            var alt = node.GetAttributeValue("alt", Empty);
+            var src = node.GetAttributeValue("src", Empty);
+            var title = ExtractTitle(node);
 
-			title = title.Length > 0 ? string.Format(" \"{0}\"", title) : "";
+            title = title.Length > 0
+                ? $" \"{title}\""
+                : Empty;
 
-			return string.Format("![{0}]({1}{2})", alt, src, title);
-		}
-	}
+            return $"![{alt}]({src}{title})";
+        }
+    }
 }
