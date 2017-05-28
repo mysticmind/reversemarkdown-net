@@ -2,17 +2,19 @@
   <PropertyGroup>
     <RootNamespace>ReverseMarkdown.Test</RootNamespace>
     <AssemblyName>ReverseMarkdown.Test</AssemblyName>
-    <TargetFrameworks>netcoreapp1.0;net45;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.1;netstandard1.6;net46</TargetFrameworks>
     <PackageId>ReverseMarkdown.Test</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.2.0-beta5-build3474" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta5-build1225" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
   </ItemGroup>
+
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>

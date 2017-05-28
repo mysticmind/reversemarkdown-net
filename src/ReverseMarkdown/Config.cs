@@ -1,29 +1,19 @@
-﻿
-namespace ReverseMarkdown
+﻿namespace ReverseMarkdown
 {
-	public class Config
-	{
-		private string _unknownTagsConverter = "pass_through";
-		private bool _githubFlavored = false;
-		
-		public Config()
-		{
-		}
+    public class Config
+    {
+        public Config()
+        {
+        }
 
-		public Config(string unknownTagsConverter="pass_through", bool githubFlavored=false)
-		{
-			this._unknownTagsConverter = unknownTagsConverter;
-			this._githubFlavored = githubFlavored;
-		}
+        public Config(string unknownTagsConverter = MagicStrings.PassThrough, bool githubFlavored = false)
+        {
+            UnknownTagsConverter = unknownTagsConverter;
+            GithubFlavored = githubFlavored;
+        }
 
-		public string UnknownTagsConverter
-		{
-			get { return this._unknownTagsConverter; }
-		}
+        public string UnknownTagsConverter { get; } = MagicStrings.PassThrough;
 
-		public bool GithubFlavored
-		{
-			get { return this._githubFlavored; }
-		}
-	}
+        public bool GithubFlavored { get; }
+    }
 }

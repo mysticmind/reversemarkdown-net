@@ -1,23 +1,22 @@
-﻿
-using System;
+﻿using static System.Environment;
+using static System.String;
 
 namespace ReverseMarkdown
 {
-	public class Cleaner
-	{
-		private string CleanTagBorders(string content)
-		{
-			// content from some htl editors such as CKEditor emits newline and tab between tags, clean that up
-			content = content.Replace("\n\t", "");
-			content = content.Replace(Environment.NewLine + "\t", "");
-			return content;
-		}
+    public class Cleaner
+    {
+        private static string CleanTagBorders(string content)
+        {
+            // content from some htl editors such as CKEditor emits newline and tab between tags, clean that up
 
-		public string PreTidy(string content)
-		{
-			content = this.CleanTagBorders(content);
+            return content
+                .Replace("\n\t", Empty)
+                .Replace(Format("{0}\t", NewLine), Empty);
+        }
 
-			return content;
-		}
-	}
+        public string PreTidy(string content)
+        {
+            return CleanTagBorders(content);
+        }
+    }
 }

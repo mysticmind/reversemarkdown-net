@@ -1,23 +1,21 @@
-﻿
-using System;
-
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
+using static System.Environment;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Ol
-		: ConverterBase
-	{
-		public Ol(Converter converter)
-			: base(converter)
-		{
-			this.Converter.Register("ol", this);
-			this.Converter.Register("ul", this);
-		}
+    public class Ol
+        : ConverterBase
+    {
+        public Ol(Converter converter)
+            : base(converter)
+        {
+            Converter.Register("ol", this);
+            Converter.Register("ul", this);
+        }
 
-		public override string Convert(HtmlNode node)
-		{
-			return Environment.NewLine + this.TreatChildren(node) + Environment.NewLine;
-		}
-	}
+        public override string Convert(HtmlNode node)
+        {
+            return $"{NewLine}{TreatChildren(node)}{NewLine}";
+        }
+    }
 }
