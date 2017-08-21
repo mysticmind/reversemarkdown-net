@@ -6,6 +6,15 @@ namespace ReverseMarkdown.Test
 {
 	public class ConverterTests
 	{
+		
+		[Fact]
+		public void WhenThereIsAsideTag()
+		{
+			const string html = @"<aside>This text is in an aside tag.</aside> This text appears after aside.";
+			const string expected = $"{Environment.NewLine}This text is in an aside tag.{Environment.NewLine} This text appears after aside.";
+			CheckConversion(html, expected);
+		}
+		
 		[Fact]
 		public void WhenThereIsHtmlLink_ThenConvertToMarkdownLink()
 		{
