@@ -11,6 +11,6 @@
     <PackageLicenseUrl>https://github.com/mysticmind/reversemarkdown-net/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MysticMind.HtmlAgilityPack" Version="1.4.9.4" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.5.5" />
   </ItemGroup>
 </Project>
