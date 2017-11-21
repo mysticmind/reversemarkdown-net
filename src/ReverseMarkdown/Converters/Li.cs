@@ -41,7 +41,7 @@ namespace ReverseMarkdown.Converters
 		private string IndentationFor(HtmlNode node)
 		{
 			int length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-			return new string(' ', Math.Max(length-1,0));
+			return new string(' ', Math.Max(length-1,0)*2);
 		}
 	}
 }
