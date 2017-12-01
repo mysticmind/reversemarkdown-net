@@ -26,7 +26,7 @@ string result = converter.Convert(html);
 // with config
 string unknownTagsConverter = "pass_through";
 bool githubFlavored = true;
-var config = new ReverMarkdown.Config(unknownTagsConverter, githubFlavoured);
+var config = new ReverseMarkdown.Config(unknownTagsConverter, githubFlavoured);
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
