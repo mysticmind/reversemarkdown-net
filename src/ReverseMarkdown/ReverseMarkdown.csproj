@@ -9,6 +9,7 @@
     <PackageId>ReverseMarkdown</PackageId>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/mysticmind/reversemarkdown-net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.5.5" />
