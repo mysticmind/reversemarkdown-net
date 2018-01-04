@@ -24,11 +24,18 @@ string result = converter.Convert(html);
 
 ```csharp
 // with config
-string unknownTagsConverter = "pass_through";
+string unknownTags = "pass_through";
 bool githubFlavored = true;
-var config = new ReverMarkdown.Config(unknownTagsConverter, githubFlavoured);
+var config = new ReverMarkdown.Config(unknownTags, githubFlavoured);
 var converter = new ReverseMarkdown.Converter(config);
 ```
+
+### UnknownTags config (default pass_through) - how to handle unknown tags. 
+Valid options are:
+* pass_through - Include the unknown tag completely into the result
+* drop - Drop the unknown tag and its content
+* bypass - Ignore the unknown tag but try to convert its content
+* raise - Raise an error to let you know
 
 ## Features
 * Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
