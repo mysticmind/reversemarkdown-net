@@ -25,7 +25,7 @@ namespace ReverseMarkdown
         {
             this._config = config;
 
-            var unknownTagsConfigOptions = new List<string>() { "pass_through", "drop", "bypass", "throw" };
+            var unknownTagsConfigOptions = new List<string>() { "pass_through", "drop", "bypass", "raise" };
 
             // check if the passed unknown tags config is valid
             if (!unknownTagsConfigOptions.Contains(this._config.UnknownTags))

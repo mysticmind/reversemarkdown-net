@@ -313,10 +313,10 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void Check_Converter_With_Unknown_Tag_Throw_Option()
+        public void Check_Converter_With_Unknown_Tag_Raise_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var config = new Config("throw");
+            var config = new Config("raise");
             var converter = new Converter(config);
             Exception ex = Assert.Throws<UnknownTagException>(() => converter.Convert(html));
             Assert.Equal("Unknown tag: unknown-tag", ex.Message);
@@ -327,7 +327,7 @@ namespace ReverseMarkdown.Test
         {
             var config = new Config("invalid_option");
             Exception ex = Assert.Throws<InvalidConfigurationException>(() => new Converter(config));
-            Assert.Equal("Invalid UnknownTags config: valid values are pass_through,drop,bypass,throw", ex.Message);
+            Assert.Equal("Invalid UnknownTags config: valid values are pass_through,drop,bypass,raise", ex.Message);
         }
 
         private static void CheckConversion(string html, string expected)
