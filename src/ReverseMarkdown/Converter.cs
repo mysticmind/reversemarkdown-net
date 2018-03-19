@@ -11,7 +11,10 @@ namespace ReverseMarkdown
 	public class Converter
 	{
 		private IDictionary<string, IConverter> _converters = new Dictionary<string, IConverter>();
-		private Config _config;
+        private IConverter _passThroughTagsConverter;
+        private IConverter _dropTagsConverter;
+        private IConverter _byPassTagsConverter;
+        private Config _config;
 
 		public Converter()
 			: this(new Config())
@@ -22,10 +25,29 @@ namespace ReverseMarkdown
         {
             this._config = config;
 
-            foreach (Type ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes().Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && !t.GetTypeInfo().IsAbstract))
+            var unknownTagsConfigOptions = new List<string>() { "pass_through", "drop", "bypass", "raise" };
+
+            // check if the passed unknown tags config is valid
+            if (!unknownTagsConfigOptions.Contains(this._config.UnknownTags))
+            {
+                throw new InvalidConfigurationException($"Invalid UnknownTags config: valid values are {string.Join(",", unknownTagsConfigOptions.ToArray())}");
+            }
+
+            // instanciate all converters excluding the unknown tags converters
+            foreach (Type ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes()
+                .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && 
+                !t.GetTypeInfo().IsAbstract
+                && t != typeof(PassThrough)
+                && t != typeof(Drop)
+                && t != typeof(ByPass)))
             {
                 Activator.CreateInstance(ctype, this);
             }
+
+            // register the unknown tags converters
+            _passThroughTagsConverter = new PassThrough(this);
+            _dropTagsConverter = new Drop(this);
+            _byPassTagsConverter = new ByPass(this);
         }
 
         public Config Config 
@@ -66,16 +88,16 @@ namespace ReverseMarkdown
 
 		protected IConverter GetDefaultConverter(string tagName)
 		{
-			switch (this._config.UnknownTagsConverter)
+			switch (this._config.UnknownTags)
 			{
 				case "pass_through":
-					return new PassThrough(this);
-				case "drop":
-					return new Drop(this);
-				case "bypass":
-					return new ByPass(this);
+                    return _passThroughTagsConverter;
+                case "drop":
+                    return _dropTagsConverter;
+                case "bypass":
+					return _byPassTagsConverter;
 				default:
-					throw new Exception(string.Format("Unknown tag: {0}", tagName));
+                    throw new UnknownTagException(tagName);
 			}
 		}
 	}
