@@ -284,7 +284,7 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag>";
             const string expected = "text in unknown tag";
-            var config = new Config("bypass");
+            var config = new Config(Config.UnknownTagsOption.Bypass);
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal<string>(expected, result);
@@ -295,7 +295,7 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
             string expected = $"{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
-            var config = new Config("drop");
+            var config = new Config(Config.UnknownTagsOption.Drop);
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal<string>(expected, result);
@@ -306,7 +306,7 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
             string expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
-            var config = new Config("pass_through");
+            var config = new Config(Config.UnknownTagsOption.PassThrough);
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal<string>(expected, result);
@@ -316,23 +316,23 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_Raise_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var config = new Config("raise");
+            var config = new Config(Config.UnknownTagsOption.Raise);
             var converter = new Converter(config);
             Exception ex = Assert.Throws<UnknownTagException>(() => converter.Convert(html));
             Assert.Equal("Unknown tag: unknown-tag", ex.Message);
         }
 
-        [Fact]
-        public void Check_Converter_With_UnknownTags_Invalid_Option_Value()
-        {
-            var config = new Config("invalid_option");
-            Exception ex = Assert.Throws<InvalidConfigurationException>(() => new Converter(config));
-            Assert.Equal("Invalid UnknownTags config: valid values are pass_through,drop,bypass,raise", ex.Message);
-        }
+        //[Fact]
+        //public void Check_Converter_With_UnknownTags_Invalid_Option_Value()
+        //{
+        //    var config = new Config("invalid_option");
+        //    Exception ex = Assert.Throws<InvalidConfigurationException>(() => new Converter(config));
+        //    Assert.Equal("Invalid UnknownTags config: valid values are pass_through,drop,bypass,raise", ex.Message);
+        //}
 
         private static void CheckConversion(string html, string expected)
 		{
-            var config = new Config("drop");
+            var config = new Config(Config.UnknownTagsOption.Drop);
 			var converter = new Converter();
 			var result = converter.Convert(html);
 			Assert.Equal<string>(expected, result);

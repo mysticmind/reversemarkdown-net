@@ -25,14 +25,6 @@ namespace ReverseMarkdown
         {
             this._config = config;
 
-            var unknownTagsConfigOptions = new List<string>() { "pass_through", "drop", "bypass", "raise" };
-
-            // check if the passed unknown tags config is valid
-            if (!unknownTagsConfigOptions.Contains(this._config.UnknownTags))
-            {
-                throw new InvalidConfigurationException($"Invalid UnknownTags config: valid values are {string.Join(",", unknownTagsConfigOptions.ToArray())}");
-            }
-
             // instanciate all converters excluding the unknown tags converters
             foreach (Type ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && 
@@ -90,11 +82,11 @@ namespace ReverseMarkdown
 		{
 			switch (this._config.UnknownTags)
 			{
-				case "pass_through":
+				case Config.UnknownTagsOption.PassThrough:
                     return _passThroughTagsConverter;
-                case "drop":
+                case Config.UnknownTagsOption.Drop:
                     return _dropTagsConverter;
-                case "bypass":
+                case Config.UnknownTagsOption.Bypass:
 					return _byPassTagsConverter;
 				default:
                     throw new UnknownTagException(tagName);
