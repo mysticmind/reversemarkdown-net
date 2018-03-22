@@ -3,20 +3,20 @@ namespace ReverseMarkdown
 {
 	public class Config
 	{
-		private string _unknownTags = "pass_through";
+		private UnknownTagsOption _unknownTags = UnknownTagsOption.PassThrough;
 		private bool _githubFlavored = false;
 		
 		public Config()
 		{
 		}
 
-		public Config(string unknownTags="pass_through", bool githubFlavored=false)
+		public Config(UnknownTagsOption unknownTags=UnknownTagsOption.PassThrough, bool githubFlavored=false)
 		{
 			this._unknownTags = unknownTags;
 			this._githubFlavored = githubFlavored;
 		}
 
-		public string UnknownTags
+		public UnknownTagsOption UnknownTags
 		{
 			get { return this._unknownTags; }
 		}
@@ -25,5 +25,13 @@ namespace ReverseMarkdown
 		{
 			get { return this._githubFlavored; }
 		}
+
+        public enum UnknownTagsOption
+        {
+            PassThrough,
+            Drop,
+            Bypass,
+            Raise
+        }
 	}
 }
