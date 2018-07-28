@@ -32,7 +32,7 @@ namespace ReverseMarkdown.Converters
 
 		private string UnderlineFor(HtmlNode node)
 		{
-			int colCount = node.ChildNodes.Count();
+			int colCount = node.ChildNodes.Where(child => child.Name.Contains("th")).Count();
 
 			List<string> cols = new List<string>();
 
