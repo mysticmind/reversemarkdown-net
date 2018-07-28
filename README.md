@@ -15,7 +15,7 @@ You can install the package from NuGet using `Install-Package ReverseMarkdown` o
 ```csharp
 var converter = new ReverseMarkdown.Converter();
 
-string html = "This a sample <strong>paragraph</strong> from <a href='http://test.com'">my site</a>";
+string html = @"This a sample <strong>paragraph</strong> from <a href=\"http://test.com\">my site</a>";
 
 string result = converter.Convert(html);
 
