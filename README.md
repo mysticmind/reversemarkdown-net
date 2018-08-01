@@ -6,8 +6,6 @@ ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdo
 
 Note that the library implementation is based on the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
-> A new release version is available in nuget which targets .Net 4.5, .Net 4.6 and .Net Standard 1.6
-
 ## Usage
 
 You can install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself. 
@@ -26,20 +24,23 @@ string result = converter.Convert(html);
 // with config
 string unknownTags = "pass_through";
 bool githubFlavored = true;
-var config = new ReverseMarkdown.Config(unknownTags, githubFlavoured);
+var config = new ReverseMarkdown.Config(UnknownTagsOption.PassThrough, githubFlavoured);
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
-### UnknownTags config (default pass_through) - how to handle unknown tags. 
+### UnknownTags config - how to handle unknown tags. 
 Valid options are:
-* pass_through - Include the unknown tag completely into the result
-* drop - Drop the unknown tag and its content
-* bypass - Ignore the unknown tag but try to convert its content
-* raise - Raise an error to let you know
+* `UnknownTagsOption.PassThrough` - Include the unknown tag completely into the result. This is the default
+* `UnknownTagsOption.Drop` - Drop the unknown tag and its content
+* `UnknownTagsOption.Bypass` - Ignore the unknown tag but try to convert its content
+* `UnknownTagsOption.Raise` - Raise an error to let you know
+
+> Note that UnknownTags config has been changed to an enumeration in v2.0.0 (breaking change)
 
 ## Features
 * Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
 * Can deal with nested lists
+* Github Flavoured Markdown conversion supported for br, pre and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`
 
 ## Copyright
 
