@@ -46,15 +46,15 @@ namespace ReverseMarkdown.Converters
 			string val = node.GetAttributeValue("class", "");
 			var rx = new System.Text.RegularExpressions.Regex("highlight-([a-zA-Z0-9]+)");
 			var res = rx.Match(val);
-			return res.Success ? res.Value : "";
+			return res.Success ? res.Value.Split('-')[1].Replace(";", "").Trim() : "";
 		}
 
 		private string GetLanguageFromConfluenceClassAttribute(HtmlNode node)
 		{
 			string val = node.GetAttributeValue("class", "");
-			var rx = new System.Text.RegularExpressions.Regex(@"brush:\s?(:?.*);");
+			var rx = new System.Text.RegularExpressions.Regex(@"brush:\s?(:?.*)");
 			var res = rx.Match(val);
-			return res.Success ? res.Value : "";
+			return res.Success ? res.Value.Split(':')[1].Replace(";","").Trim() : "";
 		}
 	}
 }

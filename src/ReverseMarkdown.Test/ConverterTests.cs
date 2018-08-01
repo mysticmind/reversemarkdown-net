@@ -256,7 +256,7 @@ namespace ReverseMarkdown.Test
 		}
 
 		[Fact]
-		public void WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_TheConvertToMarkdownListItemWithSpacesAndTabsStripped()
+		public void WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped()
 		{
 			const string html = @"<ol><li>	    This is a text with leading and trailing spaces and tabs		</li></ol>";
 			string expected = $"{Environment.NewLine}1. This is a text with leading and trailing spaces and tabs{Environment.NewLine}{Environment.NewLine}";
@@ -322,13 +322,47 @@ namespace ReverseMarkdown.Test
             Assert.Equal("Unknown tag: unknown-tag", ex.Message);
         }
 
-        //[Fact]
-        //public void Check_Converter_With_UnknownTags_Invalid_Option_Value()
-        //{
-        //    var config = new Config("invalid_option");
-        //    Exception ex = Assert.Throws<InvalidConfigurationException>(() => new Converter(config));
-        //    Assert.Equal("Invalid UnknownTags config: valid values are pass_through,drop,bypass,raise", ex.Message);
-        //}
+        [Fact]
+        public void WhenTable_ThenConvertToGFMTable()
+        {
+            const string html = @"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
+            string expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config(Config.UnknownTagsOption.Bypass);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal<string>(expected, result);
+        }
+
+        [Fact]
+        public void When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR()
+        {
+            const string html = @"First part<br />Second part";
+            string expected = $"First part{Environment.NewLine}Second part";
+
+            var config = new Config(githubFlavored: true);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal<string>(expected, result);
+        }
+
+        [Fact]
+        public void When_PRE_With_GitHubFlavored_Config_ThenConvertToGFM_PRE()
+        {
+            const string html = @"<pre>var test = 'hello world';</pre>";
+            string expected = $"{Environment.NewLine}```{Environment.NewLine}";
+            expected += $"var test = 'hello world';{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}";
+
+            var config = new Config(githubFlavored: true);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal<string>(expected, result);
+        }
 
         private static void CheckConversion(string html, string expected)
 		{
