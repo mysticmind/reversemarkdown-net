@@ -287,7 +287,7 @@ namespace ReverseMarkdown.Test
             var config = new Config(Config.UnknownTagsOption.Bypass);
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal<string>(expected, result);
+            Assert.Equal(expected, result);
         }
 
         [Fact]
@@ -298,7 +298,7 @@ namespace ReverseMarkdown.Test
             var config = new Config(Config.UnknownTagsOption.Drop);
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal<string>(expected, result);
+            Assert.Equal(expected, result);
         }
 
         [Fact]
@@ -309,7 +309,7 @@ namespace ReverseMarkdown.Test
             var config = new Config(Config.UnknownTagsOption.PassThrough);
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal<string>(expected, result);
+            Assert.Equal(expected, result);
         }
 
         [Fact]
@@ -335,7 +335,7 @@ namespace ReverseMarkdown.Test
             var config = new Config(Config.UnknownTagsOption.Bypass);
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal<string>(expected, result);
+            Assert.Equal(expected, result);
         }
 
         [Fact]
@@ -347,7 +347,7 @@ namespace ReverseMarkdown.Test
             var config = new Config(githubFlavored: true);
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal<string>(expected, result);
+            Assert.Equal(expected, result);
         }
 
         [Fact]
@@ -361,7 +361,37 @@ namespace ReverseMarkdown.Test
             var config = new Config(githubFlavored: true);
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal<string>(expected, result);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void When_PRE_With_Confluence_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
+        {
+            const string html = @"<pre class=""brush: python;"">var test = 'hello world';</pre>";
+            string expected = Environment.NewLine;
+            expected += $"```python{ Environment.NewLine}";
+            expected += $"var test = 'hello world';{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}";
+
+            var config = new Config(githubFlavored: true);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void When_PRE_With_Lang_Highlight_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
+        {
+            const string html = @"<pre class=""highlight-python"">var test = 'hello world';</pre>";
+            string expected = Environment.NewLine;
+            expected += $"```python{ Environment.NewLine}";
+            expected += $"var test = 'hello world';{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}";
+
+            var config = new Config(githubFlavored: true);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
         }
 
         private static void CheckConversion(string html, string expected)
@@ -369,7 +399,7 @@ namespace ReverseMarkdown.Test
             var config = new Config(Config.UnknownTagsOption.Drop);
 			var converter = new Converter();
 			var result = converter.Convert(html);
-			Assert.Equal<string>(expected, result);
+			Assert.Equal(expected, result);
 		}
 	}
 }
