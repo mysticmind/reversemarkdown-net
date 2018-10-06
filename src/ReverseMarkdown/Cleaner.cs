@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown
 {
@@ -13,9 +14,21 @@ namespace ReverseMarkdown
 			return content;
 		}
 
-		public string PreTidy(string content)
+        private string RemoveComments(string content)
+        {
+            // optionally remove HTML comment tags from content (i.e `<!-- this is a comment block -->`)
+            content = Regex.Replace(content, @"<!--(\n|.)*-->", "");
+            return content;
+        }
+
+		public string PreTidy(string content, bool removeComments)
 		{
 			content = this.CleanTagBorders(content);
+
+            if (removeComments)
+            {
+                content = this.RemoveComments(content);
+            }
 
 			return content;
 		}
