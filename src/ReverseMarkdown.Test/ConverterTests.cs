@@ -394,12 +394,26 @@ namespace ReverseMarkdown.Test
             Assert.Equal(expected, result);
         }
 
-        private static void CheckConversion(string html, string expected)
+		[Fact]
+		public void WhenRemovedCommentsIsEnabled_CommentsAreRemoved()
+		{
+			const string html = @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
+			string expected = @"Hello there <!-- This wont be removed because it is incomplete";
+
+			var config = new Config(removeComments: true);
+			var converter = new Converter(config);
+			var result = converter.Convert(html);
+			Assert.Equal(expected, result);
+		}
+
+		private static void CheckConversion(string html, string expected)
 		{
             var config = new Config(Config.UnknownTagsOption.Drop);
 			var converter = new Converter();
 			var result = converter.Convert(html);
 			Assert.Equal(expected, result);
 		}
+
+		
 	}
 }
