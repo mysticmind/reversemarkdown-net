@@ -30,7 +30,7 @@ namespace ReverseMarkdown
 
         public bool RemoveComments
         {
-            get { return this._removeComments}
+            get { return this._removeComments; }
         }
 
         public enum UnknownTagsOption
