@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,41 +6,45 @@ using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Tr
-		: ConverterBase
-	{
-		public Tr(Converter converter)
-			: base(converter)
-		{
-			this.Converter.Register("tr", this);
-		}
+    public class Tr : ConverterBase
+    {
+        public Tr(Converter converter) : base(converter)
+        {
+            Converter.Register("tr", this);
+        }
 
-		public override string Convert(HtmlNode node)
-		{
-			string content = this.TreatChildren(node).TrimEnd();
+        public override string Convert(HtmlNode node)
+        {
+            var content = TreatChildren(node).TrimEnd();
+            var underline = "";
+            
+            if (IsTableHeaderRow(node))
+            {
+                underline = UnderlineFor(node);
+            }
 
-			string result = string.Format("|{0}{1}", content, Environment.NewLine);
+            return $"|{content}{Environment.NewLine}{underline}";
+        }
 
-			return IsTableHeaderRow(node) ? result + UnderlineFor(node) : result;
-		}
+        private static bool IsTableHeaderRow(HtmlNode node)
+        {
+            return node.ChildNodes.FindFirst("th") != null;
+        }
 
-		private bool IsTableHeaderRow(HtmlNode node)
-		{
-			return node.ChildNodes.FindFirst("th")!=null;
-		}
+        private string UnderlineFor(HtmlNode node)
+        {
+            var colCount = node.ChildNodes.Count(n => n.Name.Contains("th"));
 
-		private string UnderlineFor(HtmlNode node)
-		{
-			int colCount = node.ChildNodes.Where(child => child.Name.Contains("th")).Count();
+            var cols = new List<string>();
 
-			List<string> cols = new List<string>();
+            for (var i = 0; i < colCount; i++ )
+            {
+                cols.Add("---");
+            }
 
-			for (int i = 0; i < colCount; i++ )
-			{
-				cols.Add("---");
-			}
+            var colsAggregated = cols.Aggregate((item1, item2) => item1 + " | " + item2);
 
-			return "| " + cols.Aggregate((item1,item2) => item1 + " | " + item2) + " |" + Environment.NewLine;
-		}
-	}
+            return $"| {colsAggregated} |{Environment.NewLine}";
+        }
+    }
 }

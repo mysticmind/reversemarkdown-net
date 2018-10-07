@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,25 +7,21 @@ using ReverseMarkdown.Converters;
 
 namespace ReverseMarkdown
 {
-	public class Converter
-	{
-		private IDictionary<string, IConverter> _converters = new Dictionary<string, IConverter>();
-        private IConverter _passThroughTagsConverter;
-        private IConverter _dropTagsConverter;
-        private IConverter _byPassTagsConverter;
-        private Config _config;
+    public class Converter
+    {
+        private readonly IDictionary<string, IConverter> _converters = new Dictionary<string, IConverter>();
+        private readonly IConverter _passThroughTagsConverter;
+        private readonly IConverter _dropTagsConverter;
+        private readonly IConverter _byPassTagsConverter;
 
-		public Converter()
-			: this(new Config())
-		{
-		}
+        public Converter() : this(new Config()) {}
 
         public Converter(Config config)
         {
-            this._config = config;
+            Config = config;
 
             // instanciate all converters excluding the unknown tags converters
-            foreach (Type ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes()
+            foreach (var ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && 
                 !t.GetTypeInfo().IsAbstract
                 && t != typeof(PassThrough)
@@ -42,55 +37,45 @@ namespace ReverseMarkdown
             _byPassTagsConverter = new ByPass(this);
         }
 
-        public Config Config 
-		{
-			get { return this._config; }
-		}
+        public Config Config { get; }
 
-		public string Convert(string html)
-		{
-			var cleaner = new Cleaner();
+        public string Convert(string html)
+        {
+            html = Cleaner.PreTidy(html, Config.RemoveComments);
 
-			html = cleaner.PreTidy(html, this.Config.RemoveComments);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
 
-			HtmlDocument doc = new HtmlDocument();
-			doc.LoadHtml(html);
+            var root = doc.DocumentNode;
 
-			var root = doc.DocumentNode;
+            var result = Lookup(root.Name).Convert(root);
 
-			string result = this.Lookup(root.Name).Convert(root);
+            return result;
+        }
 
-			return result;
-		}
+        public void Register(string tagName, IConverter converter)
+        {
+            _converters[tagName] = converter;
+        }
 
-		public void Register(string tagName, IConverter converter)
-		{
-			_converters.Add(tagName, converter);
-		}
+        public IConverter Lookup(string tagName)
+        {
+            return _converters.ContainsKey(tagName) ? _converters[tagName] : GetDefaultConverter(tagName);
+        }
 
-		public void Unregister(string tagName)
-		{
-			_converters.Remove(tagName);
-		}
-
-		public IConverter Lookup(string tagName)
-		{
-			return this._converters.ContainsKey(tagName) ? this._converters[tagName] : GetDefaultConverter(tagName);
-		}
-
-		protected IConverter GetDefaultConverter(string tagName)
-		{
-			switch (this._config.UnknownTags)
-			{
-				case Config.UnknownTagsOption.PassThrough:
+        private IConverter GetDefaultConverter(string tagName)
+        {
+            switch (Config.UnknownTags)
+            {
+                case Config.UnknownTagsOption.PassThrough:
                     return _passThroughTagsConverter;
                 case Config.UnknownTagsOption.Drop:
                     return _dropTagsConverter;
                 case Config.UnknownTagsOption.Bypass:
-					return _byPassTagsConverter;
-				default:
+                    return _byPassTagsConverter;
+                default:
                     throw new UnknownTagException(tagName);
-			}
-		}
-	}
+            }
+        }
+    }
 }

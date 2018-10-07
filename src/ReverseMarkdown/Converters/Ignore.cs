@@ -1,21 +1,22 @@
-﻿
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Ignore
-		: ConverterBase
-	{
-		public Ignore(Converter converter)
-			: base(converter)
-		{
-			this.Converter.Register("colgroup", this);
-			this.Converter.Register("col", this);
-		}
+    public class Ignore : ConverterBase
+    {
+        public Ignore(Converter converter) : base(converter)
+        {
+            var elements = new [] { "colgroup", "col" };
+            
+            foreach (var element in elements)
+            {
+                Converter.Register(element, this);
+            }
+        }
 
-		public override string Convert(HtmlNode node)
-		{
-			return "";
-		}
-	}
+        public override string Convert(HtmlNode node)
+        {
+            return "";
+        }
+    }
 }

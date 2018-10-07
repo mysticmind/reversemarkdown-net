@@ -11,3 +11,4 @@ _ReSharper.*
 *.Cache
 Thumbs.db
 **/packages
+.idea

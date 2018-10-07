@@ -1,17 +1,15 @@
-﻿
-using System;
+﻿using System;
 using Xunit;
 
 namespace ReverseMarkdown.Test
 {
     public class ConverterTests
     {
-
         [Fact]
         public void WhenThereIsAsideTag()
         {
             const string html = @"<aside>This text is in an aside tag.</aside> This text appears after aside.";
-            string expected = $"{Environment.NewLine}This text is in an aside tag.{Environment.NewLine} This text appears after aside.";
+            var expected = $"{Environment.NewLine}This text is in an aside tag.{Environment.NewLine} This text appears after aside.";
             CheckConversion(html, expected);
         }
 
@@ -91,7 +89,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsBreakTag_ThenConvertToMarkdownDoubleSpacesCarriagleReturn()
         {
             const string html = @"This is a paragraph.<br />This line appears after break.";
-            string expected = $"This is a paragraph.  {Environment.NewLine}This line appears after break.";
+            var expected = $"This is a paragraph.  {Environment.NewLine}This line appears after break.";
             CheckConversion(html, expected);
         }
 
@@ -107,7 +105,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH1Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h1>header</h1>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}# header{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}# header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -115,7 +113,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH2Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h2>header</h2>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}## header{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}## header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -123,7 +121,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH3Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h3>header</h3>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}### header{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -131,7 +129,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH4Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h4>header</h4>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}#### header{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}#### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -139,7 +137,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH5Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h5>header</h5>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}##### header{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}##### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -147,7 +145,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH6Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h6>header</h6>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}###### header{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}###### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -155,7 +153,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsBlockquoteTag_ThenConvertToMarkdownBlockquote()
         {
             const string html = @"This text has <blockquote>blockquote</blockquote>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}{Environment.NewLine}> blockquote{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}{Environment.NewLine}> blockquote{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -163,7 +161,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsEmptyBlockquoteTag_ThenConvertToMarkdownBlockquote()
         {
             const string html = @"This text has <blockquote></blockquote>. This text appear after header.";
-            string expected = $"This text has {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
+            var expected = $"This text has {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -171,7 +169,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter()
         {
             const string html = @"This text has markup <p>paragraph.</p> Next line of text";
-            string expected = $"This text has markup {Environment.NewLine}{Environment.NewLine}paragraph.{Environment.NewLine}{Environment.NewLine} Next line of text";
+            var expected = $"This text has markup {Environment.NewLine}{Environment.NewLine}paragraph.{Environment.NewLine}{Environment.NewLine} Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -179,7 +177,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsHorizontalRule_ThenConvertToMarkdownHorizontalRule()
         {
             const string html = @"This text has horizontal rule.<hr/>Next line of text";
-            string expected = $"This text has horizontal rule.{Environment.NewLine}* * *{Environment.NewLine}Next line of text";
+            var expected = $"This text has horizontal rule.{Environment.NewLine}* * *{Environment.NewLine}Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -211,7 +209,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsPreTag_ThenConvertToMarkdownPre()
         {
             const string html = @"This text has pre tag content <pre>Predefined text</pre>Next line of text";
-            string expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}    Predefined text{Environment.NewLine}{Environment.NewLine}Next line of text";
+            var expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}    Predefined text{Environment.NewLine}{Environment.NewLine}Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -219,7 +217,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre()
         {
             const string html = @"This text has pre tag content <pre><br/ ></pre>Next line of text";
-            string expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Next line of text";
+            var expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -227,7 +225,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsUnorderedList_ThenConvertToMarkdownList()
         {
             const string html = @"This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>";
-            string expected = $"This text has unordered list.{Environment.NewLine}- Item1{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"This text has unordered list.{Environment.NewLine}- Item1{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -235,7 +233,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsOrderedList_ThenConvertToMarkdownList()
         {
             const string html = @"This text has ordered list.<ol><li>Item1</li><li>Item2</li></ol>";
-            string expected = $"This text has ordered list.{Environment.NewLine}1. Item1{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"This text has ordered list.{Environment.NewLine}1. Item1{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -243,7 +241,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsOrderedListWithNestedUnorderedList_ThenConvertToMarkdownListWithNestedList()
         {
             const string html = @"This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
-            string expected = $"This text has ordered list.{Environment.NewLine}1. OuterItem1{Environment.NewLine}  - InnerItem1{Environment.NewLine}  - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"This text has ordered list.{Environment.NewLine}1. OuterItem1{Environment.NewLine}  - InnerItem1{Environment.NewLine}  - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -251,7 +249,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList()
         {
             const string html = @"This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
-            string expected = $"This text has ordered list.{Environment.NewLine}- OuterItem1{Environment.NewLine}  1. InnerItem1{Environment.NewLine}  2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"This text has ordered list.{Environment.NewLine}- OuterItem1{Environment.NewLine}  1. InnerItem1{Environment.NewLine}  2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -259,23 +257,23 @@ namespace ReverseMarkdown.Test
         public void WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped()
         {
             const string html = @"<ol><li>	    This is a text with leading and trailing spaces and tabs		</li></ol>";
-            string expected = $"{Environment.NewLine}1. This is a text with leading and trailing spaces and tabs{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}1. This is a text with leading and trailing spaces and tabs{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown()
         {
-            string html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
-            string expected = $"{Environment.NewLine}1. **Item1**{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
+            var expected = $"{Environment.NewLine}1. **Item1**{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
         {
-            string html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
-            string expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
+            var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
+            var expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -294,7 +292,7 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_Drop_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            string expected = $"{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
             var config = new Config(Config.UnknownTagsOption.Drop);
             var converter = new Converter(config);
             var result = converter.Convert(html);
@@ -305,7 +303,7 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_PassThrough_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            string expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
             var config = new Config(Config.UnknownTagsOption.PassThrough);
             var converter = new Converter(config);
             var result = converter.Convert(html);
@@ -326,7 +324,7 @@ namespace ReverseMarkdown.Test
         public void WhenTable_ThenConvertToGFMTable()
         {
             const string html = @"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
-            string expected = $"{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
             expected += $"| --- | --- | --- |{Environment.NewLine}";
             expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
@@ -342,7 +340,7 @@ namespace ReverseMarkdown.Test
         public void When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR()
         {
             const string html = @"First part<br />Second part";
-            string expected = $"First part{Environment.NewLine}Second part";
+            var expected = $"First part{Environment.NewLine}Second part";
 
             var config = new Config(githubFlavored: true);
             var converter = new Converter(config);
@@ -354,7 +352,7 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre>var test = 'hello world';</pre>";
-            string expected = $"{Environment.NewLine}```{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}```{Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
 
@@ -368,8 +366,8 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_Confluence_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre class=""brush: python;"">var test = 'hello world';</pre>";
-            string expected = Environment.NewLine;
-            expected += $"```python{ Environment.NewLine}";
+            var expected = Environment.NewLine;
+            expected += $"```python{Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
 
@@ -383,7 +381,7 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_Lang_Highlight_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre class=""highlight-python"">var test = 'hello world';</pre>";
-            string expected = Environment.NewLine;
+            var expected = Environment.NewLine;
             expected += $"```python{ Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
@@ -398,7 +396,7 @@ namespace ReverseMarkdown.Test
         public void WhenRemovedCommentsIsEnabled_CommentsAreRemoved()
         {
             const string html = @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
-            string expected = @"Hello there <!-- This wont be removed because it is incomplete";
+            const string expected = @"Hello there <!-- This wont be removed because it is incomplete";
 
             var config = new Config(removeComments: true);
             var converter = new Converter(config);
@@ -408,12 +406,11 @@ namespace ReverseMarkdown.Test
 
         private static void CheckConversion(string html, string expected)
         {
-            var config = new Config(Config.UnknownTagsOption.Drop);
+            if (string.IsNullOrEmpty(expected)) throw new ArgumentNullException(nameof(expected));
+            
             var converter = new Converter();
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
         }
-
-
     }
 }

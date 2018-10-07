@@ -1,22 +1,23 @@
-﻿
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-	public class Td
-		: ConverterBase
-	{
-		public Td(Converter converter)
-			: base(converter)
-		{
-			this.Converter.Register("td", this);
-			this.Converter.Register("th", this);
-		}
+    public class Td : ConverterBase
+    {
+        public Td(Converter converter) : base(converter)
+        {
+            var elements = new [] { "td", "th" };
 
-		public override string Convert(HtmlNode node)
-		{
-			string content = this.TreatChildren(node);
-			return string.Format(" {0} |", content);
-		}
-	}
+            foreach (var element in elements)
+            {
+                Converter.Register(element, this);
+            }
+        }
+
+        public override string Convert(HtmlNode node)
+        {
+            var content = TreatChildren(node);
+            return $" {content} |";
+        }
+    }
 }
