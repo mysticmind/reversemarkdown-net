@@ -51,7 +51,7 @@ namespace ReverseMarkdown
 		{
 			var cleaner = new Cleaner();
 
-			html = cleaner.PreTidy(html);
+			html = cleaner.PreTidy(html, this.Config.RemoveComments);
 
 			HtmlDocument doc = new HtmlDocument();
 			doc.LoadHtml(html);
