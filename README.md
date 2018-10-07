@@ -22,9 +22,10 @@ string result = converter.Convert(html);
 
 ```csharp
 // with config
-string unknownTags = "pass_through";
-bool githubFlavored = true;
-var config = new ReverseMarkdown.Config(UnknownTagsOption.PassThrough, githubFlavoured);
+bool githubFlavored = true; // generate GitHub flasvoured markdown, supported for BR, PRE and table tags
+bool removeComments = true; // will ignore all comments
+var config = new ReverseMarkdown.Config(UnknownTagsOption.PassThrough, 
+                githubFlavoured:githubFlavoured, removeComments:removeComments);
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
