@@ -1,7 +1,7 @@
 ﻿using HtmlAgilityPack;
+using System;
 
-namespace ReverseMarkdown.Converters
-{
+namespace ReverseMarkdown.Converters {
     public class A : ConverterBase
     {
         public A(Converter converter)
@@ -12,20 +12,41 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            var name = TreatChildren(node);
+            var name = TreatChildren(node).Trim();
 
-            var href = node.GetAttributeValue("href", string.Empty);
+            var href = node.GetAttributeValue("href", string.Empty).Trim();
             var title = ExtractTitle(node);
             title = title.Length > 0 ? $" \"{title}\"" : "";
+            var scheme = "";
+            try {
+                scheme = (new Uri(href, UriKind.Absolute)).Scheme;
+            }
+            catch { /* Couldn't determine protocol for relative URI */ }
+            
+            var isRemoveLinkWhenSameName = Converter.Config.HrefHandling == Config.HrefHandlingOption.Smart
+                                           && scheme != string.Empty
+                                           && Uri.IsWellFormedUriString(href, UriKind.RelativeOrAbsolute)
+                                           && (
+                                               href.Equals(name, StringComparison.OrdinalIgnoreCase)
+                                                || href.Equals($"tel:{name}", StringComparison.OrdinalIgnoreCase)
+                                                || href.Equals($"mailto:{name}", StringComparison.OrdinalIgnoreCase)
+                                            );
 
-            if (href.StartsWith("#") || string.IsNullOrEmpty(href) || string.IsNullOrEmpty(name))
-            {
-                return name;
+            if (href.StartsWith("#") //anchor link
+                || !Converter.Config.IsSchemeAllowed(scheme) //Not allowed scheme
+                || isRemoveLinkWhenSameName //Same link - why bother with [](). Except when incorrectly escaped, i.e unescaped spaces - then bother with []()
+                || string.IsNullOrEmpty(href) //We would otherwise print empty () here...
+                || string.IsNullOrEmpty(name))
+			{
+				return name;
+			}
+			else {
+                var useHrefWithHttpWhenNameHasNoScheme = Converter.Config.HrefHandling == Config.HrefHandlingOption.Smart &&
+                                                        (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) || scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                                                        && string.Equals(href, $"{scheme}://{name}", StringComparison.OrdinalIgnoreCase);
+
+                return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{name}]({href}{title})";
             }
-            else
-            {
-                return $"[{name}]({href}{title})";
-            }
-        }
-    }
+		}
+	}
 }

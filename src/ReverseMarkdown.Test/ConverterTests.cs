@@ -22,11 +22,187 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenThereIsHtmlLinkWithTitle_ThenConvertToMarkdownLink() {
+            const string html = @"This is <a href=""http://test.com"" title=""with title"">a link</a>";
+            const string expected = @"This is [a link](http://test.com ""with title"")";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void WhenThereAreMultipleLinks_ThenConvertThemToMarkdownLinks()
         {
             const string html = @"This is <a href=""http://test.com"">first link</a> and <a href=""http://test1.com"">second link</a>";
             const string expected = @"This is [first link](http://test.com) and [second link](http://test1.com)";
             CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlLinkNotWhitelisted_ThenBypass() {
+            const string html = @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
+            const string expected = @"Leave [http](http://example.com), [https](https://example.com), [ftp](ftp://example.com), [ftps](ftps://example.com), [file](file://example.com). Remove data, tel and whatever";
+            CheckConversion(html, expected, new Config() {
+                WhitelistUriSchemes = new string[] {"http", "https", "ftp", "ftps", "file"}
+            });
+        }
+
+        [Fact]
+        public void WhenThereHtmlWithHrefAndNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<a href=""example.com"">yeah</a>",
+                expected: @"[yeah](example.com)",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] {""}
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereHtmlWithHrefAndNoSchema_NotWhitelisted_ThenConvertToPlain() {
+            CheckConversion(
+                html: @"<a href=""example.com"">yeah</a>",
+                expected: @"yeah",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "whatever" }
+                }
+            );
+        }
+
+
+        [Fact]
+        public void WhenThereIsHtmlWithProtocolRelativeUrlHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<a href=""//example.com"">example.com</a>",
+                expected: @"[example.com](//example.com)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+        }
+
+
+        [Fact]
+        public void WhenThereIsHtmlWithHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<a href=""https://example.com"">Something intact</a>",
+                expected: @"[Something intact](https://example.com)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlWithHrefAndNameMatching_SmartHandling_ThenConvertToPlain() {
+            CheckConversion(
+                html: @"<a href=""http://example.com/abc?x"">http://example.com/abc?x</a>",
+                expected: @"http://example.com/abc?x",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlWithHttpSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain() {
+            CheckConversion(
+                html: @"<a href=""http://example.com"">example.com</a>",
+                expected: @"http://example.com",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+
+            CheckConversion(
+                html: @"<a href=""https://example.com"">example.com</a>",
+                expected: @"https://example.com",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlWithMailtoSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain() {
+            CheckConversion(
+                html: @"<a href=""mailto:george@example.com"">george@example.com</a>",
+                expected: @"george@example.com",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlWithTelSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain() {
+            CheckConversion(
+                html: @"<a href=""tel:+1123-45678"">+1123-45678</a>",
+                expected: @"+1123-45678",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlLinkWithHttpSchemaAndNameWithout_SmartHandling_ThenOutputOnlyHref() {
+            CheckConversion(
+                html: @"<a href=""http://example.com"">example.com</a>",
+                expected: @"http://example.com",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
+            CheckConversion(
+                    html: @"<a href=""https://example.com"">example.com</a>",
+                    expected: @"https://example.com",
+                    config: new Config() {
+                        HrefHandling = Config.HrefHandlingOption.Smart
+                    }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling_ThenConvertToMarkdown() {
+            //The string is not correctly escaped.	
+            CheckConversion(
+                html: @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>",
+                expected: @"[http://example.com/path/file name.docx](http://example.com/path/file name.docx)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+            });
+            //The string is an absolute Uri that represents an implicit file Uri.	
+            CheckConversion(
+                html: @"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>",
+                expected: @"[c:\\directory\filename](c:\\directory\filename)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+            });
+            //The string is an absolute URI that is missing a slash before the path.	
+            CheckConversion(
+                html: @"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>",
+                expected: @"[file://c:/directory/filename](file://c:/directory/filename)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+            });
+            //The string contains unescaped backslashes even if they are treated as forward slashes.	
+            CheckConversion(
+                html: @"<a href=""http:\\host/path/file"">http:\\host/path/file</a>",
+                expected: @"[http:\\host/path/file](http:\\host/path/file)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+            });
+        }
+
+
+        [Fact]
+        public void WhenThereIsHtmlLinkWithoutHttpSchemaAndNameWithoutScheme_SmartHandling_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<a href=""ftp://example.com"">example.com</a>",
+                expected: @"[example.com](ftp://example.com)",
+                config: new Config() {
+                    HrefHandling = Config.HrefHandlingOption.Smart
+                }
+            );
         }
 
         [Fact]
@@ -203,6 +379,61 @@ namespace ReverseMarkdown.Test
             const string html = @"This text has image <img src=""http://test.com/images/test.png""/>. Next line of text";
             const string expected = @"This text has image ![](http://test.com/images/test.png). Next line of text";
             CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenThereIsImgTag_SchemeNotWhitelisted_ThenEmptyOutput() {
+            CheckConversion(
+                html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
+                expected: @"",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] {"http"}
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsImgTag_SchemeIsWhitelisted_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
+                expected: @"![](data:image/gif;base64,R0lGODlhEAAQ...)",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "data" }
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagAndSrcWithNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<img src=""example.com""/>",
+                expected: @"![](example.com)",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "" }
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagAndSrcWithNoSchema_NotWhitelisted_ThenConvertToPlain() {
+            CheckConversion(
+                html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
+                expected: @"",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "whatever" }
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagWithRelativeUrl_ConfitHasWhitelist_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<img src=""/example.gif""/>",
+                expected: @"![](/example.gif)",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "data" }
+                }
+            );
         }
 
         [Fact]
@@ -404,13 +635,14 @@ namespace ReverseMarkdown.Test
             Assert.Equal(expected, result);
         }
 
-        private static void CheckConversion(string html, string expected)
-        {
-            if (string.IsNullOrEmpty(expected)) throw new ArgumentNullException(nameof(expected));
+        private static void CheckConversion(string html, string expected, Config config = null) {
+            config = config ?? new Config();
+            if (expected == null) throw new ArgumentNullException(nameof(expected));
             
-            var converter = new Converter();
+            var converter = new Converter(config);
             var result = converter.Convert(html);
-            Assert.Equal(expected, result);
+            Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
+            //Assert.True(string.CompareOrdinal(expected, result) == 0);
         }
     }
 }
