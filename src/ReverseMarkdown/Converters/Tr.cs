@@ -28,12 +28,12 @@ namespace ReverseMarkdown.Converters
 
         private static bool IsTableHeaderRow(HtmlNode node)
         {
-            return node.ChildNodes.FindFirst("th") != null;
+            return node.ParentNode.ChildNodes[node] == 0;
         }
 
         private string UnderlineFor(HtmlNode node)
         {
-            var colCount = node.ChildNodes.Count(n => n.Name.Contains("th"));
+            var colCount = node.ChildNodes.Count(n => n.Name.Contains("th") || n.Name.Contains("td"));
 
             var cols = new List<string>();
 

@@ -337,6 +337,56 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenTable_ThenConvertToGFMTable2()
+        {
+            const string html = @"<table><tr><td>col1</td><td>col2</td><td>col3</td></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config(Config.UnknownTagsOption.Bypass);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenTable_ThenConvertToGFMTable3()
+        {
+            const string html = @"<table><tr><td>col1</td><td>col2</td><td>col3</td></tr><tr><th>data1</th><th>data2</th><th>data3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config(Config.UnknownTagsOption.Bypass);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenTable_ThenConvertToGFMTable4()
+        {
+            const string html = @"<table><tr><td>col1</td><td>col2</td><td>col3</td></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><th>data1</th><th>data2</th><th>data3</th></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config(Config.UnknownTagsOption.Bypass);
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
         public void When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR()
         {
             const string html = @"First part<br />Second part";
