@@ -54,7 +54,9 @@ var converter = new ReverseMarkdown.Converter(config);
   * `UnknownTagsOption.Raise` - Raise an error to let you know
 * `WhitelistUriSchemes` - Specify which schemes (without trailing colon) are to be allowed for `<a>` and `<img>` tags. Others will be bypassed (output text or nothing). By default allows everything.
 
-  If `string.Empty` provided and when `href` schema coudn't be determined - whitelists
+  If `string.Empty` provided and when `href` or `src` schema coudn't be determined - whitelists
+  
+  Schema is determined by `Uri` class, with exception when url begins with `/` (file schema) and `//` (http schema)
 
 > Note that UnknownTags config has been changed to an enumeration in v2.0.0 (breaking change)
 

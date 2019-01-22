@@ -60,18 +60,19 @@ namespace ReverseMarkdown
             /// <summary>
             /// If name and href equals, outputs just the name instead of [{name}]({href}{title}). Note that if Uri is not well formed (string is not correctly escaped like http://example.com/path/file name.docx) then markdown syntax will be used anyway.
             /// <para>If href contains http/https protocol, and name doesn't but otherwise are the same, output href only</para>
-            /// If tel: or mailto: scheme, but afterwards identical with name, output name only.
+            /// If tel: or mailto: url, but afterwards identical with name, output name only.
             /// </summary>
             Smart
         }
 
+
         /// <summary>
-        /// Determines whether scheme is allowed: WhitelistUriSchemes contains no elements or contains passed scheme.
+        /// Determines whether url is allowed: WhitelistUriSchemes contains no elements or contains passed url.
         /// </summary>
-        /// <param name="scheme">Scheme name with or without colon</param>
-        internal bool IsSchemeAllowed(string scheme) {
+        /// <param name="url">Scheme name without trailing colon</param>
+        internal bool IsSchemeWhitelisted(string scheme) {
             if (scheme == null) throw new ArgumentNullException(nameof(scheme));
-            var isSchemeAllowed = WhitelistUriSchemes == null || WhitelistUriSchemes.Length == 0 || WhitelistUriSchemes.Contains(scheme.TrimEnd(':'), StringComparer.OrdinalIgnoreCase);
+            var isSchemeAllowed = WhitelistUriSchemes == null || WhitelistUriSchemes.Length == 0 || WhitelistUriSchemes.Contains(scheme, StringComparer.OrdinalIgnoreCase);
             return isSchemeAllowed;
         }
     }

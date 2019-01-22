@@ -17,11 +17,7 @@ namespace ReverseMarkdown.Converters {
             var href = node.GetAttributeValue("href", string.Empty).Trim();
             var title = ExtractTitle(node);
             title = title.Length > 0 ? $" \"{title}\"" : "";
-            var scheme = "";
-            try {
-                scheme = (new Uri(href, UriKind.Absolute)).Scheme;
-            }
-            catch { /* Couldn't determine protocol for relative URI */ }
+            var scheme = LinkParser.GetScheme(href);
             
             var isRemoveLinkWhenSameName = Converter.Config.HrefHandling == Config.HrefHandlingOption.Smart
                                            && scheme != string.Empty

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Xunit;
 
 namespace ReverseMarkdown.Test
@@ -426,12 +428,34 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsImgTagWithRelativeUrl_ConfitHasWhitelist_ThenConvertToMarkdown() {
+        public void WhenThereIsImgTagWithRelativeUrl_NotWhitelisted_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<img src=""/example.gif""/>",
+                expected: @"",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "data" }
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagWithUnixUrl_ConfigHasWhitelist_ThenConvertToMarkdown() {
             CheckConversion(
                 html: @"<img src=""/example.gif""/>",
                 expected: @"![](/example.gif)",
                 config: new Config() {
-                    WhitelistUriSchemes = new[] { "data" }
+                    WhitelistUriSchemes = new[] { "file" }
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagWithHttpProtocolRelativeUrl_ConfigHasWhitelist_ThenConvertToMarkdown() {
+            CheckConversion(
+                html: @"<img src=""//example.gif""/>",
+                expected: @"![](//example.gif)",
+                config: new Config() {
+                    WhitelistUriSchemes = new[] { "http" }
                 }
             );
         }
@@ -634,6 +658,8 @@ namespace ReverseMarkdown.Test
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
         }
+
+
 
         private static void CheckConversion(string html, string expected, Config config = null) {
             config = config ?? new Config();
