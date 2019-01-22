@@ -29,7 +29,7 @@ namespace ReverseMarkdown.Converters {
                                             );
 
             if (href.StartsWith("#") //anchor link
-                || !Converter.Config.IsSchemeAllowed(scheme) //Not allowed scheme
+                || !Converter.Config.IsSchemeWhitelisted(scheme) //Not allowed scheme
                 || isRemoveLinkWhenSameName //Same link - why bother with [](). Except when incorrectly escaped, i.e unescaped spaces - then bother with []()
                 || string.IsNullOrEmpty(href) //We would otherwise print empty () here...
                 || string.IsNullOrEmpty(name))
