@@ -1,8 +1,8 @@
 language: csharp
 sudo: required
-dist: trusty
+dist: xenial
 mono: none
-dotnet: 2.0.0
+dotnet: 2.1.400
 
 before_script:
   - export DOTNET_CLI_TELEMETRY_OPTOUT=1
