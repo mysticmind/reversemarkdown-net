@@ -17,6 +17,7 @@ namespace ReverseMarkdown
             RemoveComments = removeComments;
         }
 
+
         public UnknownTagsOption UnknownTags { get; } = UnknownTagsOption.PassThrough;
 
         public bool GithubFlavored { get; }
@@ -25,12 +26,19 @@ namespace ReverseMarkdown
 
 
         /// <summary>
-        /// Specify which schemes (without trailing colon) are to be allowed for <a> and <img> tags. Others will be bypassed. By default allows everything.
+        /// Specify which schemes (without trailing colon) are to be allowed for &lt;a&gt; and &lt;img&gt; tags. Others will be bypassed. By default allows everything.
         /// <para>If <see cref="string.Empty" /> provided and when href schema coudn't be determined - whitelists</para>
         /// </summary>
         public string[] WhitelistUriSchemes { get; set; }
 
-        public HrefHandlingOption HrefHandling { get; set; } = HrefHandlingOption.None;
+        /// <summary>
+        /// How to handle &lt;a&gt; tag href attribute
+        /// <para>false - Outputs [{name}]({href}{title}) even if name and href is identical. This is the default option.</para>
+        /// true - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per <see cref="Uri.IsWellFormedUriString"/> (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
+        /// <para>If href contains http/https protocol, and name doesn't but otherwise are the same, output href only</para>
+        /// If tel: or mailto: scheme, but afterwards identical with name, output name only. 
+        /// </summary>
+        public bool SmartHrefHandling { get; set; } = false;
 
         public enum UnknownTagsOption
         {

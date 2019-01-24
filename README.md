@@ -24,25 +24,20 @@ string result = converter.Convert(html);
 // with config
 bool githubFlavored = true; // generate GitHub flasvoured markdown, supported for BR, PRE and table tags
 bool removeComments = true; // will ignore all comments
-var config = new ReverseMarkdown.Config(UnknownTagsOption.PassThrough, 
-                githubFlavoured:githubFlavoured, removeComments:removeComments) {
-                    new Config() {
-                        HrefHandling = Config.HrefHandlingOption.Smart,
-                        WhitelistUriSchemes = new string[] {"http", "https", "ftp", "ftps", "file"}
-                    }
-
-                };
+bool smartHrefHandling = true; // remove markdown output for links where appropriate
+var config = new ReverseMarkdown.Config(Config.UnknownTagsOption.PassThrough,
+                githubFlavored: githubFlavored, removeComments: removeComments) {
+                    SmartHrefHandling = smartHrefHandling
+            };
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
 ## Configuration options
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
 * `RemoveComments` - Remove comment tags with text. Default is true
-* `BarePlaintext` - Convert to bare plaintext, not markdown. Default is false
-* `CompressNewlines` - Cleans output so that it doesn't contain double newline characters. Default is true
-* `HrefHandling` - how to handle `<a>` tag href attribute
-  * `None` - Outputs `[{name}]({href}{title})` even if name and href is identical. This is the default option.
-  * `Smart` - If name and href equals, outputs just the name instead of `[{name}]({href}{title})`. Note that if Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
+* `SmartHrefHandling` - how to handle `<a>` tag href attribute
+  * `false` - Outputs `[{name}]({href}{title})` even if name and href is identical. This is the default option.
+  * `true` - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
                
     If `href` contains `http/https` protocol, and `name` doesn't but otherwise are the same, output `href` only
     

@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Converters {
             title = title.Length > 0 ? $" \"{title}\"" : "";
             var scheme = LinkParser.GetScheme(href);
             
-            var isRemoveLinkWhenSameName = Converter.Config.HrefHandling == Config.HrefHandlingOption.Smart
+            var isRemoveLinkWhenSameName = Converter.Config.SmartHrefHandling
                                            && scheme != string.Empty
                                            && Uri.IsWellFormedUriString(href, UriKind.RelativeOrAbsolute)
                                            && (
@@ -37,7 +37,7 @@ namespace ReverseMarkdown.Converters {
 				return name;
 			}
 			else {
-                var useHrefWithHttpWhenNameHasNoScheme = Converter.Config.HrefHandling == Config.HrefHandlingOption.Smart &&
+                var useHrefWithHttpWhenNameHasNoScheme = Converter.Config.SmartHrefHandling &&
                                                         (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) || scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
                                                         && string.Equals(href, $"{scheme}://{name}", StringComparison.OrdinalIgnoreCase);
 

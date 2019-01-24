@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using Xunit;
 
 namespace ReverseMarkdown.Test
@@ -76,7 +74,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""//example.com"">example.com</a>",
                 expected: @"[example.com](//example.com)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -88,7 +86,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""https://example.com"">Something intact</a>",
                 expected: @"[Something intact](https://example.com)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -99,7 +97,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""http://example.com/abc?x"">http://example.com/abc?x</a>",
                 expected: @"http://example.com/abc?x",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -110,7 +108,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""http://example.com"">example.com</a>",
                 expected: @"http://example.com",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
 
@@ -118,7 +116,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""https://example.com"">example.com</a>",
                 expected: @"https://example.com",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -129,7 +127,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""mailto:george@example.com"">george@example.com</a>",
                 expected: @"george@example.com",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -140,7 +138,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""tel:+1123-45678"">+1123-45678</a>",
                 expected: @"+1123-45678",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -151,14 +149,14 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""http://example.com"">example.com</a>",
                 expected: @"http://example.com",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
             CheckConversion(
                     html: @"<a href=""https://example.com"">example.com</a>",
                     expected: @"https://example.com",
                     config: new Config() {
-                        HrefHandling = Config.HrefHandlingOption.Smart
+                        SmartHrefHandling =  true
                     }
             );
         }
@@ -170,28 +168,28 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>",
                 expected: @"[http://example.com/path/file name.docx](http://example.com/path/file name.docx)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
             });
             //The string is an absolute Uri that represents an implicit file Uri.	
             CheckConversion(
                 html: @"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>",
                 expected: @"[c:\\directory\filename](c:\\directory\filename)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
             });
             //The string is an absolute URI that is missing a slash before the path.	
             CheckConversion(
                 html: @"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>",
                 expected: @"[file://c:/directory/filename](file://c:/directory/filename)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
             });
             //The string contains unescaped backslashes even if they are treated as forward slashes.	
             CheckConversion(
                 html: @"<a href=""http:\\host/path/file"">http:\\host/path/file</a>",
                 expected: @"[http:\\host/path/file](http:\\host/path/file)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
             });
         }
 
@@ -202,7 +200,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""ftp://example.com"">example.com</a>",
                 expected: @"[example.com](ftp://example.com)",
                 config: new Config() {
-                    HrefHandling = Config.HrefHandlingOption.Smart
+                    SmartHrefHandling =  true
                 }
             );
         }
@@ -658,8 +656,6 @@ namespace ReverseMarkdown.Test
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
         }
-
-
 
         private static void CheckConversion(string html, string expected, Config config = null) {
             config = config ?? new Config();
