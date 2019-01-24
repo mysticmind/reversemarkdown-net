@@ -34,7 +34,7 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Configuration options
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
-* `RemoveComments` - Remove comment tags with text. Default is true
+* `RemoveComments` - Remove comment tags with text. Default is false
 * `SmartHrefHandling` - how to handle `<a>` tag href attribute
   * `false` - Outputs `[{name}]({href}{title})` even if name and href is identical. This is the default option.
   * `true` - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
