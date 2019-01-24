@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -13,7 +14,42 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            return $"{Environment.NewLine}{Environment.NewLine}{TreatChildren(node)}{Environment.NewLine}";
+            // if table does not have a header row with th items then add an empty row
+            var emptyHeaderRow = HasTableHeaderRow(node) ? string.Empty : EmptyHeader(node);
+
+            return $"{Environment.NewLine}{Environment.NewLine}{emptyHeaderRow}{TreatChildren(node)}{Environment.NewLine}";
+        }
+
+        private static bool HasTableHeaderRow(HtmlNode node)
+        {
+            var thNode = node.SelectNodes("//th")?.FirstOrDefault();
+            return thNode != null;
+        }
+
+        private static string EmptyHeader(HtmlNode node)
+        {
+            var firstRow = node.SelectNodes("//tr")?.FirstOrDefault();
+
+            if (firstRow == null)
+            {
+                return string.Empty;
+            }
+
+            var colCount = firstRow.ChildNodes.Count(n => n.Name.Contains("td"));
+
+            var headerRowItems = new List<string>();
+            var underlineRowItems = new List<string>();
+
+            for (var i = 0; i < colCount; i++ )
+            {
+                headerRowItems.Add("<!---->");
+                underlineRowItems.Add("---");
+            }
+
+            var headerRow = $"| {headerRowItems.Aggregate((item1, item2) => item1 + " | " + item2)} |{Environment.NewLine}";
+            var underlineRow = $"| {underlineRowItems.Aggregate((item1, item2) => item1 + " | " + item2)} |{Environment.NewLine}";
+
+            return headerRow + underlineRow;
         }
     }
 }

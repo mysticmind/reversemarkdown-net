@@ -602,6 +602,47 @@ namespace ReverseMarkdown.Test
             {
                 UnknownTags = Config.UnknownTagsOption.Bypass
             };
+
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenTable_WithoutHeaderRow_ThenConvertToGFMTable_WithEmptyHeaderRow()
+        {
+            const string html = @"<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| <!----> | <!----> | <!----> |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += $"| data4 | data5 | data6 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenTable_Cell_Content_WithNewline_Add_BR_ThenConvertToGFMTable()
+        {
+            var html = $"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data line1{Environment.NewLine}line2</td><td>data2</td><td>data3</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data line1<br>line2 | data2 | data3 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
             
             var converter = new Converter(config);
             var result = converter.Convert(html);
