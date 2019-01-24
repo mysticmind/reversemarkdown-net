@@ -9,7 +9,7 @@ skip_tags: true
 environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  TARGET_BUILD_VERSION: '2.1.0'
+  TARGET_BUILD_VERSION: '3.0.0'
 
 nuget:
   disable_publish_on_pr: true
@@ -21,17 +21,22 @@ before_build:
 build_script:
 - dotnet build .\src\ReverseMarkdown.sln --configuration Release /p:Version=%TARGET_BUILD_VERSION%
   
-after_build:
-  - dotnet pack .\src\ReverseMarkdown --configuration Release /p:Version=%TARGET_BUILD_VERSION%
-
 test_script:
   - dotnet test .\src\ReverseMarkdown.Test\ReverseMarkdown.Test.csproj --configuration Release
 
-artifacts:
-  - path: '**\ReverseMarkdown.*.nupkg' # find all NuGet packages recursively
+after_test:
+  - dotnet pack .\src\ReverseMarkdown --configuration Release /p:Version=%TARGET_BUILD_VERSION%
 
-# deploy:
-#  - provider: NuGet
-#    api_key:
-#     secure: 1XMgADnmiLunXwBT7K0CMDcHyoC5tUFE4Cf+X7VkuzoRZiWnIL2P9mP7oPEtGPHg
-#    skip_symbols: true
+artifacts:
+  - path: '**\ReverseMarkdown.*.*nupkg' # find all NuGet packages recursively
+
+deploy:
+  provider: NuGet
+    api_key:
+    secure: 1XMgADnmiLunXwBT7K0CMDcHyoC5tUFE4Cf+X7VkuzoRZiWnIL2P9mP7oPEtGPHg
+  artifact: /.*\.nupkg/
+  skip_symbols: true
+  on:
+    APPVEYOR_REPO_TAG: true
+after_deploy: # workaround to publish snupkg to NuGet
+  - ps: Get-ChildItem .\*.snupkg | % { dotnet nuget push $_.FullName -s https://api.nuget.org/v3/index.json -k $env:NUGET_DEPLOY_SECRET }
