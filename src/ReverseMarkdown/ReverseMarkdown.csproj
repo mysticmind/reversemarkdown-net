@@ -8,10 +8,21 @@
     <RootNamespace>ReverseMarkdown</RootNamespace>
     <PackageId>ReverseMarkdown</PackageId>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/mysticmind/reversemarkdown-net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.8.5" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.8.14" />
+  </ItemGroup>
+  <!--SourceLink specific settings-->
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/mysticmind/reversemarkdown-net.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
   </ItemGroup>
 </Project>
