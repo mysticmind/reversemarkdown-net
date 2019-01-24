@@ -41,7 +41,7 @@ namespace ReverseMarkdown.Test
             const string html = @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
             const string expected = @"Leave [http](http://example.com), [https](https://example.com), [ftp](ftp://example.com), [ftps](ftps://example.com), [file](file://example.com). Remove data, tel and whatever";
             CheckConversion(html, expected, new Config() {
-                WhitelistUriSchemes = new string[] {"http", "https", "ftp", "ftps", "file"}
+                WhitelistUriSchemes = new[] {"http", "https", "ftp", "ftps", "file"}
             });
         }
 
@@ -206,7 +206,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereAreStrongTag_ThenConvertToMarkdownDoubleAstericks()
+        public void WhenThereAreStrongTag_ThenConvertToMarkdownDoubleAsterisks()
         {
             const string html = @"This paragraph contains <strong>bold</strong> text";
             const string expected = @"This paragraph contains **bold** text";
@@ -214,7 +214,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereAreBTag_ThenConvertToMarkdownDoubleAstericks()
+        public void WhenThereAreBTag_ThenConvertToMarkdownDoubleAsterisks()
         {
             const string html = @"This paragraph contains <b>bold</b> text";
             const string expected = @"This paragraph contains **bold** text";
@@ -222,7 +222,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAstericks_AnyStrongOrBTagsInsideAreIgnored()
+        public void WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAsterisks_AnyStrongOrBTagsInsideAreIgnored()
         {
             const string html = @"<strong>Paragraph is encompassed with strong tag and also has <b>bold</b> text words within it</strong>";
             const string expected = @"**Paragraph is encompassed with strong tag and also has bold text words within it**";
@@ -230,7 +230,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsSingleAsterickInText_ThenConvertToMarkdownEscapedAsterick()
+        public void WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk()
         {
             const string html = @"This is a sample(*) paragraph";
             const string expected = @"This is a sample(\*) paragraph";
@@ -238,7 +238,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsEmTag_ThenConvertToMarkdownSingleAstericks()
+        public void WhenThereIsEmTag_ThenConvertToMarkdownSingleAsterisks()
         {
             const string html = @"This is a <em>sample</em> paragraph";
             const string expected = @"This is a *sample* paragraph";
@@ -246,7 +246,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsITag_ThenConvertToMarkdownSingleAstericks()
+        public void WhenThereIsITag_ThenConvertToMarkdownSingleAsterisks()
         {
             const string html = @"This is a <i>sample</i> paragraph";
             const string expected = @"This is a *sample* paragraph";
@@ -254,7 +254,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsEncompassingEmOrITag_ThenConvertToMarkdownSingleAstericks_AnyEmOrITagsInsideAreIgnored()
+        public void WhenThereIsEncompassingEmOrITag_ThenConvertToMarkdownSingleAsterisks_AnyEmOrITagsInsideAreIgnored()
         {
             const string html = @"<em>This is a <span><i>sample</i></span> paragraph<em>";
             const string expected = @"*This is a sample paragraph*";
@@ -262,7 +262,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsBreakTag_ThenConvertToMarkdownDoubleSpacesCarriagleReturn()
+        public void WhenThereIsBreakTag_ThenConvertToMarkdownDoubleSpacesCarriageReturn()
         {
             const string html = @"This is a paragraph.<br />This line appears after break.";
             var expected = $"This is a paragraph.  {Environment.NewLine}This line appears after break.";
@@ -366,7 +366,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsImgTagWithoutTitle_ThenConvertToMarkdownImagewithoutTitle()
+        public void WhenThereIsImgTagWithoutTitle_ThenConvertToMarkdownImageWithoutTitle()
         {
             const string html = @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png""/>. Next line of text";
             const string expected = @"This text has image ![alt](http://test.com/images/test.png). Next line of text";
@@ -374,7 +374,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsImgTagWithoutAltText_ThenConvertToMarkdownImagewithoutAltText()
+        public void WhenThereIsImgTagWithoutAltText_ThenConvertToMarkdownImageWithoutAltText()
         {
             const string html = @"This text has image <img src=""http://test.com/images/test.png""/>. Next line of text";
             const string expected = @"This text has image ![](http://test.com/images/test.png). Next line of text";
@@ -535,7 +535,10 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag>";
             const string expected = "text in unknown tag";
-            var config = new Config(Config.UnknownTagsOption.Bypass);
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -546,7 +549,11 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
-            var config = new Config(Config.UnknownTagsOption.Drop);
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Drop
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -557,7 +564,11 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
             var expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
-            var config = new Config(Config.UnknownTagsOption.PassThrough);
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.PassThrough
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -567,7 +578,11 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_Raise_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var config = new Config(Config.UnknownTagsOption.Raise);
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Raise
+            };
+            
             var converter = new Converter(config);
             Exception ex = Assert.Throws<UnknownTagException>(() => converter.Convert(html));
             Assert.Equal("Unknown tag: unknown-tag", ex.Message);
@@ -583,7 +598,11 @@ namespace ReverseMarkdown.Test
             expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
             expected += Environment.NewLine;
 
-            var config = new Config(Config.UnknownTagsOption.Bypass);
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -595,7 +614,11 @@ namespace ReverseMarkdown.Test
             const string html = @"First part<br />Second part";
             var expected = $"First part{Environment.NewLine}Second part";
 
-            var config = new Config(githubFlavored: true);
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -609,7 +632,11 @@ namespace ReverseMarkdown.Test
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
 
-            var config = new Config(githubFlavored: true);
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -624,7 +651,11 @@ namespace ReverseMarkdown.Test
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
 
-            var config = new Config(githubFlavored: true);
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -639,7 +670,11 @@ namespace ReverseMarkdown.Test
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
 
-            var config = new Config(githubFlavored: true);
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -651,7 +686,11 @@ namespace ReverseMarkdown.Test
             const string html = @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
             const string expected = @"Hello there <!-- This wont be removed because it is incomplete";
 
-            var config = new Config(removeComments: true);
+            var config = new Config
+            {
+                RemoveComments = true    
+            };
+            
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -664,7 +703,6 @@ namespace ReverseMarkdown.Test
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
-            //Assert.True(string.CompareOrdinal(expected, result) == 0);
         }
     }
 }

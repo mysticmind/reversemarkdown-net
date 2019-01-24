@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -18,7 +17,7 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            var content = this.TreatChildren(node);
+            var content = TreatChildren(node);
             if (string.IsNullOrEmpty(content.Trim()) || AlreadyBold(node))
             {
                 return content;

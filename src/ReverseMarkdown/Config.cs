@@ -10,24 +10,16 @@ namespace ReverseMarkdown
         {
         }
 
-        public Config(UnknownTagsOption unknownTags = UnknownTagsOption.PassThrough, bool githubFlavored = false, bool removeComments = false)
-        {
-            UnknownTags = unknownTags;
-            GithubFlavored = githubFlavored;
-            RemoveComments = removeComments;
-        }
+        public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
 
+        public bool GithubFlavored { get; set; } = false;
 
-        public UnknownTagsOption UnknownTags { get; } = UnknownTagsOption.PassThrough;
-
-        public bool GithubFlavored { get; }
-
-        public bool RemoveComments { get; }
+        public bool RemoveComments { get; set; } = false;
 
 
         /// <summary>
         /// Specify which schemes (without trailing colon) are to be allowed for &lt;a&gt; and &lt;img&gt; tags. Others will be bypassed. By default allows everything.
-        /// <para>If <see cref="string.Empty" /> provided and when href schema coudn't be determined - whitelists</para>
+        /// <para>If <see cref="string.Empty" /> provided and when href schema couldn't be determined - whitelists</para>
         /// </summary>
         public string[] WhitelistUriSchemes { get; set; }
 
@@ -77,7 +69,7 @@ namespace ReverseMarkdown
         /// <summary>
         /// Determines whether url is allowed: WhitelistUriSchemes contains no elements or contains passed url.
         /// </summary>
-        /// <param name="url">Scheme name without trailing colon</param>
+        /// <param name="scheme">Scheme name without trailing colon</param>
         internal bool IsSchemeWhitelisted(string scheme) {
             if (scheme == null) throw new ArgumentNullException(nameof(scheme));
             var isSchemeAllowed = WhitelistUriSchemes == null || WhitelistUriSchemes.Length == 0 || WhitelistUriSchemes.Contains(scheme, StringComparer.OrdinalIgnoreCase);

@@ -20,7 +20,7 @@ namespace ReverseMarkdown
         {
             Config = config;
 
-            // instanciate all converters excluding the unknown tags converters
+            // instantiate all converters excluding the unknown tags converters
             foreach (var ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes()
                 .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && 
                 !t.GetTypeInfo().IsAbstract
