@@ -36,4 +36,4 @@ deploy:
   on:
     APPVEYOR_REPO_TAG: true
 after_deploy: # workaround to publish snupkg to NuGet
-  - ps: Get-ChildItem .\*.snupkg | % { dotnet nuget push $_.FullName -s https://api.nuget.org/v3/index.json -k $env:NUGET_DEPLOY_SECRET }
+  - ps: Get-ChildItem -Path *.snupkg -Recurse | % { dotnet nuget push $_.FullName -s https://api.nuget.org/v3/index.json -k $env:NUGET_DEPLOY_SECRET }
