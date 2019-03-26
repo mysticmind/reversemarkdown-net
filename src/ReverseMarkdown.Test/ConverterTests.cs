@@ -609,7 +609,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenTable_WithoutHeaderRow_ThenConvertToGFMTable_WithEmptyHeaderRow()
+        public void WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionEmptyRow_ThenConvertToGFMTable_WithEmptyHeaderRow()
         {
             const string html = @"<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
@@ -621,7 +621,29 @@ namespace ReverseMarkdown.Test
 
             var config = new Config
             {
-                UnknownTags = Config.UnknownTagsOption.Bypass
+                UnknownTags = Config.UnknownTagsOption.Bypass,
+                TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.EmptyRow
+            };
+
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionDefault_ThenConvertToGFMTable_WithFirstRowAsHeaderRow()
+        {
+            const string html = @"<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data4 | data5 | data6 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass,
+                // TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.Default - this is default
             };
 
             var converter = new Converter(config);

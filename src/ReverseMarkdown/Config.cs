@@ -32,6 +32,9 @@ namespace ReverseMarkdown
         /// </summary>
         public bool SmartHrefHandling { get; set; } = false;
 
+        public TableWithoutHeaderRowHandlingOption TableWithoutHeaderRowHandling { get; set; } =
+            TableWithoutHeaderRowHandlingOption.Default;
+
         public enum UnknownTagsOption
         {
             /// <summary>
@@ -52,17 +55,16 @@ namespace ReverseMarkdown
             Raise
         }
 
-        public enum HrefHandlingOption {
+        public enum TableWithoutHeaderRowHandlingOption
+        {
             /// <summary>
-            /// Outputs [{name}]({href}{title}) even if name and href is identical. This is the default option.
+            /// By default, first row will be used as header row
             /// </summary>
-            None,
+            Default,
             /// <summary>
-            /// If name and href equals, outputs just the name instead of [{name}]({href}{title}). Note that if Uri is not well formed (string is not correctly escaped like http://example.com/path/file name.docx) then markdown syntax will be used anyway.
-            /// <para>If href contains http/https protocol, and name doesn't but otherwise are the same, output href only</para>
-            /// If tel: or mailto: url, but afterwards identical with name, output name only.
+            /// An empty row will be added as the header row
             /// </summary>
-            Smart
+            EmptyRow
         }
 
 

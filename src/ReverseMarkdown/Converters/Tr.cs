@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -18,12 +18,25 @@ namespace ReverseMarkdown.Converters
             var content = TreatChildren(node).TrimEnd();
             var underline = "";
             
-            if (IsTableHeaderRow(node))
+            if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node))
             {
                 underline = UnderlineFor(node);
             }
 
             return $"|{content}{Environment.NewLine}{underline}";
+        }
+
+        private bool UseFirstRowAsHeaderRow(HtmlNode node)
+        {
+            var tableNode = node.ParentNode;
+            var isFirstRow = tableNode.FirstChild == node;
+            var thNode = tableNode.SelectNodes("//th")?.FirstOrDefault();
+            var hasNoHeaderRow = thNode == null;
+
+            return isFirstRow
+                   && hasNoHeaderRow
+                   && Converter.Config.TableWithoutHeaderRowHandling ==
+                   Config.TableWithoutHeaderRowHandlingOption.Default;
         }
 
         private static bool IsTableHeaderRow(HtmlNode node)
@@ -33,7 +46,7 @@ namespace ReverseMarkdown.Converters
 
         private string UnderlineFor(HtmlNode node)
         {
-            var colCount = node.ChildNodes.Count(n => n.Name.Contains("th"));
+            var colCount = node.ChildNodes.Count;
 
             var cols = new List<string>();
 

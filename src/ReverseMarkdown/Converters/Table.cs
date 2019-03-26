@@ -14,16 +14,21 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            // if table does not have a header row with th items then add an empty row
-            var emptyHeaderRow = HasTableHeaderRow(node) ? string.Empty : EmptyHeader(node);
+            // if table does not have a header row , add empty header row if set in config
+            var useEmptyRowForHeader = this.Converter.Config.TableWithoutHeaderRowHandling ==
+                                       Config.TableWithoutHeaderRowHandlingOption.EmptyRow;
+
+            var emptyHeaderRow = HasNoTableHeaderRow(node) && useEmptyRowForHeader
+                ? EmptyHeader(node)
+                : string.Empty;
 
             return $"{Environment.NewLine}{Environment.NewLine}{emptyHeaderRow}{TreatChildren(node)}{Environment.NewLine}";
         }
 
-        private static bool HasTableHeaderRow(HtmlNode node)
+        private static bool HasNoTableHeaderRow(HtmlNode node)
         {
             var thNode = node.SelectNodes("//th")?.FirstOrDefault();
-            return thNode != null;
+            return thNode == null;
         }
 
         private static string EmptyHeader(HtmlNode node)
