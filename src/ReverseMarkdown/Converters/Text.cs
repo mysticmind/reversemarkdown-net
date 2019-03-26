@@ -35,9 +35,6 @@ namespace ReverseMarkdown.Converters
                 case "ul":
                     content = content.Trim();
                     break;
-                case "p":
-                    content = content.TrimStart('\r', '\n').TrimEnd('\r', '\n');
-                    break;
             }
 
             content = content.Replace("\r\n", "<br>");

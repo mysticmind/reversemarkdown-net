@@ -23,7 +23,23 @@ namespace ReverseMarkdown.Converters
         }
 
         private string Treat(HtmlNode node) {
+            TrimNewLine(node);
             return Converter.Lookup(node.Name).Convert(node);
+        }
+
+        private static void TrimNewLine(HtmlNode node)
+        {
+            if (!node.HasChildNodes) return;
+
+            if (node.FirstChild.Name == "#text" && (node.FirstChild.InnerText.StartsWith("\r\n") || node.FirstChild.InnerText.StartsWith("\n")))
+            {
+                node.FirstChild.InnerHtml = node.FirstChild.InnerHtml.TrimStart('\r').TrimStart('\n');
+            }
+
+            if (node.LastChild.Name == "#text" && (node.LastChild.InnerText.EndsWith("\r\n") || node.LastChild.InnerText.EndsWith("\n")))
+            {
+                node.LastChild.InnerHtml = node.LastChild.InnerHtml.TrimEnd('\r').TrimEnd('\n');
+            }
         }
 
         protected string ExtractTitle(HtmlNode node)
