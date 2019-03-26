@@ -26,7 +26,7 @@ var config = new ReverseMarkdown.Config
 {
     UnknownTags = Config.UnknownTagsOption.PassThrough, // Include the unknown tag completely in the result (default as well)
     GithubFlavored = true, // generate GitHub flavoured markdown, supported for BR, PRE and table tags
-    removeComments: true, // will ignore all comments
+    RemoveComments = true, // will ignore all comments
     SmartHrefHandling = true // remove markdown output for links where appropriate
 };
 
