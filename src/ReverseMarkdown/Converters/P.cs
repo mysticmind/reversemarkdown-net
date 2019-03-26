@@ -15,7 +15,7 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             var indentation = IndentationFor(node);
-            return $"{indentation}{TreatChildren(node).Trim()}{Environment.NewLine}{Environment.NewLine}";
+            return $"{indentation}{TreatChildren(node).Trim()}{Environment.NewLine}";
         }
 
         private static string IndentationFor(HtmlNode node)
@@ -23,7 +23,7 @@ namespace ReverseMarkdown.Converters
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
             return node.ParentNode.Name.ToLowerInvariant() == "li" && node.ParentNode.FirstChild != node
                 ? new string(' ', length * 4)
-                : Environment.NewLine + Environment.NewLine;
+                : Environment.NewLine;
         }
     }
 }
