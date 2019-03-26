@@ -345,7 +345,7 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter()
         {
             const string html = @"This text has markup <p>paragraph.</p> Next line of text";
-            var expected = $"This text has markup {Environment.NewLine}{Environment.NewLine}paragraph.{Environment.NewLine}{Environment.NewLine} Next line of text";
+            var expected = $"This text has markup {Environment.NewLine}paragraph.{Environment.NewLine} Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -526,7 +526,7 @@ namespace ReverseMarkdown.Test
         public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
         {
             var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
-            var expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -548,7 +548,7 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_Drop_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var expected = $"{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}paragraph text{Environment.NewLine}";
             var config = new Config
             {
                 UnknownTags = Config.UnknownTagsOption.Drop
@@ -563,7 +563,7 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_PassThrough_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}{Environment.NewLine}paragraph text{Environment.NewLine}{Environment.NewLine}";
+            var expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}paragraph text{Environment.NewLine}";
             var config = new Config
             {
                 UnknownTags = Config.UnknownTagsOption.PassThrough
@@ -733,6 +733,18 @@ namespace ReverseMarkdown.Test
             };
             
             var converter = new Converter(config);
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result);
+        }
+        
+        [Fact]
+        public void WhenThereAreLineBreaksEncompassingParagraphText_It_Should_be_Removed()
+        {
+
+            var html = $"<p>{Environment.NewLine}Some text goes here.{Environment.NewLine}</p>";
+            var expected = $"{Environment.NewLine}Some text goes here.{Environment.NewLine}";
+            
+            var converter = new Converter();
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
         }
