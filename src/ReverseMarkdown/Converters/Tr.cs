@@ -29,9 +29,15 @@ namespace ReverseMarkdown.Converters
         private bool UseFirstRowAsHeaderRow(HtmlNode node)
         {
             var tableNode = node.ParentNode;
-            var isFirstRow = tableNode.FirstChild == node;
-            var thNode = tableNode.SelectNodes("//th")?.FirstOrDefault();
-            var hasNoHeaderRow = thNode == null;
+            var firstRow = tableNode.SelectNodes("tr")?.FirstOrDefault();
+
+            if (firstRow == null)
+            {
+                return false;
+            }
+
+            var isFirstRow = firstRow == node;
+            var hasNoHeaderRow = tableNode.SelectNodes("//th")?.FirstOrDefault() == null;
 
             return isFirstRow
                    && hasNoHeaderRow

@@ -633,7 +633,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionDefault_ThenConvertToGFMTable_WithFirstRowAsHeaderRow()
         {
-            const string html = @"<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
+            const string html = @"<table><colgroup><col><col><col></colgroup><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
             expected += $"| --- | --- | --- |{Environment.NewLine}";
