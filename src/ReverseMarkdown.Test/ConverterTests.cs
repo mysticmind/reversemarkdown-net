@@ -840,5 +840,17 @@ namespace ReverseMarkdown.Test
             Assert.Contains("and **Weblog Publisher** for Windows", markdown);
 
         }
+
+        [Fact]
+        public void When_InlineCode_Shouldnt_Contain_Encoded_Chars()
+        {
+
+            var html = @"This is inline code: <code>&lt;AspNetCoreHostingModel&gt;</code>.";
+            var expected = @"This is inline code: `<AspNetCoreHostingModel>`.";
+
+            var converter = new Converter();
+            var result = converter.Convert(html);
+            Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }

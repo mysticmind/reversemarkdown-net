@@ -11,7 +11,7 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            return $"`{node.InnerText.Trim()}`";
+            return $"`{System.Net.WebUtility.HtmlDecode(node.InnerText.Trim())}`";
         }
     }
 }
