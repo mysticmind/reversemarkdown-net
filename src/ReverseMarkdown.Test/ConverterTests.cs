@@ -928,11 +928,8 @@ namespace ReverseMarkdown.Test
         {
 
             var html =
-                @"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>
-</code></pre>";
-            var expected = $@"{Environment.NewLine}```
-<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-```{Environment.NewLine}";
+                $@"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>{Environment.NewLine}</code></pre>";
+            var expected = $@"{Environment.NewLine}```{Environment.NewLine}<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>{Environment.NewLine}```{Environment.NewLine}";
 
             var config = new ReverseMarkdown.Config
             {
