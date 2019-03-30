@@ -6,6 +6,7 @@ namespace ReverseMarkdown.Test
 {
     public class ConverterTests
     {
+        public ITestOutputHelper Console { get; }
         private readonly ITestOutputHelper _testOutputHelper;
 
         public ConverterTests(ITestOutputHelper testOutputHelper)
@@ -17,7 +18,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsAsideTag()
         {
             const string html = @"<aside>This text is in an aside tag.</aside> This text appears after aside.";
-            var expected = $"{Environment.NewLine}This text is in an aside tag.{Environment.NewLine} This text appears after aside.";
+            var expected =
+                $"{Environment.NewLine}This text is in an aside tag.{Environment.NewLine} This text appears after aside.";
             CheckConversion(html, expected);
         }
 
@@ -30,7 +32,8 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsHtmlLinkWithTitle_ThenConvertToMarkdownLink() {
+        public void WhenThereIsHtmlLinkWithTitle_ThenConvertToMarkdownLink()
+        {
             const string html = @"This is <a href=""http://test.com"" title=""with title"">a link</a>";
             const string expected = @"This is [a link](http://test.com ""with title"")";
             CheckConversion(html, expected);
@@ -39,176 +42,208 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenThereAreMultipleLinks_ThenConvertThemToMarkdownLinks()
         {
-            const string html = @"This is <a href=""http://test.com"">first link</a> and <a href=""http://test1.com"">second link</a>";
+            const string html =
+                @"This is <a href=""http://test.com"">first link</a> and <a href=""http://test1.com"">second link</a>";
             const string expected = @"This is [first link](http://test.com) and [second link](http://test1.com)";
             CheckConversion(html, expected);
         }
 
         [Fact]
-        public void WhenThereIsHtmlLinkNotWhitelisted_ThenBypass() {
-            const string html = @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
-            const string expected = @"Leave [http](http://example.com), [https](https://example.com), [ftp](ftp://example.com), [ftps](ftps://example.com), [file](file://example.com). Remove data, tel and whatever";
-            CheckConversion(html, expected, new Config() {
+        public void WhenThereIsHtmlLinkNotWhitelisted_ThenBypass()
+        {
+            const string html =
+                @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
+            const string expected =
+                @"Leave [http](http://example.com), [https](https://example.com), [ftp](ftp://example.com), [ftps](ftps://example.com), [file](file://example.com). Remove data, tel and whatever";
+            CheckConversion(html, expected, new Config()
+            {
                 WhitelistUriSchemes = new[] {"http", "https", "ftp", "ftps", "file"}
             });
         }
 
         [Fact]
-        public void WhenThereHtmlWithHrefAndNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown() {
+        public void WhenThereHtmlWithHrefAndNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<a href=""example.com"">yeah</a>",
                 expected: @"[yeah](example.com)",
-                config: new Config() {
+                config: new Config()
+                {
                     WhitelistUriSchemes = new[] {""}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereHtmlWithHrefAndNoSchema_NotWhitelisted_ThenConvertToPlain() {
+        public void WhenThereHtmlWithHrefAndNoSchema_NotWhitelisted_ThenConvertToPlain()
+        {
             CheckConversion(
                 html: @"<a href=""example.com"">yeah</a>",
                 expected: @"yeah",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "whatever" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {"whatever"}
                 }
             );
         }
 
 
         [Fact]
-        public void WhenThereIsHtmlWithProtocolRelativeUrlHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown() {
+        public void WhenThereIsHtmlWithProtocolRelativeUrlHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<a href=""//example.com"">example.com</a>",
                 expected: @"[example.com](//example.com)",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
 
 
         [Fact]
-        public void WhenThereIsHtmlWithHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown() {
+        public void WhenThereIsHtmlWithHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<a href=""https://example.com"">Something intact</a>",
                 expected: @"[Something intact](https://example.com)",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsHtmlWithHrefAndNameMatching_SmartHandling_ThenConvertToPlain() {
+        public void WhenThereIsHtmlWithHrefAndNameMatching_SmartHandling_ThenConvertToPlain()
+        {
             CheckConversion(
                 html: @"<a href=""http://example.com/abc?x"">http://example.com/abc?x</a>",
                 expected: @"http://example.com/abc?x",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsHtmlWithHttpSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain() {
+        public void WhenThereIsHtmlWithHttpSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain()
+        {
             CheckConversion(
                 html: @"<a href=""http://example.com"">example.com</a>",
                 expected: @"http://example.com",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
 
             CheckConversion(
                 html: @"<a href=""https://example.com"">example.com</a>",
                 expected: @"https://example.com",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsHtmlWithMailtoSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain() {
+        public void WhenThereIsHtmlWithMailtoSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain()
+        {
             CheckConversion(
                 html: @"<a href=""mailto:george@example.com"">george@example.com</a>",
                 expected: @"george@example.com",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsHtmlWithTelSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain() {
+        public void WhenThereIsHtmlWithTelSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain()
+        {
             CheckConversion(
                 html: @"<a href=""tel:+1123-45678"">+1123-45678</a>",
                 expected: @"+1123-45678",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsHtmlLinkWithHttpSchemaAndNameWithout_SmartHandling_ThenOutputOnlyHref() {
+        public void WhenThereIsHtmlLinkWithHttpSchemaAndNameWithout_SmartHandling_ThenOutputOnlyHref()
+        {
             CheckConversion(
                 html: @"<a href=""http://example.com"">example.com</a>",
                 expected: @"http://example.com",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
             CheckConversion(
-                    html: @"<a href=""https://example.com"">example.com</a>",
-                    expected: @"https://example.com",
-                    config: new Config() {
-                        SmartHrefHandling =  true
-                    }
+                html: @"<a href=""https://example.com"">example.com</a>",
+                expected: @"https://example.com",
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                }
             );
         }
 
         [Fact]
-        public void WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling_ThenConvertToMarkdown() {
+        public void WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling_ThenConvertToMarkdown()
+        {
             //The string is not correctly escaped.	
             CheckConversion(
                 html: @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>",
                 expected: @"[http://example.com/path/file name.docx](http://example.com/path/file name.docx)",
-                config: new Config() {
-                    SmartHrefHandling =  true
-            });
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                });
             //The string is an absolute Uri that represents an implicit file Uri.	
             CheckConversion(
                 html: @"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>",
                 expected: @"[c:\\directory\filename](c:\\directory\filename)",
-                config: new Config() {
-                    SmartHrefHandling =  true
-            });
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                });
             //The string is an absolute URI that is missing a slash before the path.	
             CheckConversion(
                 html: @"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>",
                 expected: @"[file://c:/directory/filename](file://c:/directory/filename)",
-                config: new Config() {
-                    SmartHrefHandling =  true
-            });
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                });
             //The string contains unescaped backslashes even if they are treated as forward slashes.	
             CheckConversion(
                 html: @"<a href=""http:\\host/path/file"">http:\\host/path/file</a>",
                 expected: @"[http:\\host/path/file](http:\\host/path/file)",
-                config: new Config() {
-                    SmartHrefHandling =  true
-            });
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                });
         }
 
 
         [Fact]
-        public void WhenThereIsHtmlLinkWithoutHttpSchemaAndNameWithoutScheme_SmartHandling_ThenConvertToMarkdown() {
+        public void WhenThereIsHtmlLinkWithoutHttpSchemaAndNameWithoutScheme_SmartHandling_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<a href=""ftp://example.com"">example.com</a>",
                 expected: @"[example.com](ftp://example.com)",
-                config: new Config() {
-                    SmartHrefHandling =  true
+                config: new Config()
+                {
+                    SmartHrefHandling = true
                 }
             );
         }
@@ -230,10 +265,13 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAsterisks_AnyStrongOrBTagsInsideAreIgnored()
+        public void
+            WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAsterisks_AnyStrongOrBTagsInsideAreIgnored()
         {
-            const string html = @"<strong>Paragraph is encompassed with strong tag and also has <b>bold</b> text words within it</strong>";
-            const string expected = @"**Paragraph is encompassed with strong tag and also has bold text words within it**";
+            const string html =
+                @"<strong>Paragraph is encompassed with strong tag and also has <b>bold</b> text words within it</strong>";
+            const string expected =
+                @"**Paragraph is encompassed with strong tag and also has bold text words within it**";
             CheckConversion(html, expected);
         }
 
@@ -289,7 +327,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH1Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h1>header</h1>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}# header{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}# header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -297,7 +336,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH2Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h2>header</h2>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}## header{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}## header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -305,7 +345,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH3Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h3>header</h3>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}### header{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -313,7 +354,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH4Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h4>header</h4>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}#### header{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}#### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -321,7 +363,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH5Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h5>header</h5>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}##### header{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}##### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -329,7 +372,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsH6Tag_ThenConvertToMarkdownHeader()
         {
             const string html = @"This text has <h6>header</h6>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}###### header{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}###### header{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -337,7 +381,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsBlockquoteTag_ThenConvertToMarkdownBlockquote()
         {
             const string html = @"This text has <blockquote>blockquote</blockquote>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}{Environment.NewLine}> blockquote{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}{Environment.NewLine}> blockquote{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -345,7 +390,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsEmptyBlockquoteTag_ThenConvertToMarkdownBlockquote()
         {
             const string html = @"This text has <blockquote></blockquote>. This text appear after header.";
-            var expected = $"This text has {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
+            var expected =
+                $"This text has {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}. This text appear after header.";
             CheckConversion(html, expected);
         }
 
@@ -353,7 +399,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter()
         {
             const string html = @"This text has markup <p>paragraph.</p> Next line of text";
-            var expected = $"This text has markup {Environment.NewLine}paragraph.{Environment.NewLine} Next line of text";
+            var expected =
+                $"This text has markup {Environment.NewLine}paragraph.{Environment.NewLine} Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -361,22 +408,26 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsHorizontalRule_ThenConvertToMarkdownHorizontalRule()
         {
             const string html = @"This text has horizontal rule.<hr/>Next line of text";
-            var expected = $"This text has horizontal rule.{Environment.NewLine}* * *{Environment.NewLine}Next line of text";
+            var expected =
+                $"This text has horizontal rule.{Environment.NewLine}* * *{Environment.NewLine}Next line of text";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenThereIsImgTag_ThenConvertToMarkdownImage()
         {
-            const string html = @"This text has image <img alt=""alt"" title=""title"" src=""http://test.com/images/test.png""/>. Next line of text";
-            const string expected = @"This text has image ![alt](http://test.com/images/test.png ""title""). Next line of text";
+            const string html =
+                @"This text has image <img alt=""alt"" title=""title"" src=""http://test.com/images/test.png""/>. Next line of text";
+            const string expected =
+                @"This text has image ![alt](http://test.com/images/test.png ""title""). Next line of text";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenThereIsImgTagWithoutTitle_ThenConvertToMarkdownImageWithoutTitle()
         {
-            const string html = @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png""/>. Next line of text";
+            const string html =
+                @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png""/>. Next line of text";
             const string expected = @"This text has image ![alt](http://test.com/images/test.png). Next line of text";
             CheckConversion(html, expected);
         }
@@ -384,84 +435,99 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenThereIsImgTagWithoutAltText_ThenConvertToMarkdownImageWithoutAltText()
         {
-            const string html = @"This text has image <img src=""http://test.com/images/test.png""/>. Next line of text";
+            const string html =
+                @"This text has image <img src=""http://test.com/images/test.png""/>. Next line of text";
             const string expected = @"This text has image ![](http://test.com/images/test.png). Next line of text";
             CheckConversion(html, expected);
         }
 
         [Fact]
-        public void WhenThereIsImgTag_SchemeNotWhitelisted_ThenEmptyOutput() {
+        public void WhenThereIsImgTag_SchemeNotWhitelisted_ThenEmptyOutput()
+        {
             CheckConversion(
                 html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
                 expected: @"",
-                config: new Config() {
+                config: new Config()
+                {
                     WhitelistUriSchemes = new[] {"http"}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsImgTag_SchemeIsWhitelisted_ThenConvertToMarkdown() {
+        public void WhenThereIsImgTag_SchemeIsWhitelisted_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
                 expected: @"![](data:image/gif;base64,R0lGODlhEAAQ...)",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "data" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {"data"}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsImgTagAndSrcWithNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown() {
+        public void WhenThereIsImgTagAndSrcWithNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<img src=""example.com""/>",
                 expected: @"![](example.com)",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {""}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsImgTagAndSrcWithNoSchema_NotWhitelisted_ThenConvertToPlain() {
+        public void WhenThereIsImgTagAndSrcWithNoSchema_NotWhitelisted_ThenConvertToPlain()
+        {
             CheckConversion(
                 html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
                 expected: @"",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "whatever" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {"whatever"}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsImgTagWithRelativeUrl_NotWhitelisted_ThenConvertToMarkdown() {
+        public void WhenThereIsImgTagWithRelativeUrl_NotWhitelisted_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<img src=""/example.gif""/>",
                 expected: @"",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "data" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {"data"}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsImgTagWithUnixUrl_ConfigHasWhitelist_ThenConvertToMarkdown() {
+        public void WhenThereIsImgTagWithUnixUrl_ConfigHasWhitelist_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<img src=""/example.gif""/>",
                 expected: @"![](/example.gif)",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "file" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {"file"}
                 }
             );
         }
 
         [Fact]
-        public void WhenThereIsImgTagWithHttpProtocolRelativeUrl_ConfigHasWhitelist_ThenConvertToMarkdown() {
+        public void WhenThereIsImgTagWithHttpProtocolRelativeUrl_ConfigHasWhitelist_ThenConvertToMarkdown()
+        {
             CheckConversion(
                 html: @"<img src=""//example.gif""/>",
                 expected: @"![](//example.gif)",
-                config: new Config() {
-                    WhitelistUriSchemes = new[] { "http" }
+                config: new Config()
+                {
+                    WhitelistUriSchemes = new[] {"http"}
                 }
             );
         }
@@ -470,7 +536,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsPreTag_ThenConvertToMarkdownPre()
         {
             const string html = @"This text has pre tag content <pre>Predefined text</pre>Next line of text";
-            var expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}    Predefined text{Environment.NewLine}{Environment.NewLine}Next line of text";
+            var expected =
+                $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}    Predefined text{Environment.NewLine}{Environment.NewLine}Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -478,7 +545,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre()
         {
             const string html = @"This text has pre tag content <pre><br/ ></pre>Next line of text";
-            var expected = $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Next line of text";
+            var expected =
+                $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -486,7 +554,8 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsUnorderedList_ThenConvertToMarkdownList()
         {
             const string html = @"This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>";
-            var expected = $"This text has unordered list.{Environment.NewLine}- Item1{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
+            var expected =
+                $"This text has unordered list.{Environment.NewLine}- Item1{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -494,47 +563,58 @@ namespace ReverseMarkdown.Test
         public void WhenThereIsOrderedList_ThenConvertToMarkdownList()
         {
             const string html = @"This text has ordered list.<ol><li>Item1</li><li>Item2</li></ol>";
-            var expected = $"This text has ordered list.{Environment.NewLine}1. Item1{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            var expected =
+                $"This text has ordered list.{Environment.NewLine}1. Item1{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenThereIsOrderedListWithNestedUnorderedList_ThenConvertToMarkdownListWithNestedList()
         {
-            const string html = @"This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
-            var expected = $"This text has ordered list.{Environment.NewLine}1. OuterItem1{Environment.NewLine}  - InnerItem1{Environment.NewLine}  - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            const string html =
+                @"This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
+            var expected =
+                $"This text has ordered list.{Environment.NewLine}1. OuterItem1{Environment.NewLine}  - InnerItem1{Environment.NewLine}  - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList()
         {
-            const string html = @"This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
-            var expected = $"This text has ordered list.{Environment.NewLine}- OuterItem1{Environment.NewLine}  1. InnerItem1{Environment.NewLine}  2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
+            const string html =
+                @"This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
+            var expected =
+                $"This text has ordered list.{Environment.NewLine}- OuterItem1{Environment.NewLine}  1. InnerItem1{Environment.NewLine}  2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
-        public void WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped()
+        public void
+            WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped()
         {
             const string html = @"<ol><li>	    This is a text with leading and trailing spaces and tabs		</li></ol>";
-            var expected = $"{Environment.NewLine}1. This is a text with leading and trailing spaces and tabs{Environment.NewLine}{Environment.NewLine}";
+            var expected =
+                $"{Environment.NewLine}1. This is a text with leading and trailing spaces and tabs{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown()
         {
-            var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
-            var expected = $"{Environment.NewLine}1. **Item1**{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            var html =
+                $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
+            var expected =
+                $"{Environment.NewLine}1. **Item1**{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
         [Fact]
         public void WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
         {
-            var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
-            var expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
+            var html =
+                $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
+            var expected =
+                $"{Environment.NewLine}1. Item1{Environment.NewLine}    Item2{Environment.NewLine}2. Item3{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -561,7 +641,7 @@ namespace ReverseMarkdown.Test
             {
                 UnknownTags = Config.UnknownTagsOption.Drop
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -571,12 +651,13 @@ namespace ReverseMarkdown.Test
         public void Check_Converter_With_Unknown_Tag_PassThrough_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var expected = $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}paragraph text{Environment.NewLine}";
+            var expected =
+                $"<unknown-tag>text in unknown tag</unknown-tag>{Environment.NewLine}paragraph text{Environment.NewLine}";
             var config = new Config
             {
                 UnknownTags = Config.UnknownTagsOption.PassThrough
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -590,7 +671,7 @@ namespace ReverseMarkdown.Test
             {
                 UnknownTags = Config.UnknownTagsOption.Raise
             };
-            
+
             var converter = new Converter(config);
             Exception ex = Assert.Throws<UnknownTagException>(() => converter.Convert(html));
             Assert.Equal("Unknown tag: unknown-tag", ex.Message);
@@ -599,7 +680,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenTable_ThenConvertToGFMTable()
         {
-            const string html = @"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
+            const string html =
+                @"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
             expected += $"| --- | --- | --- |{Environment.NewLine}";
@@ -617,9 +699,11 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionEmptyRow_ThenConvertToGFMTable_WithEmptyHeaderRow()
+        public void
+            WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionEmptyRow_ThenConvertToGFMTable_WithEmptyHeaderRow()
         {
-            const string html = @"<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
+            const string html =
+                @"<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| <!----> | <!----> | <!----> |{Environment.NewLine}";
             expected += $"| --- | --- | --- |{Environment.NewLine}";
@@ -639,9 +723,11 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionDefault_ThenConvertToGFMTable_WithFirstRowAsHeaderRow()
+        public void
+            WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionDefault_ThenConvertToGFMTable_WithFirstRowAsHeaderRow()
         {
-            const string html = @"<table><colgroup><col><col><col></colgroup><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
+            const string html =
+                @"<table><colgroup><col><col><col></colgroup><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
             expected += $"| --- | --- | --- |{Environment.NewLine}";
@@ -662,7 +748,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenTable_Cell_Content_WithNewline_Add_BR_ThenConvertToGFMTable()
         {
-            var html = $"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data line1{Environment.NewLine}line2</td><td>data2</td><td>data3</td></tr></table>";
+            var html =
+                $"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data line1{Environment.NewLine}line2</td><td>data2</td><td>data3</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
             expected += $"| --- | --- | --- |{Environment.NewLine}";
@@ -673,7 +760,7 @@ namespace ReverseMarkdown.Test
             {
                 UnknownTags = Config.UnknownTagsOption.Bypass
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -689,7 +776,7 @@ namespace ReverseMarkdown.Test
             {
                 GithubFlavored = true
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -707,7 +794,7 @@ namespace ReverseMarkdown.Test
             {
                 GithubFlavored = true
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -726,7 +813,7 @@ namespace ReverseMarkdown.Test
             {
                 GithubFlavored = true
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -737,7 +824,7 @@ namespace ReverseMarkdown.Test
         {
             const string html = @"<pre class=""highlight-python"">var test = 'hello world';</pre>";
             var expected = Environment.NewLine;
-            expected += $"```python{ Environment.NewLine}";
+            expected += $"```python{Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
             expected += $"```{Environment.NewLine}";
 
@@ -745,7 +832,7 @@ namespace ReverseMarkdown.Test
             {
                 GithubFlavored = true
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -754,26 +841,27 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenRemovedCommentsIsEnabled_CommentsAreRemoved()
         {
-            const string html = @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
+            const string html =
+                @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
             const string expected = @"Hello there <!-- This wont be removed because it is incomplete";
 
             var config = new Config
             {
-                RemoveComments = true    
+                RemoveComments = true
             };
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
         }
-        
+
         [Fact]
         public void WhenThereAreLineBreaksEncompassingParagraphText_It_Should_be_Removed()
         {
 
             var html = $"<p>{Environment.NewLine}Some text goes here.{Environment.NewLine}</p>";
             var expected = $"{Environment.NewLine}Some text goes here.{Environment.NewLine}";
-            
+
             var converter = new Converter();
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -783,7 +871,8 @@ namespace ReverseMarkdown.Test
         public void TestConversionOfMultiParagraphWithHeaders()
         {
             var html = $"<h1>Heading1</h1><p>First paragraph.</p><h1>Heading2</h1><p>Second paragraph.</p>";
-            var expected = $"{Environment.NewLine}# Heading1{Environment.NewLine}{Environment.NewLine}First paragraph.{Environment.NewLine}{Environment.NewLine}# Heading2{Environment.NewLine}{Environment.NewLine}Second paragraph.{Environment.NewLine}";
+            var expected =
+                $"{Environment.NewLine}# Heading1{Environment.NewLine}{Environment.NewLine}First paragraph.{Environment.NewLine}{Environment.NewLine}# Heading2{Environment.NewLine}{Environment.NewLine}Second paragraph.{Environment.NewLine}";
             var converter = new Converter();
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
@@ -792,7 +881,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void TestConversionWithPastedHtmlContainingUnicodeSpaces()
         {
-            var html =  @"<span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">Markdown Monster is an easy to use and extensible<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Markdown Editor</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">,<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Viewer</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>and<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Weblog Publisher</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>for Windows. Our goal is to provide the best Markdown specific editor for Windows and make it as easy as possible to create Markdown documents. We provide a core editor and previewer, and a number of non-intrusive helpers to help embed content like images, links, tables, code and more into your documents with minimal effort.</span>";
+            var html =
+                @"<span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">Markdown Monster is an easy to use and extensible<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Markdown Editor</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">,<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Viewer</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>and<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Weblog Publisher</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>for Windows. Our goal is to provide the best Markdown specific editor for Windows and make it as easy as possible to create Markdown documents. We provide a core editor and previewer, and a number of non-intrusive helpers to help embed content like images, links, tables, code and more into your documents with minimal effort.</span>";
 
             var config = new ReverseMarkdown.Config
             {
@@ -811,10 +901,11 @@ namespace ReverseMarkdown.Test
             Assert.Contains("and **Weblog Publisher** for Windows", expected);
         }
 
-        private static void CheckConversion(string html, string expected, Config config = null) {
+        private static void CheckConversion(string html, string expected, Config config = null)
+        {
             config = config ?? new Config();
             if (expected == null) throw new ArgumentNullException(nameof(expected));
-            
+
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
@@ -829,6 +920,24 @@ namespace ReverseMarkdown.Test
 
             var converter = new Converter();
             var result = converter.Convert(html);
+            Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void When_FencedCodeBlocks_Shouldnt_Have_Trailing_Line()
+        {
+
+            var html =
+                $@"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>{Environment.NewLine}</code></pre>";
+            var expected = $@"{Environment.NewLine}```{Environment.NewLine}<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>{Environment.NewLine}```{Environment.NewLine}";
+
+            var config = new ReverseMarkdown.Config
+            {
+                GithubFlavored = true,
+            };
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
         }
     }
