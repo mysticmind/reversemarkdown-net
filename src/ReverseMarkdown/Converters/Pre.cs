@@ -17,7 +17,7 @@ namespace ReverseMarkdown.Converters
             if (Converter.Config.GithubFlavored)
             {
                 var lang = GetLanguage(node);
-                var code = DecodeHtml(node.InnerText).TrimEnd('\n', '\r');
+                var code = DecodeHtml(node.InnerText).TrimEnd('\n').TrimEnd('\r');
                 return $"{Environment.NewLine}```{lang}{Environment.NewLine}{code}{Environment.NewLine}```{Environment.NewLine}";
             }
             else
