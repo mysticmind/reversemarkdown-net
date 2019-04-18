@@ -21,7 +21,7 @@ namespace ReverseMarkdown.Converters {
             var title = ExtractTitle(node);
             title = title.Length > 0 ? $" \"{title}\"" : "";
 
-            return $"![{alt}]({src}{title})";
+            return $"![{StringUtils.EscapeLinkText(alt)}]({src}{title})";
         }
     }
 }
