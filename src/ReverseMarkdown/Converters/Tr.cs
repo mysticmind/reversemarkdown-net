@@ -52,7 +52,7 @@ namespace ReverseMarkdown.Converters
 
         private string UnderlineFor(HtmlNode node)
         {
-            var colCount = node.ChildNodes.Count;
+            var colCount = node.ChildNodes.Count(child => child.Name == "th" || child.Name == "td");
 
             var cols = new List<string>();
 
