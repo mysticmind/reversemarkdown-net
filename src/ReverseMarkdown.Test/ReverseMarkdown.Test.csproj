@@ -4,6 +4,7 @@
     <AssemblyName>ReverseMarkdown.Test</AssemblyName>
     <TargetFrameworks>net46;netcoreapp1.0;netcoreapp2.0</TargetFrameworks>
     <PackageId>ReverseMarkdown.Test</PackageId>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
