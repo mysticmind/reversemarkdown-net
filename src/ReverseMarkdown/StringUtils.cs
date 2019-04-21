@@ -45,5 +45,15 @@ namespace ReverseMarkdown
                 return String.Empty;
             }
         }
+
+        /// <summary>
+        /// Escape/clean characters which would break the [] section of a markdown []() link
+        /// </summary>
+        internal static string EscapeLinkText(string rawText)
+        {
+            return Regex.Replace(rawText, @"\r?\n\s*\r?\n", Environment.NewLine, RegexOptions.Singleline)
+                .Replace("[", @"\[")
+                .Replace("]", @"\]");
+        }
     }
 }

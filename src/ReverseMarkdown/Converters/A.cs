@@ -14,7 +14,7 @@ namespace ReverseMarkdown.Converters {
         {
             var name = TreatChildren(node).Trim();
 
-            var href = node.GetAttributeValue("href", string.Empty).Trim();
+            var href = node.GetAttributeValue("href", string.Empty).Trim().Replace("(", "%28").Replace(")", "%29").Replace(" ", "%20");
             var title = ExtractTitle(node);
             title = title.Length > 0 ? $" \"{title}\"" : "";
             var scheme = StringUtils.GetScheme(href);
@@ -41,7 +41,7 @@ namespace ReverseMarkdown.Converters {
                                                         (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) || scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
                                                         && string.Equals(href, $"{scheme}://{name}", StringComparison.OrdinalIgnoreCase);
 
-                return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{name}]({href}{title})";
+                return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{StringUtils.EscapeLinkText(name)}]({href}{title})";
             }
 		}
 	}

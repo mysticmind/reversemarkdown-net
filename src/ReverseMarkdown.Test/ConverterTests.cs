@@ -87,6 +87,31 @@ namespace ReverseMarkdown.Test
             );
         }
 
+        [Fact]
+        public void WhenThereIsHtmlLinkWithDisallowedCharsInChildren_ThenEscapeTextInMarkdown()
+        {
+            CheckConversion(
+                html: @"<a href=""http://example.com"">this ]( might break things</a>",
+                expected: @"[this \]( might break things](http://example.com)",
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                }
+            );
+        }
+
+        [Fact]
+        public void WhenThereIsHtmlLinkWithParensInHref_ThenEscapeHrefInMarkdown()
+        {
+            CheckConversion(
+                html: @"<a href=""http://example.com?id=foo)bar"">link</a>",
+                expected: @"[link](http://example.com?id=foo%29bar)",
+                config: new Config()
+                {
+                    SmartHrefHandling = true
+                }
+            );
+        }
 
         [Fact]
         public void WhenThereIsHtmlWithProtocolRelativeUrlHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown()
@@ -203,7 +228,7 @@ namespace ReverseMarkdown.Test
             //The string is not correctly escaped.	
             CheckConversion(
                 html: @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>",
-                expected: @"[http://example.com/path/file name.docx](http://example.com/path/file name.docx)",
+                expected: @"[http://example.com/path/file name.docx](http://example.com/path/file%20name.docx)",
                 config: new Config()
                 {
                     SmartHrefHandling = true
@@ -438,6 +463,24 @@ namespace ReverseMarkdown.Test
             const string html =
                 @"This text has image <img src=""http://test.com/images/test.png""/>. Next line of text";
             const string expected = @"This text has image ![](http://test.com/images/test.png). Next line of text";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagWithMutlilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText()
+        {
+            string html =
+                $@"This text has image <img alt=""cat{Environment.NewLine}{Environment.NewLine}dog"" src=""http://test.com/images/test.png""/>. Next line of text";
+            string expected = $@"This text has image ![cat{Environment.NewLine}dog](http://test.com/images/test.png). Next line of text";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenThereIsImgTagWithBracesInAltText_ThenEnsureAltTextIsEscapedInMarkdown()
+        {
+            string html =
+                $@"This text has image <img alt=""a]b"" src=""http://test.com/images/test.png""/>. Next line of text";
+            string expected = $@"This text has image ![a\]b](http://test.com/images/test.png). Next line of text";
             CheckConversion(html, expected);
         }
 
