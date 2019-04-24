@@ -672,6 +672,21 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenListIsInTable_LeaveListAsHtml()
+        {
+            var html =
+                $"<table><tr><th>Heading</th></tr><tr><td><ol><li>Item1</li></ol></td></tr></table>";
+
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| Heading |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| <ol><li>Item1</li></ol> |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void Check_Converter_With_Unknown_Tag_ByPass_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag>";
