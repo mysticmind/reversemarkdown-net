@@ -1008,5 +1008,15 @@ namespace ReverseMarkdown.Test
 
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
         }
+ 
+        [Fact]
+        public void When_TextContainsAngleBrackets_HexEscapeAngleBrackets()
+        {
+            string html = @"<p>Value = &lt;Your text here&gt;</p>";
+
+            string expected = $@"{Environment.NewLine}Value = &lt;Your text here&gt;{Environment.NewLine}";
+
+            CheckConversion(html, expected);
+        }
     }
 }

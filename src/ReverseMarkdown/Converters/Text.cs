@@ -24,7 +24,17 @@ namespace ReverseMarkdown.Converters
 
         private string TreatText(HtmlNode node)
         {
-            var content = DecodeHtml(node.InnerText);
+            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by markdown
+            string content = node.InnerText
+                .Replace("&lt;", "%3C")
+                .Replace("&gt;", "%3E");
+
+            content = DecodeHtml(content);
+
+            // Not all renderers support hex encoded characters, so convert back to escaped HTML
+            content = node.InnerText
+                .Replace("%3C", "&lt;")
+                .Replace("%3E", "&gt;");
 
             //strip leading spaces and tabs for text within list item 
             var parent = node.ParentNode;
