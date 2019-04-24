@@ -21,7 +21,8 @@ namespace ReverseMarkdown.Converters
         private static string IndentationFor(HtmlNode node)
         {
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-            return node.ParentNode.Name.ToLowerInvariant() == "li" && node.ParentNode.FirstChild != node
+            bool parentIsList = node.ParentNode.Name.ToLowerInvariant() == "li" || node.ParentNode.Name.ToLowerInvariant() == "ol";
+            return parentIsList && node.ParentNode.FirstChild != node
                 ? new string(' ', length * 4)
                 : Environment.NewLine;
         }

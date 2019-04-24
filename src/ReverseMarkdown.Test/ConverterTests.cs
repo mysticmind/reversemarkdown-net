@@ -662,6 +662,16 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenListContainsParagraphsOutsideItems_ConvertToMarkdownAndIndentSiblings()
+        {
+            var html =
+                $"<ol>{Environment.NewLine}\t<li>Item1</li>{Environment.NewLine}\t<p>Item 1 additional info</p>{Environment.NewLine}\t<li>Item2</li>{Environment.NewLine}</ol>";
+            var expected =
+                $"{Environment.NewLine}1. Item1{Environment.NewLine}    Item 1 additional info{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void Check_Converter_With_Unknown_Tag_ByPass_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag>";
