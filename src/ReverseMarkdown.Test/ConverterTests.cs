@@ -403,6 +403,15 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenThereIsHeadingInsideTable_ThenIgnoreHeadingLevel()
+        {
+            string html = $"<table>{Environment.NewLine}<tr><th><h2>Heading <strong>text</strong></h2></th></tr>{Environment.NewLine}<tr><td>Content</td></tr>{Environment.NewLine}</table>";
+            var expected =
+                $"{Environment.NewLine}{Environment.NewLine}| Heading **text** |{Environment.NewLine}| --- |{Environment.NewLine}| Content |{Environment.NewLine}{Environment.NewLine}";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void WhenThereIsBlockquoteTag_ThenConvertToMarkdownBlockquote()
         {
             const string html = @"This text has <blockquote>blockquote</blockquote>. This text appear after header.";
