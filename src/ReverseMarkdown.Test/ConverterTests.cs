@@ -671,6 +671,31 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenListContainsParagraphsOutsideItems_ConvertToMarkdownAndIndentSiblings()
+        {
+            var html =
+                $"<ol>{Environment.NewLine}\t<li>Item1</li>{Environment.NewLine}\t<p>Item 1 additional info</p>{Environment.NewLine}\t<li>Item2</li>{Environment.NewLine}</ol>";
+            var expected =
+                $"{Environment.NewLine}1. Item1{Environment.NewLine}    Item 1 additional info{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenListIsInTable_LeaveListAsHtml()
+        {
+            var html =
+                $"<table><tr><th>Heading</th></tr><tr><td><ol><li>Item1</li></ol></td></tr></table>";
+
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| Heading |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| <ol><li>Item1</li></ol> |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void Check_Converter_With_Unknown_Tag_ByPass_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag>";
@@ -991,6 +1016,16 @@ namespace ReverseMarkdown.Test
             var result = converter.Convert(html);
 
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
+        }
+ 
+        [Fact]
+        public void When_TextContainsAngleBrackets_HexEscapeAngleBrackets()
+        {
+            string html = @"<p>Value = &lt;Your text here&gt;</p>";
+
+            string expected = $@"{Environment.NewLine}Value = &lt;Your text here&gt;{Environment.NewLine}";
+
+            CheckConversion(html, expected);
         }
     }
 }
