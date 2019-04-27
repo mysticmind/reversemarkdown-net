@@ -681,7 +681,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenListIsInTable_LeaveListAsHtml()
+        public void When_OrderedListIsInTable_LeaveListAsHtml()
         {
             var html =
                 $"<table><tr><th>Heading</th></tr><tr><td><ol><li>Item1</li></ol></td></tr></table>";
@@ -690,6 +690,21 @@ namespace ReverseMarkdown.Test
             expected += $"| Heading |{Environment.NewLine}";
             expected += $"| --- |{Environment.NewLine}";
             expected += $"| <ol><li>Item1</li></ol> |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void When_UnorderedListIsInTable_LeaveListAsHtml()
+        {
+            var html =
+                $"<table><tr><th>Heading</th></tr><tr><td><ul><li>Item1</li></ul></td></tr></table>";
+
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| Heading |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| <ul><li>Item1</li></ul> |{Environment.NewLine}";
             expected += Environment.NewLine;
 
             CheckConversion(html, expected);

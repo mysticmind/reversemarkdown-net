@@ -25,7 +25,8 @@ namespace ReverseMarkdown.Converters
                 return string.Empty;
 
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-            bool parentIsList = node.ParentNode.Name.ToLowerInvariant() == "li" || node.ParentNode.Name.ToLowerInvariant() == "ol";
+            string parentName = node.ParentNode.Name.ToLowerInvariant();
+            bool parentIsList = parentName == "li" || parentName == "ol" || parentName == "ul";
             return parentIsList && node.ParentNode.FirstChild != node
                 ? new string(' ', length * 4)
                 : Environment.NewLine;
