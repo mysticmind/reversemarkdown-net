@@ -626,7 +626,7 @@ namespace ReverseMarkdown.Test
             const string html =
                 @"This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
             var expected =
-                $"This text has ordered list.{Environment.NewLine}1. OuterItem1{Environment.NewLine}  - InnerItem1{Environment.NewLine}  - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
+                $"This text has ordered list.{Environment.NewLine}1. OuterItem1{Environment.NewLine}    - InnerItem1{Environment.NewLine}    - InnerItem2{Environment.NewLine}2. Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
@@ -636,7 +636,7 @@ namespace ReverseMarkdown.Test
             const string html =
                 @"This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
             var expected =
-                $"This text has ordered list.{Environment.NewLine}- OuterItem1{Environment.NewLine}  1. InnerItem1{Environment.NewLine}  2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
+                $"This text has ordered list.{Environment.NewLine}- OuterItem1{Environment.NewLine}    1. InnerItem1{Environment.NewLine}    2. InnerItem2{Environment.NewLine}- Item2{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
