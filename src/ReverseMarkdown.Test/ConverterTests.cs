@@ -866,10 +866,27 @@ namespace ReverseMarkdown.Test
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| col1 |{Environment.NewLine}";
             expected += $"| --- |{Environment.NewLine}";
-            expected += $"| line1<br>line2<br> |{Environment.NewLine}";
+            expected += $"| line1<br><br>line2<br> |{Environment.NewLine}";
             expected += Environment.NewLine;
 
             CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTable_CellContainsBr_PreserveBrAndConvertToGFMTable()
+        {
+            var html =
+                $"<table><tr><th>col1</th></tr><tr><td>line 1<br>line 2</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| line 1<br>line 2 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected, new Config
+            {
+                GithubFlavored = true,
+            });
         }
 
         [Fact]
