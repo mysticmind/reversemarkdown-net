@@ -844,6 +844,20 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenTable_CellContainsParagraph_AddBrThenConvertToGFMTable()
+        {
+            var html =
+                $"<table><tr><th>col1</th></tr><tr><td><p>line1</p><p>line2</p></td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| line1<br>line2<br> |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR()
         {
             const string html = @"First part<br />Second part";
