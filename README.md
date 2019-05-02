@@ -66,7 +66,7 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Copyright
 
-Copyright © 2017 Babu Annamalai
+Copyright © 2019 Babu Annamalai
 
 ## License
 
