@@ -681,7 +681,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenListIsInTable_LeaveListAsHtml()
+        public void When_OrderedListIsInTable_LeaveListAsHtml()
         {
             var html =
                 $"<table><tr><th>Heading</th></tr><tr><td><ol><li>Item1</li></ol></td></tr></table>";
@@ -690,6 +690,21 @@ namespace ReverseMarkdown.Test
             expected += $"| Heading |{Environment.NewLine}";
             expected += $"| --- |{Environment.NewLine}";
             expected += $"| <ol><li>Item1</li></ol> |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void When_UnorderedListIsInTable_LeaveListAsHtml()
+        {
+            var html =
+                $"<table><tr><th>Heading</th></tr><tr><td><ul><li>Item1</li></ul></td></tr></table>";
+
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| Heading |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| <ul><li>Item1</li></ul> |{Environment.NewLine}";
             expected += Environment.NewLine;
 
             CheckConversion(html, expected);
@@ -841,6 +856,37 @@ namespace ReverseMarkdown.Test
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void WhenTable_CellContainsParagraph_AddBrThenConvertToGFMTable()
+        {
+            var html =
+                $"<table><tr><th>col1</th></tr><tr><td><p>line1</p><p>line2</p></td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| line1<br><br>line2<br> |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTable_CellContainsBr_PreserveBrAndConvertToGFMTable()
+        {
+            var html =
+                $"<table><tr><th>col1</th></tr><tr><td>line 1<br>line 2</td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| line 1<br>line 2 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected, new Config
+            {
+                GithubFlavored = true,
+            });
         }
 
         [Fact]

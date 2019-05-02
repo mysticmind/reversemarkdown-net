@@ -20,11 +20,19 @@ namespace ReverseMarkdown.Converters
 
         private static string IndentationFor(HtmlNode node)
         {
+            string parentName = node.ParentNode.Name.ToLowerInvariant();
+
+            // If p follows a list item, indent it instead of adding a leading newline
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-            bool parentIsList = node.ParentNode.Name.ToLowerInvariant() == "li" || node.ParentNode.Name.ToLowerInvariant() == "ol";
-            return parentIsList && node.ParentNode.FirstChild != node
-                ? new string(' ', length * 4)
-                : Environment.NewLine;
+            bool parentIsList = parentName == "li" || parentName == "ol" || parentName == "ul";
+            if (parentIsList && node.ParentNode.FirstChild != node)
+                return new string(' ', length * 4);
+
+            // If p is at the start of a table cell, no leading newline
+            if ((parentName == "td" || parentName == "th") && node.ParentNode.FirstChild == node)
+                return string.Empty;
+
+            return Environment.NewLine;
         }
     }
 }
