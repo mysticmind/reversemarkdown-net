@@ -17,6 +17,11 @@ namespace ReverseMarkdown.Converters
         {
             var content = TreatChildren(node).TrimEnd();
             var underline = "";
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return "";
+            }
             
             if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node))
             {
@@ -61,7 +66,7 @@ namespace ReverseMarkdown.Converters
                 cols.Add("---");
             }
 
-            var colsAggregated = cols.Aggregate((item1, item2) => item1 + " | " + item2);
+            var colsAggregated = string.Join(" | ", cols);
 
             return $"| {colsAggregated} |{Environment.NewLine}";
         }
