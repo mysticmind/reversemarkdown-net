@@ -643,28 +643,14 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenThereIsWhitespaceAroundNestedLists_PreventBlankLinesWhenConvertingToMarkdownList()
         {
-            string html = @"
-<ul>
-    <li>OuterItem1
-        <ol>
-            <li>InnerItem1</li>
-        </ol>
-    </li>
-    <li>Item2</li>
-    <ol>
-        <li>InnerItem2</li>
-    </ol>
-    <li>Item3</li>
-</ul>".Trim();
+            string html = $@"<ul>{Environment.NewLine}    ";
+            html += $@"    <li>OuterItem1{Environment.NewLine}        <ol>{Environment.NewLine}            <li>InnerItem1</li>{Environment.NewLine}        </ol>{Environment.NewLine}    </li>{Environment.NewLine}";
+            html += $@"    <li>Item2</li>{Environment.NewLine}";
+            html += $@"    <ol>{Environment.NewLine}        <li>InnerItem2</li>{Environment.NewLine}    </ol>{Environment.NewLine}";
+            html += $@"    <li>Item3</li>{ Environment.NewLine}";
+            html += $@"</ul>";
 
-            var expected = @"
-- OuterItem1
-    1. InnerItem1
-- Item2
-    1. InnerItem2
-- Item3
-
-";
+            var expected = $@"{Environment.NewLine}- OuterItem1{Environment.NewLine}    1. InnerItem1{Environment.NewLine}- Item2{Environment.NewLine}    1. InnerItem2{Environment.NewLine}- Item3{Environment.NewLine}{Environment.NewLine}";
             CheckConversion(html, expected);
         }
 
