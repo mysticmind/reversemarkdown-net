@@ -32,7 +32,7 @@ namespace ReverseMarkdown.Converters
             content = DecodeHtml(content);
 
             // Not all renderers support hex encoded characters, so convert back to escaped HTML
-            content = node.InnerText
+            content = content
                 .Replace("%3C", "&lt;")
                 .Replace("%3E", "&gt;");
 

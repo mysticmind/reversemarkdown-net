@@ -1063,7 +1063,17 @@ namespace ReverseMarkdown.Test
 
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
         }
- 
+
+        [Fact]
+        public void When_TextIsHtmlEncoded_DecodeText()
+        {
+            string html = @"<p>cat&#39;s</p>";
+
+            string expected = $@"{Environment.NewLine}cat's{Environment.NewLine}";
+
+            CheckConversion(html, expected);
+        }
+
         [Fact]
         public void When_TextContainsAngleBrackets_HexEscapeAngleBrackets()
         {
