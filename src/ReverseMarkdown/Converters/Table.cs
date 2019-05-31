@@ -51,8 +51,8 @@ namespace ReverseMarkdown.Converters
                 underlineRowItems.Add("---");
             }
 
-            var headerRow = $"| {headerRowItems.Aggregate((item1, item2) => item1 + " | " + item2)} |{Environment.NewLine}";
-            var underlineRow = $"| {underlineRowItems.Aggregate((item1, item2) => item1 + " | " + item2)} |{Environment.NewLine}";
+            var headerRow = $"| {string.Join(" | ", headerRowItems)} |{Environment.NewLine}";
+            var underlineRow = $"| {string.Join(" | ", underlineRowItems)} |{Environment.NewLine}";
 
             return headerRow + underlineRow;
         }

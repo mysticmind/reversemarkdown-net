@@ -904,6 +904,24 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenTable_HasEmptyRow_DropsEmptyRow()
+        {
+            const string html =
+                @"<table><tr><td>abc</td></tr><tr></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| <!----> |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| abc |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected, new Config
+            {
+                GithubFlavored = true,
+                TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.EmptyRow,
+            });
+        }
+
+        [Fact]
         public void When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR()
         {
             const string html = @"First part<br />Second part";
