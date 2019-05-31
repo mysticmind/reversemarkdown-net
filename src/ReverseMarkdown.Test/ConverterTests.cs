@@ -641,6 +641,20 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenThereIsWhitespaceAroundNestedLists_PreventBlankLinesWhenConvertingToMarkdownList()
+        {
+            string html = $@"<ul>{Environment.NewLine}    ";
+            html += $@"    <li>OuterItem1{Environment.NewLine}        <ol>{Environment.NewLine}            <li>InnerItem1</li>{Environment.NewLine}        </ol>{Environment.NewLine}    </li>{Environment.NewLine}";
+            html += $@"    <li>Item2</li>{Environment.NewLine}";
+            html += $@"    <ol>{Environment.NewLine}        <li>InnerItem2</li>{Environment.NewLine}    </ol>{Environment.NewLine}";
+            html += $@"    <li>Item3</li>{ Environment.NewLine}";
+            html += $@"</ul>";
+
+            var expected = $@"{Environment.NewLine}- OuterItem1{Environment.NewLine}    1. InnerItem1{Environment.NewLine}- Item2{Environment.NewLine}    1. InnerItem2{Environment.NewLine}- Item3{Environment.NewLine}{Environment.NewLine}";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
         public void
             WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped()
         {
