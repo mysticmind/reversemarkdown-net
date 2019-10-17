@@ -33,8 +33,8 @@ namespace ReverseMarkdown.Converters
 
         private bool UseFirstRowAsHeaderRow(HtmlNode node)
         {
-            var tableNode = node.ParentNode;
-            var firstRow = tableNode.SelectNodes("tr")?.FirstOrDefault();
+            var tableNode = node.Ancestors("table").FirstOrDefault();
+            var firstRow = tableNode?.SelectSingleNode("//tr");
 
             if (firstRow == null)
             {

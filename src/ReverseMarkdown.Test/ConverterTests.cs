@@ -886,6 +886,35 @@ namespace ReverseMarkdown.Test
             CheckConversion(html, expected);
         }
 
+
+        [Fact]
+        public void WhenTable_ContainsTheadTh_ConvertToGFMTable() {
+            var html = "<table><thead><tr><th>col1</th><th>col2</th></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 |{Environment.NewLine}";
+            expected += $"| --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected, new Config {
+                GithubFlavored = true,
+            });
+        }
+
+        [Fact]
+        public void WhenTable_ContainsTheadTd_ConvertToGFMTable() {
+            var html = "<table><thead><tr><td>col1</td><td>col2</td></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 |{Environment.NewLine}";
+            expected += $"| --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected, new Config {
+                GithubFlavored = true,
+            });
+        }
+
         [Fact]
         public void WhenTable_CellContainsBr_PreserveBrAndConvertToGFMTable()
         {
