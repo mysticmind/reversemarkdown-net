@@ -1144,5 +1144,15 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
+
+        [Fact]
+        public void When_TextWithinParagraphContainsNewlineChars_ConvertNewlineCharsToSpace()
+        {
+            // note that the string also has a tab space
+            string html = $"<p>This service will be{Environment.NewLine}temporarily unavailable due to planned maintenance{Environment.NewLine}from 02:00-04:00 on 30/01/2020</p>";
+            string expected = $"{Environment.NewLine}This service will be temporarily unavailable due to planned maintenance from 02:00-04:00 on 30/01/2020{Environment.NewLine}";
+
+            CheckConversion(html, expected);
+        }
     }
 }
