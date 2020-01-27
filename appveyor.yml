@@ -9,7 +9,7 @@ environment:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   TARGET_BUILD_VERSION: '3.10.0'
   NUGET_DEPLOY_KEY:
-    secure: 6yOBK0JyKMTykW1zW6B4mvc9mgQGnRGex15KG8VhOre/DSTkrUYtgbPCpiBlcX/T
+    secure: hu8NpWJw+DFtaRuMPws7/tYmSNBTQH8EO5/5sHyRQZ11/dIRyiEqYSgWUtgwWUB2
 
 nuget:
   disable_publish_on_pr: true
