@@ -1154,5 +1154,40 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
+
+        [Fact(Skip = "Issue 61. Have to find out a way how to handle unclosed CDATA tags.")]
+        public void WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
+            // note that the string also has a tab space
+            string html = @"<html><head><style></head><body><p>Test content</p></body></html>";
+            string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config() {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            });
+        }
+
+        [Fact(Skip = "Issue 61. Have to find out a way how to handle unclosed CDATA tags.")]
+        public void WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
+            // note that the string also has a tab space
+            string html = @"<html><body><script><p>Test content</p></body></html>";
+            string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config() {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            });
+        }
+
+        [Fact]
+        public void WhenCommentOverlapTag_WithRemoveComments_ThenDoNotStripContentBetweenComments() {
+            // note that the string also has a tab space
+            string html = @"<p>test <!-- comment -->content<!-- another comment --></p>";
+            string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config() {
+                RemoveComments = true
+            });
+        }
+
+
     }
 }

@@ -17,7 +17,7 @@ namespace ReverseMarkdown
         private static string RemoveComments(string content)
         {
             // optionally remove HTML comment tags from content (i.e `<!-- this is a comment block -->`)
-            content = Regex.Replace(content, @"<!--(\n|.)*-->", "");
+            content = Regex.Replace(content, @"<!--(\n|.)*?-->", "");
             return content;
         }
 
