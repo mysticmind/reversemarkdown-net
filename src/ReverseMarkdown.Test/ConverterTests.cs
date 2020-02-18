@@ -1155,7 +1155,7 @@ namespace ReverseMarkdown.Test
             CheckConversion(html, expected);
         }
 
-        [Fact(Skip = "Issue 61. Have to find out a way how to handle unclosed CDATA tags.")]
+        [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
         public void WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
             string html = @"<html><head><style></head><body><p>Test content</p></body></html>";
             string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
@@ -1165,7 +1165,7 @@ namespace ReverseMarkdown.Test
             });
         }
 
-        [Fact(Skip = "Issue 61. Have to find out a way how to handle unclosed CDATA tags.")]
+        [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
         public void WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
             string html = @"<html><body><script><p>Test content</p></body></html>";
             string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
