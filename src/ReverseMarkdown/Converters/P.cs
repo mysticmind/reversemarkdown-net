@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -12,10 +12,11 @@ namespace ReverseMarkdown.Converters
             Converter.Register("p", this);
         }
 
-        public override string Convert(HtmlNode node)
-        {
+        public override string Convert(HtmlNode node) {
             var indentation = IndentationFor(node);
-            return $"{indentation}{TreatChildren(node).Trim()}{Environment.NewLine}";
+            var newlineAfter = NewlineAfter(node);
+
+            return $"{indentation}{TreatChildren(node).Trim()}{newlineAfter}";
         }
 
         private static string IndentationFor(HtmlNode node)
@@ -29,10 +30,11 @@ namespace ReverseMarkdown.Converters
                 return new string(' ', length * 4);
 
             // If p is at the start of a table cell, no leading newline
-            if ((parentName == "td" || parentName == "th") && node.ParentNode.FirstChild == node)
-                return string.Empty;
+            return Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine;
+        }
 
-            return Environment.NewLine;
+        private string NewlineAfter(HtmlNode node) {
+            return Td.LastNodeWithinCell(node) ? "" : Environment.NewLine;
         }
     }
 }
