@@ -1027,7 +1027,7 @@ namespace ReverseMarkdown.Test
         {
             const string html =
                 @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
-            const string expected = @"Hello there <!-- This wont be removed because it is incomplete";
+            const string expected = @"Hello there ";
 
             var config = new Config
             {
