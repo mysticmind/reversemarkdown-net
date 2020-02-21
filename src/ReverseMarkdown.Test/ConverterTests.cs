@@ -1027,7 +1027,7 @@ namespace ReverseMarkdown.Test
         {
             const string html =
                 @"Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
-            const string expected = @"Hello there <!-- This wont be removed because it is incomplete";
+            const string expected = @"Hello there ";
 
             var config = new Config
             {
@@ -1154,5 +1154,37 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
+
+        [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
+        public void WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
+            string html = @"<html><head><style></head><body><p>Test content</p></body></html>";
+            string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config() {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            });
+        }
+
+        [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
+        public void WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
+            string html = @"<html><body><script><p>Test content</p></body></html>";
+            string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config() {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            });
+        }
+
+        [Fact]
+        public void WhenCommentOverlapTag_WithRemoveComments_ThenDoNotStripContentBetweenComments() {
+            string html = @"<p>test <!-- comment -->content<!-- another comment --></p>";
+            string expected = $"{Environment.NewLine}Test content{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config() {
+                RemoveComments = true
+            });
+        }
+
+
     }
 }
