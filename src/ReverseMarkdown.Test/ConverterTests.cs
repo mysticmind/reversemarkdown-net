@@ -1154,7 +1154,8 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
-		[Fact]
+        
+        [Fact]
         public void WhenTableCellsWithP_ThenDoNotAddNewlines() {
             string html = $@"<html><body><table><tbody><tr><td><p>col1</p></td><td><p>col2</p></td></tr><tr><td><p>data1</p></td><td><p>data2</p></td></tr></tbody></table></body></html>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
