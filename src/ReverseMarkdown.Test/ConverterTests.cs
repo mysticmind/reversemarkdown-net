@@ -880,7 +880,7 @@ namespace ReverseMarkdown.Test
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"| col1 |{Environment.NewLine}";
             expected += $"| --- |{Environment.NewLine}";
-            expected += $"| line1<br><br>line2<br> |{Environment.NewLine}";
+            expected += $"| line1<br><br>line2 |{Environment.NewLine}";
             expected += Environment.NewLine;
 
             CheckConversion(html, expected);
@@ -1154,6 +1154,75 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
+        
+        [Fact]
+        public void WhenTableCellsWithP_ThenDoNotAddNewlines() {
+            string html = $@"<html><body><table><tbody><tr><td><p>col1</p></td><td><p>col2</p></td></tr><tr><td><p>data1</p></td><td><p>data2</p></td></tr></tbody></table></body></html>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 |{Environment.NewLine}";
+            expected += $"| --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTableCellsWithDiv_ThenDoNotAddNewlines() {
+            string html = $@"<html><body><table><tbody><tr><td><div>col1</div></td><td><div>col2</div></td></tr><tr><td><div>data1</div></td><td><div>data2</div></td></tr></tbody></table></body></html>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 | col2 |{Environment.NewLine}";
+            expected += $"| --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTableCellsWithPWithMarkupNewlines_ThenTrimExcessNewlines() {
+            string html = $"<html><body><table><tbody>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}col1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}data1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>\t</tr></tbody></table></body></html>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| col1 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += $"| data1 |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTableCellsWithP_ThenNoNewlines() {
+            string html = $@"<table><tr><td><p>data1</p></td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| data1 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTableCellsWithMultipleP_ThenNoNewlines() {
+            string html = $@"<table><tr><td><p>p1</p><p>p2</p></td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| p1<br><br>p2 |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void WhenTableCellsWithDataAndP_ThenNewlineBeforeP() {
+            string html = $@"<table><tr><td>data1<p>p</p></td></tr></table>";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
+            expected += $"| data1<br>p |{Environment.NewLine}";
+            expected += $"| --- |{Environment.NewLine}";
+            expected += Environment.NewLine;
+
+            CheckConversion(html, expected);
+        }
 
         [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
         public void WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown() {
@@ -1184,7 +1253,5 @@ namespace ReverseMarkdown.Test
                 RemoveComments = true
             });
         }
-
-
     }
 }
