@@ -739,6 +739,15 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenStyletagWithBypassOption_ReturnEmpty() {
+            const string html = @"<body><style type=""text/css"">.main {background-color: #ffffff;}</style></body>";
+            const string expected = "";
+            CheckConversion(html, expected, new Config() {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            });
+        }
+
+        [Fact]
         public void Check_Converter_With_Unknown_Tag_Drop_Option()
         {
             const string html = @"<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
