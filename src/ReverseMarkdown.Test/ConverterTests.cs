@@ -612,6 +612,15 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenThereIsUnorderedListAndBulletIsAsterisk_ThenConvertToMarkdownList()
+        {
+            const string html = @"This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>";
+            var expected =
+                $"This text has unordered list.{Environment.NewLine}* Item1{Environment.NewLine}* Item2{Environment.NewLine}{Environment.NewLine}";
+            CheckConversion(html, expected, new Config { ListBulletChar = '*' });
+        }
+
+        [Fact]
         public void WhenThereIsOrderedList_ThenConvertToMarkdownList()
         {
             const string html = @"This text has ordered list.<ol><li>Item1</li><li>Item2</li></ol>";

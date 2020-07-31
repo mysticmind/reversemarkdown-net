@@ -35,6 +35,8 @@ namespace ReverseMarkdown
         public TableWithoutHeaderRowHandlingOption TableWithoutHeaderRowHandling { get; set; } =
             TableWithoutHeaderRowHandlingOption.Default;
 
+        public char ListBulletChar { get; set; } = '-';
+
         public enum UnknownTagsOption
         {
             /// <summary>
