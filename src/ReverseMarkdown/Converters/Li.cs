@@ -42,7 +42,7 @@ namespace ReverseMarkdown.Converters
             }
             else
             {
-                return "- ";
+                return $"{Converter.Config.ListBulletChar} ";
             }
         }
         
