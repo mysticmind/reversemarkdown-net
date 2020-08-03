@@ -86,13 +86,5 @@ namespace ReverseMarkdown.Converters
 
             return Match.Empty;
         }
-
-        private static string GetLanguageFromConfluenceClassAttribute(HtmlNode node)
-        {
-            var val = node.GetAttributeValue("class", "");
-            var rx = new System.Text.RegularExpressions.Regex(@"brush:\s?(:?.*)");
-            var res = rx.Match(val);
-            return res.Success ? res.Value.Split(':')[1].Replace(";","").Trim() : "";
-        }
     }
 }
