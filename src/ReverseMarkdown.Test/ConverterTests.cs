@@ -1021,6 +1021,47 @@ namespace ReverseMarkdown.Test
             Assert.Equal(expected, result);
         }
 
+
+        [Fact]
+        public void When_PRE_With_Github_Site_DIV_Parent_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
+        {
+            const string html = @"<div class=""highlight highlight-source-csharp""><pre>var test = ""hello world"";</pre></div>";
+            var expected = Environment.NewLine;
+            expected += $"```csharp{Environment.NewLine}";
+            expected += $@"var test = ""hello world"";{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}";
+
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void When_PRE_With_HighlightJs_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
+        {
+            const string html = @"<pre><code class=""hljs language-csharp"">var test = ""hello world"";</code></pre>";
+            var expected = Environment.NewLine;
+            expected += $"```csharp{Environment.NewLine}";
+            expected += $@"var test = ""hello world"";{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}";
+
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
+
         [Fact]
         public void When_PRE_With_Lang_Highlight_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
