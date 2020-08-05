@@ -1312,5 +1312,13 @@ namespace ReverseMarkdown.Test
                 RemoveComments = true
             });
         }
+
+        [Fact]
+        public void WhenBoldTagContainsBRTag_ThenConvertToMarkdown()
+        {
+            const string html = "test<b><br/>test</b>";
+            var expected = $"test**  {Environment.NewLine}test**";
+            CheckConversion(html, expected);
+        }
     }
 }

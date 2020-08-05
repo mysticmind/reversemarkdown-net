@@ -18,13 +18,13 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content.Trim()) || AlreadyBold(node))
+            if (string.IsNullOrEmpty(content) || AlreadyBold(node))
             {
                 return content;
             }
             else
             {
-                return $"**{content.Trim()}**";
+                return $"**{content}**";
             }
         }
 
