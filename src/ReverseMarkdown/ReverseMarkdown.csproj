@@ -4,9 +4,6 @@
     <VersionPrefix>1.0.0</VersionPrefix>
     <Authors>Babu Annamalai</Authors>
     <TargetFrameworks>net46;netstandard1.6;netstandard2.0</TargetFrameworks>
-    <AssemblyName>ReverseMarkdown</AssemblyName>
-    <RootNamespace>ReverseMarkdown</RootNamespace>
-    <PackageId>ReverseMarkdown</PackageId>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
