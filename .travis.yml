@@ -2,14 +2,13 @@ language: csharp
 sudo: required
 dist: xenial
 mono: none
-dotnet: 2.1.400
+dotnet: 3.1.302
 
 before_script:
   - export DOTNET_CLI_TELEMETRY_OPTOUT=1
   - export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 
-# run targeting netstandard1.6
 script:
-  - dotnet restore ./src/ReverseMarkdown.sln --runtime netstandard2.0
-  - dotnet build ./src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework netcoreapp2.0 --configuration Release
-  - dotnet test ./src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework netcoreapp2.0 --configuration Release
+  - dotnet restore ./src/ReverseMarkdown.sln
+  - dotnet build ./src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework netcoreapp3.1 --configuration Release
+  - dotnet test ./src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework netcoreapp3.1 --configuration Release
