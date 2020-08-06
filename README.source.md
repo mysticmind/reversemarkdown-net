@@ -23,15 +23,16 @@ snippet: UsageWithConfig
 ## Configuration options
 
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
+* `ListBulletChar` - Allows to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows to change it. Available in v3.12.0.
 * `RemoveComments` - Remove comment tags with text. Default is false
 * `SmartHrefHandling` - how to handle `<a>` tag href attribute
   * `false` - Outputs `[{name}]({href}{title})` even if name and href is identical. This is the default option.
   * `true` - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
-               
+
     If `href` contains `http/https` protocol, and `name` doesn't but otherwise are the same, output `href` only
-    
+
     If `tel:` or `mailto:` scheme, but afterwards identical with name, output `name` only.
-* `UnknownTags` - handle unknown tags. 
+* `UnknownTags` - handle unknown tags.
   * `UnknownTagsOption.PassThrough` - Include the unknown tag completely into the result. That is, the tag along with the text will be left in output. This is the default
   * `UnknownTagsOption.Drop` - Drop the unknown tag and its content
   * `UnknownTagsOption.Bypass` - Ignore the unknown tag but try to convert its content
