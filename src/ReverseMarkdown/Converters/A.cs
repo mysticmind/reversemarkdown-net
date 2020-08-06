@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using System;
+using System.Linq;
 
 namespace ReverseMarkdown.Converters {
     public class A : ConverterBase
@@ -13,6 +14,8 @@ namespace ReverseMarkdown.Converters {
         public override string Convert(HtmlNode node)
         {
             var name = TreatChildren(node).Trim();
+
+            var hasSingleChildImgNode = node.ChildNodes.Count == 1 && node.ChildNodes.Count(n => n.Name.Contains("img")) == 1;
 
             var href = node.GetAttributeValue("href", string.Empty).Trim().Replace("(", "%28").Replace(")", "%29").Replace(" ", "%20");
             var title = ExtractTitle(node);
@@ -41,7 +44,10 @@ namespace ReverseMarkdown.Converters {
                                                         (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) || scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
                                                         && string.Equals(href, $"{scheme}://{name}", StringComparison.OrdinalIgnoreCase);
 
-                return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{StringUtils.EscapeLinkText(name)}]({href}{title})";
+                // if the anchor tag contains a single child image node don't escape the link text
+                var linkText = hasSingleChildImgNode ? name : StringUtils.EscapeLinkText(name);
+
+                return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{linkText}]({href}{title})";
             }
 		}
 	}

@@ -1320,5 +1320,13 @@ namespace ReverseMarkdown.Test
             var expected = $"test**  {Environment.NewLine}test**";
             CheckConversion(html, expected);
         }
+        
+        [Fact]
+        public void WhenAnchorTagContainsImgTag_LinkTextShouldNotBeEscaped()
+        {
+            const string html = "<a href=\"https://www.example.com\"><img src=\"https://example.com/image.jpg\"/></a>";
+            var expected = $"[![](https://example.com/image.jpg)](https://www.example.com)";
+            CheckConversion(html, expected);
+        }
     }
 }
