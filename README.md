@@ -15,7 +15,7 @@ Note that the library implementation is based on the Ruby based Html to Markdown
 
 ## Usage
 
-You can install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself. 
+Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself.
 
 <!-- snippet: Usage -->
 <a id='snippet-usage'/></a>
@@ -63,8 +63,9 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Configuration options
 
+* `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
-* `ListBulletChar` - Allows to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows to change it. Available in v3.12.0.
+* `ListBulletChar` - Allows to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows to change it.
 * `RemoveComments` - Remove comment tags with text. Default is false
 * `SmartHrefHandling` - how to handle `<a>` tag href attribute
   * `false` - Outputs `[{name}]({href}{title})` even if name and href is identical. This is the default option.
