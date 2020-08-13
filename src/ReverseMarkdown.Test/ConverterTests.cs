@@ -1364,18 +1364,5 @@ namespace ReverseMarkdown.Test
 
             Assert.Equal(expected, result);
         }
-
-        [Fact]
-        public void When_PRE_With_Content_Convert_Ensure_LineBreaks_Are_Retained()
-        {
-            var html = File.ReadAllText("C:\\Users\\babua\\Downloads\\PageProjectDescription(2)\\PageProjectDescription.html");
-            var converter = new Converter(new Config
-            {
-                GithubFlavored = true,
-                DefaultCodeBlockLanguage = "powershell"
-            });
-            var result = converter.Convert(html);
-            File.WriteAllText("C:\\Users\\babua\\Downloads\\PageProjectDescription(2)\\PageProjectDescription.md", result);
-        }
     }
 }
