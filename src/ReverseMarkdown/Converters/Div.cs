@@ -13,7 +13,15 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            return $"{(Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine)}{TreatChildren(node).Trim()}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
+            var content = TreatChildren(node).Trim();
+
+            // if child is a pre tag then Trim in the above step removes the 4 spaces for code block
+            if (node.ChildNodes.Count > 0 && node.FirstChild.Name == "pre" && !Converter.Config.GithubFlavored)
+            {
+                content = $"    {content}";
+            }
+
+            return $"{(Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine)}{content}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
         }
     }
 }
