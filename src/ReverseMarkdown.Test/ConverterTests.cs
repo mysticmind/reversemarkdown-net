@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -594,11 +595,11 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre()
+        public void WhenThereIsEmptyPreTag_ThenIgnorePre()
         {
             const string html = @"This text has pre tag content <pre><br/ ></pre>Next line of text";
             var expected =
-                $"This text has pre tag content {Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Next line of text";
+                $"This text has pre tag content Next line of text";
             CheckConversion(html, expected);
         }
 
@@ -988,9 +989,9 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre>var test = 'hello world';</pre>";
-            var expected = $"{Environment.NewLine}```{Environment.NewLine}";
+            var expected = $"{Environment.NewLine}{Environment.NewLine}```{Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
-            expected += $"```{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new Config
             {
@@ -1006,10 +1007,10 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_Confluence_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre class=""brush: python;"">var test = 'hello world';</pre>";
-            var expected = Environment.NewLine;
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"```python{Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
-            expected += $"```{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new Config
             {
@@ -1026,10 +1027,10 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_Github_Site_DIV_Parent_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<div class=""highlight highlight-source-csharp""><pre>var test = ""hello world"";</pre></div>";
-            var expected = Environment.NewLine;
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"```csharp{Environment.NewLine}";
             expected += $@"var test = ""hello world"";{Environment.NewLine}";
-            expected += $"```{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new Config
             {
@@ -1046,10 +1047,10 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_HighlightJs_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre><code class=""hljs language-csharp"">var test = ""hello world"";</code></pre>";
-            var expected = Environment.NewLine;
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"```csharp{Environment.NewLine}";
             expected += $@"var test = ""hello world"";{Environment.NewLine}";
-            expected += $"```{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new Config
             {
@@ -1066,10 +1067,10 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_Lang_Highlight_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre class=""highlight-python"">var test = 'hello world';</pre>";
-            var expected = Environment.NewLine;
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"```python{Environment.NewLine}";
             expected += $"var test = 'hello world';{Environment.NewLine}";
-            expected += $"```{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new Config
             {
@@ -1172,7 +1173,7 @@ namespace ReverseMarkdown.Test
 
             var html =
                 $@"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>{Environment.NewLine}</code></pre>";
-            var expected = $@"{Environment.NewLine}```xml{Environment.NewLine}<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>{Environment.NewLine}```{Environment.NewLine}";
+            var expected = $@"{Environment.NewLine}{Environment.NewLine}```xml{Environment.NewLine}<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>{Environment.NewLine}```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new ReverseMarkdown.Config
             {
@@ -1333,10 +1334,10 @@ namespace ReverseMarkdown.Test
         public void When_PRE_Without_Lang_Marker_Class_Att_And_GitHubFlavored_Config_With_DefaultCodeBlockLanguage_ThenConvertToGFM_PRE()
         {
             const string html = @"<pre>var test = ""hello world"";</pre>";
-            var expected = Environment.NewLine;
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $"```csharp{Environment.NewLine}";
             expected += $@"var test = ""hello world"";{Environment.NewLine}";
-            expected += $"```{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}{Environment.NewLine}";
 
             var config = new Config
             {
@@ -1354,14 +1355,27 @@ namespace ReverseMarkdown.Test
         public void When_PRE_With_Parent_DIV_And_Non_GitHubFlavored_Config_FirstLine_CodeBlock_SpaceIndent_Should_Be_Retained()
         {
             const string html = @"<div><pre>var test = ""hello world"";</pre></div>";
-            var expected = Environment.NewLine;
+            var expected = $"{Environment.NewLine}{Environment.NewLine}";
             expected += $@"    var test = ""hello world"";";
-            expected += $"{Environment.NewLine}";
+            expected += $"{Environment.NewLine}{Environment.NewLine}";
 
             var converter = new Converter();
             var result = converter.Convert(html);
 
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void When_PRE_With_Content_Convert_Ensure_LineBreaks_Are_Retained()
+        {
+            var html = File.ReadAllText("C:\\Users\\babua\\Downloads\\PageProjectDescription(2)\\PageProjectDescription.html");
+            var converter = new Converter(new Config
+            {
+                GithubFlavored = true,
+                DefaultCodeBlockLanguage = "powershell"
+            });
+            var result = converter.Convert(html);
+            File.WriteAllText("C:\\Users\\babua\\Downloads\\PageProjectDescription(2)\\PageProjectDescription.md", result);
         }
     }
 }

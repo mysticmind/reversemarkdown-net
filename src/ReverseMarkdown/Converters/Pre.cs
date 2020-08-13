@@ -14,21 +14,29 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
+            var indent = Converter.Config.GithubFlavored ? string.Empty : "    ";
+
+            var content = string.Empty;
+            if (node.ChildNodes.Count > 0)
+            {
+                content = node.ChildNodes.Aggregate(string.Empty, (current, nd) => indent + DecodeHtml(nd.InnerText) + Environment.NewLine);
+                content = content.Trim().Length > 0 ? content.TrimEnd() : content.Trim();
+            }
+
+            if (string.IsNullOrEmpty(content))
+            {
+                return string.Empty;
+            }
+
             if (Converter.Config.GithubFlavored)
             {
                 var lang = GetLanguage(node);
-                var code = DecodeHtml(node.InnerText).TrimEnd(new [] {'\n','\r'});
-                return $"{Environment.NewLine}```{lang}{Environment.NewLine}{code}{Environment.NewLine}```{Environment.NewLine}";
+
+                return $"{Environment.NewLine}{Environment.NewLine}```{lang}{Environment.NewLine}{content}{Environment.NewLine}```{Environment.NewLine}{Environment.NewLine}";
             }
             else
             {
-                // get the lines based on carriage return and prefix four spaces to each line
-                var lines = node.InnerText.ReadLines().Select(item => $"    {item}{Environment.NewLine}");
-
-                // join all the lines to a single line
-                var result = lines.Aggregate(string.Empty, (curr, next) => curr + next);
-
-                return $"{Environment.NewLine}{Environment.NewLine}{result}{Environment.NewLine}";
+                return $"{Environment.NewLine}{Environment.NewLine}{content}{Environment.NewLine}{Environment.NewLine}";
             }
         }
 
