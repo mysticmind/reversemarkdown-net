@@ -1328,5 +1328,40 @@ namespace ReverseMarkdown.Test
             var expected = $"[![](https://example.com/image.jpg)](https://www.example.com)";
             CheckConversion(html, expected);
         }
+
+        [Fact]
+        public void When_PRE_Without_Lang_Marker_Class_Att_And_GitHubFlavored_Config_With_DefaultCodeBlockLanguage_ThenConvertToGFM_PRE()
+        {
+            const string html = @"<pre>var test = ""hello world"";</pre>";
+            var expected = Environment.NewLine;
+            expected += $"```csharp{Environment.NewLine}";
+            expected += $@"var test = ""hello world"";{Environment.NewLine}";
+            expected += $"```{Environment.NewLine}";
+
+            var config = new Config
+            {
+                GithubFlavored = true,
+                DefaultCodeBlockLanguage = "csharp"
+            };
+
+            var converter = new Converter(config);
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void When_PRE_With_Parent_DIV_And_Non_GitHubFlavored_Config_FirstLine_CodeBlock_SpaceIndent_Should_Be_Retained()
+        {
+            const string html = @"<div><pre>var test = ""hello world"";</pre></div>";
+            var expected = Environment.NewLine;
+            expected += $@"    var test = ""hello world"";";
+            expected += $"{Environment.NewLine}";
+
+            var converter = new Converter();
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
     }
 }

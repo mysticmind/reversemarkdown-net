@@ -34,7 +34,11 @@ namespace ReverseMarkdown.Converters
 
         private string GetLanguage(HtmlNode node)
         {
-            return GetLanguageFromHighlightClassAttribute(node);
+            var language = GetLanguageFromHighlightClassAttribute(node);
+
+            return !string.IsNullOrEmpty(language)
+                ? language
+                : Converter.Config.DefaultCodeBlockLanguage;
         }
 
 

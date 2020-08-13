@@ -35,7 +35,15 @@ namespace ReverseMarkdown
         public TableWithoutHeaderRowHandlingOption TableWithoutHeaderRowHandling { get; set; } =
             TableWithoutHeaderRowHandlingOption.Default;
 
+        /// <summary>
+        /// Option to set a different bullet character for un-ordered lists
+        /// </summary>
         public char ListBulletChar { get; set; } = '-';
+
+        /// <summary>
+        /// Option to set a default GFM code block language if class based language markers are not available
+        /// </summary>
+        public string DefaultCodeBlockLanguage { get; set; }
 
         public enum UnknownTagsOption
         {
