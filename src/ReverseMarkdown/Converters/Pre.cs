@@ -14,14 +14,8 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            var indent = Converter.Config.GithubFlavored ? string.Empty : "    ";
-
-            var content = string.Empty;
-            if (node.ChildNodes.Count > 0)
-            {
-                content = node.ChildNodes.Aggregate(string.Empty, (current, nd) => indent + DecodeHtml(nd.InnerText) + Environment.NewLine);
-                content = content.Trim().Length > 0 ? content.TrimEnd() : content.Trim();
-            }
+            var content = DecodeHtml(node.InnerText);
+            content = content.Trim();
 
             if (string.IsNullOrEmpty(content))
             {
@@ -31,13 +25,13 @@ namespace ReverseMarkdown.Converters
             if (Converter.Config.GithubFlavored)
             {
                 var lang = GetLanguage(node);
-
                 return $"{Environment.NewLine}{Environment.NewLine}```{lang}{Environment.NewLine}{content}{Environment.NewLine}```{Environment.NewLine}{Environment.NewLine}";
             }
-            else
-            {
-                return $"{Environment.NewLine}{Environment.NewLine}{content}{Environment.NewLine}{Environment.NewLine}";
-            }
+
+            // add 4 space indent
+            var lines = content.ReadLines().Select(item => "    " + item);
+            content = string.Join(Environment.NewLine, lines);
+            return $"{Environment.NewLine}{Environment.NewLine}{content}{Environment.NewLine}{Environment.NewLine}";
         }
 
         private string GetLanguage(HtmlNode node)
