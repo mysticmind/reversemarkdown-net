@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -13,15 +14,36 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            var content = TreatChildren(node);
+            var content = string.Empty;
 
-            // if child is a pre tag then Trim in the above step removes the 4 spaces for code block
-            if (node.ChildNodes.Count > 0 && node.FirstChild.Name == "pre")
+            do
+            {
+                if (node.ChildNodes.Count == 1 && node.FirstChild.Name == "div")
+                {
+                    node = node.FirstChild;
+                    continue;
+                }
+
+                content = TreatChildren(node);
+                break;
+            } while (true);
+
+            var blockTags = new List<string>
+            {
+                "pre",
+                "p",
+                "ol",
+                "oi",
+                "table"
+            };
+
+            // if there is a block child then ignore adding the newlines for div
+            if ((node.ChildNodes.Count == 1 && blockTags.Contains(node.FirstChild.Name)))
             {
                 return content;
             }
 
-            return $"{(Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine)}{content.Trim()}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
+            return $"{(Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine)}{content}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
         }
     }
 }
