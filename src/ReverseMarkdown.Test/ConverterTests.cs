@@ -1364,5 +1364,38 @@ namespace ReverseMarkdown.Test
 
             Assert.Equal(expected, result);
         }
+
+        [Fact]
+        public void When_Converting_HTML_Ensure_To_Process_Only_Body()
+        {
+            const string html = "<!DOCTYPE html><html lang=\"en\"><head><script>var x = 1;</script></head><body>sample text</body>";
+            var expected = $"sample text";
+            var converter = new Converter();
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void When_Html_Containing_Nested_DIVs_Process_ONLY_Inner_Most_DIV()
+        {
+            const string html = "<div><div>sample text</div></div>";
+            var expected = $"{Environment.NewLine}sample text{Environment.NewLine}";
+            var converter = new Converter();
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
+        
+        [Fact]
+        public void When_SingleChild_BlockTag_With_Parent_DIV_Ignore_Processing_DIV()
+        {
+            const string html = "<div><p>sample text</p></div>";
+            var expected = $"{Environment.NewLine}sample text{Environment.NewLine}";
+            var converter = new Converter();
+            var result = converter.Convert(html);
+
+            Assert.Equal(expected, result);
+        }
     }
 }
