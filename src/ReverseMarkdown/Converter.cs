@@ -48,6 +48,12 @@ namespace ReverseMarkdown
 
             var root = doc.DocumentNode;
 
+            // ensure to start from body and ignore head etc
+            if (root.Descendants("body").Any())
+            {
+                root = root.SelectSingleNode("//body");
+            }
+
             var result = Lookup(root.Name).Convert(root);
 
             return result;
