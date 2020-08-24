@@ -4,8 +4,6 @@
 
 ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since HtmlAgilityPack (HAP) library is used for traversing the Html DOM.
 
-Note that the library implementation is based on the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
-
 ## Usage
 
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself.
@@ -88,6 +86,9 @@ var converter = new ReverseMarkdown.Converter(config);
 * Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
 * Can deal with nested lists
 * Github Flavoured Markdown conversion supported for br, pre and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default table will always be converted to Github flavored markdown immaterial of this flag.
+
+## Acknowledgement
+The library implementation is based on the Ruby based Html to Markdown converter [xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
 ## Copyright
 
