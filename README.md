@@ -17,7 +17,7 @@ string html = "This a sample <strong>paragraph</strong> from <a href=\"http://te
 
 string result = converter.Convert(html);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='File snippet `usage` was extracted from'>snippet source</a> | <a href='#snippet-usage' title='Navigate to start of snippet `usage`'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='Snippet source file'>snippet source</a> | <a href='#snippet-usage' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Will result in:
@@ -27,7 +27,7 @@ Will result in:
 ```txt
 This a sample **paragraph** from [my site](http://test.com)
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='File snippet `Snippets.Usage.verified.txt` was extracted from'>snippet source</a> | <a href='#snippet-Snippets.Usage.verified.txt' title='Navigate to start of snippet `Snippets.Usage.verified.txt`'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.Usage.verified.txt' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 The conversion can be customized:
@@ -49,7 +49,7 @@ var config = new ReverseMarkdown.Config
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='File snippet `usagewithconfig` was extracted from'>snippet source</a> | <a href='#snippet-usagewithconfig' title='Navigate to start of snippet `usagewithconfig`'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-usagewithconfig' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 ## Configuration options
