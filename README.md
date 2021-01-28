@@ -9,7 +9,7 @@ ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdo
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself.
 
 <!-- snippet: Usage -->
-<a id='c629ba0e'></a>
+<a id='snippet-usage'></a>
 ```cs
 var converter = new ReverseMarkdown.Converter();
 
@@ -17,23 +17,23 @@ string html = "This a sample <strong>paragraph</strong> from <a href=\"http://te
 
 string result = converter.Convert(html);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='Snippet source file'>snippet source</a> | <a href='#c629ba0e' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='Snippet source file'>snippet source</a> | <a href='#snippet-usage' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Will result in:
 
 <!-- snippet: Snippets.Usage.verified.txt -->
-<a id='53861c11'></a>
+<a id='snippet-Snippets.Usage.verified.txt'></a>
 ```txt
 This a sample **paragraph** from [my site](http://test.com)
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='Snippet source file'>snippet source</a> | <a href='#53861c11' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.Usage.verified.txt' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 The conversion can be customized:
 
 <!-- snippet: UsageWithConfig -->
-<a id='ed688b8d'></a>
+<a id='snippet-usagewithconfig'></a>
 ```cs
 var config = new ReverseMarkdown.Config
 {
@@ -49,7 +49,7 @@ var config = new ReverseMarkdown.Config
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#ed688b8d' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-usagewithconfig' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 ## Configuration options
