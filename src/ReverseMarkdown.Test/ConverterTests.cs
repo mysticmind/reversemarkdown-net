@@ -808,9 +808,9 @@ namespace ReverseMarkdown.Test
             const string html =
                 @"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
             var expected = $"{Environment.NewLine}{Environment.NewLine}";
-            expected += $"    | col1 | col2 | col3 |{Environment.NewLine}";
-            expected += $"    | --- | --- | --- |{Environment.NewLine}";
-            expected += $"    | data1 | data2 | data3 |{Environment.NewLine}";
+            expected += $"| col1 | col2 | col3 |{Environment.NewLine}";
+            expected += $"| --- | --- | --- |{Environment.NewLine}";
+            expected += $"| data1 | data2 | data3 |{Environment.NewLine}";
             expected += Environment.NewLine;
 
             var config = new Config

@@ -10,15 +10,49 @@ Note that the library implementation is based on the Ruby based Html to Markdown
 
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself.
 
-snippet: Usage
+<!-- snippet: Usage -->
+<a id='snippet-usage'></a>
+```cs
+var converter = new ReverseMarkdown.Converter();
+
+string html = "This a sample <strong>paragraph</strong> from <a href=\"http://test.com\">my site</a>";
+
+string result = converter.Convert(html);
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='Snippet source file'>snippet source</a> | <a href='#snippet-usage' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 Will result in:
 
-snippet: Snippets.Usage.verified.txt
+<!-- snippet: Snippets.Usage.verified.txt -->
+<a id='snippet-Snippets.Usage.verified.txt'></a>
+```txt
+This a sample **paragraph** from [my site](http://test.com)
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.Usage.verified.txt' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 The conversion can be customized:
 
-snippet: UsageWithConfig
+<!-- snippet: UsageWithConfig -->
+<a id='snippet-usagewithconfig'></a>
+```cs
+var config = new ReverseMarkdown.Config
+{
+    // Include the unknown tag completely in the result (default as well)
+    UnknownTags = Config.UnknownTagsOption.PassThrough,
+    // generate GitHub flavoured markdown, supported for BR, PRE and table tags
+    GithubFlavored = true,
+    // will ignore all comments
+    RemoveComments = true,
+    // remove markdown output for links where appropriate
+    SmartHrefHandling = true
+};
+
+var converter = new ReverseMarkdown.Converter(config);
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-usagewithconfig' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
 
 ## Configuration options
 
@@ -38,10 +72,11 @@ snippet: UsageWithConfig
   * `UnknownTagsOption.Drop` - Drop the unknown tag and its content
   * `UnknownTagsOption.Bypass` - Ignore the unknown tag but try to convert its content
   * `UnknownTagsOption.Raise` - Raise an error to let you know
+* `PassThroughTags` - Pass a list of tags to pass through as-is without any processing.
 * `WhitelistUriSchemes` - Specify which schemes (without trailing colon) are to be allowed for `<a>` and `<img>` tags. Others will be bypassed (output text or nothing). By default allows everything.
 
-  If `string.Empty` provided and when `href` or `src` schema coudn't be determined - whitelists
-  
+  If `string.Empty` provided and when `href` or `src` schema couldn't be determined - whitelists
+
   Schema is determined by `Uri` class, with exception when url begins with `/` (file schema) and `//` (http schema)
 * `TableWithoutHeaderRowHandling` - handle table without header rows
   * `TableWithoutHeaderRowHandlingOption.Default` - First row will be used as header row (default)
