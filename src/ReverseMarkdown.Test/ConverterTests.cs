@@ -1398,7 +1398,8 @@ namespace ReverseMarkdown.Test
             Assert.Equal(expected, result);
         }
 
-        [Fact] public void When_Table_Within_List_Should_Be_Indented()
+        [Fact]
+        public void When_Table_Within_List_Should_Be_Indented()
         {
             var html =
                 $"<ol><li>Item1</li><li>Item2<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table></li><li>Item3</li></ol>";
@@ -1412,6 +1413,16 @@ namespace ReverseMarkdown.Test
             expected += $"3. Item3{Environment.NewLine}{Environment.NewLine}";
 
             CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void When_Tag_In_PassThoughTags_List_Then_Use_PassThroughConverter()
+        {
+            const string html = @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png"">. Next line of text";
+            CheckConversion(html, html, new Config
+            {
+                PassThroughTags = new string[] { "img" }
+            });
         }
     }
 }

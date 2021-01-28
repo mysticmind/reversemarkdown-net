@@ -66,6 +66,12 @@ namespace ReverseMarkdown
 
         public IConverter Lookup(string tagName)
         {
+            // if a tag is in the pass through list then use the pass through tags converter
+            if (Config.PassThroughTags.Contains(tagName))
+            {
+                return _passThroughTagsConverter;
+            }
+            
             return _converters.ContainsKey(tagName) ? _converters[tagName] : GetDefaultConverter(tagName);
         }
 
