@@ -23,12 +23,16 @@ namespace ReverseMarkdown.Converters
                 return "";
             }
             
+            // if parent is an ordered or unordered list
+            // then table need to be indented as well
+            var indent = IndentationFor(node);
+
             if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node))
             {
-                underline = UnderlineFor(node);
+                underline = UnderlineFor(node, indent);
             }
 
-            return $"|{content}{Environment.NewLine}{underline}";
+            return $"{indent}|{content}{Environment.NewLine}{underline}";
         }
 
         private bool UseFirstRowAsHeaderRow(HtmlNode node)
@@ -55,7 +59,7 @@ namespace ReverseMarkdown.Converters
             return node.ChildNodes.FindFirst("th") != null;
         }
 
-        private string UnderlineFor(HtmlNode node)
+        private string UnderlineFor(HtmlNode node, string indent)
         {
             var colCount = node.ChildNodes.Count(child => child.Name == "th" || child.Name == "td");
 
@@ -68,7 +72,13 @@ namespace ReverseMarkdown.Converters
 
             var colsAggregated = string.Join(" | ", cols);
 
-            return $"| {colsAggregated} |{Environment.NewLine}";
+            return $"{indent}| {colsAggregated} |{Environment.NewLine}";
+        }
+        
+        private static string IndentationFor(HtmlNode node)
+        {
+            var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
+            return new string(' ', length*4);
         }
     }
 }
