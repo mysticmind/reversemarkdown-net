@@ -57,7 +57,7 @@ snippet: UsageWithConfig
 
 ## Copyright
 
-Copyright © 2019 Babu Annamalai
+Copyright © 2020 Babu Annamalai
 
 ## License
 
