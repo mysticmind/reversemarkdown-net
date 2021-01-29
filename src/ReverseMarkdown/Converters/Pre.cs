@@ -22,16 +22,28 @@ namespace ReverseMarkdown.Converters
                 return string.Empty;
             }
 
+            // check if indentation need to be added if it is under a ordered or unordered list
+            var indentation = IndentationFor(node);
+
+            var fencedCodeStartBlock = string.Empty;
+            var fencedCodeEndBlock = string.Empty;
+
             if (Converter.Config.GithubFlavored)
             {
                 var lang = GetLanguage(node);
-                return $"{Environment.NewLine}{Environment.NewLine}```{lang}{Environment.NewLine}{content}{Environment.NewLine}```{Environment.NewLine}{Environment.NewLine}";
+                fencedCodeStartBlock = $"{indentation}```{lang}{Environment.NewLine}";
+                fencedCodeEndBlock = $"{indentation}```{Environment.NewLine}";
+            }
+            else
+            {
+                // 4 space indent for code if it is not fenced code block
+                indentation += "    ";
             }
 
-            // add 4 space indent
-            var lines = content.ReadLines().Select(item => "    " + item);
+            var lines = content.ReadLines().Select(item => indentation + item);
             content = string.Join(Environment.NewLine, lines);
-            return $"{Environment.NewLine}{Environment.NewLine}{content}{Environment.NewLine}{Environment.NewLine}";
+
+            return $"{Environment.NewLine}{Environment.NewLine}{fencedCodeStartBlock}{content}{Environment.NewLine}{fencedCodeEndBlock}{Environment.NewLine}";
         }
 
         private string GetLanguage(HtmlNode node)

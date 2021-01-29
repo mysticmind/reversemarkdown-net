@@ -1424,5 +1424,42 @@ namespace ReverseMarkdown.Test
                 PassThroughTags = new string[] { "img" }
             });
         }
+        
+        [Fact]
+        public void When_PreTag_Within_List_Should_Be_Indented()
+        {
+            var html =
+                $"<ol><li>Item1</li><li>Item2 <pre> test<br>{Environment.NewLine}  test</pre></li><li>Item3</li></ol>";
+
+            var expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}";
+            expected += $"2. Item2 {Environment.NewLine}";
+            expected += $"{Environment.NewLine}";
+            expected += $"        test{Environment.NewLine}";
+            expected += $"          test{Environment.NewLine}";
+            expected += $"3. Item3{Environment.NewLine}{Environment.NewLine}";
+
+            CheckConversion(html, expected);
+        }
+        
+        [Fact]
+        public void When_PreTag_Within_List_Should_Be_Indented_With_GitHub_FlavouredMarkdown()
+        {
+            var html =
+                $"<ol><li>Item1</li><li>Item2 <pre> test<br>{Environment.NewLine}  test</pre></li><li>Item3</li></ol>";
+
+            var expected = $"{Environment.NewLine}1. Item1{Environment.NewLine}";
+            expected += $"2. Item2 {Environment.NewLine}";
+            expected += $"{Environment.NewLine}";
+            expected += $"    ```{Environment.NewLine}";
+            expected += $"    test{Environment.NewLine}";
+            expected += $"      test{Environment.NewLine}";
+            expected += $"    ```{Environment.NewLine}";
+            expected += $"3. Item3{Environment.NewLine}{Environment.NewLine}";
+
+            CheckConversion(html, expected, new Config
+            {
+                GithubFlavored = true
+            });
+        }
     }
 }

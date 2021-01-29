@@ -26,7 +26,7 @@ namespace ReverseMarkdown.Converters
             }
 
             var content = TreatChildren(node);
-            var indentation = IndentationFor(node);
+            var indentation = IndentationFor(node, true);
             var prefix = PrefixFor(node);
 
             return $"{indentation}{prefix}{content.Chomp()}{Environment.NewLine}";
@@ -44,12 +44,6 @@ namespace ReverseMarkdown.Converters
             {
                 return $"{Converter.Config.ListBulletChar} ";
             }
-        }
-        
-        private static string IndentationFor(HtmlNode node)
-        {
-            var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-            return new string(' ', Math.Max(length-1,0)*4);
         }
     }
 }

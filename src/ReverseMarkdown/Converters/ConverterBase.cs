@@ -54,6 +54,18 @@ namespace ReverseMarkdown.Converters
             return System.Net.WebUtility.HtmlDecode(html);
         }
 
+        protected static string IndentationFor(HtmlNode node, bool zeroIndex=false)
+        {
+            var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
+
+            if (zeroIndex)
+            {
+                length -= 1;
+            }
+
+            return new string(' ', length*4);
+        }
+
         public abstract string Convert(HtmlNode node);
     }
 }

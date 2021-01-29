@@ -74,11 +74,5 @@ namespace ReverseMarkdown.Converters
 
             return $"{indent}| {colsAggregated} |{Environment.NewLine}";
         }
-        
-        private static string IndentationFor(HtmlNode node)
-        {
-            var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-            return new string(' ', length*4);
-        }
     }
 }
