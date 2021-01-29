@@ -7,7 +7,7 @@ os: Visual Studio 2019
 environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  TARGET_BUILD_VERSION: '3.15.0'
+  TARGET_BUILD_VERSION: '3.16.0'
   NUGET_DEPLOY_KEY:
     secure: WgXOzqwbjpCQvLvzst6x52kJiajONuI2DKkaPHemzWfwg6BjoCHekdukqJH4yR4y
 
