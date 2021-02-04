@@ -27,7 +27,11 @@ namespace ReverseMarkdown.Converters
             }
             else
             {
-                return $"*{content.Trim()}*";
+                var spaceSuffix = (node.NextSibling?.Name == "i" || node.NextSibling?.Name == "em")
+                    ? " "
+                    : "";
+
+                return $"*{content.Trim()}*{spaceSuffix}";
             }
         }
 
