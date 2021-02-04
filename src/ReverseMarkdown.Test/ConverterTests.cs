@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using VerifyXunit;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace ReverseMarkdown.Test
 {
+    [UsesVerify]
     public class ConverterTests
     {
         public ITestOutputHelper Console { get; }
@@ -157,23 +159,16 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenThereIsHtmlWithHttpSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain()
         {
-            CheckConversion(
-                html: @"<a href=""http://example.com"">example.com</a>",
-                expected: @"http://example.com",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                }
-            );
+            var config = new Config()
+            {
+                SmartHrefHandling = true
+            };
+            var converter = new Converter(config);
+            var result = converter.Convert(@"<a href=""http://example.com"">example.com</a>");
+            Assert.Equal(@"http://example.com", result, StringComparer.OrdinalIgnoreCase);
 
-            CheckConversion(
-                html: @"<a href=""https://example.com"">example.com</a>",
-                expected: @"https://example.com",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                }
-            );
+            var result1 = converter.Convert(@"<a href=""https://example.com"">example.com</a>");
+            Assert.Equal(@"https://example.com", result1, StringComparer.OrdinalIgnoreCase);
         }
 
         [Fact]
@@ -205,28 +200,27 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenThereIsHtmlLinkWithHttpSchemaAndNameWithout_SmartHandling_ThenOutputOnlyHref()
         {
+            //TODO
+            var config = new Config()
+            {
+                SmartHrefHandling = true
+            };
             CheckConversion(
                 html: @"<a href=""http://example.com"">example.com</a>",
                 expected: @"http://example.com",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                }
+                config: config
             );
             CheckConversion(
                 html: @"<a href=""https://example.com"">example.com</a>",
                 expected: @"https://example.com",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                }
+                config: config
             );
         }
 
         [Fact]
         public void WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling_ThenConvertToMarkdown()
         {
-            //The string is not correctly escaped.	
+            //The string is not correctly escaped.
             CheckConversion(
                 html: @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>",
                 expected: @"[http://example.com/path/file name.docx](http://example.com/path/file%20name.docx)",
@@ -234,7 +228,7 @@ namespace ReverseMarkdown.Test
                 {
                     SmartHrefHandling = true
                 });
-            //The string is an absolute Uri that represents an implicit file Uri.	
+            //The string is an absolute Uri that represents an implicit file Uri.
             CheckConversion(
                 html: @"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>",
                 expected: @"[c:\\directory\filename](c:\\directory\filename)",
@@ -242,7 +236,7 @@ namespace ReverseMarkdown.Test
                 {
                     SmartHrefHandling = true
                 });
-            //The string is an absolute URI that is missing a slash before the path.	
+            //The string is an absolute URI that is missing a slash before the path.
             CheckConversion(
                 html: @"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>",
                 expected: @"[file://c:/directory/filename](file://c:/directory/filename)",
@@ -250,7 +244,7 @@ namespace ReverseMarkdown.Test
                 {
                     SmartHrefHandling = true
                 });
-            //The string contains unescaped backslashes even if they are treated as forward slashes.	
+            //The string contains unescaped backslashes even if they are treated as forward slashes.
             CheckConversion(
                 html: @"<a href=""http:\\host/path/file"">http:\\host/path/file</a>",
                 expected: @"[http:\\host/path/file](http:\\host/path/file)",
@@ -1148,8 +1142,6 @@ namespace ReverseMarkdown.Test
         private static void CheckConversion(string html, string expected, Config config = null)
         {
             config = config ?? new Config();
-            if (expected == null) throw new ArgumentNullException(nameof(expected));
-
             var converter = new Converter(config);
             var result = converter.Convert(html);
             Assert.Equal(expected, result, StringComparer.OrdinalIgnoreCase);
@@ -1214,7 +1206,7 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
-        
+
         [Fact]
         public void WhenTableCellsWithP_ThenDoNotAddNewlines() {
             string html = $@"<html><body><table><tbody><tr><td><p>col1</p></td><td><p>col2</p></td></tr><tr><td><p>data1</p></td><td><p>data2</p></td></tr></tbody></table></body></html>";
@@ -1321,7 +1313,7 @@ namespace ReverseMarkdown.Test
             var expected = $"test**  {Environment.NewLine}test**";
             CheckConversion(html, expected);
         }
-        
+
         [Fact]
         public void WhenAnchorTagContainsImgTag_LinkTextShouldNotBeEscaped()
         {
@@ -1386,7 +1378,7 @@ namespace ReverseMarkdown.Test
 
             Assert.Equal(expected, result);
         }
-        
+
         [Fact]
         public void When_SingleChild_BlockTag_With_Parent_DIV_Ignore_Processing_DIV()
         {
@@ -1424,7 +1416,7 @@ namespace ReverseMarkdown.Test
                 PassThroughTags = new string[] { "img" }
             });
         }
-        
+
         [Fact]
         public void When_PreTag_Within_List_Should_Be_Indented()
         {
@@ -1440,7 +1432,7 @@ namespace ReverseMarkdown.Test
 
             CheckConversion(html, expected);
         }
-        
+
         [Fact]
         public void When_PreTag_Within_List_Should_Be_Indented_With_GitHub_FlavouredMarkdown()
         {
