@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using VerifyTests;
 using VerifyXunit;
 using Xunit;
 using Xunit.Abstractions;
@@ -880,7 +881,9 @@ namespace ReverseMarkdown.Test
             config = config ?? new Config();
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            return Verifier.Verify(result);
+            var verifySettings = new VerifySettings();
+            verifySettings.UseExtension("md");
+            return Verifier.Verify(result, settings: verifySettings);
         }
 
         [Fact]
