@@ -200,60 +200,42 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void WhenThereIsHtmlLinkWithHttpSchemaAndNameWithout_SmartHandling_ThenOutputOnlyHref()
         {
-            //TODO
             var config = new Config()
             {
                 SmartHrefHandling = true
             };
-            CheckConversion(
-                html: @"<a href=""http://example.com"">example.com</a>",
-                expected: @"http://example.com",
-                config: config
-            );
-            CheckConversion(
-                html: @"<a href=""https://example.com"">example.com</a>",
-                expected: @"https://example.com",
-                config: config
-            );
+            var converter = new Converter(config);
+            var result = converter.Convert(@"<a href=""http://example.com"">example.com</a>");
+            Assert.Equal(@"http://example.com", result, StringComparer.OrdinalIgnoreCase);
+            var result1 = converter.Convert(@"<a href=""https://example.com"">example.com</a>");
+            Assert.Equal(@"https://example.com", result1, StringComparer.OrdinalIgnoreCase);
         }
 
         [Fact]
         public void WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling_ThenConvertToMarkdown()
         {
-            //The string is not correctly escaped.
-            CheckConversion(
-                html: @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>",
-                expected: @"[http://example.com/path/file name.docx](http://example.com/path/file%20name.docx)",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                });
-            //The string is an absolute Uri that represents an implicit file Uri.
-            CheckConversion(
-                html: @"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>",
-                expected: @"[c:\\directory\filename](c:\\directory\filename)",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                });
-            //The string is an absolute URI that is missing a slash before the path.
-            CheckConversion(
-                html: @"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>",
-                expected: @"[file://c:/directory/filename](file://c:/directory/filename)",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                });
-            //The string contains unescaped backslashes even if they are treated as forward slashes.
-            CheckConversion(
-                html: @"<a href=""http:\\host/path/file"">http:\\host/path/file</a>",
-                expected: @"[http:\\host/path/file](http:\\host/path/file)",
-                config: new Config()
-                {
-                    SmartHrefHandling = true
-                });
-        }
+            var config = new Config()
+            {
+                SmartHrefHandling = true
+            };
 
+            //The string is not correctly escaped.
+            var converter = new Converter(config);
+            var result = converter.Convert(@"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>");
+            Assert.Equal(@"[http://example.com/path/file name.docx](http://example.com/path/file%20name.docx)", result, StringComparer.OrdinalIgnoreCase);
+
+            //The string is an absolute Uri that represents an implicit file Uri.
+            var result1 = converter.Convert(@"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>");
+            Assert.Equal(@"[c:\\directory\filename](c:\\directory\filename)", result1, StringComparer.OrdinalIgnoreCase);
+
+            //The string is an absolute URI that is missing a slash before the path.
+            var result2 = converter.Convert(@"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>");
+            Assert.Equal(@"[file://c:/directory/filename](file://c:/directory/filename)", result2, StringComparer.OrdinalIgnoreCase);
+
+            //The string contains unescaped backslashes even if they are treated as forward slashes.
+            var result3 = converter.Convert(@"<a href=""http:\\host/path/file"">http:\\host/path/file</a>");
+            Assert.Equal(@"[http:\\host/path/file](http:\\host/path/file)", result3, StringComparer.OrdinalIgnoreCase);
+        }
 
         [Fact]
         public void WhenThereIsHtmlLinkWithoutHttpSchemaAndNameWithoutScheme_SmartHandling_ThenConvertToMarkdown()
