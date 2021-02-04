@@ -1461,5 +1461,24 @@ namespace ReverseMarkdown.Test
                 GithubFlavored = true
             });
         }
+
+        [Fact]
+        public void When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR()
+        {
+            var html = $"<p><span>line 1<br><span/><span>line 2<br><span/></div>";
+            var expected = $"{Environment.NewLine}line 1  {Environment.NewLine}line 2{Environment.NewLine}";
+            CheckConversion(html, expected);
+        }
+        
+        [Fact]
+        public void When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR_GitHub_Flavoured()
+        {
+            var html = $"<p><span>line 1<br><span/><span>line 2<br><span/></div>";
+            var expected = $"{Environment.NewLine}line 1{Environment.NewLine}line 2{Environment.NewLine}";
+            CheckConversion(html, expected, new Config
+            {
+                GithubFlavored = true
+            });
+        }
     }
 }
