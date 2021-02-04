@@ -93,15 +93,10 @@ namespace ReverseMarkdown.Converters
 
         private static string ReplaceNewlineChars(string parentNodeName, string content)
         {
-            var replaceStr = "<br>";
+            if (parentNodeName != "p" && parentNodeName != "#document") return content;
 
-            if (parentNodeName == "p" || parentNodeName == "#document")
-            {
-                replaceStr = " ";
-            }
-
-            content = content.Replace("\r\n", replaceStr);
-            content = content.Replace("\n", replaceStr);
+            content = content.Replace("\r\n", " ");
+            content = content.Replace("\n", " ");
 
             return content;
         }

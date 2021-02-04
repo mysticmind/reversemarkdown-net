@@ -1097,5 +1097,40 @@ namespace ReverseMarkdown.Test
             };
             return CheckConversion(html, config);
         }
+
+        [Fact]
+        public void When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR()
+        {
+            var html = $"<p><span>line 1<br><span/><span>line 2<br><span/></div>";
+            var expected = $"{Environment.NewLine}line 1  {Environment.NewLine}line 2{Environment.NewLine}";
+            CheckConversion(html, expected);
+        }
+        
+        [Fact]
+        public void When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR_GitHub_Flavoured()
+        {
+            var html = $"<p><span>line 1<br><span/><span>line 2<br><span/></div>";
+            var expected = $"{Environment.NewLine}line 1{Environment.NewLine}line 2{Environment.NewLine}";
+            CheckConversion(html, expected, new Config
+            {
+                GithubFlavored = true
+            });
+        }
+
+        [Fact]
+        public void When_Consecutive_Strong_Tags_Should_Convert_Properly()
+        {
+            var html = $"<Strong>block1</strong><Strong>block2</strong><b>block3</b><b>block4</b>";
+            var expected = $"**block1** **block2** **block3** **block4**";
+            CheckConversion(html, expected);
+        }
+
+        [Fact]
+        public void When_Consecutive_Em_Tags_Should_Convert_Properly()
+        {
+            var html = $"<em>block1</em><em>block2</em><i>block3</i><em>block4</em>";
+            var expected = $"*block1* *block2* *block3* *block4*";
+            CheckConversion(html, expected);
+        }
     }
 }
