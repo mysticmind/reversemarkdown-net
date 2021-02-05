@@ -7,7 +7,7 @@ os: Visual Studio 2019
 environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  TARGET_BUILD_VERSION: '3.17.0'
+  TARGET_BUILD_VERSION: '3.18.0'
   NUGET_DEPLOY_KEY:
     secure: ARJT2riPVT98BTyiNU6cDD0s1vK8MB/JHbjwFV4lmnuPVEfkeuJJKqLaqIUQqVkg
 
@@ -20,7 +20,7 @@ before_build:
 
 build_script:
 - dotnet build .\src\ReverseMarkdown.sln --configuration Release /p:Version=%TARGET_BUILD_VERSION%
-  
+
 test_script:
   - dotnet test .\src\ReverseMarkdown.Test\ReverseMarkdown.Test.csproj --configuration Release
 
