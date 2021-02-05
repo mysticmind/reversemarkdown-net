@@ -1,0 +1,1 @@
+**Paragraph is encompassed with strong tag and also has bold text words within it**

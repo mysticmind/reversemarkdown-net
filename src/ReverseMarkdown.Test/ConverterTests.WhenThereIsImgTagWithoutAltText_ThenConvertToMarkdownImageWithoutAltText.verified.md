@@ -1,0 +1,1 @@
+This text has image ![](http://test.com/images/test.png). Next line of text

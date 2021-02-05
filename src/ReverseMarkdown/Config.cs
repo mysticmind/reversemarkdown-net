@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown
 {
     public class Config
     {
-        public Config()
-        {
-        }
-
         public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
 
         public bool GithubFlavored { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;
-
 
         /// <summary>
         /// Specify which schemes (without trailing colon) are to be allowed for &lt;a&gt; and &lt;img&gt; tags. Others will be bypassed. By default allows everything.
@@ -28,7 +22,7 @@ namespace ReverseMarkdown
         /// <para>false - Outputs [{name}]({href}{title}) even if name and href is identical. This is the default option.</para>
         /// true - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per <see cref="Uri.IsWellFormedUriString"/> (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
         /// <para>If href contains http/https protocol, and name doesn't but otherwise are the same, output href only</para>
-        /// If tel: or mailto: scheme, but afterwards identical with name, output name only. 
+        /// If tel: or mailto: scheme, but afterwards identical with name, output name only.
         /// </summary>
         public bool SmartHrefHandling { get; set; } = false;
 
