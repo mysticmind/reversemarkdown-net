@@ -1,0 +1,6 @@
+
+
+```xml
+<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+```
+
