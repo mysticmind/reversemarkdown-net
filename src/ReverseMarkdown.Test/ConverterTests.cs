@@ -1079,14 +1079,14 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task When_Code_Contains_Spaces_Should_Preserve_Spaces()
+        public Task When_CodeContainsSpaces_ShouldPreserveSpaces()
         {
             var html = $"A JavaScript<code> function </code>...";
             return CheckConversion(html);
         }
 
         [Fact]
-        public Task When_Code_Contains_SpanWithExtraSpaces_Should_Normalize_Spaces()
+        public Task When_CodeContainsSpanWithExtraSpaces_Should_NotNormalizeSpaces()
         {
             var html = $"A JavaScript<code><span>    function  </span></code>...";
             return CheckConversion(html);
@@ -1094,7 +1094,7 @@ namespace ReverseMarkdown.Test
 
 
         [Fact]
-        public Task When_Code_Contains_ExtraneousWhitespace_Should_RemoveSpaces()
+        public Task When_CodeContainsSpacesAndIsSurroundedByWhitespace_Should_NotRemoveSpaces()
         {
             var html = $"A JavaScript <code> function </code> ...";
             return CheckConversion(html);
