@@ -1079,6 +1079,25 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation()
+        {
+            var html = "<pre><code>    function foo {</code></pre>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation_GFM()
+        {
+            var html = "<pre><code>    function foo {</code></pre>";
+
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
         public Task When_PreTag_Within_List_Should_Be_Indented()
         {
             var html = $"<ol><li>Item1</li><li>Item2 <pre> test<br>{Environment.NewLine}  test</pre></li><li>Item3</li></ol>";
