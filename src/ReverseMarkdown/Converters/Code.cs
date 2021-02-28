@@ -13,6 +13,27 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
+            // HACK: Depending on the content "surrounding" the <code> element,
+            // leading/trailing whitespace is significant. For example, the
+            // following HTML renders as expected in a browser (meaning there is
+            // proper spacing between words):
+            //
+            //   <p>The JavaScript<code> function </code>keyword...</p>
+            //
+            // However, if we simply trim the contents of the <code> element,
+            // then the Markdown becomes:
+            //
+            //   The JavaScript`function`keyword...
+            //
+            // To avoid this scenario, if the <code> element contains leading
+            // whitespace, add a space before the backquote Markdown character.
+            // Likewise, if the <code> element contains trailing whitespace, add
+            // a space after the backquote Markdown character.
+            //
+            // For the HTML example above, the Markdown will be:
+            //
+            //   The JavaScript `function` keyword...
+
             var sb = new StringBuilder();
 
             // Check if the <code> content has leading whitespace.
