@@ -31,7 +31,7 @@ namespace ReverseMarkdown.Converters
             {
                 var lang = GetLanguage(node);
                 fencedCodeStartBlock = $"{indentation}```{lang}{Environment.NewLine}";
-                fencedCodeEndBlock = $"{indentation}```{Environment.NewLine}";
+                fencedCodeEndBlock = $"{indentation}```";
             }
             else
             {
