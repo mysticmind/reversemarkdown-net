@@ -1079,6 +1079,28 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task When_CodeContainsSpaces_ShouldPreserveSpaces()
+        {
+            var html = $"A JavaScript<code> function </code>...";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task When_CodeContainsSpanWithExtraSpaces_Should_NotNormalizeSpaces()
+        {
+            var html = $"A JavaScript<code><span>    function  </span></code>...";
+            return CheckConversion(html);
+        }
+
+
+        [Fact]
+        public Task When_CodeContainsSpacesAndIsSurroundedByWhitespace_Should_NotRemoveSpaces()
+        {
+            var html = $"A JavaScript <code> function </code> ...";
+            return CheckConversion(html);
+        }
+
+        [Fact]
         public Task When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation()
         {
             var html = "<pre><code>    function foo {</code></pre>";
