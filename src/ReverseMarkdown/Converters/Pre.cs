@@ -15,7 +15,6 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             var content = DecodeHtml(node.InnerText);
-            content = content.Trim();
 
             if (string.IsNullOrEmpty(content))
             {
