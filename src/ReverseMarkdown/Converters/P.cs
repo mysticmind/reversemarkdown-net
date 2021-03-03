@@ -23,11 +23,11 @@ namespace ReverseMarkdown.Converters
         {
             string parentName = node.ParentNode.Name.ToLowerInvariant();
 
-            // If p follows a list item, indent it instead of adding a leading newline
+            // If p follows a list item, add newline and indent it
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
             bool parentIsList = parentName == "li" || parentName == "ol" || parentName == "ul";
             if (parentIsList && node.ParentNode.FirstChild != node)
-                return new string(' ', length * 4);
+                return Environment.NewLine + (new string(' ', length * 4));
 
             // If p is at the start of a table cell, no leading newline
             return Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine;
