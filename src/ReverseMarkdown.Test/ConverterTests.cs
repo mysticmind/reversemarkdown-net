@@ -578,10 +578,10 @@ namespace ReverseMarkdown.Test
             var html =
 @"<ol>
 	<li>
-		<p>Item1</p>
-        <p>Item2</p></li>
+		<p>Paragraph 1</p>
+        <p>Paragraph 2</p></li>
 	<li>
-		<p>Item3</p></li></ol>";
+		<p>Paragraph 3</p></li></ol>";
 
             return CheckConversion(html);
         }
