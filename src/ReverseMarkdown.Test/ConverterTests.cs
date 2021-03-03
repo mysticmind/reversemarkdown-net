@@ -579,7 +579,8 @@ namespace ReverseMarkdown.Test
 @"<ol>
 	<li>
 		<p>Paragraph 1</p>
-        <p>Paragraph 2</p></li>
+        <p>Paragraph 1.1</p>
+        <p>Paragraph 1.2</p></li>
 	<li>
 		<p>Paragraph 3</p></li></ol>";
 
