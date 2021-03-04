@@ -503,10 +503,17 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task WhenThereIsEmptyPreTag_ThenIgnorePre()
+        public Task WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre()
         {
             var html = "This text has pre tag content <pre><br/ ></pre>Next line of text";
             return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre_GFM()
+        {
+            var html = "This text has pre tag content <pre><br/ ></pre>Next line of text";
+            return CheckConversion(html, new Config { GithubFlavored = true });
         }
 
         [Fact]

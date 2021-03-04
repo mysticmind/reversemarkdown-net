@@ -16,11 +16,6 @@ namespace ReverseMarkdown.Converters
         {
             var content = DecodeHtml(node.InnerText);
 
-            if (string.IsNullOrEmpty(content))
-            {
-                return string.Empty;
-            }
-
             // check if indentation need to be added if it is under a ordered or unordered list
             var indentation = IndentationFor(node);
 
@@ -41,6 +36,12 @@ namespace ReverseMarkdown.Converters
 
             var lines = content.ReadLines().Select(item => indentation + item);
             content = string.Join(Environment.NewLine, lines);
+
+            if (string.IsNullOrEmpty(content)
+                && Converter.Config.GithubFlavored == false)
+            {
+                content = indentation;
+            }
 
             return $"{Environment.NewLine}{Environment.NewLine}{fencedCodeStartBlock}{content}{Environment.NewLine}{fencedCodeEndBlock}{Environment.NewLine}";
         }
