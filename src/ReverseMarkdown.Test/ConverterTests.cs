@@ -575,14 +575,28 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
         {
-            var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item1</p>{Environment.NewLine}        <p>Item2</p></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<p>Item3</p></li></ol>";
+            var html =
+@"<ol>
+	<li>
+		<p>Paragraph 1</p>
+        <p>Paragraph 1.1</p>
+        <p>Paragraph 1.2</p></li>
+	<li>
+		<p>Paragraph 3</p></li></ol>";
+
             return CheckConversion(html);
         }
 
         [Fact]
         public Task WhenListContainsParagraphsOutsideItems_ConvertToMarkdownAndIndentSiblings()
         {
-            var html = $"<ol>{Environment.NewLine}\t<li>Item1</li>{Environment.NewLine}\t<p>Item 1 additional info</p>{Environment.NewLine}\t<li>Item2</li>{Environment.NewLine}</ol>";
+            var html =
+@"<ol>
+	<li>Item1</li>
+	<p>Item 1 additional info</p>
+	<li>Item2</li>
+</ol>";
+
             return CheckConversion(html);
         }
 
