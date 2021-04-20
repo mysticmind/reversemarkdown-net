@@ -6,7 +6,7 @@ namespace ReverseMarkdown.Converters
 {
     public abstract class ConverterBase : IConverter
     {
-        protected ConverterBase(Converter converter) 
+        protected ConverterBase(Converter converter)
         {
             Converter = converter;
         }
@@ -17,8 +17,8 @@ namespace ReverseMarkdown.Converters
         {
             var result = string.Empty;
 
-            return !node.HasChildNodes 
-                ? result 
+            return !node.HasChildNodes
+                ? result
                 : node.ChildNodes.Aggregate(result, (current, nd) => current + Treat(nd));
         }
 
@@ -57,6 +57,12 @@ namespace ReverseMarkdown.Converters
         protected static string IndentationFor(HtmlNode node, bool zeroIndex=false)
         {
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
+
+            // li not required to have a parent ol/ul
+            if (length == 0)
+            {
+                return string.Empty;
+            }
 
             if (zeroIndex)
             {

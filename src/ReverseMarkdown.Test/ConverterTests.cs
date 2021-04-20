@@ -1190,5 +1190,12 @@ namespace ReverseMarkdown.Test
             var html = $"<em>block1</em><em>block2</em><i>block3</i><em>block4</em>";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task Li_With_No_Parent()
+        {
+            var html = "<li>item</li>";
+            return CheckConversion(html);
+        }
     }
 }
