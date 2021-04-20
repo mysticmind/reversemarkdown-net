@@ -11,7 +11,8 @@ namespace ReverseMarkdown.Converters
             Converter.Register("p", this);
         }
 
-        public override string Convert(HtmlNode node) {
+        public override string Convert(HtmlNode node)
+        {
             var indentation = IndentationFor(node);
             var newlineAfter = NewlineAfter(node);
 
@@ -32,7 +33,8 @@ namespace ReverseMarkdown.Converters
             return Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine;
         }
 
-        private string NewlineAfter(HtmlNode node) {
+        private static string NewlineAfter(HtmlNode node)
+        {
             return Td.LastNodeWithinCell(node) ? "" : Environment.NewLine;
         }
     }

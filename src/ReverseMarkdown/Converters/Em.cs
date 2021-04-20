@@ -35,7 +35,7 @@ namespace ReverseMarkdown.Converters
             }
         }
 
-        private bool AlreadyItalic(HtmlNode node)
+        private static bool AlreadyItalic(HtmlNode node)
         {
             return node.Ancestors("i").Any() || node.Ancestors("em").Any();
         }

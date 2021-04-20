@@ -42,14 +42,12 @@ namespace ReverseMarkdown.Converters
             }
         }
 
-        protected string ExtractTitle(HtmlNode node)
+        protected static string ExtractTitle(HtmlNode node)
         {
-            var title = node.GetAttributeValue("title", "");
-
-            return title;
+            return node.GetAttributeValue("title", "");
         }
 
-        protected string DecodeHtml(string html)
+        protected static string DecodeHtml(string html)
         {
             return System.Net.WebUtility.HtmlDecode(html);
         }

@@ -58,7 +58,7 @@ namespace ReverseMarkdown.Converters
             return node.ChildNodes.FindFirst("th") != null;
         }
 
-        private string UnderlineFor(HtmlNode node, string indent)
+        private static string UnderlineFor(HtmlNode node, string indent)
         {
             var colCount = node.ChildNodes.Count(child => child.Name == "th" || child.Name == "td");
 
