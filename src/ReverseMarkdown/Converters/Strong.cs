@@ -8,7 +8,7 @@ namespace ReverseMarkdown.Converters
         public Strong(Converter converter) : base(converter)
         {
             var elements = new [] { "strong", "b" };
-            
+
             foreach (var element in elements)
             {
                 Converter.Register(element, this);
