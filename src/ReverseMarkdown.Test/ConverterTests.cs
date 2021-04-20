@@ -397,7 +397,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task WhenThereIsImgTagWithMutlilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText()
+        public Task WhenThereIsImgTagWithMultilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText()
         {
             var html =
                 $@"This text has image <img alt=""cat{Environment.NewLine}{Environment.NewLine}dog"" src=""http://test.com/images/test.png""/>. Next line of text";
