@@ -10,7 +10,7 @@ namespace ReverseMarkdown.Converters
         public Em(Converter converter) : base(converter)
         {
             var elements = new [] { "em", "i" };
-            
+
             foreach (var element in elements)
             {
                 Converter.Register(element, this);
@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             var content = TreatChildren(node);
-            
+
             if (string.IsNullOrEmpty(content.Trim()) || AlreadyItalic(node))
             {
                 return content;

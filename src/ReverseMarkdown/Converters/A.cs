@@ -21,7 +21,7 @@ namespace ReverseMarkdown.Converters {
             var title = ExtractTitle(node);
             title = title.Length > 0 ? $" \"{title}\"" : "";
             var scheme = StringUtils.GetScheme(href);
-            
+
             var isRemoveLinkWhenSameName = Converter.Config.SmartHrefHandling
                                            && scheme != string.Empty
                                            && Uri.IsWellFormedUriString(href, UriKind.RelativeOrAbsolute)

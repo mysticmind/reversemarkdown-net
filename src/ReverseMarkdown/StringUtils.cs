@@ -19,7 +19,7 @@ namespace ReverseMarkdown
                 while ((line = sr.ReadLine()) != null)
                     yield return line;
         }
-        
+
         /// <summary>
         /// <para>Gets scheme for provided uri string to overcome different behavior between windows/linux. https://github.com/dotnet/corefx/issues/1745</para>
         /// Assume http for url starting with //
@@ -30,14 +30,14 @@ namespace ReverseMarkdown
         /// <returns></returns>
         internal static string GetScheme(string url) {
             var isValidUri = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
-            //IETF RFC 3986 
+            //IETF RFC 3986
             if (Regex.IsMatch(url, "^//[^/]")) {
                 return "http";
             }
             //Unix style path
             else if (Regex.IsMatch(url, "^/[^/]")) {
                 return "file";
-            } 
+            }
             else if (isValidUri) {
                 return uri.Scheme;
             }
