@@ -408,7 +408,7 @@ namespace ReverseMarkdown.Test
         public Task WhenThereIsImgTagWithBracesInAltText_ThenEnsureAltTextIsEscapedInMarkdown()
         {
             var html =
-                "This text has image <img alt=""a]b"" src=""http://test.com/images/test.png""/>. Next line of text";
+                @"This text has image <img alt=""a]b"" src=""http://test.com/images/test.png""/>. Next line of text";
             return CheckConversion(html);
         }
 
