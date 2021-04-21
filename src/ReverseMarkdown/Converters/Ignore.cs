@@ -7,7 +7,7 @@ namespace ReverseMarkdown.Converters
         public Ignore(Converter converter) : base(converter)
         {
             var elements = new [] { "colgroup", "col" };
-            
+
             foreach (var element in elements)
             {
                 Converter.Register(element, this);

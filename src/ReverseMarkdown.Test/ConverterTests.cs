@@ -397,7 +397,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task WhenThereIsImgTagWithMutlilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText()
+        public Task WhenThereIsImgTagWithMultilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText()
         {
             var html =
                 $@"This text has image <img alt=""cat{Environment.NewLine}{Environment.NewLine}dog"" src=""http://test.com/images/test.png""/>. Next line of text";
@@ -408,7 +408,7 @@ namespace ReverseMarkdown.Test
         public Task WhenThereIsImgTagWithBracesInAltText_ThenEnsureAltTextIsEscapedInMarkdown()
         {
             var html =
-                $@"This text has image <img alt=""a]b"" src=""http://test.com/images/test.png""/>. Next line of text";
+                @"This text has image <img alt=""a]b"" src=""http://test.com/images/test.png""/>. Next line of text";
             return CheckConversion(html);
         }
 
@@ -559,7 +559,7 @@ namespace ReverseMarkdown.Test
             html += $"    <li>Item2</li>{Environment.NewLine}";
             html += $"    <ol>{Environment.NewLine}        <li>InnerItem2</li>{Environment.NewLine}    </ol>{Environment.NewLine}";
             html += $"    <li>Item3</li>{Environment.NewLine}";
-            html += $"</ul>";
+            html += "</ul>";
 
             return CheckConversion(html);
         }
@@ -734,7 +734,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenTable_CellContainsParagraph_AddBrThenConvertToGFMTable()
         {
-            var html = $"<table><tr><th>col1</th></tr><tr><td><p>line1</p><p>line2</p></td></tr></table>";
+            var html = "<table><tr><th>col1</th></tr><tr><td><p>line1</p><p>line2</p></td></tr></table>";
             return CheckConversion(html);
         }
 
@@ -763,7 +763,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenTable_CellContainsBr_PreserveBrAndConvertToGFMTable()
         {
-            var html = $"<table><tr><th>col1</th></tr><tr><td>line 1<br>line 2</td></tr></table>";
+            var html = "<table><tr><th>col1</th></tr><tr><td>line 1<br>line 2</td></tr></table>";
             var config = new Config
             {
                 GithubFlavored = true,
@@ -972,7 +972,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenTableCellsWithP_ThenNoNewlines()
         {
-            var html = $"<table><tr><td><p>data1</p></td></tr></table>";
+            var html = "<table><tr><td><p>data1</p></td></tr></table>";
             return CheckConversion(html);
         }
 
@@ -986,7 +986,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenTableCellsWithDataAndP_ThenNewlineBeforeP()
         {
-            var html = $"<table><tr><td>data1<p>p</p></td></tr></table>";
+            var html = "<table><tr><td>data1<p>p</p></td></tr></table>";
 
             return CheckConversion(html);
         }
@@ -1084,7 +1084,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_Table_Within_List_Should_Be_Indented()
         {
-            var html = $"<ol><li>Item1</li><li>Item2<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table></li><li>Item3</li></ol>";
+            var html = "<ol><li>Item1</li><li>Item2<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table></li><li>Item3</li></ol>";
             return CheckConversion(html);
         }
 
@@ -1102,14 +1102,14 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_CodeContainsSpaces_ShouldPreserveSpaces()
         {
-            var html = $"A JavaScript<code> function </code>...";
+            var html = "A JavaScript<code> function </code>...";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task When_CodeContainsSpanWithExtraSpaces_Should_NotNormalizeSpaces()
         {
-            var html = $"A JavaScript<code><span>    function  </span></code>...";
+            var html = "A JavaScript<code><span>    function  </span></code>...";
             return CheckConversion(html);
         }
 
@@ -1117,7 +1117,7 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_CodeContainsSpacesAndIsSurroundedByWhitespace_Should_NotRemoveSpaces()
         {
-            var html = $"A JavaScript <code> function </code> ...";
+            var html = "A JavaScript <code> function </code> ...";
             return CheckConversion(html);
         }
 
@@ -1163,14 +1163,14 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR()
         {
-            var html = $"<p><span>line 1<br><span/><span>line 2<br><span/></div>";
+            var html = "<p><span>line 1<br><span/><span>line 2<br><span/></div>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR_GitHub_Flavoured()
         {
-            var html = $"<p><span>line 1<br><span/><span>line 2<br><span/></div>";
+            var html = "<p><span>line 1<br><span/><span>line 2<br><span/></div>";
             return CheckConversion(html, new Config
             {
                 GithubFlavored = true
@@ -1180,14 +1180,14 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_Consecutive_Strong_Tags_Should_Convert_Properly()
         {
-            var html = $"<Strong>block1</strong><Strong>block2</strong><b>block3</b><b>block4</b>";
+            var html = "<Strong>block1</strong><Strong>block2</strong><b>block3</b><b>block4</b>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task When_Consecutive_Em_Tags_Should_Convert_Properly()
         {
-            var html = $"<em>block1</em><em>block2</em><i>block3</i><em>block4</em>";
+            var html = "<em>block1</em><em>block2</em><i>block3</i><em>block4</em>";
             return CheckConversion(html);
         }
 

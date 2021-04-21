@@ -58,10 +58,10 @@ namespace ReverseMarkdown.Converters
 
         private static string GetLanguageFromHighlightClassAttribute(HtmlNode node)
         {
-            var res = ClassMatch(node); 
-            
+            var res = ClassMatch(node);
+
             // check parent node:
-            // GitHub: <div class="highlight highlight-source-json"><pre> 
+            // GitHub: <div class="highlight highlight-source-json"><pre>
             // BitBucket: <div class="codehilite language-json"><pre>
             if (!res.Success && node.ParentNode != null)
             {
@@ -78,7 +78,7 @@ namespace ReverseMarkdown.Converters
                     res = ClassMatch(cnode);
                 }
             }
-			
+
             return res.Success && res.Groups.Count == 3 ? res.Groups[2].Value : string.Empty;
         }
 

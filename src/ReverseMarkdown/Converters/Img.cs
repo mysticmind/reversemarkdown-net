@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters {
+namespace ReverseMarkdown.Converters
+{
     public class Img : ConverterBase
     {
         public Img(Converter converter) : base(converter)
@@ -8,10 +9,10 @@ namespace ReverseMarkdown.Converters {
             Converter.Register("img", this);
         }
 
-		public override string Convert(HtmlNode node)
-		{
-			var alt = node.GetAttributeValue("alt", string.Empty);
-			var src = node.GetAttributeValue("src", string.Empty);
+        public override string Convert(HtmlNode node)
+        {
+            var alt = node.GetAttributeValue("alt", string.Empty);
+            var src = node.GetAttributeValue("src", string.Empty);
 
             if (!Converter.Config.IsSchemeWhitelisted(StringUtils.GetScheme(src)))
             {

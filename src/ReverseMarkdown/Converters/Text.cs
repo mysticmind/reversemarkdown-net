@@ -36,7 +36,7 @@ namespace ReverseMarkdown.Converters
                 .Replace("%3C", "&lt;")
                 .Replace("%3E", "&gt;");
 
-            //strip leading spaces and tabs for text within list item 
+            //strip leading spaces and tabs for text within list item
             var parent = node.ParentNode;
 
             switch (parent.Name)
@@ -60,16 +60,16 @@ namespace ReverseMarkdown.Converters
             {
                 content = content.Replace(item.Key, item.Value);
             }
-            
+
             return content;
         }
-        
+
         private static string TreatEmpty(HtmlNode node)
         {
             var content = "";
 
             var parent = node.ParentNode;
-            
+
             if (parent.Name == "ol" || parent.Name == "ul")
             {
                 content = "";
@@ -78,10 +78,10 @@ namespace ReverseMarkdown.Converters
             {
                 content = " ";
             }
-            
+
             return content;
         }
-        
+
         private static string PreserveKeyCharsWithinBackTicks(string content)
         {
             var rx = new Regex("`.*?`");

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -22,7 +21,7 @@ namespace ReverseMarkdown.Converters
             {
                 return "";
             }
-            
+
             // if parent is an ordered or unordered list
             // then table need to be indented as well
             var indent = IndentationFor(node);
@@ -59,7 +58,7 @@ namespace ReverseMarkdown.Converters
             return node.ChildNodes.FindFirst("th") != null;
         }
 
-        private string UnderlineFor(HtmlNode node, string indent)
+        private static string UnderlineFor(HtmlNode node, string indent)
         {
             var colCount = node.ChildNodes.Count(child => child.Name == "th" || child.Name == "td");
 

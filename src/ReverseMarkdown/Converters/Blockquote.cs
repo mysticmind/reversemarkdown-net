@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Converters
             var lines = content.ReadLines().Select(item => "> " + item + Environment.NewLine);
 
             // join all the lines to a single line
-            var result = lines.Aggregate(string.Empty, (curr, next) => curr + next);
+            var result = lines.Aggregate(string.Empty, (current, next) => current + next);
 
             return $"{Environment.NewLine}{Environment.NewLine}{result}{Environment.NewLine}";
         }

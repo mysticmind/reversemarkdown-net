@@ -22,7 +22,7 @@ namespace ReverseMarkdown
 
             // instantiate all converters excluding the unknown tags converters
             foreach (var ctype in typeof(IConverter).GetTypeInfo().Assembly.GetTypes()
-                .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) && 
+                .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) &&
                 !t.GetTypeInfo().IsAbstract
                 && t != typeof(PassThrough)
                 && t != typeof(Drop)
@@ -71,7 +71,7 @@ namespace ReverseMarkdown
             {
                 return _passThroughTagsConverter;
             }
-            
+
             return _converters.ContainsKey(tagName) ? _converters[tagName] : GetDefaultConverter(tagName);
         }
 
