@@ -2,13 +2,13 @@
 
 [![Windows Build status](https://ci.appveyor.com/api/projects/status/xse0bia9olr5shxr?svg=true)](https://ci.appveyor.com/project/BabuAnnamalai/reversemarkdown-net) [![Windows Build status](https://api.travis-ci.org/mysticmind/reversemarkdown-net.svg)](https://travis-ci.org/mysticmind/reversemarkdown-net) [![NuGet Version](https://badgen.net/nuget/v/reversemarkdown)](https://www.nuget.org/packages/ReverseMarkdown/)
 
-ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since HtmlAgilityPack (HAP) library is used for traversing the Html DOM.
+ReverseMarkdown is a Html to [Markdown](http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since the HtmlAgilityPack (HAP) library is used for traversing the HTML DOM.
 
 Note that the library implementation is based on the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
 ## Usage
 
-Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself.
+Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and build it yourself.
 
 <!-- snippet: Usage -->
 <a id='snippet-usage'></a>
@@ -32,7 +32,7 @@ This a sample **paragraph** from [my site](http://test.com)
 <sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.Usage.verified.txt' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
-The conversion can be customized:
+The conversion can also be customized:
 
 <!-- snippet: UsageWithConfig -->
 <a id='snippet-usagewithconfig'></a>
@@ -58,11 +58,11 @@ var converter = new ReverseMarkdown.Converter(config);
 
 * `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
-* `ListBulletChar` - Allows to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows to change it.
+* `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it.
 * `RemoveComments` - Remove comment tags with text. Default is false
-* `SmartHrefHandling` - how to handle `<a>` tag href attribute
-  * `false` - Outputs `[{name}]({href}{title})` even if name and href is identical. This is the default option.
-  * `true` - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
+* `SmartHrefHandling` - How to handle `<a>` tag href attribute
+  * `false` - Outputs `[{name}]({href}{title})` even if the name and href is identical. This is the default option.
+  * `true` - If the name and href equals, outputs just the `name`. Note that if the Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
 
     If `href` contains `http/https` protocol, and `name` doesn't but otherwise are the same, output `href` only
 
@@ -87,8 +87,8 @@ var converter = new ReverseMarkdown.Converter(config);
 ## Features
 
 * Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
-* Can deal with nested lists
-* Github Flavoured Markdown conversion supported for br, pre and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default table will always be converted to Github flavored markdown immaterial of this flag.
+* Supports nested lists
+* Github Flavoured Markdown conversion supported for br, pre and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag.
 
 ## Copyright
 
