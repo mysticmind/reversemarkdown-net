@@ -9,7 +9,7 @@
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.36" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.39" />
   </ItemGroup>
   <!--SourceLink specific settings-->
   <PropertyGroup>
