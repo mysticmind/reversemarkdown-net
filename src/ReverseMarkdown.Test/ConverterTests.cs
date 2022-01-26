@@ -1197,5 +1197,12 @@ namespace ReverseMarkdown.Test
             var html = "<li>item</li>";
             return CheckConversion(html);
         }
+        
+        [Fact]
+        public Task When_Span_with_newline_Should_Convert_Properly()
+        {
+            var html = $"<b>2 sets</b><span>{Environment.NewLine}</span><span>30 mountain climbers</span>";
+            return CheckConversion(html);
+        }
     }
 }

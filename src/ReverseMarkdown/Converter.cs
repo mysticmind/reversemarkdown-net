@@ -56,7 +56,7 @@ namespace ReverseMarkdown
 
             var result = Lookup(root.Name).Convert(root);
 
-            return result;
+            return result.Trim();
         }
 
         public void Register(string tagName, IConverter converter)

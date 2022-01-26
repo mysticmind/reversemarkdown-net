@@ -11,4 +11,9 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="ConverterTests.When_Span_with_newline_Should_Convert_Properly.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+  </ItemGroup>
 </Project>

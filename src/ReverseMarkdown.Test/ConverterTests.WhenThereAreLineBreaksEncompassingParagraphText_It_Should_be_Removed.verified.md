@@ -1,2 +1,1 @@
-
 Some text goes here.

@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            return node.InnerText.Trim() == string.Empty ? TreatEmpty(node) : TreatText(node);
+            return node.InnerText == string.Empty ? TreatEmpty(node) : TreatText(node);
         }
 
         private string TreatText(HtmlNode node)

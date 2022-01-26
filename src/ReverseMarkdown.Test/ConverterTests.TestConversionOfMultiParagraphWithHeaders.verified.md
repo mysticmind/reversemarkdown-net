@@ -1,4 +1,3 @@
-
 # Heading1
 
 First paragraph.

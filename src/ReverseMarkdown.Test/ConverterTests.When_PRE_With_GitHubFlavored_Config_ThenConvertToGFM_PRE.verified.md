@@ -1,5 +1,3 @@
-
-
 ```
 var test = 'hello world';
 ```
