@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             var content = TreatChildren(node)
-                .Trim()
+                .Chomp()
                 .Replace(Environment.NewLine, "<br>");
 
             return $" {content} |";
