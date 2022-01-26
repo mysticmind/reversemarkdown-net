@@ -7,8 +7,15 @@ namespace ReverseMarkdown
 {
     public static class StringUtils
     {
-        public static string Chomp(this string content)
+        public static string Chomp(this string content, bool all=false)
         {
+            if (all)
+            {
+                return content
+                    .Replace("\r", "")
+                    .Replace("\n", "");
+            }
+
             return content.Trim().TrimEnd('\r', '\n');
         }
 
