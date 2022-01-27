@@ -961,8 +961,7 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html);
         }
         
-        // TODO: Recheck
-        //[Fact]
+        [Fact]
         public Task WhenTableCellsWithPWithMarkupNewlines_ThenTrimExcessNewlines()
         {
             var html = $"<html><body><table><tbody>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}col1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}data1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>\t</tr></tbody></table></body></html>";
@@ -1203,6 +1202,13 @@ namespace ReverseMarkdown.Test
         public Task When_Span_with_newline_Should_Convert_Properly()
         {
             var html = $"<b>2 sets</b><span>{Environment.NewLine}</span><span>30 mountain climbers</span>";
+            return CheckConversion(html);
+        }
+        
+        [Fact]
+        public Task Bug255_table_newline_char_issue()
+        {
+            var html = $"<thead>{Environment.NewLine}<tr>{Environment.NewLine}<th style=\"text-align: left;\">Progression</th>{Environment.NewLine}<th style=\"text-align: left;\">Focus</th>{Environment.NewLine}</tr>{Environment.NewLine}</thead>";
             return CheckConversion(html);
         }
     }

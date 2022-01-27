@@ -43,6 +43,7 @@ namespace ReverseMarkdown.Converters
             {
                 case "ol":
                 case "ul":
+                case "tr":
                     content = content.Trim();
                     break;
             }

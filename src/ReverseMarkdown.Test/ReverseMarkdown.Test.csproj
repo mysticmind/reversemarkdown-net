@@ -18,5 +18,8 @@
     <None Update="ConverterTests.When_Span_with_newline_Should_Convert_Properly.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
+    <None Update="ConverterTests.Bug255_table_newline_char_issue.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
   </ItemGroup>
 </Project>
