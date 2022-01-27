@@ -4,8 +4,7 @@
 
 ReverseMarkdown is a Html to [Markdown](http://daringfireball.net/projects/markdown/syntax) converter library in C#. Conversion is very reliable since the HtmlAgilityPack (HAP) library is used for traversing the HTML DOM.
 
-
-If you have used and benefitted from this library. Please feel free to buy me a coffee using the link below<br>
+If you have used and benefitted from this library. Please feel free to buy me a coffee!<br>
 <a href="https://www.buymeacoffee.com/babuannamalai" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 
