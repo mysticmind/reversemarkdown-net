@@ -92,7 +92,7 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Copyright
 
-Copyright © 2020 Babu Annamalai
+Copyright © Babu Annamalai
 
 ## License
 
