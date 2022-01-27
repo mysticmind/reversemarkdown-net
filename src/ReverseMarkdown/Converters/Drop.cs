@@ -7,6 +7,7 @@ namespace ReverseMarkdown.Converters
         public Drop(Converter converter) : base(converter)
         {
             Converter.Register("style", this);
+            Converter.Register("script", this);
             if (Converter.Config.RemoveComments) {
                 converter.Register("#comment", this);
             }

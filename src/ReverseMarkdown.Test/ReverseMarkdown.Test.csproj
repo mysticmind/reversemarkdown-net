@@ -21,5 +21,8 @@
     <None Update="ConverterTests.Bug255_table_newline_char_issue.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
+    <None Update="ConverterTests.When_Content_Contains_script_tags_ignore_it.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
   </ItemGroup>
 </Project>

@@ -1211,5 +1211,12 @@ namespace ReverseMarkdown.Test
             var html = $"<thead>{Environment.NewLine}<tr>{Environment.NewLine}<th style=\"text-align: left;\">Progression</th>{Environment.NewLine}<th style=\"text-align: left;\">Focus</th>{Environment.NewLine}</tr>{Environment.NewLine}</thead>";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task When_Content_Contains_script_tags_ignore_it()
+        {
+            var html = $"<div><script>var test = 10;</script><p>simple paragraph</p></div><script>var test2 = 20;</script>";
+            return CheckConversion(html);
+        }
     }
 }
