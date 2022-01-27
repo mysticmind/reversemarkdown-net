@@ -11,6 +11,11 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
+            if (node.ParentNode.Name == "a")
+            {
+                return string.Empty;
+            }
+            
             var alt = node.GetAttributeValue("alt", string.Empty);
             var src = node.GetAttributeValue("src", string.Empty);
 

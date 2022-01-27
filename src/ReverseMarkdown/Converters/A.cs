@@ -34,23 +34,30 @@ namespace ReverseMarkdown.Converters
 
             if (href.StartsWith("#") //anchor link
                 || !Converter.Config.IsSchemeWhitelisted(scheme) //Not allowed scheme
-                || isRemoveLinkWhenSameName //Same link - why bother with [](). Except when incorrectly escaped, i.e unescaped spaces - then bother with []()
-                || string.IsNullOrEmpty(href) //We would otherwise print empty () here...
-                || string.IsNullOrEmpty(name))
+                || isRemoveLinkWhenSameName
+                || string.IsNullOrEmpty(href)) //We would otherwise print empty () here...
             {
                 return name;
             }
-            else
+            
+            // if (!string.IsNullOrEmpty(href) && string.IsNullOrEmpty(name))
+            // {
+            //     name = href;
+            // }
+
+            var useHrefWithHttpWhenNameHasNoScheme = Converter.Config.SmartHrefHandling &&
+                                                     (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) || scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
+                                                     && string.Equals(href, $"{scheme}://{name}", StringComparison.OrdinalIgnoreCase);
+
+            // if the anchor tag contains a single child image node don't escape the link text
+            var linkText = hasSingleChildImgNode ? name : StringUtils.EscapeLinkText(name);
+
+            if (string.IsNullOrEmpty(linkText))
             {
-                var useHrefWithHttpWhenNameHasNoScheme = Converter.Config.SmartHrefHandling &&
-                                                         (scheme.Equals("http", StringComparison.OrdinalIgnoreCase) || scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
-                                                         && string.Equals(href, $"{scheme}://{name}", StringComparison.OrdinalIgnoreCase);
-
-                // if the anchor tag contains a single child image node don't escape the link text
-                var linkText = hasSingleChildImgNode ? name : StringUtils.EscapeLinkText(name);
-
-                return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{linkText}]({href}{title})";
+                return href;
             }
+
+            return useHrefWithHttpWhenNameHasNoScheme ? href : $"[{linkText}]({href}{title})";
         }
     }
 }
