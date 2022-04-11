@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using ReverseMarkdown.Converters;
 
@@ -55,6 +56,9 @@ namespace ReverseMarkdown
             }
 
             var result = Lookup(root.Name).Convert(root);
+
+            // cleanup multiple new lines
+            result = Regex.Replace( result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
 
             return result.Trim();
         }
