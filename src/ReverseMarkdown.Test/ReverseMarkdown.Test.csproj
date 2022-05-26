@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
-    <PackageReference Include="MarkdownSnippets.MsBuild" Version="24.2.2">
+    <PackageReference Include="MarkdownSnippets.MsBuild" Version="24.4.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
