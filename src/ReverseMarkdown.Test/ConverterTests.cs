@@ -675,7 +675,7 @@ namespace ReverseMarkdown.Test
             };
             var converter = new Converter(config);
             return Verifier.Throws(() => converter.Convert(html))
-                .ModifySerialization(x => x.IgnoreMember<Exception>(e => e.StackTrace));
+                .IgnoreStackTrack();
         }
 
         [Fact]
