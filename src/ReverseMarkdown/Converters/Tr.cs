@@ -60,13 +60,28 @@ namespace ReverseMarkdown.Converters
 
         private static string UnderlineFor(HtmlNode node, string indent)
         {
-            var colCount = node.ChildNodes.Count(child => child.Name == "th" || child.Name == "td");
+            var nodes = node.ChildNodes.Where(x => x.Name == "th" || x.Name == "td").ToList();
 
             var cols = new List<string>();
-
-            for (var i = 0; i < colCount; i++ )
+            foreach (var styles in nodes.Select(nd => StringUtils.ParseStyle(nd.GetAttributeValue("style", ""))))
             {
-                cols.Add("---");
+                styles.TryGetValue("text-align", out var align);
+
+                switch (align)
+                {
+                    case "left":
+                        cols.Add(":---");
+                        break;
+                    case "right":
+                        cols.Add("---:");
+                        break;
+                    case "center":
+                        cols.Add(":---:");
+                        break;
+                    default:
+                        cols.Add("---");
+                        break;
+                }
             }
 
             var colsAggregated = string.Join(" | ", cols);

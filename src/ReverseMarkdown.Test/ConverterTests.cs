@@ -1303,5 +1303,13 @@ namespace ReverseMarkdown.Test
 
             return CheckConversion(html);
         }
+        
+        [Fact]
+        public Task WhenTableHeadingWithAlignmentStyles_ThenTableHeaderShouldHaveProperAlignment()
+        {
+            var html =
+                $"<table><tr><th style=\"text-align:left\">Col1</th><th style=\"text-align:center\">Col2</th><th style=\"text-align:right\">Col2</th></tr><tr><td>1</td><td>2</td><td>3</td></tr></table>";
+            return CheckConversion(html);
+        }
     }
 }

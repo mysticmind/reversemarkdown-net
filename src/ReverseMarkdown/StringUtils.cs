@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown
@@ -61,6 +62,19 @@ namespace ReverseMarkdown
             return Regex.Replace(rawText, @"\r?\n\s*\r?\n", Environment.NewLine, RegexOptions.Singleline)
                 .Replace("[", @"\[")
                 .Replace("]", @"\]");
+        }
+
+        internal static Dictionary<string, string> ParseStyle(string style)
+        {
+            if (string.IsNullOrEmpty(style))
+            {
+                return new Dictionary<string, string>();
+            }
+
+            var styles = style.Split(';');
+            return styles.Select(styleItem => styleItem.Split(':'))
+                .Where(styleParts => styleParts.Length == 2)
+                .ToDictionary(styleParts => styleParts[0], styleParts => styleParts[1]);
         }
     }
 }
