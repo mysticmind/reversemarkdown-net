@@ -5,14 +5,17 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
-    <PackageReference Include="MarkdownSnippets.MsBuild" Version="24.2.2">
+    <PackageReference Include="MarkdownSnippets.MsBuild" Version="24.5.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Verify.Xunit" Version="15.1.1" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="Verify.Xunit" Version="17.10.2" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="ConverterTests.When_Span_with_newline_Should_Convert_Properly.verified.md">
@@ -22,6 +25,9 @@
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.When_Content_Contains_script_tags_ignore_it.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.When_DescriptionListTag_ThenConvertToMarkdown_List.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
   </ItemGroup>

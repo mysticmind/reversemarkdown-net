@@ -675,7 +675,7 @@ namespace ReverseMarkdown.Test
             };
             var converter = new Converter(config);
             return Verifier.Throws(() => converter.Convert(html))
-                .ModifySerialization(x => x.IgnoreMember<Exception>(e => e.StackTrace));
+                .IgnoreMember<Exception>(e => e.StackTrace);
         }
 
         [Fact]
@@ -1216,6 +1216,13 @@ namespace ReverseMarkdown.Test
         public Task When_Content_Contains_script_tags_ignore_it()
         {
             var html = $"<div><script>var test = 10;</script><p>simple paragraph</p></div><script>var test2 = 20;</script>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task When_DescriptionListTag_ThenConvertToMarkdown_List()
+        {
+            var html = "<dl><dt>Coffee</dt><dd>Filter Coffee</dd><dd>Hot Black Coffee</dd><dt>Milk</dt><dd>White Cold Drink</dd></dl>";
             return CheckConversion(html);
         }
     }
