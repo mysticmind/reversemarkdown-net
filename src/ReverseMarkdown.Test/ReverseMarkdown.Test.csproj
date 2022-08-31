@@ -30,5 +30,8 @@
     <None Update="ConverterTests.When_DescriptionListTag_ThenConvertToMarkdown_List.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
+    <None Update="ConverterTests.Bug294_Table_bug_with_row_superfluous_newlines.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
   </ItemGroup>
 </Project>

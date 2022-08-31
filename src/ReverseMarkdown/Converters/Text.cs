@@ -41,8 +41,12 @@ namespace ReverseMarkdown.Converters
 
             switch (parent.Name)
             {
+                case "table":
+                case "thead":
+                case "tbody":    
                 case "ol":
                 case "ul":
+                case "th":    
                 case "tr":
                     content = content.Trim();
                     break;

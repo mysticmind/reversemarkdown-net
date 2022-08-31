@@ -42,14 +42,16 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenThereAreMultipleLinks_ThenConvertThemToMarkdownLinks()
         {
-            var html = @"This is <a href=""http://test.com"">first link</a> and <a href=""http://test1.com"">second link</a>";
+            var html =
+                @"This is <a href=""http://test.com"">first link</a> and <a href=""http://test1.com"">second link</a>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task WhenThereIsHtmlLinkNotWhitelisted_ThenBypass()
         {
-            var html = @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
+            var html =
+                @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
             return CheckConversion(html, new Config
             {
                 WhitelistUriSchemes = new[] {"http", "https", "ftp", "ftps", "file"}
@@ -203,16 +205,22 @@ namespace ReverseMarkdown.Test
 
             //The string is not correctly escaped.
             var converter = new Converter(config);
-            var result = converter.Convert(@"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>");
-            Assert.Equal("[http://example.com/path/file name.docx](http://example.com/path/file%20name.docx)", result, StringComparer.OrdinalIgnoreCase);
+            var result =
+                converter.Convert(
+                    @"<a href=""http://example.com/path/file name.docx"">http://example.com/path/file name.docx</a>");
+            Assert.Equal("[http://example.com/path/file name.docx](http://example.com/path/file%20name.docx)", result,
+                StringComparer.OrdinalIgnoreCase);
 
             //The string is an absolute Uri that represents an implicit file Uri.
             var result1 = converter.Convert(@"<a href=""c:\\directory\filename"">	c:\\directory\filename</a>");
-            Assert.Equal(@"[c:\\directory\filename](c:\\directory\filename)", result1, StringComparer.OrdinalIgnoreCase);
+            Assert.Equal(@"[c:\\directory\filename](c:\\directory\filename)", result1,
+                StringComparer.OrdinalIgnoreCase);
 
             //The string is an absolute URI that is missing a slash before the path.
-            var result2 = converter.Convert(@"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>");
-            Assert.Equal("[file://c:/directory/filename](file://c:/directory/filename)", result2, StringComparer.OrdinalIgnoreCase);
+            var result2 =
+                converter.Convert(@"<a href=""file://c:/directory/filename"">file://c:/directory/filename</a>");
+            Assert.Equal("[file://c:/directory/filename](file://c:/directory/filename)", result2,
+                StringComparer.OrdinalIgnoreCase);
 
             //The string contains unescaped backslashes even if they are treated as forward slashes.
             var result3 = converter.Convert(@"<a href=""http:\\host/path/file"">http:\\host/path/file</a>");
@@ -249,7 +257,8 @@ namespace ReverseMarkdown.Test
         public Task
             WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAsterisks_AnyStrongOrBTagsInsideAreIgnored()
         {
-            var html = "<strong>Paragraph is encompassed with strong tag and also has <b>bold</b> text words within it</strong>";
+            var html =
+                "<strong>Paragraph is encompassed with strong tag and also has <b>bold</b> text words within it</strong>";
             return CheckConversion(html);
         }
 
@@ -340,7 +349,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenThereIsHeadingInsideTable_ThenIgnoreHeadingLevel()
         {
-            var html = $"<table>{Environment.NewLine}<tr><th><h2>Heading <strong>text</strong></h2></th></tr>{Environment.NewLine}<tr><td>Content</td></tr>{Environment.NewLine}</table>";
+            var html =
+                $"<table>{Environment.NewLine}<tr><th><h2>Heading <strong>text</strong></h2></th></tr>{Environment.NewLine}<tr><td>Content</td></tr>{Environment.NewLine}</table>";
             return CheckConversion(html);
         }
 
@@ -513,7 +523,7 @@ namespace ReverseMarkdown.Test
         public Task WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre_GFM()
         {
             var html = "This text has pre tag content <pre><br/ ></pre>Next line of text";
-            return CheckConversion(html, new Config { GithubFlavored = true });
+            return CheckConversion(html, new Config {GithubFlavored = true});
         }
 
         [Fact]
@@ -540,14 +550,16 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenThereIsOrderedListWithNestedUnorderedList_ThenConvertToMarkdownListWithNestedList()
         {
-            var html = "This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
+            var html =
+                "This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList()
         {
-            var html = "This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
+            var html =
+                "This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>";
             return CheckConversion(html);
         }
 
@@ -555,9 +567,11 @@ namespace ReverseMarkdown.Test
         public Task WhenThereIsWhitespaceAroundNestedLists_PreventBlankLinesWhenConvertingToMarkdownList()
         {
             var html = $"<ul>{Environment.NewLine}    ";
-            html += $"    <li>OuterItem1{Environment.NewLine}        <ol>{Environment.NewLine}            <li>InnerItem1</li>{Environment.NewLine}        </ol>{Environment.NewLine}    </li>{Environment.NewLine}";
+            html +=
+                $"    <li>OuterItem1{Environment.NewLine}        <ol>{Environment.NewLine}            <li>InnerItem1</li>{Environment.NewLine}        </ol>{Environment.NewLine}    </li>{Environment.NewLine}";
             html += $"    <li>Item2</li>{Environment.NewLine}";
-            html += $"    <ol>{Environment.NewLine}        <li>InnerItem2</li>{Environment.NewLine}    </ol>{Environment.NewLine}";
+            html +=
+                $"    <ol>{Environment.NewLine}        <li>InnerItem2</li>{Environment.NewLine}    </ol>{Environment.NewLine}";
             html += $"    <li>Item3</li>{Environment.NewLine}";
             html += "</ul>";
 
@@ -575,7 +589,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown()
         {
-            var html = $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
+            var html =
+                $"<ol>{Environment.NewLine}\t<li>{Environment.NewLine}\t\t<strong>Item1</strong></li>{Environment.NewLine}\t<li>{Environment.NewLine}\t\tItem2</li></ol>";
             return CheckConversion(html);
         }
 
@@ -583,7 +598,7 @@ namespace ReverseMarkdown.Test
         public Task WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings()
         {
             var html =
-@"<ol>
+                @"<ol>
 	<li>
 		<p>Paragraph 1</p>
         <p>Paragraph 1.1</p>
@@ -598,7 +613,7 @@ namespace ReverseMarkdown.Test
         public Task WhenListContainsParagraphsOutsideItems_ConvertToMarkdownAndIndentSiblings()
         {
             var html =
-@"<ol>
+                @"<ol>
 	<li>Item1</li>
 	<p>Item 1 additional info</p>
 	<li>Item2</li>
@@ -741,7 +756,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenTable_ContainsTheadTh_ConvertToGFMTable()
         {
-            var html = "<table><thead><tr><th>col1</th><th>col2</th></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
+            var html =
+                "<table><thead><tr><th>col1</th><th>col2</th></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
             var config = new Config
             {
                 GithubFlavored = true,
@@ -752,7 +768,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenTable_ContainsTheadTd_ConvertToGFMTable()
         {
-            var html = "<table><thead><tr><td>col1</td><td>col2</td></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
+            var html =
+                "<table><thead><tr><td>col1</td><td>col2</td></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
             var config = new Config
             {
                 GithubFlavored = true,
@@ -852,7 +869,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task WhenRemovedCommentsIsEnabled_CommentsAreRemoved()
         {
-            var html = "Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
+            var html =
+                "Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete";
 
             var config = new Config
             {
@@ -878,7 +896,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void TestConversionWithPastedHtmlContainingUnicodeSpaces()
         {
-            var html = @"<span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">Markdown Monster is an easy to use and extensible<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Markdown Editor</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">,<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Viewer</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>and<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Weblog Publisher</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>for Windows. Our goal is to provide the best Markdown specific editor for Windows and make it as easy as possible to create Markdown documents. We provide a core editor and previewer, and a number of non-intrusive helpers to help embed content like images, links, tables, code and more into your documents with minimal effort.</span>";
+            var html =
+                @"<span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">Markdown Monster is an easy to use and extensible<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Markdown Editor</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;"">,<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Viewer</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>and<span> </span></span><strong style=""box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;"">Weblog Publisher</strong><span style=""color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;""><span> </span>for Windows. Our goal is to provide the best Markdown specific editor for Windows and make it as easy as possible to create Markdown documents. We provide a core editor and previewer, and a number of non-intrusive helpers to help embed content like images, links, tables, code and more into your documents with minimal effort.</span>";
 
             var config = new Config
             {
@@ -917,7 +936,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_FencedCodeBlocks_Shouldnt_Have_Trailing_Line()
         {
-            var html = $@"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>{Environment.NewLine}</code></pre>";
+            var html =
+                $@"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>{Environment.NewLine}</code></pre>";
             var config = new Config
             {
                 GithubFlavored = true,
@@ -943,28 +963,32 @@ namespace ReverseMarkdown.Test
         public Task When_TextWithinParagraphContainsNewlineChars_ConvertNewlineCharsToSpace()
         {
             // note that the string also has a tab space
-            var html = $"<p>This service will be{Environment.NewLine}temporarily unavailable due to planned maintenance{Environment.NewLine}from 02:00-04:00 on 30/01/2020</p>";
+            var html =
+                $"<p>This service will be{Environment.NewLine}temporarily unavailable due to planned maintenance{Environment.NewLine}from 02:00-04:00 on 30/01/2020</p>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task WhenTableCellsWithP_ThenDoNotAddNewlines()
         {
-            var html = "<html><body><table><tbody><tr><td><p>col1</p></td><td><p>col2</p></td></tr><tr><td><p>data1</p></td><td><p>data2</p></td></tr></tbody></table></body></html>";
+            var html =
+                "<html><body><table><tbody><tr><td><p>col1</p></td><td><p>col2</p></td></tr><tr><td><p>data1</p></td><td><p>data2</p></td></tr></tbody></table></body></html>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task WhenTableCellsWithDiv_ThenDoNotAddNewlines()
         {
-            var html = "<html><body><table><tbody><tr><td><div>col1</div></td><td><div>col2</div></td></tr><tr><td><div>data1</div></td><td><div>data2</div></td></tr></tbody></table></body></html>";
+            var html =
+                "<html><body><table><tbody><tr><td><div>col1</div></td><td><div>col2</div></td></tr><tr><td><div>data1</div></td><td><div>data2</div></td></tr></tbody></table></body></html>";
             return CheckConversion(html);
         }
-        
+
         [Fact]
         public Task WhenTableCellsWithPWithMarkupNewlines_ThenTrimExcessNewlines()
         {
-            var html = $"<html><body><table><tbody>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}col1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}data1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>\t</tr></tbody></table></body></html>";
+            var html =
+                $"<html><body><table><tbody>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}col1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}data1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>\t</tr></tbody></table></body></html>";
 
             return CheckConversion(html);
         }
@@ -991,7 +1015,8 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html);
         }
 
-        [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
+        [Fact(Skip =
+            "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
         public Task WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown()
         {
             var html = "<html><head><style></head><body><p>Test content</p></body></html>";
@@ -1003,7 +1028,8 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html, config);
         }
 
-        [Fact(Skip = "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
+        [Fact(Skip =
+            "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
         public Task WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown()
         {
             var html = "<html><body><script><p>Test content</p></body></html>";
@@ -1042,7 +1068,8 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task When_PRE_Without_Lang_Marker_Class_Att_And_GitHubFlavored_Config_With_DefaultCodeBlockLanguage_ThenConvertToGFM_PRE()
+        public Task
+            When_PRE_Without_Lang_Marker_Class_Att_And_GitHubFlavored_Config_With_DefaultCodeBlockLanguage_ThenConvertToGFM_PRE()
         {
             var html = @"<pre>var test = ""hello world"";</pre>";
             var config = new Config
@@ -1054,7 +1081,8 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task When_PRE_With_Parent_DIV_And_Non_GitHubFlavored_Config_FirstLine_CodeBlock_SpaceIndent_Should_Be_Retained()
+        public Task
+            When_PRE_With_Parent_DIV_And_Non_GitHubFlavored_Config_FirstLine_CodeBlock_SpaceIndent_Should_Be_Retained()
         {
             var html = @"<div><pre>var test = ""hello world"";</pre></div>";
             return CheckConversion(html);
@@ -1063,7 +1091,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_Converting_HTML_Ensure_To_Process_Only_Body()
         {
-            var html = "<!DOCTYPE html><html lang=\"en\"><head><script>var x = 1;</script></head><body>sample text</body>";
+            var html =
+                "<!DOCTYPE html><html lang=\"en\"><head><script>var x = 1;</script></head><body>sample text</body>";
             return CheckConversion(html);
         }
 
@@ -1084,14 +1113,16 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_Table_Within_List_Should_Be_Indented()
         {
-            var html = "<ol><li>Item1</li><li>Item2<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table></li><li>Item3</li></ol>";
+            var html =
+                "<ol><li>Item1</li><li>Item2<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table></li><li>Item3</li></ol>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task When_Tag_In_PassThoughTags_List_Then_Use_PassThroughConverter()
         {
-            var html = @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png"">. Next line of text";
+            var html =
+                @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png"">. Next line of text";
             var config = new Config
             {
                 PassThroughTags = new[] {"img"}
@@ -1143,7 +1174,8 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_PreTag_Within_List_Should_Be_Indented()
         {
-            var html = $"<ol><li>Item1</li><li>Item2 <pre> test<br>{Environment.NewLine}  test</pre></li><li>Item3</li></ol>";
+            var html =
+                $"<ol><li>Item1</li><li>Item2 <pre> test<br>{Environment.NewLine}  test</pre></li><li>Item3</li></ol>";
             return CheckConversion(html);
         }
 
@@ -1197,32 +1229,78 @@ namespace ReverseMarkdown.Test
             var html = "<li>item</li>";
             return CheckConversion(html);
         }
-        
+
         [Fact]
         public Task When_Span_with_newline_Should_Convert_Properly()
         {
             var html = $"<b>2 sets</b><span>{Environment.NewLine}</span><span>30 mountain climbers</span>";
             return CheckConversion(html);
         }
-        
+
         [Fact]
         public Task Bug255_table_newline_char_issue()
         {
-            var html = $"<thead>{Environment.NewLine}<tr>{Environment.NewLine}<th style=\"text-align: left;\">Progression</th>{Environment.NewLine}<th style=\"text-align: left;\">Focus</th>{Environment.NewLine}</tr>{Environment.NewLine}</thead>";
+            var html =
+                $"<thead>{Environment.NewLine}<tr>{Environment.NewLine}<th style=\"text-align: left;\">Progression</th>{Environment.NewLine}<th style=\"text-align: left;\">Focus</th>{Environment.NewLine}</tr>{Environment.NewLine}</thead>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task When_Content_Contains_script_tags_ignore_it()
         {
-            var html = $"<div><script>var test = 10;</script><p>simple paragraph</p></div><script>var test2 = 20;</script>";
+            var html =
+                $"<div><script>var test = 10;</script><p>simple paragraph</p></div><script>var test2 = 20;</script>";
             return CheckConversion(html);
         }
 
         [Fact]
         public Task When_DescriptionListTag_ThenConvertToMarkdown_List()
         {
-            var html = "<dl><dt>Coffee</dt><dd>Filter Coffee</dd><dd>Hot Black Coffee</dd><dt>Milk</dt><dd>White Cold Drink</dd></dl>";
+            var html =
+                "<dl><dt>Coffee</dt><dd>Filter Coffee</dd><dd>Hot Black Coffee</dd><dt>Milk</dt><dd>White Cold Drink</dd></dl>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task Bug294_Table_bug_with_row_superfluous_newlines()
+        {
+            var html = @"<table>
+<thead>
+<tr>
+<th>比较</th>
+<th>wordpress</th>
+<th>hexo &amp; hugo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>搭建要求</td>
+<td>一台服务器以及运行环境</td>
+<td>静态生成页面，无需服务器。</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>由于是动态生成页面，可以通过自行配置提高性能，但是仍然无法媲美静态页面</td>
+<td>几乎无需考虑性能问题</td>
+</tr>
+<tr>
+<td>访问速度</td>
+<td>依赖于服务器配置以及cdn加速。</td>
+<td>只需考虑cdn加速</td>
+</tr>
+<tr>
+<td>功能完善</td>
+<td>作为强大的cms功能很完善，需要的功能基本可以插件下载直接实现。</td>
+<td>额外功能也可以通过插件实现，不过稍微需要自行查找以及diy</td>
+</tr>
+<tr>
+<td>后台管理</td>
+<td>现成的后台管理功能，开箱即用</td>
+<td>由于静态博客，本身没有后台管理，有需求需要自行搜索实现</td>
+</tr>
+</tbody>
+</table>";
+
             return CheckConversion(html);
         }
     }
