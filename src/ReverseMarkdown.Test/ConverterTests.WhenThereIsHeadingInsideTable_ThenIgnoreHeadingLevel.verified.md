@@ -1,4 +1,3 @@
 | Heading **text** |
 | --- |
-
 | Content |
