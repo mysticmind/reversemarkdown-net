@@ -14,9 +14,6 @@ ReverseMarkdown is a Html to Markdown (http://daringfireball.net/projects/markdo
 If you have used and benefitted from this library. Please feel free to buy me a coffee!<br>
 <a href='https://ko-fi.com/babuannamalai' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi4.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> <a href="https://www.buymeacoffee.com/babuannamalai" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
-
-Note that the library's initial implementation is based on the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
-
 ## Usage
 
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and built it yourself.
@@ -100,6 +97,9 @@ var converter = new ReverseMarkdown.Converter(config);
 * Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
 * Can deal with nested lists
 * Github Flavoured Markdown conversion supported for br, pre and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default table will always be converted to Github flavored markdown immaterial of this flag.
+
+## Acknowledgements
+This library's initial implementation ideas were from the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
 ## Copyright
 
