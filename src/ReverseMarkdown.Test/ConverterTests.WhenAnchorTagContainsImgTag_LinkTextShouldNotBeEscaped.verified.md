@@ -1,1 +1,1 @@
-https://www.example.com
+[![](https://example.com/image.jpg)](https://www.example.com)
