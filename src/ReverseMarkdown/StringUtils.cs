@@ -36,7 +36,7 @@ namespace ReverseMarkdown
         /// <para>If non parseable by Uri, return empty string. Will never return null</para>
         /// </summary>
         /// <returns></returns>
-        internal static string GetScheme(string url) {
+        public static string GetScheme(string url) {
             var isValidUri = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
             //IETF RFC 3986
             if (Regex.IsMatch(url, "^//[^/]")) {
@@ -57,14 +57,14 @@ namespace ReverseMarkdown
         /// <summary>
         /// Escape/clean characters which would break the [] section of a markdown []() link
         /// </summary>
-        internal static string EscapeLinkText(string rawText)
+        public static string EscapeLinkText(string rawText)
         {
             return Regex.Replace(rawText, @"\r?\n\s*\r?\n", Environment.NewLine, RegexOptions.Singleline)
                 .Replace("[", @"\[")
                 .Replace("]", @"\]");
         }
 
-        internal static Dictionary<string, string> ParseStyle(string style)
+        public static Dictionary<string, string> ParseStyle(string style)
         {
             if (string.IsNullOrEmpty(style))
             {
