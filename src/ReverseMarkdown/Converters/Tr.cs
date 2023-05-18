@@ -67,7 +67,7 @@ namespace ReverseMarkdown.Converters
             {
                 styles.TryGetValue("text-align", out var align);
 
-                switch (align)
+                switch (align?.Trim())
                 {
                     case "left":
                         cols.Add(":---");
