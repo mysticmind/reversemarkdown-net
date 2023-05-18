@@ -74,7 +74,13 @@ namespace ReverseMarkdown
             var styles = style.Split(';');
             return styles.Select(styleItem => styleItem.Split(':'))
                 .Where(styleParts => styleParts.Length == 2)
+                .DistinctBy(styleParts => styleParts[0])
                 .ToDictionary(styleParts => styleParts[0], styleParts => styleParts[1]);
+        }
+        
+        private static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> enumerable, Func<T, TKey> keySelector)
+        {
+            return enumerable.GroupBy(keySelector).Select(grp => grp.First());
         }
     }
 }
