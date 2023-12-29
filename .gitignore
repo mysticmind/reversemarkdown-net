@@ -13,3 +13,4 @@ Thumbs.db
 **/packages
 .idea
 *.received.*
+.DS_Store

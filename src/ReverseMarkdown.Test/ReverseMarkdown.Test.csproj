@@ -1,21 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net48;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
-    <PackageReference Include="MarkdownSnippets.MsBuild" Version="24.5.1">
+    <PackageReference Include="MarkdownSnippets.MsBuild" Version="26.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Verify.Xunit" Version="17.10.2" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+    <PackageReference Include="Verify.Xunit" Version="22.11.1" />
+    <PackageReference Include="xunit" Version="2.6.4" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="ConverterTests.When_Span_with_newline_Should_Convert_Properly.verified.md">
@@ -32,6 +32,12 @@
     </None>
     <None Update="ConverterTests.Bug294_Table_bug_with_row_superfluous_newlines.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.Check_Converter_With_Unknown_Tag_Raise_Option.verified.txt">
+      <DependentUpon>ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md</DependentUpon>
+    </None>
+    <None Update="ConverterTests.Check_Converter_With_Unknown_Tag_Raise_Option.DotNet6_0.received.txt">
+      <DependentUpon>ConverterTests.WhenThereIsUnorderedListAndBulletIsAsterisk_ThenConvertToMarkdownList.verified.md</DependentUpon>
     </None>
   </ItemGroup>
 </Project>

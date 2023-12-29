@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using VerifyTests;
 using VerifyXunit;
@@ -12,10 +13,13 @@ namespace ReverseMarkdown.Test
     public class ConverterTests
     {
         private readonly ITestOutputHelper _testOutputHelper;
+        private readonly VerifySettings _verifySettings;
 
         public ConverterTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
+            _verifySettings = new VerifySettings();
+            _verifySettings.DisableRequireUniquePrefix();
         }
 
         [Fact]
@@ -689,7 +693,8 @@ namespace ReverseMarkdown.Test
                 UnknownTags = Config.UnknownTagsOption.Raise
             };
             var converter = new Converter(config);
-            return Verifier.Throws(() => converter.Convert(html))
+            var settings = new VerifySettings();
+            return Verifier.Throws(() => converter.Convert(html), settings: _verifySettings)
                 .IgnoreMember<Exception>(e => e.StackTrace);
         }
 
@@ -921,9 +926,9 @@ namespace ReverseMarkdown.Test
             config = config ?? new Config();
             var converter = new Converter(config);
             var result = converter.Convert(html);
-            var verifySettings = new VerifySettings();
-            verifySettings.UseExtension("md");
-            return Verifier.Verify(result, settings: verifySettings);
+            var settings = new VerifySettings();
+            settings.DisableRequireUniquePrefix();
+            return Verifier.Verify(result, settings: settings, extension: "md");
         }
 
         [Fact]
