@@ -53,7 +53,12 @@ namespace ReverseMarkdown.Converters
             }
 
             content = ReplaceNewlineChars(parent.Name, content);
-            content =  EscapeKeyChars(content);
+            
+            if (parent.Name != "a")
+            {
+                content =  EscapeKeyChars(content);
+            }
+
             content = PreserveKeyCharsWithinBackTicks(content);
 
             return content;

@@ -1320,5 +1320,12 @@ namespace ReverseMarkdown.Test
             var html = $"This is the 1<sup>st</sup> sentence to t<sup>e<sup>s</sup></sup>t the sup tag conversion";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task When_Anchor_Text_with_Underscore_Do_Not_Escape()
+        {
+            var html = $"This a sample <strong>paragraph</strong> from <a href=\"https://www.w3schools.com/html/mov_bbb.mp4\">https://www.w3schools.com/html/mov_bbb.mp4</a>";
+            return CheckConversion(html);
+        }
     }
 }
