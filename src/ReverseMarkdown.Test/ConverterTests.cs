@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using VerifyTests;
 using VerifyXunit;
@@ -693,7 +691,6 @@ namespace ReverseMarkdown.Test
                 UnknownTags = Config.UnknownTagsOption.Raise
             };
             var converter = new Converter(config);
-            var settings = new VerifySettings();
             return Verifier.Throws(() => converter.Convert(html), settings: _verifySettings)
                 .IgnoreMember<Exception>(e => e.StackTrace);
         }
@@ -921,7 +918,7 @@ namespace ReverseMarkdown.Test
             Assert.Contains("and **Weblog Publisher** for Windows", expected);
         }
 
-        static Task CheckConversion(string html, Config config = null, [CallerFilePath] string sourceFile = "")
+        static Task CheckConversion(string html, Config config = null)
         {
             config = config ?? new Config();
             var converter = new Converter(config);
