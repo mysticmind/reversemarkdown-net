@@ -1327,5 +1327,12 @@ namespace ReverseMarkdown.Test
             var html = $"This a sample <strong>paragraph</strong> from <a href=\"https://www.w3schools.com/html/mov_bbb.mp4\">https://www.w3schools.com/html/mov_bbb.mp4</a>";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task When_Strikethrough_And_Nested_Strikethrough()
+        {
+            var html = $"This is the 1<s>st</s> sentence to t<del>e<strike>s</strike></strike>t the strikethrough tag conversion";
+            return CheckConversion(html);
+        }
     }
 }
