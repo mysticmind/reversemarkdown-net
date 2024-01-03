@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Converters
             }
             else
             {
-                return $"^{content.Trim().Chomp(all:true)}^";
+                return $"^{content.Chomp(all:true)}^";
             }
         }
 

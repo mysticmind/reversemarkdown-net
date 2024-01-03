@@ -1334,5 +1334,12 @@ namespace ReverseMarkdown.Test
             var html = $"This is the 1<s>st</s> sentence to t<del>e<strike>s</strike></strike>t the strikethrough tag conversion";
             return CheckConversion(html);
         }
+        
+        [Fact]
+        public Task When_Spaces_In_Inline_Tags_Should_Be_Retained()
+        {
+            var html = $"... example html <i>code </i>block";
+            return CheckConversion(html);
+        }
     }
 }

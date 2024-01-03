@@ -31,7 +31,7 @@ namespace ReverseMarkdown.Converters
                     ? " "
                     : "";
 
-                return $"*{content.Trim().Chomp(all:true)}*{spaceSuffix}";
+                return $"*{content.Chomp(all:true)}*{spaceSuffix}";
             }
         }
 

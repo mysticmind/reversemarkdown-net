@@ -16,7 +16,7 @@ namespace ReverseMarkdown.Converters
             var indentation = IndentationFor(node);
             var newlineAfter = NewlineAfter(node);
 
-            return $"{indentation}{TreatChildren(node).Trim()}{newlineAfter}";
+            return $"{indentation}{TreatChildren(node)}{newlineAfter}";
         }
 
         private static string IndentationFor(HtmlNode node)
