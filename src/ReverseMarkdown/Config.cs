@@ -8,6 +8,8 @@ namespace ReverseMarkdown
         public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
 
         public bool GithubFlavored { get; set; } = false;
+        
+        public bool SuppressNewlines { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;
 
