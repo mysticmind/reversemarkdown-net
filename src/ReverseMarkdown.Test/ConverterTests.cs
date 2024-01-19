@@ -1346,7 +1346,10 @@ namespace ReverseMarkdown.Test
         public Task When_SuppressNewlineFlag_PrefixDiv_Should_Be_Empty()
         {
             var html = $"<div>the</div><div>fox</div><div>jumps</div><div>over</div>";
-            return CheckConversion(html);
+            return CheckConversion(html, new Config
+            {
+                SuppressNewlines = true
+            });
         }
     }
 }

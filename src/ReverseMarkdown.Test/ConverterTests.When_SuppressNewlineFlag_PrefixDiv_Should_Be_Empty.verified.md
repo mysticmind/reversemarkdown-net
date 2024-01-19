@@ -1,7 +1,4 @@
 ﻿the
-
 fox
-
 jumps
-
 over
