@@ -48,7 +48,7 @@ namespace ReverseMarkdown.Converters
             {
                 prefix = string.Empty;
             } 
-            else if (Converter.Config.SuppressNewlines)
+            else if (Converter.Config.SuppressDivNewlines)
             {
                 prefix = string.Empty;
             }

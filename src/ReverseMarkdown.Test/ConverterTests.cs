@@ -1348,7 +1348,7 @@ namespace ReverseMarkdown.Test
             var html = $"<div>the</div><div>fox</div><div>jumps</div><div>over</div>";
             return CheckConversion(html, new Config
             {
-                SuppressNewlines = true
+                SuppressDivNewlines = true
             });
         }
     }

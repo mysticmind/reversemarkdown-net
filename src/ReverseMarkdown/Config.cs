@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System;
+using System.Linq;
 
 namespace ReverseMarkdown
 {
@@ -9,7 +11,7 @@ namespace ReverseMarkdown
 
         public bool GithubFlavored { get; set; } = false;
         
-        public bool SuppressNewlines { get; set; } = false;
+        public bool SuppressDivNewlines { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;
 
