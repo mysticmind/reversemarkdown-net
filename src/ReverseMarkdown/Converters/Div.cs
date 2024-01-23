@@ -42,7 +42,18 @@ namespace ReverseMarkdown.Converters
                 return content;
             }
 
-            return $"{(Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine)}{content}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
+            var prefix = Environment.NewLine;
+
+            if (Td.FirstNodeWithinCell(node))
+            {
+                prefix = string.Empty;
+            } 
+            else if (Converter.Config.SuppressNewlines)
+            {
+                prefix = string.Empty;
+            }
+            
+            return $"{prefix}{content}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
         }
     }
 }

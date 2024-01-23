@@ -59,6 +59,7 @@ var converter = new ReverseMarkdown.Converter(config);
 
 * `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
+* `SuppressNewlines` - Removes prefixed newlines from `div` tags. Default is false
 * `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it.
 * `RemoveComments` - Remove comment tags with text. Default is false
 * `SmartHrefHandling` - How to handle `<a>` tag href attribute
