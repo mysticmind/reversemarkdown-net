@@ -17,6 +17,8 @@ namespace ReverseMarkdown
 
         public Converter() : this(new Config()) {}
 
+        public Converter(Config config) : this(config, null) {}
+
         public Converter(Config config, params Assembly[] additionalAssemblies)
         {
             Config = config;
@@ -26,7 +28,8 @@ namespace ReverseMarkdown
                 typeof(IConverter).GetTypeInfo().Assembly
             };
 
-            assemblies.AddRange(additionalAssemblies);
+            if (!(additionalAssemblies is null))
+                assemblies.AddRange(additionalAssemblies);
 
             List<Type> types = new List<Type>();
             // instantiate all converters excluding the unknown tags converters
