@@ -14,7 +14,8 @@ namespace ReverseMarkdown
             {
                 return content
                     .Replace("\r", "")
-                    .Replace("\n", "");
+                    .Replace("\n", "")
+                    .Trim();
             }
 
             return content.Trim().TrimEnd('\r', '\n');
