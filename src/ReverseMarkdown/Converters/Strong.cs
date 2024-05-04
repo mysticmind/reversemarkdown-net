@@ -22,14 +22,12 @@ namespace ReverseMarkdown.Converters
             {
                 return content;
             }
-            else
-            {
-                var spaceSuffix = (node.NextSibling?.Name == "strong" || node.NextSibling?.Name == "b")
-                    ? " "
-                    : "";
+            
+            var spaceSuffix = (node.NextSibling?.Name == "strong" || node.NextSibling?.Name == "b")
+                ? " "
+                : "";
 
-                return $"**{content.Chomp(all:true)}**{spaceSuffix}";
-            }
+            return content.EmphasizeContentWhitespaceGuard("**", spaceSuffix);
         }
 
         private static bool AlreadyBold(HtmlNode node)

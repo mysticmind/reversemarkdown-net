@@ -25,14 +25,12 @@ namespace ReverseMarkdown.Converters
             {
                 return content;
             }
-            else
-            {
-                var spaceSuffix = (node.NextSibling?.Name == "i" || node.NextSibling?.Name == "em")
-                    ? " "
-                    : "";
 
-                return $"*{content.Chomp(all:true)}*{spaceSuffix}";
-            }
+            var spaceSuffix = (node.NextSibling?.Name == "i" || node.NextSibling?.Name == "em")
+                ? " "
+                : "";
+
+            return content.EmphasizeContentWhitespaceGuard("*", spaceSuffix);
         }
 
         private static bool AlreadyItalic(HtmlNode node)

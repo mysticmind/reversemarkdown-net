@@ -17,10 +17,8 @@ namespace ReverseMarkdown.Converters
             {
                 return content;
             }
-            else
-            {
-                return $"^{content.Chomp(all:true)}^";
-            }
+
+            return $"^{content.Chomp(all:true)}^";
         }
 
         private static bool AlreadySup(HtmlNode node)

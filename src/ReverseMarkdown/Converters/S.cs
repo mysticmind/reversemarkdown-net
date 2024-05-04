@@ -19,10 +19,8 @@ namespace ReverseMarkdown.Converters
             {
                 return content;
             }
-            else
-            {
-                return $"~~{content.Chomp(all:true)}~~";
-            }
+
+            return content.EmphasizeContentWhitespaceGuard("~~");
         }
 
         private static bool AlreadyStrikethrough(HtmlNode node)

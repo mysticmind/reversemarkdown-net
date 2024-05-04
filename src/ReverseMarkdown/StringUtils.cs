@@ -14,7 +14,8 @@ namespace ReverseMarkdown
             {
                 return content
                     .Replace("\r", "")
-                    .Replace("\n", "");
+                    .Replace("\n", "")
+                    .Trim();
             }
 
             return content.Trim().TrimEnd('\r', '\n');
@@ -78,6 +79,48 @@ namespace ReverseMarkdown
                 .ToDictionary(styleParts => styleParts[0], styleParts => styleParts[1]);
         }
         
+        public static int LeadingSpaceCount(this string content)
+        {
+            var leadingSpaces = 0;
+            foreach (var c in content)
+            {
+                if (c == ' ')
+                {
+                    leadingSpaces++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return leadingSpaces;
+        }
+        
+        public static int TrailingSpaceCount(this string content)
+        {
+            var trailingSpaces = 0;
+            for (var i = content.Length - 1; i >= 0; i--)
+            {
+                if (content[i] == ' ')
+                {
+                    trailingSpaces++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return trailingSpaces;
+        }
+
+        public static string EmphasizeContentWhitespaceGuard(this string content, string emphasis, string nextSiblingSpaceSuffix="")
+        {
+            var leadingSpaces = new string(' ', content.LeadingSpaceCount());
+            var trailingSpaces = new string(' ', content.TrailingSpaceCount());
+
+            return $"{leadingSpaces}{emphasis}{content.Chomp(all:true)}{emphasis}{(trailingSpaces.Length > 0 ? trailingSpaces : nextSiblingSpaceSuffix)}";
+        }
+
         private static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> enumerable, Func<T, TKey> keySelector)
         {
             return enumerable.GroupBy(keySelector).Select(grp => grp.First());
