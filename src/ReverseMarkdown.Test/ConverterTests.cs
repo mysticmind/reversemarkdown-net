@@ -7,7 +7,6 @@ using Xunit.Abstractions;
 
 namespace ReverseMarkdown.Test
 {
-    [UsesVerify]
     public class ConverterTests
     {
         private readonly ITestOutputHelper _testOutputHelper;

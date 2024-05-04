@@ -3,7 +3,6 @@ using ReverseMarkdown;
 using VerifyXunit;
 using Xunit;
 
-[UsesVerify]
 public class Snippets
 {
     [Fact]
