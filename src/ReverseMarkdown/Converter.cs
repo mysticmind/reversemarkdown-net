@@ -60,7 +60,7 @@ namespace ReverseMarkdown
             // cleanup multiple new lines
             result = Regex.Replace( result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
 
-            return result.Trim();
+            return result.Trim().FixMultipleNewlines();
         }
 
         public void Register(string tagName, IConverter converter)

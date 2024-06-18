@@ -120,6 +120,13 @@ namespace ReverseMarkdown
 
             return $"{leadingSpaces}{emphasis}{content.Chomp(all:true)}{emphasis}{(trailingSpaces.Length > 0 ? trailingSpaces : nextSiblingSpaceSuffix)}";
         }
+        
+        public static string FixMultipleNewlines(this string markdown)
+        {
+            var normalizedMarkdown = Regex.Replace(markdown, @"\r\n|\r|\n", "\n");
+            var pattern = @"\n{2,}";
+            return Regex.Replace(normalizedMarkdown, pattern, Environment.NewLine + Environment.NewLine);
+        }
 
         private static IEnumerable<T> DistinctBy<T, TKey>(this IEnumerable<T> enumerable, Func<T, TKey> keySelector)
         {
