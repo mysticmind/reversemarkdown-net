@@ -81,7 +81,7 @@ namespace ReverseMarkdown
         /// <summary>
         /// Set this flag to handle table header column with column spans
         /// </summary>
-        public bool TableHeaderColumnSpanHandling { get; set; } = false;
+        public bool TableHeaderColumnSpanHandling { get; set; } = true;
 
 
         /// <summary>

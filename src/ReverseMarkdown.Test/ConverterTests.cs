@@ -1359,8 +1359,7 @@ namespace ReverseMarkdown.Test
 
             var config = new Config
             {
-                UnknownTags = Config.UnknownTagsOption.Bypass,
-                TableHeaderColumnSpanHandling = true
+                UnknownTags = Config.UnknownTagsOption.Bypass
             };
             return CheckConversion(html, config);
         }
