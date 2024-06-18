@@ -83,6 +83,7 @@ var converter = new ReverseMarkdown.Converter(config);
 * `TableWithoutHeaderRowHandling` - handle table without header rows
   * `TableWithoutHeaderRowHandlingOption.Default` - First row will be used as header row (default)
   * `TableWithoutHeaderRowHandlingOption.EmptyRow` - An empty row will be added as the header row
+* `TableHeaderColumnSpanHandling` - Set this flag to handle or process table header column with column spans
 
 > Note that UnknownTags config has been changed to an enumeration in v2.0.0 (breaking change)
 
