@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 using HtmlAgilityPack;
@@ -52,7 +53,10 @@ namespace ReverseMarkdown.Converters
                     break;
             }
 
-            content = ReplaceNewlineChars(parent.Name, content);
+            if (parent.Ancestors("th").Any() || parent.Ancestors("td").Any())
+            {
+                content = ReplaceNewlineChars(parent, content);    
+            }
             
             if (parent.Name != "a")
             {
@@ -101,12 +105,12 @@ namespace ReverseMarkdown.Converters
             return content;
         }
 
-        private static string ReplaceNewlineChars(string parentNodeName, string content)
+        private static string ReplaceNewlineChars(HtmlNode parentNode, string content)
         {
-            if (parentNodeName != "p" && parentNodeName != "#document") return content;
+            if (parentNode.Name != "p" && parentNode.Name != "#document") return content;
 
-            content = content.Replace("\r\n", " ");
-            content = content.Replace("\n", " ");
+            content = content.Replace("\r\n", "<br>");
+            content = content.Replace("\n", "<br>");
 
             return content;
         }
