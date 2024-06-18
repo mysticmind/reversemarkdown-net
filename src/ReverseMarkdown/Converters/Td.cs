@@ -1,5 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown.Converters
@@ -22,7 +24,8 @@ namespace ReverseMarkdown.Converters
                 .Chomp()
                 .Replace(Environment.NewLine, "<br>");
 
-            return $" {content} |";
+            var colSpan = GetColSpan(node);
+            return string.Concat(Enumerable.Repeat($" {content} |", colSpan));
         }
 
         /// <summary>
@@ -54,6 +57,17 @@ namespace ReverseMarkdown.Converters
                 if (pNodeIndex == cellNodeCount - 1 || (lastNodeIsWhitespace && pNodeIndex == cellNodeCount - 2)) return true;
             }
             return false;
+        }
+
+        private int GetColSpan(HtmlNode node)
+        {
+            var colSpan = 1;
+            
+            if (Converter.Config.TableHeaderColumnSpanHandling && node.Name == "th")
+            {
+                colSpan = node.GetAttributeValue("colspan", 1);
+            }
+            return colSpan;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace ReverseMarkdown.Converters
 
             if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node))
             {
-                underline = UnderlineFor(node, indent);
+                underline = UnderlineFor(node, indent, Converter.Config.TableHeaderColumnSpanHandling);
             }
 
             return $"{indent}|{content}{Environment.NewLine}{underline}";
@@ -58,35 +58,53 @@ namespace ReverseMarkdown.Converters
             return node.ChildNodes.FindFirst("th") != null;
         }
 
-        private static string UnderlineFor(HtmlNode node, string indent)
+        private static string UnderlineFor(HtmlNode node, string indent, bool tableHeaderColumnSpanHandling)
         {
             var nodes = node.ChildNodes.Where(x => x.Name == "th" || x.Name == "td").ToList();
 
             var cols = new List<string>();
-            foreach (var styles in nodes.Select(nd => StringUtils.ParseStyle(nd.GetAttributeValue("style", ""))))
+            foreach (var nd in nodes)
             {
+                var colSpan = GetColSpan(nd, tableHeaderColumnSpanHandling);
+                var styles = StringUtils.ParseStyle(nd.GetAttributeValue("style", ""));
                 styles.TryGetValue("text-align", out var align);
 
+                string content;
                 switch (align?.Trim())
                 {
                     case "left":
-                        cols.Add(":---");
+                        content = ":---";
                         break;
                     case "right":
-                        cols.Add("---:");
+                        content ="---:";
                         break;
                     case "center":
-                        cols.Add(":---:");
+                        content = ":---:";
                         break;
                     default:
-                        cols.Add("---");
+                        content ="---";
                         break;
+                }
+
+                for (var i = 0; i < colSpan; i++) {
+                    cols.Add(content);
                 }
             }
 
             var colsAggregated = string.Join(" | ", cols);
 
             return $"{indent}| {colsAggregated} |{Environment.NewLine}";
+        }
+        
+        private static int GetColSpan(HtmlNode node, bool tableHeaderColumnSpanHandling)
+        {
+            var colSpan = 1;
+            
+            if (tableHeaderColumnSpanHandling && node.Name == "th")
+            {
+                colSpan = node.GetAttributeValue("colspan", 1);
+            }
+            return colSpan;
         }
     }
 }

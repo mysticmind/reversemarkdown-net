@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ReverseMarkdown.Converters;
 using VerifyTests;
 using VerifyXunit;
 using Xunit;
@@ -1349,6 +1350,20 @@ namespace ReverseMarkdown.Test
             {
                 SuppressDivNewlines = true
             });
+        }
+
+        [Fact]
+        public Task WhenTable_WithColSpan_TableHeaderColumnSpansHandling_ThenConvertToGFMTable()
+        {
+            var html =
+                "<table><tr><th>col1</th><th colspan=\"2\">col2</th><th>col3</th></tr><tr><td>data1</td><td>data2.1</td><td>data2.2</td><td>data3</td></tr></table>";
+
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass,
+                TableHeaderColumnSpanHandling = true
+            };
+            return CheckConversion(html, config);
         }
     }
 }

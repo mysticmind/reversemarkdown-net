@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System;
-using System.Linq;
 
 namespace ReverseMarkdown
 {
@@ -79,6 +77,11 @@ namespace ReverseMarkdown
             /// </summary>
             EmptyRow
         }
+
+        /// <summary>
+        /// Set this flag to handle table header column with column spans
+        /// </summary>
+        public bool TableHeaderColumnSpanHandling { get; set; } = false;
 
 
         /// <summary>
