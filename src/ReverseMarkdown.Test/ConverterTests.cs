@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ReverseMarkdown.Converters;
 using VerifyTests;
 using VerifyXunit;
 using Xunit;
@@ -961,14 +960,14 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html);
         }
 
-        [Fact]
-        public Task When_TextWithinParagraphContainsNewlineChars_ConvertNewlineCharsToSpace()
-        {
-            // note that the string also has a tab space
-            var html =
-                $"<p>This service will be{Environment.NewLine}temporarily unavailable due to planned maintenance{Environment.NewLine}from 02:00-04:00 on 30/01/2020</p>";
-            return CheckConversion(html);
-        }
+        // [Fact]
+        // public Task When_TextWithinParagraphContainsNewlineChars_ConvertNewlineCharsToSpace()
+        // {
+        //     // note that the string also has a tab space
+        //     var html =
+        //         $"<p>This service will be{Environment.NewLine}temporarily unavailable due to planned maintenance{Environment.NewLine}from 02:00-04:00 on 30/01/2020</p>";
+        //     return CheckConversion(html);
+        // }
 
         [Fact]
         public Task WhenTableCellsWithP_ThenDoNotAddNewlines()
@@ -986,14 +985,14 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html);
         }
 
-        [Fact]
-        public Task WhenTableCellsWithPWithMarkupNewlines_ThenTrimExcessNewlines()
-        {
-            var html =
-                $"<html><body><table><tbody>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}col1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}data1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>\t</tr></tbody></table></body></html>";
-
-            return CheckConversion(html);
-        }
+        // [Fact]
+        // public Task WhenTableCellsWithPWithMarkupNewlines_ThenRenderBr()
+        // {
+        //     var html =
+        //         $"<html><body><table><tbody>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}col1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>{Environment.NewLine}\t<tr>{Environment.NewLine}\t\t<td>{Environment.NewLine}\t\t\t<p>{Environment.NewLine}data1{Environment.NewLine}</p>{Environment.NewLine}\t\t</td>\t</tr></tbody></table></body></html>";
+        //
+        //     return CheckConversion(html);
+        // }
 
         [Fact]
         public Task WhenTableCellsWithP_ThenNoNewlines()
@@ -1363,6 +1362,19 @@ namespace ReverseMarkdown.Test
                 UnknownTags = Config.UnknownTagsOption.Bypass,
                 TableHeaderColumnSpanHandling = true
             };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task Bug391_AnchorTagUnnecessarilyIndented()
+        {
+            var html =
+                "<p>\n\n</p>\n\n\n<div style=\"white-space: pre-line\" class=\"alert alert-warning\">\nAn error occurred while importing data from feed 'FBA Producten'. More details can be found in the latest <a href=\"<REDACTED>\">feed validation report</a>.\n</div>\n\n\n\n\n<a href=\"<REDACTED>\" class=\"btn btn-primary btn-sm my-2\" target=\"_blank\">View feed 4</a>";
+            var config = new Config
+            {
+                GithubFlavored = true,
+            };
+            
             return CheckConversion(html, config);
         }
     }

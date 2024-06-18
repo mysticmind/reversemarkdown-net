@@ -48,5 +48,8 @@
     <None Update="ConverterTests.When_Spaces_In_Inline_Tags_Should_Be_Retained.verified.md">
       <DependentUpon>ConverterTests.WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList.verified.md</DependentUpon>
     </None>
+    <None Update="ConverterTests.Bug391_AnchorTagUnnecessarilyIndented.verified.md">
+      <DependentUpon>ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md</DependentUpon>
+    </None> 
   </ItemGroup>
 </Project>
