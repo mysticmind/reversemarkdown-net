@@ -83,6 +83,8 @@ namespace ReverseMarkdown
         /// </summary>
         public bool TableHeaderColumnSpanHandling { get; set; } = true;
 
+        public bool CleanupUnnecessarySpaces { get; set; } = true;
+
 
         /// <summary>
         /// Determines whether url is allowed: WhitelistUriSchemes contains no elements or contains passed url.

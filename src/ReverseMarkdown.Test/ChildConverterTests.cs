@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Test
             var converter = new ReverseMarkdown.Converter(new Config(), typeof(IgnoreAWhenHasClass).Assembly);
 
             var type = converter.GetType();
-            var prop = type.GetField("_converters", BindingFlags.NonPublic | BindingFlags.Instance);
+            var prop = type.GetField("Converters", BindingFlags.NonPublic | BindingFlags.Instance);
 
             Assert.NotNull(prop);
 

@@ -23,7 +23,7 @@ namespace ReverseMarkdown.Converters
         }
 
         private string Treat(HtmlNode node) {
-            //TrimNewLine(node);
+            // TrimNewLine(node);
             var converter = Converter.Lookup(node.Name);
             return converter.Convert(node);
         }

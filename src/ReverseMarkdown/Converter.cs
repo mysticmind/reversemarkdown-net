@@ -10,10 +10,10 @@ namespace ReverseMarkdown
 {
     public class Converter
     {
-        protected readonly IDictionary<string, IConverter> _converters = new Dictionary<string, IConverter>();
-        protected readonly IConverter _passThroughTagsConverter;
-        protected readonly IConverter _dropTagsConverter;
-        protected readonly IConverter _byPassTagsConverter;
+        protected readonly IDictionary<string, IConverter> Converters = new Dictionary<string, IConverter>();
+        protected readonly IConverter PassThroughTagsConverter;
+        protected readonly IConverter DropTagsConverter;
+        protected readonly IConverter ByPassTagsConverter;
 
         public Converter() : this(new Config()) {}
 
@@ -23,7 +23,7 @@ namespace ReverseMarkdown
         {
             Config = config;
 
-            List<Assembly> assemblies = new List<Assembly>()
+            var assemblies = new List<Assembly>()
             {
                 typeof(IConverter).GetTypeInfo().Assembly
             };
@@ -31,11 +31,11 @@ namespace ReverseMarkdown
             if (!(additionalAssemblies is null))
                 assemblies.AddRange(additionalAssemblies);
 
-            List<Type> types = new List<Type>();
+            var types = new List<Type>();
             // instantiate all converters excluding the unknown tags converters
             foreach (var assembly in assemblies)
             {
-                foreach (var ctype in assembly.GetTypes()
+                foreach (var converterType in assembly.GetTypes()
                     .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) &&
                     !t.GetTypeInfo().IsAbstract
                     && t != typeof(PassThrough)
@@ -44,32 +44,32 @@ namespace ReverseMarkdown
                 {
                     // Check to see if any existing types are children/equal to
                     // the type to add.
-                    if (types.Any(e => ctype.IsAssignableFrom(e)))
+                    if (types.Any(e => converterType.IsAssignableFrom(e)))
                         // If they are, ignore the type.
                         continue;
 
                     // See if there is a type that is a parent of the
                     // current type.
-                    Type toRemove = types.FirstOrDefault(e => e.IsAssignableFrom(ctype));
+                    var toRemove = types.FirstOrDefault(e => e.IsAssignableFrom(converterType));
                     // if there is ...
                     if (!(toRemove is null))
                         // ... remove the parent.
                         types.Remove(toRemove);
 
                     // finally, add the type.
-                    types.Add(ctype);
+                    types.Add(converterType);
                 }
             }
 
             // For each type to register ...
-            foreach (var ctype in types)
+            foreach (var converterType in types)
                 // ... activate them
-                Activator.CreateInstance(ctype, this);
+                Activator.CreateInstance(converterType, this);
 
             // register the unknown tags converters
-            _passThroughTagsConverter = new PassThrough(this);
-            _dropTagsConverter = new Drop(this);
-            _byPassTagsConverter = new ByPass(this);
+            PassThroughTagsConverter = new PassThrough(this);
+            DropTagsConverter = new Drop(this);
+            ByPassTagsConverter = new ByPass(this);
         }
 
         public Config Config { get; protected set; }
@@ -94,12 +94,12 @@ namespace ReverseMarkdown
             // cleanup multiple new lines
             result = Regex.Replace( result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
 
-            return result.Trim().FixMultipleNewlines();
+            return Config.CleanupUnnecessarySpaces ? result.Trim().FixMultipleNewlines() : result;
         }
 
         public virtual void Register(string tagName, IConverter converter)
         {
-            _converters[tagName] = converter;
+            Converters[tagName] = converter;
         }
 
         public virtual IConverter Lookup(string tagName)
@@ -107,10 +107,10 @@ namespace ReverseMarkdown
             // if a tag is in the pass through list then use the pass through tags converter
             if (Config.PassThroughTags.Contains(tagName))
             {
-                return _passThroughTagsConverter;
+                return PassThroughTagsConverter;
             }
 
-            return _converters.ContainsKey(tagName) ? _converters[tagName] : GetDefaultConverter(tagName);
+            return Converters.TryGetValue(tagName, out var converter) ? converter : GetDefaultConverter(tagName);
         }
 
         private IConverter GetDefaultConverter(string tagName)
@@ -118,11 +118,11 @@ namespace ReverseMarkdown
             switch (Config.UnknownTags)
             {
                 case Config.UnknownTagsOption.PassThrough:
-                    return _passThroughTagsConverter;
+                    return PassThroughTagsConverter;
                 case Config.UnknownTagsOption.Drop:
-                    return _dropTagsConverter;
+                    return DropTagsConverter;
                 case Config.UnknownTagsOption.Bypass:
-                    return _byPassTagsConverter;
+                    return ByPassTagsConverter;
                 default:
                     throw new UnknownTagException(tagName);
             }
