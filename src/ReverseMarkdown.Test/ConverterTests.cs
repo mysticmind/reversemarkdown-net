@@ -1376,5 +1376,13 @@ namespace ReverseMarkdown.Test
             
             return CheckConversion(html, config);
         }
+
+        [Fact]
+        public Task Bug393_RegressionWithVaryingNewLines()
+        {
+            const string html = "This is regular text\r\n<p class=\"c1\">This is HTML: <ul><li>Line 1</li><li>Line 2</li><li><mark>Line 3 has an unknown tag</mark></li></ul></p>";
+            var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass, ListBulletChar = '*' };
+            return CheckConversion(html, config);
+        }
     }
 }

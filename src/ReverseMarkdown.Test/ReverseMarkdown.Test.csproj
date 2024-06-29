@@ -50,6 +50,9 @@
     </None>
     <None Update="ConverterTests.Bug391_AnchorTagUnnecessarilyIndented.verified.md">
       <DependentUpon>ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md</DependentUpon>
+    </None>
+    <None Update="ConverterTests.Bug393_RegressionWithVaryingNewLines.verified.md">
+      <DependentUpon>ConverterTests.WhenThereIsPreTag_ThenConvertToMarkdownPre.verified.md</DependentUpon>
     </None> 
   </ItemGroup>
 </Project>

@@ -123,8 +123,8 @@ namespace ReverseMarkdown
         
         public static string FixMultipleNewlines(this string markdown)
         {
-            var normalizedMarkdown = Regex.Replace(markdown, @"\r\n|\r|\n", "\n");
-            var pattern = @"\n{2,}";
+            var normalizedMarkdown = Regex.Replace(markdown, @"\r\n|\r|\n", Environment.NewLine);
+            var pattern = $"{Environment.NewLine}{{2,}}";
             return Regex.Replace(normalizedMarkdown, pattern, Environment.NewLine + Environment.NewLine);
         }
 
