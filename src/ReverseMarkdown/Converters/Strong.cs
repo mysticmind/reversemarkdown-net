@@ -27,7 +27,8 @@ namespace ReverseMarkdown.Converters
                 ? " "
                 : "";
 
-            return content.EmphasizeContentWhitespaceGuard("**", spaceSuffix);
+            var emphasis = Converter.Config.SlackFlavored ? "*" : "**";
+            return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
         }
 
         private static bool AlreadyBold(HtmlNode node)

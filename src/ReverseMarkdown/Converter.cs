@@ -94,6 +94,11 @@ namespace ReverseMarkdown
             // cleanup multiple new lines
             result = Regex.Replace( result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
 
+            if (Config.SlackFlavored)
+            {
+                result = Cleaner.SlackTidy(result);
+            }
+            
             return Config.CleanupUnnecessarySpaces ? result.Trim().FixMultipleNewlines() : result;
         }
 

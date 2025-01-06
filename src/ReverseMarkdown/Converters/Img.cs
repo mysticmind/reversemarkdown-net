@@ -11,6 +11,11 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
+            if (Converter.Config.SlackFlavored)
+            {
+                throw new SlackUnsupportedTagException(node.Name);
+            }
+            
             var alt = node.GetAttributeValue("alt", string.Empty);
             var src = node.GetAttributeValue("src", string.Empty);
 

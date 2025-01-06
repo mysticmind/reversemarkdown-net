@@ -14,6 +14,11 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
+            if (Converter.Config.SlackFlavored)
+            {
+                throw new SlackUnsupportedTagException(node.Name);
+            }
+            
             // if table does not have a header row , add empty header row if set in config
             var useEmptyRowForHeader = this.Converter.Config.TableWithoutHeaderRowHandling ==
                                        Config.TableWithoutHeaderRowHandlingOption.EmptyRow;

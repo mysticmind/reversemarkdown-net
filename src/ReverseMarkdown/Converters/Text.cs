@@ -58,7 +58,7 @@ namespace ReverseMarkdown.Converters
                 content = ReplaceNewlineChars(parent, content);    
             }
             
-            if (parent.Name != "a")
+            if (parent.Name != "a" && !Converter.Config.SlackFlavored)
             {
                 content =  EscapeKeyChars(content);
             }
