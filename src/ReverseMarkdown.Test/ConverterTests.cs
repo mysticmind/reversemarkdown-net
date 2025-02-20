@@ -1384,5 +1384,91 @@ namespace ReverseMarkdown.Test
             var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass, ListBulletChar = '*' };
             return CheckConversion(html, config);
         }
+
+        [Fact]
+        public Task SlackFlavored_Bold()
+        {
+            const string html = "<b>test</b> | <strong>test</strong>";
+            var config = new Config { SlackFlavored = true };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task SlackFlavored_Italic()
+        {
+            const string html = "<i>test</i> | <em>test</em>";
+            var config = new Config { SlackFlavored = true };
+            return CheckConversion(html, config);
+        }
+        
+        [Fact]
+        public Task SlackFlavored_Strikethrough()
+        {
+            const string html = "<del>test</del>";
+            var config = new Config { SlackFlavored = true };
+            return CheckConversion(html, config);
+        }
+        
+        [Fact]
+        public Task SlackFlavored_Bullets()
+        {
+            const string html = "<ul>\n<li>Item 1</li>\n<li>Item 2</li>\n<li>Item 3</li>\n</ul>";
+            var config = new Config { SlackFlavored = true };
+            return CheckConversion(html, config);
+        }
+        
+        [Fact]
+        public void SlackFlavored_Unsupported_Hr()
+        {
+            const string html = "<hr/>";
+            var config = new Config { SlackFlavored = true };
+            var converter = new Converter(config);
+            Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
+        
+        [Fact]
+        public void SlackFlavored_Unsupported_Img()
+        {
+            const string html = "<img src=\"\"/>";
+            var config = new Config { SlackFlavored = true };
+            var converter = new Converter(config);
+            Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
+        
+        [Fact]
+        public void SlackFlavored_Unsupported_Sup()
+        {
+            const string html = "<sup>test</sup>";
+            var config = new Config { SlackFlavored = true };
+            var converter = new Converter(config);
+            Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
+        
+        [Fact]
+        public void SlackFlavored_Unsupported_Table()
+        {
+            const string html = "<table></table>";
+            var config = new Config { SlackFlavored = true };
+            var converter = new Converter(config);
+            Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
+        
+        [Fact]
+        public void SlackFlavored_Unsupported_Table_Td()
+        {
+            const string html = "<td></td>";
+            var config = new Config { SlackFlavored = true };
+            var converter = new Converter(config);
+            Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
+        
+        [Fact]
+        public void SlackFlavored_Unsupported_Table_Tr()
+        {
+            const string html = "<tr></tr>";
+            var config = new Config { SlackFlavored = true };
+            var converter = new Converter(config);
+            Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
     }
 }
