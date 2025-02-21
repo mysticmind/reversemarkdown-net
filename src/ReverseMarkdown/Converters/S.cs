@@ -20,7 +20,8 @@ namespace ReverseMarkdown.Converters
                 return content;
             }
 
-            return content.EmphasizeContentWhitespaceGuard("~~");
+            var emphasis = Converter.Config.SlackFlavored ? "~" : "~~";
+            return content.EmphasizeContentWhitespaceGuard(emphasis);
         }
 
         private static bool AlreadyStrikethrough(HtmlNode node)

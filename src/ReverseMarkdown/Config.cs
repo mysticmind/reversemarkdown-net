@@ -8,7 +8,9 @@ namespace ReverseMarkdown
         public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
 
         public bool GithubFlavored { get; set; } = false;
-        
+
+        public bool SlackFlavored { get; set; } = false;
+
         public bool SuppressDivNewlines { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;
@@ -31,10 +33,19 @@ namespace ReverseMarkdown
         public TableWithoutHeaderRowHandlingOption TableWithoutHeaderRowHandling { get; set; } =
             TableWithoutHeaderRowHandlingOption.Default;
 
+        private char _listBulletChar = '-';
+
         /// <summary>
         /// Option to set a different bullet character for un-ordered lists
         /// </summary>
-        public char ListBulletChar { get; set; } = '-';
+        /// <remarks>
+        /// This option is ignored when <see cref="SlackFlavored"/> is enabled.
+        /// </remarks>
+        public char ListBulletChar
+        {
+            get => SlackFlavored ? '•' : _listBulletChar;
+            set => _listBulletChar = value;
+        }
 
         /// <summary>
         /// Option to set a default GFM code block language if class based language markers are not available
@@ -52,14 +63,17 @@ namespace ReverseMarkdown
             /// Include the unknown tag completely into the result. That is, the tag along with the text will be left in output.
             /// </summary>
             PassThrough,
+
             /// <summary>
             ///  Drop the unknown tag and its content
             /// </summary>
             Drop,
+
             /// <summary>
             /// Ignore the unknown tag but try to convert its content
             /// </summary>
             Bypass,
+
             /// <summary>
             /// Raise an error to let you know
             /// </summary>
@@ -72,6 +86,7 @@ namespace ReverseMarkdown
             /// By default, first row will be used as header row
             /// </summary>
             Default,
+
             /// <summary>
             /// An empty row will be added as the header row
             /// </summary>
@@ -90,9 +105,11 @@ namespace ReverseMarkdown
         /// Determines whether url is allowed: WhitelistUriSchemes contains no elements or contains passed url.
         /// </summary>
         /// <param name="scheme">Scheme name without trailing colon</param>
-        internal bool IsSchemeWhitelisted(string scheme) {
+        internal bool IsSchemeWhitelisted(string scheme)
+        {
             if (scheme == null) throw new ArgumentNullException(nameof(scheme));
-            var isSchemeAllowed = WhitelistUriSchemes == null || WhitelistUriSchemes.Length == 0 || WhitelistUriSchemes.Contains(scheme, StringComparer.OrdinalIgnoreCase);
+            var isSchemeAllowed = WhitelistUriSchemes == null || WhitelistUriSchemes.Length == 0 ||
+                                  WhitelistUriSchemes.Contains(scheme, StringComparer.OrdinalIgnoreCase);
             return isSchemeAllowed;
         }
     }
