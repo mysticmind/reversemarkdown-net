@@ -15,10 +15,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install .NET 8.0.x
-        uses: actions/setup-dotnet@v3
+      - name: Install .NET 9.0.x
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Run Pack
         run: dotnet pack src/ReverseMarkdown/ReverseMarkdown.csproj -c Release
