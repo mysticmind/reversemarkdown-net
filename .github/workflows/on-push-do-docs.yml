@@ -3,12 +3,12 @@ on:
   push:
 jobs:
   docs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Run MarkdownSnippets
       run: |
-        dotnet tool install --global MarkdownSnippets.Tool --version 26.0.1
+        dotnet tool install --global MarkdownSnippets.Tool --version 27.0.2
         mdsnippets ${GITHUB_WORKSPACE}
       shell: bash
     - name: Push changes
