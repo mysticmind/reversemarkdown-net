@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>ReverseMarkdown is a Html to Markdown converter library in c#</Description>
-    <VersionPrefix>5.0.0</VersionPrefix>
+    <VersionPrefix>4.8.0</VersionPrefix>
     <Authors>Babu Annamalai</Authors>
     <TargetFrameworks>net46;netstandard2.0;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
