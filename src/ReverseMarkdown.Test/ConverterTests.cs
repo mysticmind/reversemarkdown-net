@@ -1242,7 +1242,7 @@ namespace ReverseMarkdown.Test
         public Task Bug255_table_newline_char_issue()
         {
             var html =
-                $"<thead>{Environment.NewLine}<tr>{Environment.NewLine}<th style=\"text-align: left;\">Progression</th>{Environment.NewLine}<th style=\"text-align: left;\">Focus</th>{Environment.NewLine}</tr>{Environment.NewLine}</thead>";
+                $"<table><thead>{Environment.NewLine}<tr>{Environment.NewLine}<th style=\"text-align: left;\">Progression</th>{Environment.NewLine}<th style=\"text-align: left;\">Focus</th>{Environment.NewLine}</tr>{Environment.NewLine}</thead></table>";
             return CheckConversion(html);
         }
 
@@ -1469,6 +1469,14 @@ namespace ReverseMarkdown.Test
             var config = new Config { SlackFlavored = true };
             var converter = new Converter(config);
             Assert.Throws<SlackUnsupportedTagException>(() => converter.Convert(html));
+        }
+        
+        [Fact]
+        public Task Bug403_unexpectedBehaviourWhenTableBodyRowsWithTHCells()
+        {
+            var html = $"<table>{Environment.NewLine}<tr><th>Heading1</th><th>Heading2</th></tr>{Environment.NewLine}<tr><th>data 1</th><td>data 2</td></tr>{Environment.NewLine}<tr><th>data 3</th><td>data 4</td></tr>{Environment.NewLine}</table>";
+            var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass, ListBulletChar = '*', GithubFlavored = true};
+            return CheckConversion(html, config);
         }
     }
 }

@@ -60,7 +60,14 @@ namespace ReverseMarkdown.Converters
 
         private static bool IsTableHeaderRow(HtmlNode node)
         {
-            return node.ChildNodes.FindFirst("th") != null;
+            var tableNode = node.Ancestors("table").FirstOrDefault();
+            var firstRow = tableNode?.SelectSingleNode(".//tr");
+            if (firstRow != null && firstRow == node)
+            {
+                return node.ChildNodes.FindFirst("th") != null;
+            }
+
+            return false;
         }
 
         private static string UnderlineFor(HtmlNode node, string indent, bool tableHeaderColumnSpanHandling)

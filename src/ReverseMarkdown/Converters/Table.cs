@@ -45,7 +45,7 @@ namespace ReverseMarkdown.Converters
                 return string.Empty;
             }
 
-            var colCount = firstRow.ChildNodes.Count(n => n.Name.Contains("td"));
+            var colCount = firstRow.ChildNodes.Count(n => n.Name.Contains("td") || n.Name.Contains("th"));
 
             var headerRowItems = new List<string>();
             var underlineRowItems = new List<string>();

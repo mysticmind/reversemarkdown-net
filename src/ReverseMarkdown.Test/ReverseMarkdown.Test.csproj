@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
   <ItemGroup>
@@ -11,7 +11,7 @@
     </PackageReference>
     <PackageReference Include="Verify.Xunit" Version="30.1.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -53,6 +53,9 @@
     </None>
     <None Update="ConverterTests.Bug393_RegressionWithVaryingNewLines.verified.md">
       <DependentUpon>ConverterTests.WhenThereIsPreTag_ThenConvertToMarkdownPre.verified.md</DependentUpon>
+    </None>
+    <None Update="ConverterTests.Bug403_unexpectedBehaviourWhenTableBodyRowsWithTHCells.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None> 
   </ItemGroup>
 </Project>
