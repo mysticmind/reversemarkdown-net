@@ -1478,5 +1478,12 @@ namespace ReverseMarkdown.Test
             var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass, ListBulletChar = '*', GithubFlavored = true};
             return CheckConversion(html, config);
         }
+
+        [Fact]
+        public Task EscapeMarkdownCharsInTextProperly()
+        {
+            var html = "<span>[a-z]([0-9]){0,4}</span>";
+            return CheckConversion(html);
+        }
     }
 }

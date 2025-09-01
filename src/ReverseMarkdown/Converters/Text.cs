@@ -64,6 +64,7 @@ namespace ReverseMarkdown.Converters
             }
 
             content = PreserveKeyCharsWithinBackTicks(content);
+            content = EscapeSpecialMarkdownCharacters(content);
 
             return content;
         }
@@ -113,6 +114,27 @@ namespace ReverseMarkdown.Converters
             content = content.Replace("\n", "<br>");
 
             return content;
+        }
+
+        private static bool IsContentWithinBackTicks(string content)
+        {
+            return content.StartsWith("`") && content.EndsWith("`");
+        }
+
+        private static string EscapeSpecialMarkdownCharacters(string content)
+        {
+            if (IsContentWithinBackTicks(content))
+            {
+                return content;
+            }
+
+            return content
+                .Replace("[", @"\[")
+                .Replace("]", @"\]")
+                .Replace("(", @"\(")
+                .Replace(")", @"\)")
+                .Replace("{", @"\{")
+                .Replace("}", @"\}");
         }
     }
 }

@@ -1,1 +1,1 @@
-[this \]( might break things](http://example.com)
+[this \\]\( might break things](http://example.com)
