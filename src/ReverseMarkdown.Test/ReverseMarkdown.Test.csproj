@@ -59,6 +59,9 @@
     </None>
     <None Update="ConverterTests.EscapeMarkdownCharsInTextProperly.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.Bug400_MissingSpanSpaceWithItalics.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None> 
   </ItemGroup>
 </Project>

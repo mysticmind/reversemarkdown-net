@@ -20,12 +20,12 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            return node.InnerText == string.Empty ? TreatEmpty(node) : TreatText(node);
+            return node.InnerText is "" or " " or "&nbsp;" ? TreatEmpty(node) : TreatText(node);
         }
 
         private string TreatText(HtmlNode node)
         {
-            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by markdown
+            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by Markdown
             string content = node.InnerText
                 .Replace("&lt;", "%3C")
                 .Replace("&gt;", "%3E");
@@ -37,7 +37,7 @@ namespace ReverseMarkdown.Converters
                 .Replace("%3C", "&lt;")
                 .Replace("%3E", "&gt;");
 
-            //strip leading spaces and tabs for text within list item
+            //strip leading spaces and tabs for text within a list item
             var parent = node.ParentNode;
 
             switch (parent.Name)
@@ -89,7 +89,7 @@ namespace ReverseMarkdown.Converters
             {
                 content = "";
             }
-            else if(node.InnerText == " ")
+            else if(node.InnerText is " " or "&nbsp;")
             {
                 content = " ";
             }

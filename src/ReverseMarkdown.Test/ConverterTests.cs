@@ -1485,5 +1485,12 @@ namespace ReverseMarkdown.Test
             var html = "<span>[a-z]([0-9]){0,4}</span>";
             return CheckConversion(html);
         }
+        
+        [Fact]
+        public Task Bug400_MissingSpanSpaceWithItalics()
+        {
+            var html = "<h3 data-reset-style=\"true\" data-anchor-id=\"8b5e184d-26f7-4d9a-80e0-bab2cd825457\"><i style=\"font-size: 14pt;\">What we thought:<span>&nbsp;</span></i><span style=\"color: rgb(41, 63, 77); font-size: 14pt; font-weight: normal;\">When we built Pages, we assumed that customers would use them like newsletters to share relevant, continually-updated information with field teams.</span><div style=\"text-align: left;\"><span style=\"line-height: 16px;\"><span><span height=\"18\" width=\"18\"><span></span></span><span></span></span></span></div></h3>";
+            return CheckConversion(html);
+        }
     }
 }

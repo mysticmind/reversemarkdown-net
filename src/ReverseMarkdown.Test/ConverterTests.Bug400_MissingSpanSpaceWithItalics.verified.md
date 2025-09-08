@@ -1,0 +1,1 @@
+﻿### *What we thought:* When we built Pages, we assumed that customers would use them like newsletters to share relevant, continually-updated information with field teams.
