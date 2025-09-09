@@ -47,8 +47,6 @@ The conversion can be customized:
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    // Include the unknown tag completely in the result (default as well)
-    UnknownTags = Config.UnknownTagsOption.PassThrough,
     // generate GitHub flavoured markdown, supported for BR, PRE and table tags
     GithubFlavored = true,
     // will ignore all comments
@@ -59,7 +57,7 @@ var config = new ReverseMarkdown.Config
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L27-L43' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L27-L41' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 ## Configuration options
