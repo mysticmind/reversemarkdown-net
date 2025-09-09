@@ -28,8 +28,6 @@ public class Snippets
 
         var config = new ReverseMarkdown.Config
         {
-            // Include the unknown tag completely in the result (default as well)
-            UnknownTags = Config.UnknownTagsOption.PassThrough,
             // generate GitHub flavoured markdown, supported for BR, PRE and table tags
             GithubFlavored = true,
             // will ignore all comments

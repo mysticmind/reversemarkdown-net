@@ -1,3 +1,1 @@
-```xml
 <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-```

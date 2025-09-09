@@ -1,2 +1,2 @@
-<unknown-tag>text in unknown tag</unknown-tag>
+text in unknown tag
 paragraph text

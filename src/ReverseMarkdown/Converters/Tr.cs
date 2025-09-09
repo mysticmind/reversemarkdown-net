@@ -27,8 +27,8 @@ namespace ReverseMarkdown.Converters
                 return "";
             }
 
-            // if parent is an ordered or unordered list
-            // then table need to be indented as well
+            // if parent is an ordered or unordered list,
+            // then the table needs to be indented as well
             var indent = IndentationFor(node);
 
             if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node))

@@ -18,7 +18,7 @@ namespace ReverseMarkdown.Converters
 
         public override string Convert(HtmlNode node)
         {
-            // Lists inside tables are not supported as markdown, so leave as HTML
+            // Lists inside tables are not supported as Markdown, so leave as HTML
             if (node.Ancestors("table").Any())
             {
                 return node.OuterHtml;

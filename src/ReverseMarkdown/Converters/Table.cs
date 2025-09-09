@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Converters
                 throw new SlackUnsupportedTagException(node.Name);
             }
             
-            // if table does not have a header row , add empty header row if set in config
+            // if the table does not have a header row, add empty header row if set in config
             var useEmptyRowForHeader = this.Converter.Config.TableWithoutHeaderRowHandling ==
                                        Config.TableWithoutHeaderRowHandlingOption.EmptyRow;
 

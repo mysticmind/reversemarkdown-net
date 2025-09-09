@@ -34,7 +34,7 @@ namespace ReverseMarkdown.Converters
         }
 
         /// <summary>
-        /// Given node within td tag, checks if newline should be prepended. Will not prepend if this is the first node after any whitespace
+        /// Given node within td tag, checks if a newline should be prepended. Will not prepend if this is the first node after any whitespace
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
@@ -49,7 +49,7 @@ namespace ReverseMarkdown.Converters
             return false;
         }
         /// <summary>
-        /// Given node within td tag, checks if newline should be appended. Will not append if this is the last node before any whitespace
+        /// Given node within td tag, checks if the newline should be appended. Will not append if this is the last node before any whitespace
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>

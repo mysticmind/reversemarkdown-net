@@ -19,7 +19,8 @@ namespace ReverseMarkdown.Converters
             var alt = node.GetAttributeValue("alt", string.Empty);
             var src = node.GetAttributeValue("src", string.Empty);
 
-            if (!Converter.Config.IsSchemeWhitelisted(StringUtils.GetScheme(src)))
+            var schema = StringUtils.GetScheme(src);
+            if (!Converter.Config.IsSchemeWhitelisted(schema))
             {
                 return "";
             }

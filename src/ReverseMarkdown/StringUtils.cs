@@ -23,40 +23,41 @@ namespace ReverseMarkdown
 
         public static IEnumerable<string> ReadLines(this string content)
         {
-            string line;
-            using (var sr = new StringReader(content))
-                while ((line = sr.ReadLine()) != null)
-                    yield return line;
+            using var sr = new StringReader(content);
+            while (sr.ReadLine() is { } line)
+                yield return line;
         }
 
         /// <summary>
-        /// <para>Gets scheme for provided uri string to overcome different behavior between windows/linux. https://github.com/dotnet/corefx/issues/1745</para>
+        /// <para>Gets a scheme for provided uri string to overcome different behavior between windows/linux. https://github.com/dotnet/corefx/issues/1745</para>
         /// Assume http for url starting with //
-        /// <para>Assume file for url starting with /</para>
+        /// <para>Assume a file for url starting with /</para>
         /// Otherwise give what <see cref="Uri.Scheme" /> gives us.
-        /// <para>If non parseable by Uri, return empty string. Will never return null</para>
+        /// <para>If non parseable by Uri, return an empty string. Will never return null</para>
         /// </summary>
         /// <returns></returns>
         public static string GetScheme(string url) {
             var isValidUri = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+
+            var schema = string.Empty;
+
             //IETF RFC 3986
             if (Regex.IsMatch(url, "^//[^/]")) {
-                return "http";
+                schema = "http";
             }
             //Unix style path
             else if (Regex.IsMatch(url, "^/[^/]")) {
-                return "file";
+                schema = "file";
             }
             else if (isValidUri) {
-                return uri.Scheme;
+                schema = uri.Scheme;
             }
-            else {
-                return String.Empty;
-            }
+            
+            return schema;
         }
 
         /// <summary>
-        /// Escape/clean characters which would break the [] section of a markdown []() link
+        /// Escape/clean characters which would break the [] section of a Markdown []() link
         /// </summary>
         public static string EscapeLinkText(string rawText)
         {

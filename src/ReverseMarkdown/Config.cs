@@ -5,8 +5,6 @@ namespace ReverseMarkdown
 {
     public class Config
     {
-        public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
-
         public bool GithubFlavored { get; set; } = false;
 
         public bool SlackFlavored { get; set; } = false;
@@ -16,17 +14,17 @@ namespace ReverseMarkdown
         public bool RemoveComments { get; set; } = false;
 
         /// <summary>
-        /// Specify which schemes (without trailing colon) are to be allowed for &lt;a&gt; and &lt;img&gt; tags. Others will be bypassed. By default allows everything.
-        /// <para>If <see cref="string.Empty" /> provided and when href schema couldn't be determined - whitelists</para>
+        /// Specify which schemes (without a trailing colon) are to be allowed for &lt;a&gt; and &lt;img&gt; tags. Others will be bypassed. By default, allows everything.
+        /// <para>If <see cref="string.Empty" /> provided and when href schema couldn't be determined - allowlists</para>
         /// </summary>
         public string[] WhitelistUriSchemes { get; set; }
 
         /// <summary>
         /// How to handle &lt;a&gt; tag href attribute
-        /// <para>false - Outputs [{name}]({href}{title}) even if name and href is identical. This is the default option.</para>
-        /// true - If name and href equals, outputs just the `name`. Note that if Uri is not well formed as per <see cref="Uri.IsWellFormedUriString"/> (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
-        /// <para>If href contains http/https protocol, and name doesn't but otherwise are the same, output href only</para>
-        /// If tel: or mailto: scheme, but afterwards identical with name, output name only.
+        /// <para>false - Outputs [{name}]({href}{title}) even if name and href are identical. This is the default option.</para>
+        /// True - If name and href equal, outputs are just the `name`. Note that if Uri is not well-formed as per <see cref="Uri.IsWellFormedUriString"/> (i.e., string is not correctly escaped like `http://example.com/path/file name.docx`) then Markdown syntax will be used anyway.
+        /// <para>If href contains http/https protocol, and the name doesn't, but otherwise is the same, output href only</para>
+        /// If tel: or mailto: scheme, but afterward identical with name, output name only.
         /// </summary>
         public bool SmartHrefHandling { get; set; } = false;
 
@@ -36,7 +34,7 @@ namespace ReverseMarkdown
         private char _listBulletChar = '-';
 
         /// <summary>
-        /// Option to set a different bullet character for un-ordered lists
+        /// Option to set a different bullet character for unordered lists
         /// </summary>
         /// <remarks>
         /// This option is ignored when <see cref="SlackFlavored"/> is enabled.
@@ -48,42 +46,24 @@ namespace ReverseMarkdown
         }
 
         /// <summary>
-        /// Option to set a default GFM code block language if class based language markers are not available
+        /// Option to set a default GFM code block language if class-based language markers are not available
         /// </summary>
         public string DefaultCodeBlockLanguage { get; set; }
-
+        
         /// <summary>
         /// Option to pass a list of tags to pass through as is without any processing
         /// </summary>
         public string[] PassThroughTags { get; set; } = { };
-
-        public enum UnknownTagsOption
-        {
-            /// <summary>
-            /// Include the unknown tag completely into the result. That is, the tag along with the text will be left in output.
-            /// </summary>
-            PassThrough,
-
-            /// <summary>
-            ///  Drop the unknown tag and its content
-            /// </summary>
-            Drop,
-
-            /// <summary>
-            /// Ignore the unknown tag but try to convert its content
-            /// </summary>
-            Bypass,
-
-            /// <summary>
-            /// Raise an error to let you know
-            /// </summary>
-            Raise
-        }
-
+        
+        /// <summary>
+        /// Option to pass a list of tags to drop without any processing
+        /// </summary>
+        public string[] DropTags { get; set; } = { };
+        
         public enum TableWithoutHeaderRowHandlingOption
         {
             /// <summary>
-            /// By default, first row will be used as header row
+            /// By default, the first row will be used as the header row
             /// </summary>
             Default,
 
@@ -94,12 +74,29 @@ namespace ReverseMarkdown
         }
 
         /// <summary>
-        /// Set this flag to handle table header column with column spans
+        /// Set this flag to handle the table header column with column spans
         /// </summary>
         public bool TableHeaderColumnSpanHandling { get; set; } = true;
 
+        /// <summary>
+        /// Determines whether unnecessary spaces should be removed in the output Markdown.
+        /// When set to <c>true</c>, spaces at the beginning and end of content, as well as multiple consecutive newlines or spaces,
+        /// will be trimmed or normalized in generated Markdown.
+        /// If <c>false</c>, the spacing of output Markdown remains unaltered.
+        /// </summary>
         public bool CleanupUnnecessarySpaces { get; set; } = true;
 
+        /// <summary>
+        /// Indicates whether header and footer information should be excluded during processing.
+        /// When set to true, header and footer content will be skipped.
+        /// </summary>
+        public bool SkipHeaderFooter { get; set; } = true;
+
+        /// <summary>
+        /// Determines whether navigation elements (such as &lt;nav&gt; tags) should be skipped during processing.
+        /// When enabled, these elements will not be included in the output.
+        /// </summary>
+        public bool SkipNav { get; set; } = true;
 
         /// <summary>
         /// Determines whether url is allowed: WhitelistUriSchemes contains no elements or contains passed url.

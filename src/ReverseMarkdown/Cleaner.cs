@@ -11,7 +11,7 @@ namespace ReverseMarkdown
         
         private static string CleanTagBorders(string content)
         {
-            // content from some htl editors such as CKEditor emits newline and tab between tags, clean that up
+            // content from some htl editors such as CKEditor emits a newline and tab between tags, clean that up
             content = content.Replace("\n\t", "");
             content = content.Replace(Environment.NewLine + "\t", "");
             return content;
@@ -19,7 +19,7 @@ namespace ReverseMarkdown
 
         private static string NormalizeSpaceChars(string content)
         {
-            // replace unicode and non-breaking spaces to normal space
+            // replace Unicode and non-breaking spaces to normal space
             content = Regex.Replace(content, @"[\u0020\u00A0]", " ");
             return content;
         }

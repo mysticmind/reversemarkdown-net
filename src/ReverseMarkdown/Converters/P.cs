@@ -25,7 +25,7 @@ namespace ReverseMarkdown.Converters
         {
             string parentName = node.ParentNode.Name.ToLowerInvariant();
 
-            // If p follows a list item, add newline and indent it
+            // If p follows a list item, add a newline and indent it
             var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
             bool parentIsList = parentName == "li" || parentName == "ol" || parentName == "ul";
             if (parentIsList && node.ParentNode.FirstChild != node)

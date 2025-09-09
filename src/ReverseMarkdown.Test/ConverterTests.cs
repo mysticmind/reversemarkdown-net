@@ -641,57 +641,36 @@ namespace ReverseMarkdown.Test
         public Task Check_Converter_With_Unknown_Tag_ByPass_Option()
         {
             var html = "<unknown-tag>text in unknown tag</unknown-tag>";
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact]
         public Task WhenStyletagWithBypassOption_ReturnEmpty()
         {
             var html = @"<body><style type=""text/css"">.main {background-color: #ffffff;}</style></body>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task Check_Converter_With_Drop_Tag()
+        {
+            var html = "<drop-tag>text in unknown tag</drop-tag><p>paragraph text</p>";
             var config = new Config()
             {
-                UnknownTags = Config.UnknownTagsOption.Bypass
+                DropTags = ["drop-tag"]
             };
             return CheckConversion(html, config);
         }
 
         [Fact]
-        public Task Check_Converter_With_Unknown_Tag_Drop_Option()
+        public Task Check_Converter_With_PassThrough_Tag()
         {
-            var html = "<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
+            var html = "<p>text in unknown tag</p><p>paragraph text</p>";
             var config = new Config
             {
-                UnknownTags = Config.UnknownTagsOption.Drop
+                PassThroughTags = ["p"]
             };
             return CheckConversion(html, config);
-        }
-
-        [Fact]
-        public Task Check_Converter_With_Unknown_Tag_PassThrough_Option()
-        {
-            var html = "<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.PassThrough
-            };
-            return CheckConversion(html, config);
-        }
-
-        [Fact]
-        public Task Check_Converter_With_Unknown_Tag_Raise_Option()
-        {
-            var html = "<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>";
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Raise
-            };
-            var converter = new Converter(config);
-            return Verifier.Throws(() => converter.Convert(html), settings: _verifySettings)
-                .IgnoreMember<Exception>(e => e.StackTrace);
         }
 
         [Fact]
@@ -699,12 +678,8 @@ namespace ReverseMarkdown.Test
         {
             var html =
                 "<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>";
-
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass
-            };
-            return CheckConversion(html, config);
+            
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -715,7 +690,6 @@ namespace ReverseMarkdown.Test
                 "<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
             var config = new Config
             {
-                UnknownTags = Config.UnknownTagsOption.Bypass,
                 TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.EmptyRow
             };
             return CheckConversion(html, config);
@@ -727,12 +701,7 @@ namespace ReverseMarkdown.Test
         {
             var html =
                 "<table><colgroup><col><col><col></colgroup><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>";
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass,
-                // TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.Default - this is default
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -740,11 +709,7 @@ namespace ReverseMarkdown.Test
         {
             var html =
                 $"<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data line1{Environment.NewLine}line2</td><td>data2</td><td>data3</td></tr></table>";
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -771,11 +736,7 @@ namespace ReverseMarkdown.Test
         {
             var html =
                 "<table><thead><tr><td>col1</td><td>col2</td></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>";
-            var config = new Config
-            {
-                GithubFlavored = true,
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -784,7 +745,7 @@ namespace ReverseMarkdown.Test
             var html = "<table><tr><th>col1</th></tr><tr><td>line 1<br>line 2</td></tr></table>";
             var config = new Config
             {
-                GithubFlavored = true,
+                GithubFlavored = true
             };
             return CheckConversion(html, config);
         }
@@ -795,7 +756,6 @@ namespace ReverseMarkdown.Test
             var html = "<table><tr><td>abc</td></tr><tr></tr></table>";
             var config = new Config
             {
-                GithubFlavored = true,
                 TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.EmptyRow,
             };
             return CheckConversion(html, config);
@@ -902,10 +862,6 @@ namespace ReverseMarkdown.Test
 
             var config = new Config
             {
-                GithubFlavored = true,
-                UnknownTags =
-                    Config.UnknownTagsOption
-                        .PassThrough, // Include the unknown tag completely in the result (default as well)
                 SmartHrefHandling = true // remove markdown output for links where appropriate
             };
             var converter = new Converter(config);
@@ -939,11 +895,7 @@ namespace ReverseMarkdown.Test
         {
             var html =
                 $@"<pre><code class=""language-xml hljs""><span class=""hljs-tag"">&lt;<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=""hljs-tag"">&lt;/<span class=""hljs-name"">AspNetCoreHostingModel</span>&gt;</span>{Environment.NewLine}</code></pre>";
-            var config = new Config
-            {
-                GithubFlavored = true,
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -1021,12 +973,7 @@ namespace ReverseMarkdown.Test
         public Task WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown()
         {
             var html = "<html><head><style></head><body><p>Test content</p></body></html>";
-
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact(Skip =
@@ -1034,12 +981,7 @@ namespace ReverseMarkdown.Test
         public Task WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown()
         {
             var html = "<html><body><script><p>Test content</p></body></html>";
-
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass
-            };
-            return CheckConversion(html, config);
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -1075,8 +1017,7 @@ namespace ReverseMarkdown.Test
             var html = @"<pre>var test = ""hello world"";</pre>";
             var config = new Config
             {
-                GithubFlavored = true,
-                DefaultCodeBlockLanguage = "csharp"
+                GithubFlavored = true
             };
             return CheckConversion(html, config);
         }
@@ -1120,7 +1061,7 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public Task When_Tag_In_PassThoughTags_List_Then_Use_PassThroughConverter()
+        public Task When_Tag_In_PassThoughTags_List_Then_Use_PassThroughTag()
         {
             var html =
                 @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png"">. Next line of text";
@@ -1356,12 +1297,8 @@ namespace ReverseMarkdown.Test
         {
             var html =
                 "<table><tr><th>col1</th><th colspan=\"2\">col2</th><th>col3</th></tr><tr><td>data1</td><td>data2.1</td><td>data2.2</td><td>data3</td></tr></table>";
-
-            var config = new Config
-            {
-                UnknownTags = Config.UnknownTagsOption.Bypass
-            };
-            return CheckConversion(html, config);
+            
+            return CheckConversion(html);
         }
 
         [Fact]
@@ -1381,7 +1318,7 @@ namespace ReverseMarkdown.Test
         public Task Bug393_RegressionWithVaryingNewLines()
         {
             const string html = "This is regular text\r\n<p class=\"c1\">This is HTML: <ul><li>Line 1</li><li>Line 2</li><li><mark>Line 3 has an unknown tag</mark></li></ul></p>";
-            var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass, ListBulletChar = '*' };
+            var config = new Config { ListBulletChar = '*' };
             return CheckConversion(html, config);
         }
 
@@ -1475,7 +1412,7 @@ namespace ReverseMarkdown.Test
         public Task Bug403_unexpectedBehaviourWhenTableBodyRowsWithTHCells()
         {
             var html = $"<table>{Environment.NewLine}<tr><th>Heading1</th><th>Heading2</th></tr>{Environment.NewLine}<tr><th>data 1</th><td>data 2</td></tr>{Environment.NewLine}<tr><th>data 3</th><td>data 4</td></tr>{Environment.NewLine}</table>";
-            var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass, ListBulletChar = '*', GithubFlavored = true};
+            var config = new Config { ListBulletChar = '*', GithubFlavored = true};
             return CheckConversion(html, config);
         }
 
@@ -1491,6 +1428,15 @@ namespace ReverseMarkdown.Test
         {
             var html = "<h3 data-reset-style=\"true\" data-anchor-id=\"8b5e184d-26f7-4d9a-80e0-bab2cd825457\"><i style=\"font-size: 14pt;\">What we thought:<span>&nbsp;</span></i><span style=\"color: rgb(41, 63, 77); font-size: 14pt; font-weight: normal;\">When we built Pages, we assumed that customers would use them like newsletters to share relevant, continually-updated information with field teams.</span><div style=\"text-align: left;\"><span style=\"line-height: 16px;\"><span><span height=\"18\" width=\"18\"><span></span></span><span></span></span></span></div></h3>";
             return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task Bug401_HandlingUnknownTagsProperlyAsByPass()
+        {
+            var html =
+                "<nav class=\"global-top-navigation\" id=\"global-top-navigation\" aria-label=\"Fandom top navigation\"><ahref=\"https: www.fandom.com=\"\" \"class=\"global-top-navigation__fandom-logo\" data-tracking-label=\"fandom-logo\" data-testid=\"fandom-logo\" aria-label=\"Fandom homepage\"><svg class=\"wds-icon\"><use xlink:href=\"#wds-brand-fandom-logo-light\"></use></svg><div class=\"search-container\"></div><div class=\"global-top-navigation__action-wrapper\">\t<div class=\"global-top-navigation__item global-top-navigation__start-new-wiki\"><a href=\"//createnewwiki-143.fandom.com/Special:CreateNewWiki\" class=\"global-top-navigation__link global-top-navigation__start-new-wiki__anchor\" data-tracking-label=\"start-a-wiki\" data-testid=\"start-new-wiki\">\t<span class=\"global-top-navigation__button-label global-top-navigation__start-new-wiki__label\">\t\t<svg class=\"wds-icon global-top-navigation__start-new-wiki__icon\"><use xlink:href=\"#wds-icons-add-small\"></use></svg>\t\t\tStart a Wiki\t</span></a>\n</div>\t\t\t\t<div class=\"global-action__item sign-in\"><div class=\"wds-dropdown sign-in__dropdown\">\t<a class=\"global-action__link wds-button sign-in__anchor\" href=\"https://auth.fandom.com/signin?source=mw&amp;redirect=https%3A%2F%2Fomniheroesgame.fandom.com%2Fwiki%2FAthena\" data-tracking-label=\"account.sign-in\">\t\t<span class=\"global-action__button-label sign-in__label\">\t\t\t<svg class=\"wds-icon wds-icon-small sign-in__icon\"><use xlink:href=\"#wds-icons-avatar\"></use></svg>\t\t\t\tSign In\t\t\t</span>\t</a>\t<div class=\"wds-dropdown__content wds-is-not-scrollable wds-is-right-aligned sign-in__dropdown-content\" dir=\"ltr\">\t\t<div class=\"sign-in__register-text\">\t\t\tDon&#039;t have an account?\t\t\t</div>\t\t<a class=\"wds-button wds-is-full-width global-action__register-link\" href=\"https://auth.fandom.com/register?source=mw&amp;redirect=https%3A%2F%2Fomniheroesgame.fandom.com%2Fwiki%2FAthena\" rel=\"nofollow\" data-tracking-label=\"account.register\" aria-label=\"Register\">\t\t\tRegister\t\t\t</a>\t\t<hr>\t\t<a class=\"wds-button wds-is-full-width wds-is-secondary global-action__sign-in-link\" href=\"https://auth.fandom.com/signin?source=mw&amp;redirect=https%3A%2F%2Fomniheroesgame.fandom.com%2Fwiki%2FAthena\" rel=\"nofollow\" data-tracking-label=\"account.sign-in\" aria-label=\"Sign In\">\t\t\tSign In\t\t\t</a>\t</div></div>\n</div>\t\t</div>\n</ahref=\"https:></nav>\n";
+            var config = new Config { SkipNav = false };
+            return CheckConversion(html, config);
         }
     }
 }

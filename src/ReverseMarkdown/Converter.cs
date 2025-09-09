@@ -65,8 +65,7 @@ namespace ReverseMarkdown
             foreach (var converterType in types)
                 // ... activate them
                 Activator.CreateInstance(converterType, this);
-
-            // register the unknown tags converters
+            
             PassThroughTagsConverter = new PassThrough(this);
             DropTagsConverter = new Drop(this);
             ByPassTagsConverter = new ByPass(this);
@@ -91,7 +90,7 @@ namespace ReverseMarkdown
 
             var result = Lookup(root.Name).Convert(root);
 
-            // cleanup multiple new lines
+            // clean up multiple new lines
             result = Regex.Replace( result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
 
             if (Config.SlackFlavored)
@@ -109,28 +108,19 @@ namespace ReverseMarkdown
 
         public virtual IConverter Lookup(string tagName)
         {
-            // if a tag is in the pass through list then use the pass through tags converter
+            // if a tag is in drop list then skip processing it
+            if (Config.DropTags.Contains(tagName))
+            {
+                return DropTagsConverter;
+            }
+            
+            // if a tag is in the pass-through list, then use the pass-through tags converter
             if (Config.PassThroughTags.Contains(tagName))
             {
                 return PassThroughTagsConverter;
             }
 
-            return Converters.TryGetValue(tagName, out var converter) ? converter : GetDefaultConverter(tagName);
-        }
-
-        private IConverter GetDefaultConverter(string tagName)
-        {
-            switch (Config.UnknownTags)
-            {
-                case Config.UnknownTagsOption.PassThrough:
-                    return PassThroughTagsConverter;
-                case Config.UnknownTagsOption.Drop:
-                    return DropTagsConverter;
-                case Config.UnknownTagsOption.Bypass:
-                    return ByPassTagsConverter;
-                default:
-                    throw new UnknownTagException(tagName);
-            }
+            return Converters.TryGetValue(tagName, out var converter) ? converter : ByPassTagsConverter;
         }
     }
 }

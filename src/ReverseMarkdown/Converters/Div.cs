@@ -38,7 +38,7 @@ namespace ReverseMarkdown.Converters
 
             content = Converter.Config.CleanupUnnecessarySpaces ? content.Trim() : content;
 
-            // if there is a block child then ignore adding the newlines for div
+            // if there is a block child, then ignore adding the newlines for div
             if ((node.ChildNodes.Count == 1 && blockTags.Contains(node.FirstChild.Name)))
             {
                 return content;

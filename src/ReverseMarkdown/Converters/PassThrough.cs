@@ -7,6 +7,7 @@ namespace ReverseMarkdown.Converters
         public PassThrough(Converter converter)
             : base(converter)
         {
+            Converter.Register("svg", this);
         }
 
         public override string Convert(HtmlNode node)

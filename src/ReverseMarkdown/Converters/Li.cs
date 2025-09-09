@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -36,7 +35,7 @@ namespace ReverseMarkdown.Converters
         {
             if (node.ParentNode != null && node.ParentNode.Name == "ol")
             {
-                // index are zero based hence add one
+                // index is zero-based, hence add one
                 var index = node.ParentNode.SelectNodes("./li").IndexOf(node) + 1;
                 return $"{index}. ";
             }

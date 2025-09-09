@@ -16,7 +16,7 @@ namespace ReverseMarkdown.Converters
         {
             var content = DecodeHtml(node.InnerText);
 
-            // check if indentation need to be added if it is under a ordered or unordered list
+            // check if indentation needs to be added if it is under an ordered or unordered list
             var indentation = IndentationFor(node);
 
             var fencedCodeStartBlock = string.Empty;
@@ -30,7 +30,7 @@ namespace ReverseMarkdown.Converters
             }
             else
             {
-                // 4 space indent for code if it is not fenced code block
+                // Space 4 indent for code if it is not a fenced code block
                 indentation += "    ";
             }
 
@@ -60,7 +60,7 @@ namespace ReverseMarkdown.Converters
         {
             var res = ClassMatch(node);
 
-            // check parent node:
+            // check the parent node:
             // GitHub: <div class="highlight highlight-source-json"><pre>
             // BitBucket: <div class="codehilite language-json"><pre>
             if (!res.Success && node.ParentNode != null)
@@ -69,7 +69,7 @@ namespace ReverseMarkdown.Converters
             }
 
             // check child <code> node:
-            // HighlightJs: <pre><code class="hljs language-json">
+            // HighlightJs: <pre> <code class="hljs language-json">
             if (!res.Success)
             {
                 var cnode = node.ChildNodes["code"];
