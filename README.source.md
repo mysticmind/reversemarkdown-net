@@ -91,7 +91,7 @@ var converter = new ReverseMarkdown.Converter(config);
 
 * Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
 * Supports nested lists
-* Github Flavoured Markdown conversion supported for br, pre and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag.
+* Github Flavoured Markdown conversion supported for br, pre, tasklists and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag.
 
 ## Acknowledgements
 This library's initial implementation ideas were from the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
