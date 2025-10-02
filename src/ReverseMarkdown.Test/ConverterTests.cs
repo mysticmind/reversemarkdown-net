@@ -975,7 +975,6 @@ namespace ReverseMarkdown.Test
         [Fact]
         public Task When_TextIsHtmlEncoded_DecodeText()
         {
-            var t = 0;
             var html = "<p>cat&#39;s</p>";
             return CheckConversion(html);
         }
