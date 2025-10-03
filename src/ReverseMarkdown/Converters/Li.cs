@@ -1,7 +1,7 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Linq;
-
-using HtmlAgilityPack;
+using System.Text;
 
 namespace ReverseMarkdown.Converters
 {
@@ -25,7 +25,7 @@ namespace ReverseMarkdown.Converters
                 }
             }
 
-            var content = TreatChildren(node);
+            var content = ContentFor(node);
             var indentation = IndentationFor(node, true);
             var prefix = PrefixFor(node);
 
@@ -44,6 +44,28 @@ namespace ReverseMarkdown.Converters
             {
                 return $"{Converter.Config.ListBulletChar} ";
             }
+        }
+
+        private string ContentFor(HtmlNode node)
+        {
+            if (!Converter.Config.GithubFlavored)
+                return TreatChildren(node);
+
+            var content = new StringBuilder();
+
+            if (node.FirstChild is HtmlNode childNode
+                && childNode.Name == "input"
+                && childNode.GetAttributeValue("type", "").Equals("checkbox", StringComparison.OrdinalIgnoreCase))
+            {
+                content.Append(childNode.Attributes.Contains("checked")
+                    ? $"[x]"
+                    : $"[ ]");
+
+                node.RemoveChild(childNode);
+            }
+
+            content.Append(TreatChildren(node));
+            return content.ToString();
         }
     }
 }

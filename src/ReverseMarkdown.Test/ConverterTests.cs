@@ -542,6 +542,32 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task WhenThereIsInputListWithGithubFlavoredEnabled_ThenConvertToMarkdownCheckList()
+        {
+            var html = "<ul><li><input type=\"checkbox\" disabled> Unchecked</li><li><input type=\"checkbox\" checked> Checked</li></ul>";
+
+            var config = new Config
+            {
+                GithubFlavored = true,
+            };
+
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task WhenThereIsInputListWithGithubFlavoredDisabled_ThenConvertToTypicalMarkdownList()
+        {
+            var html = "<ul><li><input type=\"checkbox\" disabled> Unchecked</li><li><input type=\"checkbox\" checked> Checked</li></ul>";
+
+            var config = new Config
+            {
+                GithubFlavored = false,
+            };
+
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
         public Task WhenThereIsOrderedList_ThenConvertToMarkdownList()
         {
             var html = "This text has ordered list.<ol><li>Item1</li><li>Item2</li></ol>";
