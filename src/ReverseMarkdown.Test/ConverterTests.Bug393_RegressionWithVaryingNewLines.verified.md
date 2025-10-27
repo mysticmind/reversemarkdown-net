@@ -1,6 +1,6 @@
 ﻿This is regular text
 
-This is HTML: 
+This is HTML:
 
 * Line 1
 * Line 2
