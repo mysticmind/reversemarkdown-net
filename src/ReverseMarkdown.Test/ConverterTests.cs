@@ -1518,5 +1518,122 @@ namespace ReverseMarkdown.Test
             var html = "<h3 data-reset-style=\"true\" data-anchor-id=\"8b5e184d-26f7-4d9a-80e0-bab2cd825457\"><i style=\"font-size: 14pt;\">What we thought:<span>&nbsp;</span></i><span style=\"color: rgb(41, 63, 77); font-size: 14pt; font-weight: normal;\">When we built Pages, we assumed that customers would use them like newsletters to share relevant, continually-updated information with field teams.</span><div style=\"text-align: left;\"><span style=\"line-height: 16px;\"><span><span height=\"18\" width=\"18\"><span></span></span><span></span></span></span></div></h3>";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task When_NestedParagraphs_FiveLevelsDeep_ThenConvertCorrectly()
+        {
+            // Tests moderately nested <p> tags where HtmlAgilityPack creates nested structure
+            var html = "<p>Level1<p>Level2<p>Level3<p>Level4<p>Level5</p></p></p></p></p>";
+            
+            var config = new Config
+            {
+                GithubFlavored = true,
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_NestedSpans_FiveLevelsDeep_ThenConvertCorrectly()
+        {
+            // Tests moderately nested <span> tags to ensure span bypass converter handles nesting
+            var html = "<span>Level1<span>Level2<span>Level3<span>Level4<span>Level5</span></span></span></span></span>";
+            
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_InterleavedParagraphsAndSpans_ThenConvertCorrectly()
+        {
+            // Tests the interleaved <p><span> pattern common in malformed HTML
+            var html = "<p><span>Text1<p><span>Text2<p><span>Text3<p><span>Text4</span></p></span></p></span></p>";
+            
+            var config = new Config
+            {
+                GithubFlavored = true,
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_ManySequentialUnclosedParagraphs_ThenConvertCorrectly()
+        {
+            // Tests sequential unclosed <p> tags as found in user-generated content
+            var html = "<p>Part1<p>Part2<p>Part3<p>Part4<p>Part5<p>Part6<p>Part7<p>Part8";
+            
+            var config = new Config
+            {
+                GithubFlavored = true,
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_UnclosedParagraphsWithSpansAndTextNodes_ThenConvertCorrectly()
+        {
+            // Tests mixed content: properly closed tags, text nodes, and unclosed nested tags
+            var html = @"<p><span>Intro</span></p> Filler text here. <p><span>Section1<p><span>Section2<p>Section3";
+            
+            var config = new Config
+            {
+                GithubFlavored = true,
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_EmptyNestedParagraphs_ThenConvertCorrectly()
+        {
+            // Tests deeply nested empty <p> tags
+            var html = "<p><p><p><p><p></p></p></p></p></p>";
+            
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_AlternatingEmptyAndFilledNestedParagraphs_ThenConvertCorrectly()
+        {
+            // Tests combination of empty and filled nested <p> tags
+            var html = "<p>A<p><p>B<p><p>C<p><p>D<p><p>E</p></p></p></p></p></p></p></p></p>";
+            
+            var config = new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_NestedParagraphs_TenLevelsDeep_ThenConvertCorrectly()
+        {
+            // Tests deeper nesting (10 levels) to ensure performance remains linear after fix
+            var html = "<p>L1<p>L2<p>L3<p>L4<p>L5<p>L6<p>L7<p>L8<p>L9<p>L10</p></p></p></p></p></p></p></p></p></p>";
+            
+            var config = new Config
+            {
+                GithubFlavored = true,
+                UnknownTags = Config.UnknownTagsOption.Bypass
+            };
+            
+            return CheckConversion(html, config);
+        }
     }
 }
