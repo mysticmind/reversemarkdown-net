@@ -21,11 +21,11 @@ namespace ReverseMarkdown.Converters
 
             if (!Converter.Config.IsSchemeWhitelisted(StringUtils.GetScheme(src)))
             {
-                return "";
+                return string.Empty;
             }
 
             var title = ExtractTitle(node);
-            title = title.Length > 0 ? $" \"{title}\"" : "";
+            title = title.Length > 0 ? $" \"{title}\"" : null;
 
             return $"![{StringUtils.EscapeLinkText(alt)}]({src}{title})";
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -8,12 +7,8 @@ namespace ReverseMarkdown.Converters
     {
         public Ol(Converter converter) : base(converter)
         {
-            var elements = new[] { "ol", "ul" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("ol", this);
+            Converter.Register("ul", this);
         }
 
         public override string Convert(HtmlNode node)
@@ -27,8 +22,8 @@ namespace ReverseMarkdown.Converters
             string prefixSuffix = Environment.NewLine;
 
             // Prevent blank lines being inserted in nested lists
-            string parentName = node.ParentNode.Name.ToLowerInvariant();
-            if (parentName == "ol" || parentName == "ul")
+            string parentName = node.ParentNode.Name;
+            if (parentName is "ol" or "ul")
             {
                 prefixSuffix = "";
             }

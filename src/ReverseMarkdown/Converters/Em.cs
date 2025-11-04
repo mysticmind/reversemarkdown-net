@@ -1,7 +1,4 @@
-﻿
-using System.Linq;
-
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
@@ -9,12 +6,8 @@ namespace ReverseMarkdown.Converters
     {
         public Em(Converter converter) : base(converter)
         {
-            var elements = new [] { "em", "i" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("em", this);
+            Converter.Register("i", this);
         }
 
         public override string Convert(HtmlNode node)
@@ -26,7 +19,7 @@ namespace ReverseMarkdown.Converters
                 return content;
             }
 
-            var spaceSuffix = (node.NextSibling?.Name == "i" || node.NextSibling?.Name == "em")
+            var spaceSuffix = node.NextSibling?.Name is "i" or "em"
                 ? " "
                 : "";
 

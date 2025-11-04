@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -27,19 +26,18 @@ namespace ReverseMarkdown.Converters
                 break;
             } while (true);
 
-            var blockTags = new List<string>
-            {
-                "pre",
-                "p",
-                "ol",
-                "oi",
-                "table"
-            };
-
             content = Converter.Config.CleanupUnnecessarySpaces ? content.Trim() : content;
 
             // if there is a block child then ignore adding the newlines for div
-            if ((node.ChildNodes.Count == 1 && blockTags.Contains(node.FirstChild.Name)))
+            if (
+                node.ChildNodes.Count == 1 &&
+                node.FirstChild.Name
+                    is "pre"
+                    or "p"
+                    or "ol"
+                    or "oi"
+                    or "table"
+            )
             {
                 return content;
             }

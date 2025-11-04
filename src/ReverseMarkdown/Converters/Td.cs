@@ -1,21 +1,15 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown.Converters
 {
-    public class Td : ConverterBase
+    public partial class Td : ConverterBase
     {
         public Td(Converter converter) : base(converter)
         {
-            var elements = new [] { "td", "th" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("td", this);
+            Converter.Register("th", this);
         }
 
         public override string Convert(HtmlNode node)
@@ -43,7 +37,7 @@ namespace ReverseMarkdown.Converters
             // If p is at the start of a table cell, no leading newline
             if (parentName == "td" || parentName == "th") {
                 var pNodeIndex = node.ParentNode.ChildNodes.GetNodeIndex(node);
-                var firstNodeIsWhitespace = node.ParentNode.FirstChild.Name == "#text" && Regex.IsMatch(node.ParentNode.FirstChild.InnerText, @"^\s*$");
+                var firstNodeIsWhitespace = node.ParentNode.FirstChild.Name == "#text" && string.IsNullOrWhiteSpace(node.ParentNode.FirstChild.InnerText);
                 if (pNodeIndex == 0 || (firstNodeIsWhitespace && pNodeIndex == 1)) return true;
             }
             return false;
@@ -58,7 +52,7 @@ namespace ReverseMarkdown.Converters
             if (parentName == "td" || parentName == "th") {
                 var pNodeIndex = node.ParentNode.ChildNodes.GetNodeIndex(node);
                 var cellNodeCount = node.ParentNode.ChildNodes.Count;
-                var lastNodeIsWhitespace = node.ParentNode.LastChild.Name == "#text" && Regex.IsMatch(node.ParentNode.LastChild.InnerText, @"^\s*$");
+                var lastNodeIsWhitespace = node.ParentNode.LastChild.Name == "#text" && string.IsNullOrWhiteSpace(node.ParentNode.LastChild.InnerText);
                 if (pNodeIndex == cellNodeCount - 1 || (lastNodeIsWhitespace && pNodeIndex == cellNodeCount - 2)) return true;
             }
             return false;

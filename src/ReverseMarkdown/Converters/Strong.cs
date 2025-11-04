@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
@@ -7,23 +6,19 @@ namespace ReverseMarkdown.Converters
     {
         public Strong(Converter converter) : base(converter)
         {
-            var elements = new [] { "strong", "b" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("strong", this);
+            Converter.Register("b", this);
         }
 
         public override string Convert(HtmlNode node)
         {
             var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadyBold(node))
+            if (string.IsNullOrEmpty(content) || AlreadyBold())
             {
                 return content;
             }
             
-            var spaceSuffix = (node.NextSibling?.Name == "strong" || node.NextSibling?.Name == "b")
+            var spaceSuffix = node.NextSibling?.Name is "strong" or "b"
                 ? " "
                 : "";
 
@@ -31,7 +26,7 @@ namespace ReverseMarkdown.Converters
             return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
         }
 
-        private bool AlreadyBold(HtmlNode node)
+        private bool AlreadyBold()
         {
             return Context.AncestorsAny("strong") || Context.AncestorsAny("b");
         }

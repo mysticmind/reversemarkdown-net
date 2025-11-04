@@ -20,11 +20,11 @@ namespace ReverseMarkdown.Converters
             }
             
             var content = TreatChildren(node).TrimEnd();
-            var underline = "";
+            var underline = string.Empty;
 
             if (string.IsNullOrWhiteSpace(content))
             {
-                return "";
+                return string.Empty;
             }
 
             // if parent is an ordered or unordered list
@@ -78,7 +78,7 @@ namespace ReverseMarkdown.Converters
             foreach (var nd in nodes)
             {
                 var colSpan = GetColSpan(nd, tableHeaderColumnSpanHandling);
-                var styles = StringUtils.ParseStyle(nd.GetAttributeValue("style", ""));
+                var styles = StringUtils.ParseStyle(nd.GetAttributeValue("style", string.Empty));
                 styles.TryGetValue("text-align", out var align);
 
                 string content;

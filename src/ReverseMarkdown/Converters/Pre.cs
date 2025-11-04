@@ -5,7 +5,7 @@ using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
-    public class Pre : ConverterBase
+    public partial class Pre : ConverterBase
     {
         public Pre(Converter converter) : base(converter)
         {
@@ -86,7 +86,8 @@ namespace ReverseMarkdown.Converters
         /// Extracts class attribute syntax using: highlight-json, highlight-source-json, language-json, brush: language
         /// Returns the Language in Match.Groups[2]
         /// </summary>
-        private static readonly Regex ClassRegex = new Regex(@"(highlight-source-|language-|highlight-|brush:\s)([a-zA-Z0-9]+)");
+        [GeneratedRegex(@"(highlight-source-|language-|highlight-|brush:\s)([a-zA-Z0-9]+)")]
+        private static partial Regex ClassRegex { get; }
 
         /// <summary>
         /// Checks class attribute for language class identifiers for various
@@ -96,7 +97,7 @@ namespace ReverseMarkdown.Converters
         /// <returns>Match.Success and Match.Group[2] set to the language</returns>
         private static Match ClassMatch(HtmlNode node)
         {
-            var val = node.GetAttributeValue("class", "");
+            var val = node.GetAttributeValue("class", string.Empty);
             if (!string.IsNullOrEmpty(val))
             {
                 return ClassRegex.Match(val);

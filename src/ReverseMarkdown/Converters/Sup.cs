@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
@@ -18,7 +17,7 @@ namespace ReverseMarkdown.Converters
             }
             
             var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadySup(node))
+            if (string.IsNullOrEmpty(content) || AlreadySup())
             {
                 return content;
             }
@@ -26,7 +25,7 @@ namespace ReverseMarkdown.Converters
             return $"^{content.Chomp(all:true)}^";
         }
 
-        private bool AlreadySup(HtmlNode node)
+        private bool AlreadySup()
         {
             return Context.AncestorsAny("sup");
         }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown
@@ -10,23 +12,22 @@ namespace ReverseMarkdown
     {
         public static string Chomp(this string content, bool all=false)
         {
+            // TODO optimize:
             if (all)
             {
                 return content
-                    .Replace("\r", "")
-                    .Replace("\n", "")
+                    .ReplaceLineEndings(string.Empty)
                     .Trim();
             }
 
-            return content.Trim().TrimEnd('\r', '\n');
+            return content.Trim(); // trim also removes leading/trailing new lines
         }
 
         public static IEnumerable<string> ReadLines(this string content)
         {
-            string line;
-            using (var sr = new StringReader(content))
-                while ((line = sr.ReadLine()) != null)
-                    yield return line;
+            using var sr = new StringReader(content);
+            while (sr.ReadLine() is { } line)
+                yield return line;
         }
 
         /// <summary>
@@ -37,8 +38,8 @@ namespace ReverseMarkdown
         /// <para>If non parseable by Uri, return empty string. Will never return null</para>
         /// </summary>
         /// <returns></returns>
-        public static string GetScheme(string url) {
-            var isValidUri = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+        public static string GetScheme(string url)
+        {
             //IETF RFC 3986
             if (Regex.IsMatch(url, "^//[^/]")) {
                 return "http";
@@ -47,11 +48,11 @@ namespace ReverseMarkdown
             else if (Regex.IsMatch(url, "^/[^/]")) {
                 return "file";
             }
-            else if (isValidUri) {
+            else if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)) {
                 return uri.Scheme;
             }
             else {
-                return String.Empty;
+                return string.Empty;
             }
         }
 
@@ -60,16 +61,18 @@ namespace ReverseMarkdown
         /// </summary>
         public static string EscapeLinkText(string rawText)
         {
+            // TODO optimize:
             return Regex.Replace(rawText, @"\r?\n\s*\r?\n", Environment.NewLine, RegexOptions.Singleline)
                 .Replace("[", @"\[")
                 .Replace("]", @"\]");
         }
 
+        private static readonly Dictionary<string, string> EmptyStyles = new();
         public static Dictionary<string, string> ParseStyle(string style)
         {
             if (string.IsNullOrEmpty(style))
             {
-                return new Dictionary<string, string>();
+                return EmptyStyles;
             }
 
             var styles = style.Split(';');
@@ -115,6 +118,7 @@ namespace ReverseMarkdown
 
         public static string EmphasizeContentWhitespaceGuard(this string content, string emphasis, string nextSiblingSpaceSuffix="")
         {
+            // TODO maybe optimize:
             var leadingSpaces = new string(' ', content.LeadingSpaceCount());
             var trailingSpaces = new string(' ', content.TrailingSpaceCount());
 
@@ -132,5 +136,40 @@ namespace ReverseMarkdown
         {
             return enumerable.GroupBy(keySelector).Select(grp => grp.First());
         }
+        
+
+        internal static string Replace(this string content, StringReplaceValues replacements)
+        {
+            return replacements.Replace(content);
+        }
+    }
+}
+
+internal class StringReplaceValues {
+    private readonly Dictionary<string, string> _replacements;
+    private readonly Regex _regex;
+
+    public StringReplaceValues(Dictionary<string, string> replacements)
+    {
+        _replacements = replacements;
+        _regex = new Regex($"{string.Join("|", _replacements.Keys.Select(Regex.Escape))}");
+    }
+
+    public string Replace(string input)
+    {
+        var offset = 0;
+        StringBuilder sb = null;
+        foreach (var match in _regex.EnumerateMatches(input)) {
+            sb ??= new StringBuilder(input.Length);
+            sb.Append(input.AsSpan(offset, match.Index - offset));
+            sb.Append(_replacements[input.AsSpan(match.Index, match.Length).ToString()]);
+            offset = match.Index + match.Length;
+        }
+
+        if (sb is not null && offset != input.Length) {
+            sb.Append(input.AsSpan(offset, input.Length - offset));
+        }
+
+        return sb?.ToString() ?? input;
     }
 }

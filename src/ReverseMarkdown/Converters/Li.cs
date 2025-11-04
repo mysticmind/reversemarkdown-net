@@ -55,7 +55,7 @@ namespace ReverseMarkdown.Converters
 
             if (node.FirstChild is HtmlNode childNode
                 && childNode.Name == "input"
-                && childNode.GetAttributeValue("type", "").Equals("checkbox", StringComparison.OrdinalIgnoreCase))
+                && childNode.GetAttributeValue("type", string.Empty).Equals("checkbox", StringComparison.OrdinalIgnoreCase))
             {
                 content.Append(childNode.Attributes.Contains("checked")
                     ? $"[x]"

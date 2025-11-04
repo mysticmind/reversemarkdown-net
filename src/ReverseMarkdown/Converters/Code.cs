@@ -1,6 +1,5 @@
 ﻿using HtmlAgilityPack;
 using System.Net;
-using System.Text;
 
 namespace ReverseMarkdown.Converters
 {
@@ -51,13 +50,7 @@ namespace ReverseMarkdown.Converters
             //
             //   The JavaScript **`function`** keyword...
 
-            var sb = new StringBuilder();
-
-            sb.Append('`');
-            sb.Append(WebUtility.HtmlDecode(node.InnerText));
-            sb.Append('`');
-
-            return sb.ToString();
+            return $"`{DecodeHtml(node.InnerText)}`";
         }
     }
 }
