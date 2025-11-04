@@ -1,28 +1,31 @@
-﻿using HtmlAgilityPack;
+﻿#nullable enable
+using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Sup : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Sup : ConverterBase {
         public Sup(Converter converter) : base(converter)
         {
-            Converter.Register("sup", this);   
+            Converter.Register("sup", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (Converter.Config.SlackFlavored)
-            {
+            if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
             }
-            
-            var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadySup())
-            {
-                return content;
+
+            var content = TreatChildrenAsString(node);
+
+            if (string.IsNullOrEmpty(content) || AlreadySup()) {
+                writer.Write(content);
+                return;
             }
 
-            return $"^{content.Chomp(all:true)}^";
+            writer.Write('^');
+            writer.Write(content.Chomp(all: true));
+            writer.Write('^');
         }
 
         private bool AlreadySup()

@@ -1,9 +1,10 @@
-﻿using HtmlAgilityPack;
+﻿#nullable enable
+using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public interface IConverter
-    {
-        string Convert(HtmlNode node);
+
+namespace ReverseMarkdown.Converters {
+    public interface IConverter {
+        void Convert(TextWriter writer, HtmlNode node);
     }
 }

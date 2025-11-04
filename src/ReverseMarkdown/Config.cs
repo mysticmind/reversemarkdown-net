@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ReverseMarkdown
@@ -55,7 +56,7 @@ namespace ReverseMarkdown
         /// <summary>
         /// Option to pass a list of tags to pass through as is without any processing
         /// </summary>
-        public string[] PassThroughTags { get; set; } = { };
+        public HashSet<string> PassThroughTags { get; set; } = [];
 
         public enum UnknownTagsOption
         {

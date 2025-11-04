@@ -1,10 +1,10 @@
-﻿using System;
+﻿#nullable enable
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class H : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class H : ConverterBase {
         public H(Converter converter) : base(converter)
         {
             Converter.Register("h1", this);
@@ -15,17 +15,21 @@ namespace ReverseMarkdown.Converters
             Converter.Register("h6", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
             // Headings inside tables are not supported as markdown, so just ignore the heading and convert children
-            if (Context.AncestorsAny("table"))
-            {
-                return TreatChildren(node);
+            if (Context.AncestorsAny("table")) {
+                TreatChildren(writer, node);
+                return;
             }
 
-            var prefix = new string('#', System.Convert.ToInt32(node.Name.Substring(1)));
+            var level = node.Name[1] - '0'; // 'h1' -> 1, 'h2' -> 2, etc.
 
-            return $"{Environment.NewLine}{prefix} {TreatChildren(node)}{Environment.NewLine}";
+            writer.WriteLine();
+            writer.Write(new string('#', level));
+            writer.Write(' ');
+            TreatChildren(writer, node);
+            writer.WriteLine();
         }
     }
 }

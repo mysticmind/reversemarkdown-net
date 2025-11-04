@@ -1,50 +1,59 @@
-﻿using System;
-using System.Linq;
+﻿#nullable enable
+using System.IO;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public partial class Pre : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public partial class Pre : ConverterBase {
         public Pre(Converter converter) : base(converter)
         {
             Converter.Register("pre", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = DecodeHtml(node.InnerText);
+            var isFencedCodeBlock = Converter.Config.GithubFlavored;
 
-            // check if indentation need to be added if it is under a ordered or unordered list
+            // check if indentation need to be added if it is under an ordered or unordered list
             var indentation = IndentationFor(node);
 
-            var fencedCodeStartBlock = string.Empty;
-            var fencedCodeEndBlock = string.Empty;
-
-            if (Converter.Config.GithubFlavored)
-            {
-                var lang = GetLanguage(node);
-                fencedCodeStartBlock = $"{indentation}```{lang}{Environment.NewLine}";
-                fencedCodeEndBlock = $"{indentation}```";
-            }
-            else
-            {
-                // 4 space indent for code if it is not fenced code block
+            // 4 space indent for code if it is not fenced code block
+            if (!isFencedCodeBlock) {
                 indentation += "    ";
             }
 
-            var lines = content.ReadLines().Select(item => indentation + item);
-            content = string.Join(Environment.NewLine, lines);
+            writer.WriteLine();
+            writer.WriteLine();
 
-            if (string.IsNullOrEmpty(content)
-                && Converter.Config.GithubFlavored == false)
-            {
-                content = indentation;
+            if (isFencedCodeBlock) {
+                var lang = GetLanguage(node);
+                writer.Write(indentation);
+                writer.Write("```");
+                writer.Write(lang);
+                writer.WriteLine();
             }
 
-            return $"{Environment.NewLine}{Environment.NewLine}{fencedCodeStartBlock}{content}{Environment.NewLine}{fencedCodeEndBlock}{Environment.NewLine}";
+            // content:
+            var content = DecodeHtml(node.InnerText);
+            foreach (var line in content.ReadLines()) {
+                writer.Write(indentation);
+                writer.WriteLine(line);
+            }
+
+            if (string.IsNullOrEmpty(content)) {
+                if (!isFencedCodeBlock) writer.Write(indentation);
+                writer.WriteLine();
+            }
+
+            if (isFencedCodeBlock) {
+                writer.Write(indentation);
+                writer.Write("```");
+            }
+
+            writer.WriteLine();
         }
+
 
         private string GetLanguage(HtmlNode node)
         {
@@ -63,18 +72,15 @@ namespace ReverseMarkdown.Converters
             // check parent node:
             // GitHub: <div class="highlight highlight-source-json"><pre>
             // BitBucket: <div class="codehilite language-json"><pre>
-            if (!res.Success && node.ParentNode != null)
-            {
+            if (!res.Success && node.ParentNode != null) {
                 res = ClassMatch(node.ParentNode);
             }
 
             // check child <code> node:
             // HighlightJs: <pre><code class="hljs language-json">
-            if (!res.Success)
-            {
+            if (!res.Success) {
                 var cnode = node.ChildNodes["code"];
-                if (cnode != null)
-                {
+                if (cnode != null) {
                     res = ClassMatch(cnode);
                 }
             }
@@ -98,8 +104,7 @@ namespace ReverseMarkdown.Converters
         private static Match ClassMatch(HtmlNode node)
         {
             var val = node.GetAttributeValue("class", string.Empty);
-            if (!string.IsNullOrEmpty(val))
-            {
+            if (!string.IsNullOrEmpty(val)) {
                 return ClassRegex.Match(val);
             }
 

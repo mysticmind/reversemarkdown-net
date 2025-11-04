@@ -1,28 +1,26 @@
-﻿using System;
-using System.Linq;
-
+﻿#nullable enable
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Blockquote : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Blockquote : ConverterBase {
         public Blockquote(Converter converter) : base(converter)
         {
             Converter.Register("blockquote", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = TreatChildren(node);
+            writer.WriteLine();
+            writer.WriteLine();
 
-            // get the lines based on carriage return and prefix "> " to each line
-            var lines = content.ReadLines().Select(item => "> " + item + Environment.NewLine);
+            var content = TreatChildrenAsString(node);
+            foreach (var line in content.ReadLines()) {
+                writer.WriteLine($"> {line}");
+            }
 
-            // join all the lines to a single line
-            var result = string.Join(string.Empty, lines);
-
-            return $"{Environment.NewLine}{Environment.NewLine}{result}{Environment.NewLine}";
+            writer.WriteLine();
         }
     }
 }

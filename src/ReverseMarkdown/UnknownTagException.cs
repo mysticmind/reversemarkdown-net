@@ -2,10 +2,5 @@
 
 namespace ReverseMarkdown
 {
-    public class UnknownTagException : Exception
-    {
-        public UnknownTagException(string tagName): base($"Unknown tag: {tagName}")
-        {
-        }
-    }
+    public class UnknownTagException(string tagName) : Exception($"Unknown tag: {tagName}");
 }
