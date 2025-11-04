@@ -26,9 +26,9 @@ namespace ReverseMarkdown.Converters
             return $"^{content.Chomp(all:true)}^";
         }
 
-        private static bool AlreadySup(HtmlNode node)
+        private bool AlreadySup(HtmlNode node)
         {
-            return node.Ancestors("sup").Any();
+            return Context.AncestorsAny("sup");
         }
     }
 }

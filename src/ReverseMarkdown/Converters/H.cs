@@ -18,7 +18,7 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             // Headings inside tables are not supported as markdown, so just ignore the heading and convert children
-            if (node.Ancestors("table").Any())
+            if (Context.AncestorsAny("table"))
             {
                 return TreatChildren(node);
             }

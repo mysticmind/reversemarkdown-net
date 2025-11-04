@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
@@ -25,15 +24,16 @@ namespace ReverseMarkdown.Converters
             return $"{indentation}{content}{newlineAfter}";
         }
 
-        private static string IndentationFor(HtmlNode node)
+        private string IndentationFor(HtmlNode node)
         {
             string parentName = node.ParentNode.Name.ToLowerInvariant();
 
             // If p follows a list item, add newline and indent it
-            var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
-            bool parentIsList = parentName == "li" || parentName == "ol" || parentName == "ul";
-            if (parentIsList && node.ParentNode.FirstChild != node)
+            bool parentIsList = parentName is "li" or "ol" or "ul";
+            if (parentIsList && node.ParentNode.FirstChild != node) {
+                var length = Context.AncestorsCount("ol") + Context.AncestorsCount("ul");
                 return Environment.NewLine + (new string(' ', length * 4));
+            }
 
             // If p is at the start of a table cell, no leading newline
             return Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine;

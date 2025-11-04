@@ -41,7 +41,7 @@ namespace ReverseMarkdown.Converters
 
         private bool UseFirstRowAsHeaderRow(HtmlNode node)
         {
-            var tableNode = node.Ancestors("table").FirstOrDefault();
+            var tableNode = Context.Ancestor("table");
             var firstRow = tableNode?.SelectSingleNode(".//tr");
 
             if (firstRow == null)
@@ -58,9 +58,9 @@ namespace ReverseMarkdown.Converters
                    Config.TableWithoutHeaderRowHandlingOption.Default;
         }
 
-        private static bool IsTableHeaderRow(HtmlNode node)
+        private bool IsTableHeaderRow(HtmlNode node)
         {
-            var tableNode = node.Ancestors("table").FirstOrDefault();
+            var tableNode = Context.Ancestor("table");
             var firstRow = tableNode?.SelectSingleNode(".//tr");
             if (firstRow != null && firstRow == node)
             {

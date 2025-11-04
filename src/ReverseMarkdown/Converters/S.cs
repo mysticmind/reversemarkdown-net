@@ -24,9 +24,9 @@ namespace ReverseMarkdown.Converters
             return content.EmphasizeContentWhitespaceGuard(emphasis);
         }
 
-        private static bool AlreadyStrikethrough(HtmlNode node)
+        private bool AlreadyStrikethrough(HtmlNode node)
         {
-            return node.Ancestors("s").Any() || node.Ancestors("del").Any() || node.Ancestors("strike").Any();
+            return Context.AncestorsAny("s") || Context.AncestorsAny("del") || Context.AncestorsAny("strike");
         }
     }
 }

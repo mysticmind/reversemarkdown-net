@@ -31,9 +31,9 @@ namespace ReverseMarkdown.Converters
             return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
         }
 
-        private static bool AlreadyBold(HtmlNode node)
+        private bool AlreadyBold(HtmlNode node)
         {
-            return node.Ancestors("strong").Any() || node.Ancestors("b").Any();
+            return Context.AncestorsAny("strong") || Context.AncestorsAny("b");
         }
     }
 }
