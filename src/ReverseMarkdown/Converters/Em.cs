@@ -21,7 +21,7 @@ namespace ReverseMarkdown.Converters
         {
             var content = TreatChildren(node);
 
-            if (string.IsNullOrEmpty(content.Trim()) || AlreadyItalic(node))
+            if (string.IsNullOrWhiteSpace(content) || AlreadyItalic(node))
             {
                 return content;
             }
@@ -34,9 +34,9 @@ namespace ReverseMarkdown.Converters
             return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
         }
 
-        private static bool AlreadyItalic(HtmlNode node)
+        private bool AlreadyItalic(HtmlNode node)
         {
-            return node.Ancestors("i").Any() || node.Ancestors("em").Any();
+            return Context.AncestorsAny("i") || Context.AncestorsAny("em");
         }
     }
 }

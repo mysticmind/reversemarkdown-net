@@ -15,6 +15,8 @@ namespace ReverseMarkdown
         protected readonly IConverter DropTagsConverter;
         protected readonly IConverter ByPassTagsConverter;
 
+        public ConverterContext Context { get; } = new();
+
         public Converter() : this(new Config()) {}
 
         public Converter(Config config) : this(config, null) {}
@@ -89,7 +91,7 @@ namespace ReverseMarkdown
                 root = root.SelectSingleNode("//body");
             }
 
-            var result = Lookup(root.Name).Convert(root);
+            var result = ConvertNode(root);
 
             // cleanup multiple new lines
             result = Regex.Replace( result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
@@ -105,6 +107,15 @@ namespace ReverseMarkdown
         public virtual void Register(string tagName, IConverter converter)
         {
             Converters[tagName] = converter;
+        }
+
+        public virtual string ConvertNode(HtmlNode node)
+        {
+            var converter = Lookup(node.Name);
+            Context.Enter(node);
+            var result = converter.Convert(node);
+            Context.Leave(node);
+            return result;
         }
 
         public virtual IConverter Lookup(string tagName)

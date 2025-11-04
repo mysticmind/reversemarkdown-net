@@ -12,6 +12,7 @@ namespace ReverseMarkdown.Converters
         }
 
         protected Converter Converter { get; }
+        protected ConverterContext Context => Converter.Context;
 
         protected string TreatChildren(HtmlNode node)
         {
@@ -24,8 +25,7 @@ namespace ReverseMarkdown.Converters
 
         private string Treat(HtmlNode node) {
             // TrimNewLine(node);
-            var converter = Converter.Lookup(node.Name);
-            return converter.Convert(node);
+            return Converter.ConvertNode(node);
         }
 
         private static void TrimNewLine(HtmlNode node)
@@ -53,9 +53,9 @@ namespace ReverseMarkdown.Converters
             return System.Net.WebUtility.HtmlDecode(html);
         }
 
-        protected static string IndentationFor(HtmlNode node, bool zeroIndex=false)
+        protected string IndentationFor(HtmlNode node, bool zeroIndex=false)
         {
-            var length = node.Ancestors("ol").Count() + node.Ancestors("ul").Count();
+            var length = Context.AncestorsCount("ol") + Context.AncestorsCount("ul");
 
             // li not required to have a parent ol/ul
             if (length == 0)
