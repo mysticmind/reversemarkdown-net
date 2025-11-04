@@ -1,16 +1,17 @@
-﻿using HtmlAgilityPack;
+﻿#nullable enable
+using System.IO;
 using System.Net;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Code : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Code : ConverterBase {
         public Code(Converter converter) : base(converter)
         {
             Converter.Register("code", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
             // Depending on the content "surrounding" the <code> element,
             // leading/trailing whitespace is significant. For example, the
@@ -50,7 +51,9 @@ namespace ReverseMarkdown.Converters
             //
             //   The JavaScript **`function`** keyword...
 
-            return $"`{DecodeHtml(node.InnerText)}`";
+            writer.Write('`');
+            DecodeHtml(writer, node.InnerText);
+            writer.Write('`');
         }
     }
 }

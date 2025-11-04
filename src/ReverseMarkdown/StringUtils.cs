@@ -1,26 +1,24 @@
-﻿using System;
-using System.Buffers;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace ReverseMarkdown
-{
-    public static class StringUtils
-    {
-        public static string Chomp(this string content, bool all=false)
+
+namespace ReverseMarkdown {
+    public static class StringUtils {
+        public static string Chomp(this string content, bool all = false)
         {
             // TODO optimize:
-            if (all)
-            {
+            if (all) {
                 return content
                     .ReplaceLineEndings(string.Empty)
                     .Trim();
             }
 
-            return content.Trim(); // trim also removes leading/trailing new lines
+            return content.Trim().TrimEnd('\r', '\n'); // trim also removes leading/trailing new lines
         }
 
         public static IEnumerable<string> ReadLines(this string content)
@@ -48,7 +46,7 @@ namespace ReverseMarkdown
             else if (Regex.IsMatch(url, "^/[^/]")) {
                 return "file";
             }
-            else if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri)) {
+            else if (Uri.TryCreate(url, UriKind.Absolute, out var uri)) {
                 return uri.Scheme;
             }
             else {
@@ -68,10 +66,10 @@ namespace ReverseMarkdown
         }
 
         private static readonly Dictionary<string, string> EmptyStyles = new();
-        public static Dictionary<string, string> ParseStyle(string style)
+
+        public static Dictionary<string, string> ParseStyle(string? style)
         {
-            if (string.IsNullOrEmpty(style))
-            {
+            if (string.IsNullOrEmpty(style)) {
                 return EmptyStyles;
             }
 
@@ -81,50 +79,46 @@ namespace ReverseMarkdown
                 .DistinctBy(styleParts => styleParts[0])
                 .ToDictionary(styleParts => styleParts[0], styleParts => styleParts[1]);
         }
-        
+
         public static int LeadingSpaceCount(this string content)
         {
             var leadingSpaces = 0;
-            foreach (var c in content)
-            {
-                if (c == ' ')
-                {
+            foreach (var c in content) {
+                if (c == ' ') {
                     leadingSpaces++;
                 }
-                else
-                {
+                else {
                     break;
                 }
             }
+
             return leadingSpaces;
         }
-        
+
         public static int TrailingSpaceCount(this string content)
         {
             var trailingSpaces = 0;
-            for (var i = content.Length - 1; i >= 0; i--)
-            {
-                if (content[i] == ' ')
-                {
+            for (var i = content.Length - 1; i >= 0; i--) {
+                if (content[i] == ' ') {
                     trailingSpaces++;
                 }
-                else
-                {
+                else {
                     break;
                 }
             }
+
             return trailingSpaces;
         }
 
-        public static string EmphasizeContentWhitespaceGuard(this string content, string emphasis, string nextSiblingSpaceSuffix="")
+        public static string EmphasizeContentWhitespaceGuard(this string content, string emphasis, string nextSiblingSpaceSuffix = "")
         {
             // TODO maybe optimize:
             var leadingSpaces = new string(' ', content.LeadingSpaceCount());
             var trailingSpaces = new string(' ', content.TrailingSpaceCount());
 
-            return $"{leadingSpaces}{emphasis}{content.Chomp(all:true)}{emphasis}{(trailingSpaces.Length > 0 ? trailingSpaces : nextSiblingSpaceSuffix)}";
+            return $"{leadingSpaces}{emphasis}{content.Chomp(all: true)}{emphasis}{(trailingSpaces.Length > 0 ? trailingSpaces : nextSiblingSpaceSuffix)}";
         }
-        
+
         public static string FixMultipleNewlines(this string markdown)
         {
             var normalizedMarkdown = Regex.Replace(markdown, @"\r\n|\r|\n", Environment.NewLine);
@@ -136,7 +130,7 @@ namespace ReverseMarkdown
         {
             return enumerable.GroupBy(keySelector).Select(grp => grp.First());
         }
-        
+
 
         internal static string Replace(this string content, StringReplaceValues replacements)
         {
@@ -158,7 +152,7 @@ internal class StringReplaceValues {
     public string Replace(string input)
     {
         var offset = 0;
-        StringBuilder sb = null;
+        StringBuilder? sb = null;
         foreach (var match in _regex.EnumerateMatches(input)) {
             sb ??= new StringBuilder(input.Length);
             sb.Append(input.AsSpan(offset, match.Index - offset));

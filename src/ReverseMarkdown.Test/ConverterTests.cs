@@ -1152,7 +1152,7 @@ namespace ReverseMarkdown.Test
                 @"This text has image <img alt=""alt"" src=""http://test.com/images/test.png"">. Next line of text";
             var config = new Config
             {
-                PassThroughTags = new[] {"img"}
+                PassThroughTags = ["img"]
             };
             return CheckConversion(html, config);
         }

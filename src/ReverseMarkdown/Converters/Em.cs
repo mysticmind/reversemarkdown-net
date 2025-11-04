@@ -1,33 +1,34 @@
-﻿using HtmlAgilityPack;
+﻿using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Em : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Em : ConverterBase {
         public Em(Converter converter) : base(converter)
         {
             Converter.Register("em", this);
             Converter.Register("i", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = TreatChildren(node);
+            var content = TreatChildrenAsString(node);
 
-            if (string.IsNullOrWhiteSpace(content) || AlreadyItalic(node))
-            {
-                return content;
+            if (string.IsNullOrWhiteSpace(content) || AlreadyItalic()) {
+                writer.Write(content);
+                return;
             }
 
             var spaceSuffix = node.NextSibling?.Name is "i" or "em"
                 ? " "
-                : "";
+                : string.Empty;
 
             var emphasis = Converter.Config.SlackFlavored ? "_" : "*";
-            return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
+            content = content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
+            writer.Write(content);
         }
 
-        private bool AlreadyItalic(HtmlNode node)
+        private bool AlreadyItalic()
         {
             return Context.AncestorsAny("i") || Context.AncestorsAny("em");
         }

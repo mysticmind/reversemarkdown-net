@@ -1,33 +1,41 @@
-﻿using HtmlAgilityPack;
+﻿#nullable enable
+using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Img : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Img : ConverterBase {
         public Img(Converter converter) : base(converter)
         {
             Converter.Register("img", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (Converter.Config.SlackFlavored)
-            {
+            if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
             }
-            
+
             var alt = node.GetAttributeValue("alt", string.Empty);
             var src = node.GetAttributeValue("src", string.Empty);
+            var scheme = StringUtils.GetScheme(src);
 
-            if (!Converter.Config.IsSchemeWhitelisted(StringUtils.GetScheme(src)))
-            {
-                return string.Empty;
+            if (!Converter.Config.IsSchemeWhitelisted(scheme)) {
+                return;
             }
 
-            var title = ExtractTitle(node);
-            title = title.Length > 0 ? $" \"{title}\"" : null;
+            writer.Write("![");
+            writer.Write(StringUtils.EscapeLinkText(alt));
+            writer.Write("](");
+            writer.Write(src);
 
-            return $"![{StringUtils.EscapeLinkText(alt)}]({src}{title})";
+            if (ExtractTitle(node) is { Length: > 0 } title) {
+                writer.Write(" \"");
+                writer.Write(title);
+                writer.Write("\"");
+            }
+
+            writer.Write(')');
         }
     }
 }

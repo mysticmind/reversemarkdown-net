@@ -1,20 +1,19 @@
-﻿using System.Linq;
+﻿#nullable enable
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public partial class Text : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public partial class Text : ConverterBase {
         public Text(Converter converter) : base(converter)
         {
             Converter.Register("#text", this);
         }
 
-        public override string Convert(HtmlNode node)
-        {
-            return node.InnerText is "" or " " or "&nbsp;" ? TreatEmpty(node) : TreatText(node);
-        }
+
+        #region values
 
         private static readonly StringReplaceValues _escapedKeyChars = new(new() {
             ["*"] = @"\*",
@@ -48,101 +47,75 @@ namespace ReverseMarkdown.Converters
         [GeneratedRegex(@"`.*?`")]
         private static partial Regex BackTicks { get; }
 
+        #endregion
 
-        private string TreatText(HtmlNode node)
+
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by Markdown
-            string content = node.InnerText.Replace(_preserveAngleBrackets);
+            if (node.InnerText is " " or "&nbsp;" && node.ParentNode.Name is not ("ol" or "ul")) {
+                writer.Write(' ');
+            }
+            else {
+                TreatText(writer, node);
+            }
+        }
 
-            content = DecodeHtml(content);
 
-            // Not all renderers support hex encoded characters, so convert back to escaped HTML
-            content = content.Replace(_unPreserveAngleBrackets);
-
-            //strip leading spaces and tabs for text within a list item
+        private void TreatText(TextWriter writer, HtmlNode node)
+        {
+            var text = node.InnerText;
             var parent = node.ParentNode;
 
-            switch (parent.Name)
-            {
-                case "table":
-                case "thead":
-                case "tbody":    
-                case "ol":
-                case "ul":
-                case "th":    
-                case "tr":
-                    content = content.Trim();
-                    break;
+            if (string.IsNullOrEmpty(text)) {
+                return;
             }
 
-            if (
-                (Context.AncestorsAny("th") || Context.AncestorsAny("td")) && // O(1) do fast check before going for full check
-                (parent.Ancestors("th").Any() || parent.Ancestors("td").Any()) // O(n)
-            ) {
-                content = ReplaceNewlineChars(parent, content);    
-            }
-            
-            if (parent.Name != "a" && !Converter.Config.SlackFlavored)
-            {
-                content =  EscapeKeyChars(content);
-            }
+            //strip leading spaces and tabs for text within a list item
+            var shouldTrim = (
+                parent.Name is "table" or "thead" or "tbody" or "ol" or "ul" or "th" or "tr"
+            );
+            var replaceLineEndings = (
+                parent.Name is "p" or "#document" &&
+                //(Context.AncestorsAny("th") || Context.AncestorsAny("td"))
+                (parent.Ancestors("th").Any() || parent.Ancestors("td").Any())
+            );
 
-            content = PreserveKeyCharsWithinBackTicks(content);
-            content = EscapeSpecialMarkdownCharacters(content);
+            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by Markdown
+            //var search = SearchValues.Create(["&lt;", "&gt;"], StringComparison.Ordinal);
+            //var index = text.IndexOfAny(search);
+            //if (index != -1) {
+            //}
 
-            return content;
-        }
+            // html decode:
+            var content = text.Replace(_preserveAngleBrackets);
+            content = DecodeHtml(content);
+            content = content.Replace(_unPreserveAngleBrackets);
 
-        private string EscapeKeyChars(string content)
-        {
-            return content.Replace(_escapedKeyChars);
-        }
-
-        private static string TreatEmpty(HtmlNode node)
-        {
-            var content = string.Empty;
-
-            if (node.ParentNode.Name is "ol" or "ul")
-            {
-                content = string.Empty;
-            }
-            else if(node.InnerText is " " or "&nbsp;")
-            {
-                content = " ";
+            if (shouldTrim) {
+                content = content.Trim();
             }
 
-            return content;
-        }
-
-        private string PreserveKeyCharsWithinBackTicks(string content)
-        {
-            content = BackTicks.Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));
-            return content;
-        }
-
-        private static string ReplaceNewlineChars(HtmlNode parentNode, string content)
-        {
-            if (parentNode.Name is "p" or "#document") {
+            if (replaceLineEndings) {
                 content = content.ReplaceLineEndings("<br>");
             }
 
-            return content;
-        }
-
-        private static bool IsContentWithinBackTicks(string content)
-        {
-            return content.StartsWith('`') && content.EndsWith('`');
-        }
-
-        private string EscapeSpecialMarkdownCharacters(string content)
-        {
-            if (IsContentWithinBackTicks(content))
-            {
-                return content;
+            if (parent.Name != "a" && !Converter.Config.SlackFlavored) {
+                content = content.Replace(_escapedKeyChars);
+                // Preserve Key Chars Within BackTicks:
+                content = BackTicks.Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));
             }
-            
-            return content.Replace(_specialMarkdownCharacters);
+
+            content = EscapeSpecialMarkdownCharacters(content);
+
+            writer.Write(content);
         }
 
+
+        private static string EscapeSpecialMarkdownCharacters(string content)
+        {
+            return content.StartsWith('`') && content.EndsWith('`')
+                ? content
+                : content.Replace(_specialMarkdownCharacters);
+        }
     }
 }

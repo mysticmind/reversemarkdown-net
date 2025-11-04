@@ -1,24 +1,27 @@
-﻿using System;
+﻿#nullable enable
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Br : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Br : ConverterBase {
         public Br(Converter converter) : base(converter)
         {
             Converter.Register("br", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var parentName = node.ParentNode.Name.ToLowerInvariant();
-            if (parentName is "strong" or "b" or "em" or "i")
-            {
-                return "";
+            if (node.ParentNode.Name is "strong" or "b" or "em" or "i") {
+                return;
             }
 
-            return Converter.Config.GithubFlavored ? Environment.NewLine : $"  {Environment.NewLine}";
+            if (Converter.Config.GithubFlavored) {
+                writer.WriteLine();
+            }
+            else {
+                writer.WriteLine("  ");
+            }
         }
     }
 }

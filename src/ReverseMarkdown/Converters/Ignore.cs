@@ -1,18 +1,19 @@
-﻿using HtmlAgilityPack;
+﻿#nullable enable
+using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Ignore : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Ignore : ConverterBase {
         public Ignore(Converter converter) : base(converter)
         {
             Converter.Register("colgroup", this);
             Converter.Register("col", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return string.Empty;
+            // Do nothing, ignore the node
         }
     }
 }

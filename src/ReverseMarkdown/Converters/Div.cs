@@ -1,32 +1,26 @@
-﻿using System;
+﻿#nullable enable
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Div : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Div : ConverterBase {
         public Div(Converter converter) : base(converter)
         {
             Converter.Register("div", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            string content;
+            while (node.ChildNodes.Count == 1 && node.FirstChild.Name == "div") {
+                node = node.FirstChild;
+            }
 
-            do
-            {
-                if (node.ChildNodes.Count == 1 && node.FirstChild.Name == "div")
-                {
-                    node = node.FirstChild;
-                    continue;
-                }
+            var content = TreatChildrenAsString(node); // TODO optimize
 
-                content = TreatChildren(node);
-                break;
-            } while (true);
-
-            content = Converter.Config.CleanupUnnecessarySpaces ? content.Trim() : content;
+            content = Converter.Config.CleanupUnnecessarySpaces
+                ? content.Trim()
+                : content;
 
             // if there is a block child then ignore adding the newlines for div
             if (
@@ -37,23 +31,23 @@ namespace ReverseMarkdown.Converters
                     or "ol"
                     or "oi"
                     or "table"
-            )
-            {
-                return content;
+            ) {
+                writer.Write(content);
+                return;
             }
 
-            var prefix = Environment.NewLine;
-
-            if (Td.FirstNodeWithinCell(node))
-            {
-                prefix = string.Empty;
-            } 
-            else if (Converter.Config.SuppressDivNewlines)
-            {
-                prefix = string.Empty;
+            if (
+                !Td.FirstNodeWithinCell(node) &&
+                !Converter.Config.SuppressDivNewlines
+            ) {
+                writer.WriteLine();
             }
-            
-            return $"{prefix}{content}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
+
+            writer.Write(content);
+
+            if (!Td.LastNodeWithinCell(node)) {
+                writer.WriteLine();
+            }
         }
     }
 }

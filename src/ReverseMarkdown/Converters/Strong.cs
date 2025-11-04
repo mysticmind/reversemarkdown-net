@@ -1,29 +1,32 @@
-﻿using HtmlAgilityPack;
+﻿#nullable enable
+using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Strong : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Strong : ConverterBase {
         public Strong(Converter converter) : base(converter)
         {
             Converter.Register("strong", this);
             Converter.Register("b", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadyBold())
-            {
-                return content;
+            var content = TreatChildrenAsString(node);
+
+            if (string.IsNullOrEmpty(content) || AlreadyBold()) {
+                writer.Write(content);
+                return;
             }
-            
+
             var spaceSuffix = node.NextSibling?.Name is "strong" or "b"
                 ? " "
                 : "";
 
             var emphasis = Converter.Config.SlackFlavored ? "*" : "**";
-            return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
+            content = content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
+            writer.Write(content);
         }
 
         private bool AlreadyBold()

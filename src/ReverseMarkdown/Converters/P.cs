@@ -1,47 +1,46 @@
-﻿using System;
+﻿#nullable enable
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class P : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class P : ConverterBase {
         public P(Converter converter) : base(converter)
         {
             Converter.Register("p", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var indentation = IndentationFor(node);
-            var newlineAfter = NewlineAfter(node);
+            TreatIndentation(writer, node);
 
-            var content = TreatChildren(node);
-            if (Converter.Config.CleanupUnnecessarySpaces)
-            {
+            var content = TreatChildrenAsString(node);
+            if (Converter.Config.CleanupUnnecessarySpaces) {
                 content = content.Trim();
             }
 
-            return $"{indentation}{content}{newlineAfter}";
+            writer.Write(content);
+
+            if (!Td.LastNodeWithinCell(node)) {
+                writer.WriteLine();
+            }
         }
 
-        private string IndentationFor(HtmlNode node)
+        private void TreatIndentation(TextWriter writer, HtmlNode node)
         {
-            string parentName = node.ParentNode.Name.ToLowerInvariant();
-
             // If p follows a list item, add newline and indent it
-            bool parentIsList = parentName is "li" or "ol" or "ul";
+            var parentIsList = node.ParentNode.Name is "li" or "ol" or "ul";
             if (parentIsList && node.ParentNode.FirstChild != node) {
                 var length = Context.AncestorsCount("ol") + Context.AncestorsCount("ul");
-                return Environment.NewLine + (new string(' ', length * 4));
+                writer.WriteLine();
+                writer.Write(new string(' ', length * 4));
+                return;
             }
 
             // If p is at the start of a table cell, no leading newline
-            return Td.FirstNodeWithinCell(node) ? string.Empty : Environment.NewLine;
-        }
-
-        private static string NewlineAfter(HtmlNode node)
-        {
-            return Td.LastNodeWithinCell(node) ? string.Empty : Environment.NewLine;
+            if (!Td.FirstNodeWithinCell(node)) {
+                writer.WriteLine();
+            }
         }
     }
 }

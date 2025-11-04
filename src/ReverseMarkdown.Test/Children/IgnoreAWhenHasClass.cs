@@ -1,28 +1,18 @@
 ﻿using HtmlAgilityPack;
-
 using ReverseMarkdown.Converters;
+using System.IO;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ReverseMarkdown.Test.Children
-{
-    internal class IgnoreAWhenHasClass : A
-    {
-        private readonly string _ignore = "ignore";
+namespace ReverseMarkdown.Test.Children {
+    internal class IgnoreAWhenHasClass(Converter converter) : A(converter) {
+        private const string Ignore = "ignore";
 
-        public IgnoreAWhenHasClass(Converter converter) : base(converter)
-        { }
-
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (node.HasClass(_ignore))
-                return "";
+            if (node.HasClass(Ignore))
+                return;
 
-            return base.Convert(node);
+            base.Convert(writer, node);
         }
     }
 }

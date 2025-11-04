@@ -11,18 +11,24 @@ namespace ReverseMarkdown {
 
         public void Enter(HtmlNode node)
         {
-            if (_ancestors.TryGetValue(node.Name, out var list)) {
-                list.Add(node);
+            var parent = node.ParentNode;
+            if (parent is null) return;
+
+            if (_ancestors.TryGetValue(parent.Name, out var list)) {
+                list.Add(parent);
             }
             else {
-                _ancestors[node.Name] = [node];
+                _ancestors[parent.Name] = [parent];
             }
         }
 
         public void Leave(HtmlNode node)
         {
-            if (_ancestors.TryGetValue(node.Name, out var list)) {
-                list.Remove(node);
+            var parent = node.ParentNode;
+            if (parent is null) return;
+
+            if (_ancestors.TryGetValue(parent.Name, out var list)) {
+                list.Remove(parent);
             }
             else {
                 throw new InvalidOperationException("Node was not entered");
