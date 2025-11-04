@@ -3,8 +3,8 @@
     <Description>ReverseMarkdown is a Html to Markdown converter library in c#</Description>
     <VersionPrefix>4.8.0</VersionPrefix>
     <Authors>Babu Annamalai</Authors>
-    <TargetFrameworks>net46;netstandard2.0;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
-    <LangVersion>9.0</LangVersion>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <LangVersion>preview</LangVersion>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>

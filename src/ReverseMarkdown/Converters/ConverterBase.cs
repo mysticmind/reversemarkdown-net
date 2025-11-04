@@ -45,7 +45,7 @@ namespace ReverseMarkdown.Converters
 
         protected static string ExtractTitle(HtmlNode node)
         {
-            return node.GetAttributeValue("title", "");
+            return node.GetAttributeValue("title", string.Empty);
         }
 
         protected static string DecodeHtml(string html)

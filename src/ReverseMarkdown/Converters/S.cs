@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace ReverseMarkdown.Converters
 {
@@ -15,7 +14,7 @@ namespace ReverseMarkdown.Converters
         public override string Convert(HtmlNode node)
         {
             var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadyStrikethrough(node))
+            if (string.IsNullOrEmpty(content) || AlreadyStrikethrough())
             {
                 return content;
             }
@@ -24,7 +23,7 @@ namespace ReverseMarkdown.Converters
             return content.EmphasizeContentWhitespaceGuard(emphasis);
         }
 
-        private bool AlreadyStrikethrough(HtmlNode node)
+        private bool AlreadyStrikethrough()
         {
             return Context.AncestorsAny("s") || Context.AncestorsAny("del") || Context.AncestorsAny("strike");
         }

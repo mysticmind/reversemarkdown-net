@@ -4,23 +4,29 @@ using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown
 {
-    public static class Cleaner
+    public static partial class Cleaner
     {
-        private static readonly Regex SlackBoldCleaner = new Regex(@"\*(\s\*)+");
-        private static readonly Regex SlackItalicCleaner = new Regex(@"_(\s_)+");
-        
+        [GeneratedRegex(@"\*(\s\*)+")]
+        private static partial Regex SlackBoldCleaner { get; }
+
+        [GeneratedRegex(@"_(\s_)+")]
+        private static partial Regex SlackItalicCleaner { get; }
+
+        [GeneratedRegex(@"[\u0020\u00A0]")]
+        private static partial Regex NonBreakingSpaces { get; }
+
         private static string CleanTagBorders(string content)
         {
             // content from some htl editors such as CKEditor emits newline and tab between tags, clean that up
-            content = content.Replace("\n\t", "");
-            content = content.Replace(Environment.NewLine + "\t", "");
+            content = content.Replace("\n\t", string.Empty);
+            content = content.Replace(Environment.NewLine + "\t", string.Empty);
             return content;
         }
 
         private static string NormalizeSpaceChars(string content)
         {
             // replace unicode and non-breaking spaces to normal space
-            content = Regex.Replace(content, @"[\u0020\u00A0]", " ");
+            content = NonBreakingSpaces.Replace(content, " ");
             return content;
         }
 

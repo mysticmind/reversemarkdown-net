@@ -15,7 +15,7 @@ namespace ReverseMarkdown {
                 list.Add(node);
             }
             else {
-                _ancestors[node.Name] = new List<HtmlNode> { node };
+                _ancestors[node.Name] = [node];
             }
         }
 

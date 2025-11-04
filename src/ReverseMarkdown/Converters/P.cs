@@ -36,12 +36,12 @@ namespace ReverseMarkdown.Converters
             }
 
             // If p is at the start of a table cell, no leading newline
-            return Td.FirstNodeWithinCell(node) ? "" : Environment.NewLine;
+            return Td.FirstNodeWithinCell(node) ? string.Empty : Environment.NewLine;
         }
 
         private static string NewlineAfter(HtmlNode node)
         {
-            return Td.LastNodeWithinCell(node) ? "" : Environment.NewLine;
+            return Td.LastNodeWithinCell(node) ? string.Empty : Environment.NewLine;
         }
     }
 }
