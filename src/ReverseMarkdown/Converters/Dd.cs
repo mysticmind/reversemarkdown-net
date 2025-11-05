@@ -14,7 +14,7 @@ namespace ReverseMarkdown.Converters {
             writer.Write(new string(' ', 4));
             writer.Write(Converter.Config.ListBulletChar);
             writer.Write(' ');
-            var content = TreatChildrenAsString(node).Chomp();
+            var content = TreatChildrenAsString(node).Trim();
             writer.Write(content);
             writer.WriteLine();
         }

@@ -9,16 +9,11 @@ using System.Text.RegularExpressions;
 
 namespace ReverseMarkdown {
     public static class StringUtils {
-        public static string Chomp(this string content, bool all = false)
+        public static string Chomp(this string content)
         {
-            // TODO optimize:
-            if (all) {
-                return content
-                    .ReplaceLineEndings(string.Empty)
-                    .Trim();
-            }
-
-            return content.Trim().TrimEnd('\r', '\n'); // trim also removes leading/trailing new lines
+            return content
+                .ReplaceLineEndings(string.Empty)
+                .Trim();
         }
 
         public static IEnumerable<string> ReadLines(this string content)
@@ -116,7 +111,7 @@ namespace ReverseMarkdown {
             var leadingSpaces = new string(' ', content.LeadingSpaceCount());
             var trailingSpaces = new string(' ', content.TrailingSpaceCount());
 
-            return $"{leadingSpaces}{emphasis}{content.Chomp(all: true)}{emphasis}{(trailingSpaces.Length > 0 ? trailingSpaces : nextSiblingSpaceSuffix)}";
+            return $"{leadingSpaces}{emphasis}{content.Chomp()}{emphasis}{(trailingSpaces.Length > 0 ? trailingSpaces : nextSiblingSpaceSuffix)}";
         }
 
         public static string FixMultipleNewlines(this string markdown)
