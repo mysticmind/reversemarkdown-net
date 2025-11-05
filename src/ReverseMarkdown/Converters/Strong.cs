@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using HtmlAgilityPack;
 
 
@@ -25,8 +24,7 @@ namespace ReverseMarkdown.Converters {
                 : "";
 
             var emphasis = Converter.Config.SlackFlavored ? "*" : "**";
-            content = content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
-            writer.Write(content);
+            TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis, spaceSuffix);
         }
 
         private bool AlreadyBold()

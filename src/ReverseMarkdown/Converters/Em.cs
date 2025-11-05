@@ -24,8 +24,7 @@ namespace ReverseMarkdown.Converters {
                 : string.Empty;
 
             var emphasis = Converter.Config.SlackFlavored ? "_" : "*";
-            content = content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
-            writer.Write(content);
+            TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis, spaceSuffix);
         }
 
         private bool AlreadyItalic()

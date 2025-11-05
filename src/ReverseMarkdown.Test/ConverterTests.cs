@@ -55,7 +55,7 @@ namespace ReverseMarkdown.Test
                 @"Leave <a href=""http://example.com"">http</a>, <a href=""https://example.com"">https</a>, <a href=""ftp://example.com"">ftp</a>, <a href=""ftps://example.com"">ftps</a>, <a href=""file://example.com"">file</a>. Remove <a href=""data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"">data</a>, <a href=""tel://example.com"">tel</a> and <a href=""whatever://example.com"">whatever</a>";
             return CheckConversion(html, new Config
             {
-                WhitelistUriSchemes = new[] {"http", "https", "ftp", "ftps", "file"}
+                WhitelistUriSchemes = {"http", "https", "ftp", "ftps", "file"}
             });
         }
 
@@ -66,7 +66,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""example.com"">yeah</a>",
                 config: new Config
                 {
-                    WhitelistUriSchemes = new[] {""}
+                    WhitelistUriSchemes = {""}
                 }
             );
         }
@@ -78,7 +78,7 @@ namespace ReverseMarkdown.Test
                 html: @"<a href=""example.com"">yeah</a>",
                 config: new Config
                 {
-                    WhitelistUriSchemes = new[] {"whatever"}
+                    WhitelistUriSchemes = {"whatever"}
                 }
             );
         }
@@ -430,7 +430,7 @@ namespace ReverseMarkdown.Test
                 html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
                 config: new Config
                 {
-                    WhitelistUriSchemes = new[] {"http"}
+                    WhitelistUriSchemes = {"http"}
                 }
             );
         }
@@ -442,7 +442,7 @@ namespace ReverseMarkdown.Test
                 html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
                 config: new Config()
                 {
-                    WhitelistUriSchemes = new[] {"data"}
+                    WhitelistUriSchemes = {"data"}
                 }
             );
         }
@@ -454,7 +454,7 @@ namespace ReverseMarkdown.Test
                 html: @"<img src=""example.com""/>",
                 config: new Config()
                 {
-                    WhitelistUriSchemes = new[] {""}
+                    WhitelistUriSchemes = {""}
                 }
             );
         }
@@ -466,7 +466,7 @@ namespace ReverseMarkdown.Test
                 html: @"<img src=""data:image/gif;base64,R0lGODlhEAAQ...""/>",
                 config: new Config()
                 {
-                    WhitelistUriSchemes = new[] {"whatever"}
+                    WhitelistUriSchemes = {"whatever"}
                 }
             );
         }
@@ -478,7 +478,7 @@ namespace ReverseMarkdown.Test
                 html: @"<img src=""/example.gif""/>",
                 config: new Config()
                 {
-                    WhitelistUriSchemes = new[] {"data"}
+                    WhitelistUriSchemes = {"data"}
                 }
             );
         }
@@ -490,7 +490,7 @@ namespace ReverseMarkdown.Test
                 html: @"<img src=""/example.gif""/>",
                 config: new Config()
                 {
-                    WhitelistUriSchemes = new[] {"file"}
+                    WhitelistUriSchemes = {"file"}
                 }
             );
         }
@@ -501,7 +501,7 @@ namespace ReverseMarkdown.Test
             var html = @"<img src=""//example.gif""/>";
             var config = new Config
             {
-                WhitelistUriSchemes = new[] {"http"}
+                WhitelistUriSchemes = {"http"}
             };
             return CheckConversion(html, config);
         }

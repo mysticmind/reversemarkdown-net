@@ -21,8 +21,7 @@ namespace ReverseMarkdown.Converters {
             }
 
             var emphasis = Converter.Config.SlackFlavored ? "~" : "~~";
-            content = content.EmphasizeContentWhitespaceGuard(emphasis);
-            writer.Write(content);
+            TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis);
         }
 
         private bool AlreadyStrikethrough()

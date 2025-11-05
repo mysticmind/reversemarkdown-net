@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using HtmlAgilityPack;
 
 
@@ -16,7 +15,7 @@ namespace ReverseMarkdown.Converters {
                 node = node.FirstChild;
             }
 
-            var content = TreatChildrenAsString(node); // TODO optimize
+            var content = TreatChildrenAsString(node);
 
             content = Converter.Config.CleanupUnnecessarySpaces
                 ? content.Trim()

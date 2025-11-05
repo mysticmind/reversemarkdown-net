@@ -1,8 +1,8 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -15,34 +15,34 @@ namespace ReverseMarkdown.Converters {
 
         #region values
 
-        private static readonly StringReplaceValues _escapedKeyChars = new(new() {
+        private static readonly StringReplaceValues _escapedKeyChars = new() {
             ["*"] = @"\*",
             ["_"] = @"\_",
-        });
+        };
 
-        private static readonly StringReplaceValues _escapedKeyCharsReverse = new(new() {
+        private static readonly StringReplaceValues _escapedKeyCharsReverse = new() {
             [@"\*"] = "*",
             [@"\_"] = "_",
-        });
+        };
 
-        private static readonly StringReplaceValues _specialMarkdownCharacters = new(new() {
+        private static readonly StringReplaceValues _specialMarkdownCharacters = new() {
             ["["] = @"\[",
             ["]"] = @"\]",
             ["("] = @"\(",
             [")"] = @"\)",
             ["{"] = @"\{",
             ["}"] = @"\}",
-        });
+        };
 
-        private static readonly StringReplaceValues _preserveAngleBrackets = new(new() {
+        private static readonly StringReplaceValues _preserveAngleBrackets = new() {
             ["&lt;"] = "%3C",
             ["&gt;"] = "%3E",
-        });
+        };
 
-        private static readonly StringReplaceValues _unPreserveAngleBrackets = new(new() {
+        private static readonly StringReplaceValues _unPreserveAngleBrackets = new() {
             ["%3C"] = "&lt;",
             ["%3E"] = "&gt;",
-        });
+        };
 
         [GeneratedRegex(@"`.*?`")]
         private static partial Regex BackTicks { get; }
