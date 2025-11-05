@@ -17,7 +17,9 @@ namespace ReverseMarkdown.Converters {
 
             var content = TreatChildrenAsString(node);
             foreach (var line in content.ReadLines()) {
-                writer.WriteLine($"> {line}");
+                writer.Write('>');
+                writer.Write(' ');
+                writer.WriteLine(line);
             }
 
             writer.WriteLine();
