@@ -1,8 +1,8 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -12,11 +12,11 @@ namespace ReverseMarkdown.Converters {
             Converter.Register("a", this);
         }
 
-        private readonly StringReplaceValues _escapeValues = new(new() {
+        private readonly StringReplaceValues _escapeValues = new() {
             [" "] = "%20",
             ["("] = "%28",
             [")"] = "%29",
-        });
+        };
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {

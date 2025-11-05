@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using ReverseMarkdown.Converters;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown {
@@ -26,7 +27,7 @@ namespace ReverseMarkdown {
         {
         }
 
-        public Converter(Config config, params Assembly[] additionalAssemblies)
+        public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
             Config = config;
 

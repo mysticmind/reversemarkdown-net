@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -33,40 +32,45 @@ namespace ReverseMarkdown.Converters {
             writer.Write(content);
             writer.WriteLine();
 
-            if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node)) {
+            if (ShouldWriteUnderline(node)) {
                 writer.Write(indent);
                 WriteUnderline(writer, node, Converter.Config.TableHeaderColumnSpanHandling);
             }
         }
 
-        private bool UseFirstRowAsHeaderRow(HtmlNode node)
+
+        private bool ShouldWriteUnderline(HtmlNode node)
         {
             var tableNode = node.Ancestors("table").FirstOrDefault();
             var firstRow = tableNode?.SelectSingleNode(".//tr");
 
-            if (firstRow == null) {
+            if (firstRow == null || tableNode == null) {
                 return false;
             }
 
             var isFirstRow = firstRow == node;
-            var hasNoHeaderRow = tableNode.SelectNodes(".//th")?.FirstOrDefault() == null;
 
-            return isFirstRow
-                   && hasNoHeaderRow
-                   && Converter.Config.TableWithoutHeaderRowHandling ==
-                   Config.TableWithoutHeaderRowHandlingOption.Default;
-        }
+            return (
+                isFirstRow && (
+                    IsTableHeaderRow(node) ||
+                    UseFirstRowAsHeaderRow(node)
+                )
+            );
 
-        private static bool IsTableHeaderRow(HtmlNode node)
-        {
-            var tableNode = node.Ancestors("table").FirstOrDefault();
-            var firstRow = tableNode?.SelectSingleNode(".//tr");
-            if (firstRow != null && firstRow == node) {
-                return node.ChildNodes.FindFirst("th") != null;
+            bool UseFirstRowAsHeaderRow(HtmlNode node)
+            {
+                var hasNoHeaderRow = tableNode.SelectNodes(".//th")?.FirstOrDefault() == null;
+                return hasNoHeaderRow
+                       && Converter.Config.TableWithoutHeaderRowHandling ==
+                       Config.TableWithoutHeaderRowHandlingOption.Default;
             }
 
-            return false;
+            static bool IsTableHeaderRow(HtmlNode node)
+            {
+                return node.ChildNodes.FindFirst("th") != null!;
+            }
         }
+
 
         private static void WriteUnderline(TextWriter writer, HtmlNode node, bool tableHeaderColumnSpanHandling)
         {
@@ -76,7 +80,7 @@ namespace ReverseMarkdown.Converters {
                 var styles = StringUtils.ParseStyle(nd.GetAttributeValue("style", string.Empty));
                 styles.TryGetValue("text-align", out var align);
 
-                var content = (align ?? string.Empty).AsSpan().Trim() switch {
+                var content = align switch {
                     "left" => ":---",
                     "right" => "---:",
                     "center" => ":---:",
@@ -93,6 +97,7 @@ namespace ReverseMarkdown.Converters {
 
             writer.WriteLine('|');
         }
+
 
         private static int GetColSpan(HtmlNode node, bool tableHeaderColumnSpanHandling)
         {

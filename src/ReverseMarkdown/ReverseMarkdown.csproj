@@ -5,6 +5,7 @@
     <Authors>Babu Annamalai</Authors>
     <TargetFrameworks>net9.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>

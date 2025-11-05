@@ -1,6 +1,4 @@
-﻿#nullable enable
-using System.IO;
-using System.Net;
+﻿using System.IO;
 using HtmlAgilityPack;
 
 

@@ -1,7 +1,7 @@
-﻿#nullable enable
-using System.IO;
+﻿using System.IO;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -55,7 +55,7 @@ namespace ReverseMarkdown.Converters {
         }
 
 
-        private string GetLanguage(HtmlNode node)
+        private string? GetLanguage(HtmlNode node)
         {
             var language = GetLanguageFromHighlightClassAttribute(node);
 
@@ -72,7 +72,7 @@ namespace ReverseMarkdown.Converters {
             // check parent node:
             // GitHub: <div class="highlight highlight-source-json"><pre>
             // BitBucket: <div class="codehilite language-json"><pre>
-            if (!res.Success && node.ParentNode != null) {
+            if (!res.Success && node.ParentNode != null!) {
                 res = ClassMatch(node.ParentNode);
             }
 
@@ -80,7 +80,7 @@ namespace ReverseMarkdown.Converters {
             // HighlightJs: <pre><code class="hljs language-json">
             if (!res.Success) {
                 var cnode = node.ChildNodes["code"];
-                if (cnode != null) {
+                if (cnode != null!) {
                     res = ClassMatch(cnode);
                 }
             }
