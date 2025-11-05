@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Converters {
             var colSpan = GetColSpan(node);
 
             var content = TreatChildrenAsString(node)
-                .Chomp()
+                .Trim()
                 .ReplaceLineEndings("<br>");
 
             for (var i = 0; i < colSpan; i++) {

@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Converters {
             //   <li>Foo\n    <ul><li>...
             foreach (var innerList in node.SelectNodes("//ul|//ol") ?? Enumerable.Empty<HtmlNode>()) {
                 if (innerList.PreviousSibling?.NodeType == HtmlNodeType.Text) {
-                    innerList.PreviousSibling.InnerHtml = innerList.PreviousSibling.InnerHtml.Chomp(); // TODO optimize
+                    innerList.PreviousSibling.InnerHtml = innerList.PreviousSibling.InnerHtml.Trim(); // TODO optimize
                 }
             }
 
@@ -36,7 +36,7 @@ namespace ReverseMarkdown.Converters {
                 writer.Write(' ');
             }
 
-            var content = ContentFor(node).Chomp();
+            var content = ContentFor(node).Trim();
             writer.Write(content);
             writer.WriteLine();
         }

@@ -24,7 +24,7 @@ namespace ReverseMarkdown.Converters {
             }
 
             writer.Write('^');
-            writer.Write(content.Chomp(all: true));
+            writer.Write(content.Chomp());
             writer.Write('^');
         }
 
