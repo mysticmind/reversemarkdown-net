@@ -125,6 +125,8 @@ namespace ReverseMarkdown {
         internal StringWriter CreateWriter(HtmlNode node)
         {
             var capacity = MesureCapacity(node);
+            // TODO : use a pooled StringBuilder to further cut down memory allocations
+            // important: find a way to select the best instance form pool based on the capacity needed
             var sb = new StringBuilder(capacity);
             var writer = new StringWriter(sb);
             return writer;
