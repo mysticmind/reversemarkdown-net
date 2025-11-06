@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36616.10 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReverseMarkdown", "ReverseMarkdown\ReverseMarkdown.csproj", "{518A6D79-4596-4086-BA5D-DD353BCEC9A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReverseMarkdown.Test", "ReverseMarkdown.Test\ReverseMarkdown.Test.csproj", "{1756FE48-2619-459C-A0D0-2D2A1D163A03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReverseMarkdown.Benchmark", "ReverseMarkdown.Benchmark\ReverseMarkdown.Benchmark.csproj", "{B0521F32-EA69-4ABF-8F60-89AF704ABFD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,15 @@ Global
 		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1756FE48-2619-459C-A0D0-2D2A1D163A03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0521F32-EA69-4ABF-8F60-89AF704ABFD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0521F32-EA69-4ABF-8F60-89AF704ABFD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0521F32-EA69-4ABF-8F60-89AF704ABFD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0521F32-EA69-4ABF-8F60-89AF704ABFD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {478AE4EC-DF7B-46D4-9350-862EA335D02F}
 	EndGlobalSection
 EndGlobal
