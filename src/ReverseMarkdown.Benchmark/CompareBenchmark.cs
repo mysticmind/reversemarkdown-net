@@ -14,7 +14,8 @@ public class CompareBenchmark {
     [GlobalSetup]
     public void Setup()
     {
-        _html = FileHelper.ReadFile("Files/1000-paragraphs.html");
+        //_html = FileHelper.ReadFile("Files/1000-paragraphs.html");
+        _html = FileHelper.ReadFile("Files/10k-paragraphs.html");
         _converter = new Converter(new Config());
     }
 
