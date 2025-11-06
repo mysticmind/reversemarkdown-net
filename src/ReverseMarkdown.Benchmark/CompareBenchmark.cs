@@ -8,20 +8,20 @@ namespace ReverseMarkdown.Benchmark;
 [RPlotExporter]
 [MemoryDiagnoser]
 public class CompareBenchmark {
-    private string _hugeHtml = null!;
+    private string _html = null!;
     private Converter _converter = null!;
 
     [GlobalSetup]
     public void Setup()
     {
-        _hugeHtml = FileHelper.ReadFile("Files/huge.html");
+        _html = FileHelper.ReadFile("Files/1000-paragraphs.html");
         _converter = new Converter(new Config());
     }
 
     [Benchmark]
     public string ReverseMarkdown()
     {
-        var result = _converter.Convert(_hugeHtml);
+        var result = _converter.Convert(_html);
         return result;
     }
 }
