@@ -65,7 +65,7 @@ public static partial class StringUtils {
             return EmptyStyles;
         }
 
-        var styles = style.Split(';');
+        var styles = style!.Split(';');
         return styles.Select(styleItem => styleItem.Split(':'))
             .Where(styleParts => styleParts.Length == 2)
             .DistinctBy(styleParts => styleParts[0])
