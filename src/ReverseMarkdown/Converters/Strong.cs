@@ -1,39 +1,35 @@
-﻿using System.Linq;
+﻿using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Strong : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Strong : ConverterBase {
         public Strong(Converter converter) : base(converter)
         {
-            var elements = new [] { "strong", "b" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("strong", this);
+            Converter.Register("b", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadyBold(node))
-            {
-                return content;
+            var content = TreatChildrenAsString(node);
+
+            if (string.IsNullOrEmpty(content) || AlreadyBold()) {
+                writer.Write(content);
+                return;
             }
-            
-            var spaceSuffix = (node.NextSibling?.Name == "strong" || node.NextSibling?.Name == "b")
+
+            var spaceSuffix = node.NextSibling?.Name is "strong" or "b"
                 ? " "
                 : "";
 
             var emphasis = Converter.Config.SlackFlavored ? "*" : "**";
-            return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
+            TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis, spaceSuffix);
         }
 
-        private static bool AlreadyBold(HtmlNode node)
+        private bool AlreadyBold()
         {
-            return node.Ancestors("strong").Any() || node.Ancestors("b").Any();
+            return Context.AncestorsAny("strong") || Context.AncestorsAny("b");
         }
     }
 }

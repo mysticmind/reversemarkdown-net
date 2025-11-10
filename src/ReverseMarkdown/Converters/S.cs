@@ -1,10 +1,9 @@
-﻿using System.Linq;
+﻿using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class S : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class S : ConverterBase {
         public S(Converter converter) : base(converter)
         {
             Converter.Register("s", this);
@@ -12,21 +11,22 @@ namespace ReverseMarkdown.Converters
             Converter.Register("strike", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadyStrikethrough(node))
-            {
-                return content;
+            var content = TreatChildrenAsString(node);
+
+            if (string.IsNullOrEmpty(content) || AlreadyStrikethrough()) {
+                writer.Write(content);
+                return;
             }
 
             var emphasis = Converter.Config.SlackFlavored ? "~" : "~~";
-            return content.EmphasizeContentWhitespaceGuard(emphasis);
+            TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis);
         }
 
-        private static bool AlreadyStrikethrough(HtmlNode node)
+        private bool AlreadyStrikethrough()
         {
-            return node.Ancestors("s").Any() || node.Ancestors("del").Any() || node.Ancestors("strike").Any();
+            return Context.AncestorsAny("s") || Context.AncestorsAny("del") || Context.AncestorsAny("strike");
         }
     }
 }

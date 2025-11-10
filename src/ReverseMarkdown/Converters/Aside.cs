@@ -1,19 +1,20 @@
-using System;
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Aside : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Aside : ConverterBase {
         public Aside(Converter converter)
             : base(converter)
         {
             Converter.Register("aside", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return $"{Environment.NewLine}{TreatChildren(node)}{Environment.NewLine}";
+            writer.WriteLine();
+            TreatChildren(writer, node);
+            writer.WriteLine();
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using HtmlAgilityPack;
+﻿using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class ByPass : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class ByPass : ConverterBase {
         public ByPass(Converter converter) : base(converter)
         {
             Converter.Register("#document", this);
@@ -14,9 +14,9 @@ namespace ReverseMarkdown.Converters
             Converter.Register("tbody", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return TreatChildren(node);
+            TreatChildren(writer, node);
         }
     }
 }

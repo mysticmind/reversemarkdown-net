@@ -1,11 +1,6 @@
 ﻿using System;
 
-namespace ReverseMarkdown
-{
-    public class UnknownTagException : Exception
-    {
-        public UnknownTagException(string tagName): base($"Unknown tag: {tagName}")
-        {
-        }
-    }
-}
+
+namespace ReverseMarkdown;
+
+public class UnknownTagException(string tagName) : Exception($"Unknown tag: {tagName}");

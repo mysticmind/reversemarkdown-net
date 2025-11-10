@@ -1,9 +1,9 @@
-﻿using HtmlAgilityPack;
+﻿using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Drop : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Drop : ConverterBase {
         public Drop(Converter converter) : base(converter)
         {
             Converter.Register("style", this);
@@ -13,9 +13,9 @@ namespace ReverseMarkdown.Converters
             }
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return "";
+            // Do nothing, effectively dropping the node and its children
         }
     }
 }

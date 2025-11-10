@@ -1,23 +1,23 @@
-﻿using System;
+﻿using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Hr : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Hr : ConverterBase {
         public Hr(Converter converter) : base(converter)
         {
             Converter.Register("hr", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (Converter.Config.SlackFlavored)
-            {
+            if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
             }
-            
-            return $"{Environment.NewLine}* * *{Environment.NewLine}";
+
+            writer.WriteLine();
+            writer.Write("* * *");
+            writer.WriteLine();
         }
     }
 }

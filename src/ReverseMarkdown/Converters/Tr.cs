@@ -1,121 +1,112 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Tr : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Tr : ConverterBase {
         public Tr(Converter converter) : base(converter)
         {
             Converter.Register("tr", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (Converter.Config.SlackFlavored)
-            {
+            if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
             }
-            
-            var content = TreatChildren(node).TrimEnd();
-            var underline = "";
 
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                return "";
+            var content = TreatChildrenAsString(node).TrimEnd();
+
+            if (string.IsNullOrWhiteSpace(content)) {
+                return;
             }
 
             // if parent is an ordered or unordered list
             // then table need to be indented as well
             var indent = IndentationFor(node);
 
-            if (IsTableHeaderRow(node) || UseFirstRowAsHeaderRow(node))
-            {
-                underline = UnderlineFor(node, indent, Converter.Config.TableHeaderColumnSpanHandling);
-            }
+            writer.Write(indent);
+            writer.Write('|');
+            writer.Write(content);
+            writer.WriteLine();
 
-            return $"{indent}|{content}{Environment.NewLine}{underline}";
+            if (ShouldWriteUnderline(node)) {
+                writer.Write(indent);
+                WriteUnderline(writer, node, Converter.Config.TableHeaderColumnSpanHandling);
+            }
         }
 
-        private bool UseFirstRowAsHeaderRow(HtmlNode node)
+
+        private bool ShouldWriteUnderline(HtmlNode node)
         {
             var tableNode = node.Ancestors("table").FirstOrDefault();
             var firstRow = tableNode?.SelectSingleNode(".//tr");
 
-            if (firstRow == null)
-            {
+            if (firstRow == null || tableNode == null) {
                 return false;
             }
 
             var isFirstRow = firstRow == node;
-            var hasNoHeaderRow = tableNode.SelectNodes(".//th")?.FirstOrDefault() == null;
 
-            return isFirstRow
-                   && hasNoHeaderRow
-                   && Converter.Config.TableWithoutHeaderRowHandling ==
-                   Config.TableWithoutHeaderRowHandlingOption.Default;
-        }
+            return (
+                isFirstRow && (
+                    IsTableHeaderRow(node) ||
+                    UseFirstRowAsHeaderRow(node)
+                )
+            );
 
-        private static bool IsTableHeaderRow(HtmlNode node)
-        {
-            var tableNode = node.Ancestors("table").FirstOrDefault();
-            var firstRow = tableNode?.SelectSingleNode(".//tr");
-            if (firstRow != null && firstRow == node)
+            bool UseFirstRowAsHeaderRow(HtmlNode node)
             {
-                return node.ChildNodes.FindFirst("th") != null;
+                var hasNoHeaderRow = tableNode.SelectNodes(".//th")?.FirstOrDefault() == null;
+                return hasNoHeaderRow
+                       && Converter.Config.TableWithoutHeaderRowHandling ==
+                       Config.TableWithoutHeaderRowHandlingOption.Default;
             }
 
-            return false;
+            static bool IsTableHeaderRow(HtmlNode node)
+            {
+                return node.ChildNodes.FindFirst("th") != null!;
+            }
         }
 
-        private static string UnderlineFor(HtmlNode node, string indent, bool tableHeaderColumnSpanHandling)
-        {
-            var nodes = node.ChildNodes.Where(x => x.Name == "th" || x.Name == "td").ToList();
 
-            var cols = new List<string>();
-            foreach (var nd in nodes)
-            {
+        private static void WriteUnderline(TextWriter writer, HtmlNode node, bool tableHeaderColumnSpanHandling)
+        {
+            var nodes = node.ChildNodes.Where(x => x.Name is "th" or "td");
+            foreach (var nd in nodes) {
                 var colSpan = GetColSpan(nd, tableHeaderColumnSpanHandling);
-                var styles = StringUtils.ParseStyle(nd.GetAttributeValue("style", ""));
+                var styles = StringUtils.ParseStyle(nd.GetAttributeValue("style", string.Empty));
                 styles.TryGetValue("text-align", out var align);
 
-                string content;
-                switch (align?.Trim())
-                {
-                    case "left":
-                        content = ":---";
-                        break;
-                    case "right":
-                        content ="---:";
-                        break;
-                    case "center":
-                        content = ":---:";
-                        break;
-                    default:
-                        content ="---";
-                        break;
-                }
+                var content = align switch {
+                    "left" => ":---",
+                    "right" => "---:",
+                    "center" => ":---:",
+                    _ => "---"
+                };
 
                 for (var i = 0; i < colSpan; i++) {
-                    cols.Add(content);
+                    writer.Write('|');
+                    writer.Write(' ');
+                    writer.Write(content);
+                    writer.Write(' ');
                 }
             }
 
-            var colsAggregated = string.Join(" | ", cols);
-
-            return $"{indent}| {colsAggregated} |{Environment.NewLine}";
+            writer.WriteLine('|');
         }
-        
+
+
         private static int GetColSpan(HtmlNode node, bool tableHeaderColumnSpanHandling)
         {
             var colSpan = 1;
-            
-            if (tableHeaderColumnSpanHandling && node.Name == "th")
-            {
+
+            if (tableHeaderColumnSpanHandling && node.Name is "th") {
                 colSpan = node.GetAttributeValue("colspan", 1);
             }
+
             return colSpan;
         }
     }

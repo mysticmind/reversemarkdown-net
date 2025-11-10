@@ -1,34 +1,36 @@
-﻿using System.Linq;
+﻿using System.IO;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Sup : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Sup : ConverterBase {
         public Sup(Converter converter) : base(converter)
         {
-            Converter.Register("sup", this);   
+            Converter.Register("sup", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (Converter.Config.SlackFlavored)
-            {
+            if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
             }
-            
-            var content = TreatChildren(node);
-            if (string.IsNullOrEmpty(content) || AlreadySup(node))
-            {
-                return content;
+
+            var content = TreatChildrenAsString(node);
+
+            if (string.IsNullOrEmpty(content) || AlreadySup()) {
+                writer.Write(content);
+                return;
             }
 
-            return $"^{content.Chomp(all:true)}^";
+            writer.Write('^');
+            writer.Write(content.Chomp());
+            writer.Write('^');
         }
 
-        private static bool AlreadySup(HtmlNode node)
+        private bool AlreadySup()
         {
-            return node.Ancestors("sup").Any();
+            return Context.AncestorsAny("sup");
         }
     }
 }

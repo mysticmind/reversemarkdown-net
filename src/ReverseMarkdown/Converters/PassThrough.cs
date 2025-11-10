@@ -1,17 +1,16 @@
-﻿using HtmlAgilityPack;
+﻿using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class PassThrough : ConverterBase
-    {
-        public PassThrough(Converter converter)
-            : base(converter)
+
+namespace ReverseMarkdown.Converters {
+    public class PassThrough : ConverterBase {
+        public PassThrough(Converter converter) : base(converter)
         {
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return node.OuterHtml;
+            writer.Write(node.OuterHtml);
         }
     }
 }

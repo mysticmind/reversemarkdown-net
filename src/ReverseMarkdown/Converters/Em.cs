@@ -1,42 +1,35 @@
-﻿
-using System.Linq;
-
+﻿using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Em : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Em : ConverterBase {
         public Em(Converter converter) : base(converter)
         {
-            var elements = new [] { "em", "i" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("em", this);
+            Converter.Register("i", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var content = TreatChildren(node);
+            var content = TreatChildrenAsString(node);
 
-            if (string.IsNullOrEmpty(content.Trim()) || AlreadyItalic(node))
-            {
-                return content;
+            if (string.IsNullOrWhiteSpace(content) || AlreadyItalic()) {
+                writer.Write(content);
+                return;
             }
 
-            var spaceSuffix = (node.NextSibling?.Name == "i" || node.NextSibling?.Name == "em")
+            var spaceSuffix = node.NextSibling?.Name is "i" or "em"
                 ? " "
-                : "";
+                : string.Empty;
 
             var emphasis = Converter.Config.SlackFlavored ? "_" : "*";
-            return content.EmphasizeContentWhitespaceGuard(emphasis, spaceSuffix);
+            TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis, spaceSuffix);
         }
 
-        private static bool AlreadyItalic(HtmlNode node)
+        private bool AlreadyItalic()
         {
-            return node.Ancestors("i").Any() || node.Ancestors("em").Any();
+            return Context.AncestorsAny("i") || Context.AncestorsAny("em");
         }
     }
 }

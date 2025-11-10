@@ -1,20 +1,21 @@
-using System;
+using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Dt : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Dt : ConverterBase {
         public Dt(Converter converter) : base(converter)
         {
             Converter.Register("dt", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var prefix = $"{Converter.Config.ListBulletChar} ";
-            var content = TreatChildren(node);
-            return $"{prefix}{content.Chomp()}{Environment.NewLine}";
+            writer.Write(Converter.Config.ListBulletChar);
+            writer.Write(' ');
+            var content = TreatChildrenAsString(node).Trim();
+            writer.Write(content);
+            writer.WriteLine();
         }
-    }    
+    }
 }

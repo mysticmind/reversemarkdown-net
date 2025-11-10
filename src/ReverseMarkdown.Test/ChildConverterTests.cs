@@ -1,19 +1,13 @@
 ﻿using ReverseMarkdown.Converters;
 using ReverseMarkdown.Test.Children;
-
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
 using Xunit;
 
-namespace ReverseMarkdown.Test
-{
-    public class ChildConverterTests
-    {
+
+namespace ReverseMarkdown.Test {
+    public class ChildConverterTests {
         [Fact]
         public void WhenConverter_A_IsReplacedByConverter_IgnoreAWhenHasClass()
         {
@@ -28,7 +22,7 @@ namespace ReverseMarkdown.Test
 
             Assert.NotNull(propValRaw);
 
-            var propVal = (IDictionary<string, IConverter>)propValRaw;
+            var propVal = (IDictionary<string, IConverter>) propValRaw;
 
             Assert.NotNull(propVal);
 

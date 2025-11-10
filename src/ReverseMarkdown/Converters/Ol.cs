@@ -1,39 +1,29 @@
-﻿using System;
-using System.Linq;
+﻿using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Ol : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Ol : ConverterBase {
         public Ol(Converter converter) : base(converter)
         {
-            var elements = new[] { "ol", "ul" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("ol", this);
+            Converter.Register("ul", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
             // Lists inside tables are not supported as markdown, so leave as HTML
-            if (node.Ancestors("table").Any())
-            {
-                return node.OuterHtml;
+            if (Context.AncestorsAny("table")) {
+                writer.Write(node.OuterHtml);
+                return;
             }
-
-            string prefixSuffix = Environment.NewLine;
 
             // Prevent blank lines being inserted in nested lists
-            string parentName = node.ParentNode.Name.ToLowerInvariant();
-            if (parentName == "ol" || parentName == "ul")
-            {
-                prefixSuffix = "";
-            }
+            var block = node.ParentNode.Name is not ("ol" or "ul");
 
-            return $"{prefixSuffix}{TreatChildren(node)}{prefixSuffix}";
+            if (block) writer.WriteLine();
+            TreatChildren(writer, node);
+            if (block) writer.WriteLine();
         }
     }
 }

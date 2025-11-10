@@ -1,61 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Div : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Div : ConverterBase {
         public Div(Converter converter) : base(converter)
         {
             Converter.Register("div", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            string content;
+            while (node.ChildNodes.Count == 1 && node.FirstChild.Name == "div") {
+                node = node.FirstChild;
+            }
 
-            do
-            {
-                if (node.ChildNodes.Count == 1 && node.FirstChild.Name == "div")
-                {
-                    node = node.FirstChild;
-                    continue;
-                }
+            var content = TreatChildrenAsString(node);
 
-                content = TreatChildren(node);
-                break;
-            } while (true);
-
-            var blockTags = new List<string>
-            {
-                "pre",
-                "p",
-                "ol",
-                "oi",
-                "table"
-            };
-
-            content = Converter.Config.CleanupUnnecessarySpaces ? content.Trim() : content;
+            content = Converter.Config.CleanupUnnecessarySpaces
+                ? content.Trim()
+                : content;
 
             // if there is a block child then ignore adding the newlines for div
-            if ((node.ChildNodes.Count == 1 && blockTags.Contains(node.FirstChild.Name)))
-            {
-                return content;
+            if (
+                node.ChildNodes.Count == 1 &&
+                node.FirstChild.Name
+                    is "pre"
+                    or "p"
+                    or "ol"
+                    or "oi"
+                    or "table"
+            ) {
+                writer.Write(content);
+                return;
             }
 
-            var prefix = Environment.NewLine;
-
-            if (Td.FirstNodeWithinCell(node))
-            {
-                prefix = string.Empty;
-            } 
-            else if (Converter.Config.SuppressDivNewlines)
-            {
-                prefix = string.Empty;
+            if (
+                !Td.FirstNodeWithinCell(node) &&
+                !Converter.Config.SuppressDivNewlines
+            ) {
+                writer.WriteLine();
             }
-            
-            return $"{prefix}{content}{(Td.LastNodeWithinCell(node) ? "" : Environment.NewLine)}";
+
+            writer.Write(content);
+
+            if (!Td.LastNodeWithinCell(node)) {
+                writer.WriteLine();
+            }
         }
     }
 }

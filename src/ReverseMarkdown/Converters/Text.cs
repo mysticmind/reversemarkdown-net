@@ -1,140 +1,125 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Text : ConverterBase
-    {
-        private readonly Dictionary<string, string> _escapedKeyChars = new Dictionary<string, string>();
 
+namespace ReverseMarkdown.Converters {
+    public partial class Text : ConverterBase {
         public Text(Converter converter) : base(converter)
         {
-            _escapedKeyChars.Add("*", @"\*");
-            _escapedKeyChars.Add("_", @"\_");
-
             Converter.Register("#text", this);
         }
 
-        public override string Convert(HtmlNode node)
+
+        #region values
+
+        private static readonly StringReplaceValues _escapedKeyChars = new() {
+            ["*"] = @"\*",
+            ["_"] = @"\_",
+        };
+
+        private static readonly StringReplaceValues _escapedKeyCharsReverse = new() {
+            [@"\*"] = "*",
+            [@"\_"] = "_",
+        };
+
+        private static readonly StringReplaceValues _specialMarkdownCharacters = new() {
+            ["["] = @"\[",
+            ["]"] = @"\]",
+            ["("] = @"\(",
+            [")"] = @"\)",
+            ["{"] = @"\{",
+            ["}"] = @"\}",
+        };
+
+        private static readonly StringReplaceValues _preserveAngleBrackets = new() {
+            ["&lt;"] = "%3C",
+            ["&gt;"] = "%3E",
+        };
+
+        private static readonly StringReplaceValues _unPreserveAngleBrackets = new() {
+            ["%3C"] = "&lt;",
+            ["%3E"] = "&gt;",
+        };
+
+#if NET7_0_OR_GREATER
+        [GeneratedRegex(@"`.*?`")]
+        private static partial Regex BackTicks { get; }
+#else
+        private static readonly Regex BackTicks = new(@"`.*?`", RegexOptions.Compiled);
+#endif
+
+        #endregion
+
+
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return node.InnerText is "" or " " or "&nbsp;" ? TreatEmpty(node) : TreatText(node);
+            if (node.InnerText is " " or "&nbsp;" && node.ParentNode.Name is not ("ol" or "ul")) {
+                writer.Write(' ');
+            }
+            else {
+                TreatText(writer, node);
+            }
         }
 
-        private string TreatText(HtmlNode node)
+
+        private void TreatText(TextWriter writer, HtmlNode node)
         {
-            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by Markdown
-            string content = node.InnerText
-                .Replace("&lt;", "%3C")
-                .Replace("&gt;", "%3E");
+            var text = node.InnerText;
+            var parent = node.ParentNode;
 
-            content = DecodeHtml(content);
-
-            // Not all renderers support hex encoded characters, so convert back to escaped HTML
-            content = content
-                .Replace("%3C", "&lt;")
-                .Replace("%3E", "&gt;");
+            if (string.IsNullOrEmpty(text)) {
+                return;
+            }
 
             //strip leading spaces and tabs for text within a list item
-            var parent = node.ParentNode;
+            var shouldTrim = (
+                parent.Name is "table" or "thead" or "tbody" or "ol" or "ul" or "th" or "tr"
+            );
+            var replaceLineEndings = (
+                parent.Name is "p" or "#document" &&
+                //(Context.AncestorsAny("th") || Context.AncestorsAny("td"))
+                (parent.Ancestors("th").Any() || parent.Ancestors("td").Any())
+            );
 
-            switch (parent.Name)
-            {
-                case "table":
-                case "thead":
-                case "tbody":    
-                case "ol":
-                case "ul":
-                case "th":    
-                case "tr":
-                    content = content.Trim();
-                    break;
+            // Prevent &lt; and &gt; from being converted to < and > as this will be interpreted as HTML by Markdown
+            //var search = SearchValues.Create(["&lt;", "&gt;"], StringComparison.Ordinal);
+            //var index = text.IndexOfAny(search);
+            //if (index != -1) {
+            //}
+
+            // html decode:
+            var content = text.Replace(_preserveAngleBrackets);
+            content = DecodeHtml(content);
+            content = content.Replace(_unPreserveAngleBrackets);
+
+            if (shouldTrim) {
+                content = content.Trim();
             }
 
-            if (parent.Ancestors("th").Any() || parent.Ancestors("td").Any())
-            {
-                content = ReplaceNewlineChars(parent, content);    
-            }
-            
-            if (parent.Name != "a" && !Converter.Config.SlackFlavored)
-            {
-                content =  EscapeKeyChars(content);
+            if (replaceLineEndings) {
+                content = content.ReplaceLineEndings("<br>");
             }
 
-            content = PreserveKeyCharsWithinBackTicks(content);
+            if (parent.Name != "a" && !Converter.Config.SlackFlavored) {
+                content = content.Replace(_escapedKeyChars);
+                // Preserve Key Chars Within BackTicks:
+                content = BackTicks.Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));
+            }
+
             content = EscapeSpecialMarkdownCharacters(content);
 
-            return content;
+            writer.Write(content);
         }
 
-        private string EscapeKeyChars(string content)
-        {
-            foreach(var item in _escapedKeyChars)
-            {
-                content = content.Replace(item.Key, item.Value);
-            }
-
-            return content;
-        }
-
-        private static string TreatEmpty(HtmlNode node)
-        {
-            var content = "";
-
-            var parent = node.ParentNode;
-
-            if (parent.Name == "ol" || parent.Name == "ul")
-            {
-                content = "";
-            }
-            else if(node.InnerText is " " or "&nbsp;")
-            {
-                content = " ";
-            }
-
-            return content;
-        }
-
-        private static string PreserveKeyCharsWithinBackTicks(string content)
-        {
-            var rx = new Regex("`.*?`");
-
-            content = rx.Replace(content, p => p.Value.Replace(@"\*", "*").Replace(@"\_", "_"));
-
-            return content;
-        }
-
-        private static string ReplaceNewlineChars(HtmlNode parentNode, string content)
-        {
-            if (parentNode.Name != "p" && parentNode.Name != "#document") return content;
-
-            content = content.Replace("\r\n", "<br>");
-            content = content.Replace("\n", "<br>");
-
-            return content;
-        }
-
-        private static bool IsContentWithinBackTicks(string content)
-        {
-            return content.StartsWith("`") && content.EndsWith("`");
-        }
 
         private static string EscapeSpecialMarkdownCharacters(string content)
         {
-            if (IsContentWithinBackTicks(content))
-            {
-                return content;
-            }
-
-            return content
-                .Replace("[", @"\[")
-                .Replace("]", @"\]")
-                .Replace("(", @"\(")
-                .Replace(")", @"\)")
-                .Replace("{", @"\{")
-                .Replace("}", @"\}");
+            return content.StartsWith('`') && content.EndsWith('`')
+                ? content
+                : content.Replace(_specialMarkdownCharacters);
         }
     }
 }

@@ -1,22 +1,18 @@
-﻿using HtmlAgilityPack;
+﻿using System.IO;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Ignore : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Ignore : ConverterBase {
         public Ignore(Converter converter) : base(converter)
         {
-            var elements = new [] { "colgroup", "col" };
-
-            foreach (var element in elements)
-            {
-                Converter.Register(element, this);
-            }
+            Converter.Register("colgroup", this);
+            Converter.Register("col", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
-            return "";
+            // Do nothing, ignore the node
         }
     }
 }

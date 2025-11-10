@@ -1,71 +1,65 @@
-﻿using HtmlAgilityPack;
-using System;
+﻿using System;
+using System.IO;
 using System.Linq;
-using System.Text;
+using HtmlAgilityPack;
 
-namespace ReverseMarkdown.Converters
-{
-    public class Li : ConverterBase
-    {
+
+namespace ReverseMarkdown.Converters {
+    public class Li : ConverterBase {
         public Li(Converter converter) : base(converter)
         {
             Converter.Register("li", this);
         }
 
-        public override string Convert(HtmlNode node)
+        public override void Convert(TextWriter writer, HtmlNode node)
         {
             // Standardize whitespace before inner lists so that the following are equivalent
             //   <li>Foo<ul><li>...
             //   <li>Foo\n    <ul><li>...
-            foreach (var innerList in node.SelectNodes("//ul|//ol") ?? Enumerable.Empty<HtmlNode>())
-            {
-                if (innerList.PreviousSibling?.NodeType == HtmlNodeType.Text)
-                {
-                    innerList.PreviousSibling.InnerHtml = innerList.PreviousSibling.InnerHtml.Chomp();
+            foreach (var innerList in node.SelectNodes("//ul|//ol") ?? Enumerable.Empty<HtmlNode>()) {
+                if (innerList.PreviousSibling?.NodeType == HtmlNodeType.Text) {
+                    innerList.PreviousSibling.InnerHtml = innerList.PreviousSibling.InnerHtml.Trim(); // TODO optimize
                 }
             }
 
-            var content = ContentFor(node);
-            var indentation = IndentationFor(node, true);
-            var prefix = PrefixFor(node);
+            writer.Write(IndentationFor(node, true));
 
-            return $"{indentation}{prefix}{content.Chomp()}{Environment.NewLine}";
-        }
-
-        private string PrefixFor(HtmlNode node)
-        {
-            if (node.ParentNode != null && node.ParentNode.Name == "ol")
-            {
+            if (node.ParentNode is { Name: "ol" }) {
                 // index are zero based hence add one
                 var index = node.ParentNode.SelectNodes("./li").IndexOf(node) + 1;
-                return $"{index}. ";
+                writer.Write(index);
+                writer.Write(". ");
             }
-            else
-            {
-                return $"{Converter.Config.ListBulletChar} ";
+            else {
+                writer.Write(Converter.Config.ListBulletChar);
+                writer.Write(' ');
             }
+
+            var content = ContentFor(node).Trim();
+            writer.Write(content);
+            writer.WriteLine();
         }
 
         private string ContentFor(HtmlNode node)
         {
-            if (!Converter.Config.GithubFlavored)
-                return TreatChildren(node);
+            using var writer = Converter.CreateWriter(node);
 
-            var content = new StringBuilder();
+            if (Converter.Config.GithubFlavored) {
+                if (
+                    node.FirstChild is { Name: "input" } childNode &&
+                    childNode.GetAttributeValue("type", string.Empty).Equals("checkbox", StringComparison.OrdinalIgnoreCase)
+                ) {
+                    writer.Write(childNode.Attributes.Contains("checked")
+                        ? "[x]"
+                        : "[ ]");
 
-            if (node.FirstChild is HtmlNode childNode
-                && childNode.Name == "input"
-                && childNode.GetAttributeValue("type", "").Equals("checkbox", StringComparison.OrdinalIgnoreCase))
-            {
-                content.Append(childNode.Attributes.Contains("checked")
-                    ? $"[x]"
-                    : $"[ ]");
-
-                node.RemoveChild(childNode);
+                    node.RemoveChild(childNode);
+                }
             }
 
-            content.Append(TreatChildren(node));
-            return content.ToString();
+            TreatChildren(writer, node);
+
+            return writer.ToString();
         }
     }
 }
