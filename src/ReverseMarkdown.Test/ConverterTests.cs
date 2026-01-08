@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using VerifyTests;
 using VerifyXunit;
@@ -504,6 +505,214 @@ namespace ReverseMarkdown.Test
                 WhitelistUriSchemes = {"http"}
             };
             return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task WhenThereIsBase64ImgTag_WithDefaultConfig_ThenIncludeInMarkdown()
+        {
+            var html = @"<p>Before</p><img alt=""test"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/><p>After</p>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenThereIsBase64ImgTag_WithSkipConfig_ThenSkipImage()
+        {
+            var html = @"<p>Before</p><img alt=""test"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/><p>After</p>";
+            var config = new Config { Base64Images = Config.Base64ImageHandling.Skip };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task WhenThereIsBase64JpegImgTag_WithSkipConfig_ThenSkipImage()
+        {
+            var html = @"<img alt=""jpeg"" src=""data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=""/>";
+            var config = new Config { Base64Images = Config.Base64ImageHandling.Skip };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task WhenThereIsBase64ImgTag_WithSaveToFileConfigButNoDirectory_ThenSkipImage()
+        {
+            var html = @"<p>Before</p><img alt=""test"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/><p>After</p>";
+            var config = new Config
+            {
+                Base64Images = Config.Base64ImageHandling.SaveToFile
+                // Base64ImageSaveDirectory is not set
+            };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public void WhenThereIsBase64PngImgTag_WithSaveToFileConfigAndValidDirectory_ThenSaveImageAndReferenceFilePath()
+        {
+            var tempDir = Path.Combine(Path.GetTempPath(), "reversemarkdown_test_" + Guid.NewGuid());
+            try
+            {
+                var html = @"<p>Before</p><img alt=""test"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/><p>After</p>";
+                var config = new Config
+                {
+                    Base64Images = Config.Base64ImageHandling.SaveToFile,
+                    Base64ImageSaveDirectory = tempDir
+                };
+
+                var converter = new Converter(config);
+                var result = converter.Convert(html);
+
+                // Verify the image file was created
+                var imageFiles = Directory.GetFiles(tempDir, "image_*.png");
+                Assert.Single(imageFiles);
+                Assert.True(File.Exists(imageFiles[0]));
+
+                // Verify the markdown references the saved file path
+                Assert.Contains(imageFiles[0], result);
+                Assert.Contains("Before", result);
+                Assert.Contains("After", result);
+                Assert.Contains("![test]", result);
+            }
+            finally
+            {
+                // Clean up temp directory
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+            }
+        }
+
+        [Fact]
+        public void WhenThereIsBase64JpegImgTag_WithSaveToFileConfigAndValidDirectory_ThenSaveImageWithJpgExtension()
+        {
+            var tempDir = Path.Combine(Path.GetTempPath(), "reversemarkdown_test_" + Guid.NewGuid());
+            try
+            {
+                var html = @"<img alt=""jpeg"" src=""data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=""/>";
+                var config = new Config
+                {
+                    Base64Images = Config.Base64ImageHandling.SaveToFile,
+                    Base64ImageSaveDirectory = tempDir
+                };
+
+                var converter = new Converter(config);
+                var result = converter.Convert(html);
+
+                // Verify the image file was created with .jpg extension
+                var imageFiles = Directory.GetFiles(tempDir, "image_*.jpg");
+                Assert.Single(imageFiles);
+                Assert.True(File.Exists(imageFiles[0]));
+                Assert.EndsWith(".jpg", imageFiles[0]);
+
+                // Verify the markdown references the saved file path
+                Assert.Contains(imageFiles[0], result);
+                Assert.Contains("![jpeg]", result);
+            }
+            finally
+            {
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+            }
+        }
+
+        [Fact]
+        public void WhenMultipleBase64ImgTags_WithSaveToFileConfig_ThenSaveAllImagesWithUniqueNames()
+        {
+            var tempDir = Path.Combine(Path.GetTempPath(), "reversemarkdown_test_" + Guid.NewGuid());
+            try
+            {
+                var html = @"<img alt=""first"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/><img alt=""second"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/>";
+                var config = new Config
+                {
+                    Base64Images = Config.Base64ImageHandling.SaveToFile,
+                    Base64ImageSaveDirectory = tempDir
+                };
+
+                var converter = new Converter(config);
+                var result = converter.Convert(html);
+
+                // Verify both image files were created with unique names
+                var imageFiles = Directory.GetFiles(tempDir, "image_*.png");
+                Assert.Equal(2, imageFiles.Length);
+
+                // Verify both images are referenced in the markdown
+                Assert.Contains("![first]", result);
+                Assert.Contains("![second]", result);
+            }
+            finally
+            {
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+            }
+        }
+
+        [Fact]
+        public void WhenBase64ImgTag_WithCustomFileNameGenerator_ThenUseCustomFileName()
+        {
+            var tempDir = Path.Combine(Path.GetTempPath(), "reversemarkdown_test_" + Guid.NewGuid());
+            try
+            {
+                var html = @"<img alt=""test"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/>";
+                var config = new Config
+                {
+                    Base64Images = Config.Base64ImageHandling.SaveToFile,
+                    Base64ImageSaveDirectory = tempDir,
+                    Base64ImageFileNameGenerator = (index, mimeType) => $"custom_image_{index}"
+                };
+
+                var converter = new Converter(config);
+                var result = converter.Convert(html);
+
+                // Verify the custom filename was used
+                var imageFiles = Directory.GetFiles(tempDir, "custom_image_*.png");
+                Assert.Single(imageFiles);
+                Assert.Contains("custom_image_0", imageFiles[0]);
+            }
+            finally
+            {
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(tempDir, true);
+                }
+            }
+        }
+
+        [Fact]
+        public void WhenBase64ImgTag_WithSaveToFileAndNonExistentDirectory_ThenCreateDirectoryAndSaveImage()
+        {
+            var tempDir = Path.Combine(Path.GetTempPath(), "reversemarkdown_test_" + Guid.NewGuid(), "nested", "path");
+            try
+            {
+                // Ensure the directory does not exist
+                Assert.False(Directory.Exists(tempDir));
+
+                var html = @"<img alt=""test"" src=""data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==""/>";
+                var config = new Config
+                {
+                    Base64Images = Config.Base64ImageHandling.SaveToFile,
+                    Base64ImageSaveDirectory = tempDir
+                };
+
+                var converter = new Converter(config);
+                var result = converter.Convert(html);
+
+                // Verify the directory was created
+                Assert.True(Directory.Exists(tempDir));
+
+                // Verify the image file was created
+                var imageFiles = Directory.GetFiles(tempDir, "image_*.png");
+                Assert.Single(imageFiles);
+            }
+            finally
+            {
+                // Clean up the entire temp directory tree
+                var rootTempDir = Path.Combine(Path.GetTempPath(), Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(tempDir))));
+                if (Directory.Exists(rootTempDir))
+                {
+                    Directory.Delete(rootTempDir, true);
+                }
+            }
         }
 
         [Fact]

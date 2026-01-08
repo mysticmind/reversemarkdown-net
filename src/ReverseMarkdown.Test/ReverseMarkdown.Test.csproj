@@ -93,6 +93,18 @@
     </None>
     <None Update="ConverterTests.WhenTable_WithoutCaption_ThenConvertNormally.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenThereIsBase64ImgTag_WithDefaultConfig_ThenIncludeInMarkdown.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenThereIsBase64ImgTag_WithSaveToFileConfigButNoDirectory_ThenSkipImage.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenThereIsBase64ImgTag_WithSkipConfig_ThenSkipImage.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenThereIsBase64JpegImgTag_WithSkipConfig_ThenSkipImage.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None> 
   </ItemGroup>
 </Project>

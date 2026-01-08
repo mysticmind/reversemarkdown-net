@@ -93,12 +93,47 @@ namespace ReverseMarkdown
             EmptyRow
         }
 
+        public enum Base64ImageHandling
+        {
+            /// <summary>
+            /// Include base64-encoded images in the markdown output (default behavior)
+            /// </summary>
+            Include,
+
+            /// <summary>
+            /// Skip/ignore base64-encoded images entirely
+            /// </summary>
+            Skip,
+
+            /// <summary>
+            /// Save base64-encoded images to disk and reference the saved file path in markdown
+            /// Requires Base64ImageSaveDirectory to be set
+            /// </summary>
+            SaveToFile
+        }
+
         /// <summary>
         /// Set this flag to handle table header column with column spans
         /// </summary>
         public bool TableHeaderColumnSpanHandling { get; set; } = true;
 
         public bool CleanupUnnecessarySpaces { get; set; } = true;
+
+        /// <summary>
+        /// Option to control how base64-encoded images are handled during conversion
+        /// </summary>
+        public Base64ImageHandling Base64Images { get; set; } = Base64ImageHandling.Include;
+
+        /// <summary>
+        /// When Base64Images is set to SaveToFile, this specifies the directory path where images should be saved
+        /// </summary>
+        public string? Base64ImageSaveDirectory { get; set; }
+
+        /// <summary>
+        /// When Base64Images is set to SaveToFile, this function generates a filename for each saved image
+        /// The function receives the image index and MIME type, and should return a filename without extension
+        /// </summary>
+        public Func<int, string, string>? Base64ImageFileNameGenerator { get; set; }
 
 
         /// <summary>

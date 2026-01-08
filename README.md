@@ -20,7 +20,7 @@ string html = "This a sample <strong>paragraph</strong> from <a href=\"http://te
 
 string result = converter.Convert(html);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L11-L19' title='Snippet source file'>snippet source</a> | <a href='#snippet-Usage' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='Snippet source file'>snippet source</a> | <a href='#snippet-Usage' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 Will result in:
@@ -52,7 +52,7 @@ var config = new ReverseMarkdown.Config
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L27-L43' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 ## Configuration options
@@ -86,6 +86,114 @@ var converter = new ReverseMarkdown.Converter(config);
   * `TableWithoutHeaderRowHandlingOption.Default` - First row will be used as header row (default)
   * `TableWithoutHeaderRowHandlingOption.EmptyRow` - An empty row will be added as the header row
 * `TableHeaderColumnSpanHandling` - Set this flag to handle or process table header column with column spans. Default is true
+* `Base64Images` - Control how base64-encoded images (inline data URIs) are handled during conversion
+  * `Base64ImageHandling.Include` - Include base64-encoded images in the markdown output as-is (default behavior)
+  * `Base64ImageHandling.Skip` - Skip/ignore base64-encoded images entirely
+  * `Base64ImageHandling.SaveToFile` - Save base64-encoded images to disk and reference the saved file path in markdown. Requires `Base64ImageSaveDirectory` to be set
+* `Base64ImageSaveDirectory` - When `Base64Images` is set to `SaveToFile`, specifies the directory path where images should be saved
+* `Base64ImageFileNameGenerator` - When `Base64Images` is set to `SaveToFile`, this function generates a filename for each saved image. The function receives the image index (int) and MIME type (string), and should return a filename without extension. If not specified, images will be named as `image_0`, `image_1`, etc.
+
+### Base64 Image Handling Examples
+
+ReverseMarkdown provides flexible options for handling base64-encoded images (inline data URIs) during HTML to Markdown conversion.
+
+**Include Base64 Images (Default)**
+
+By default, base64-encoded images are included in the markdown output as-is:
+
+<!-- snippet: Base64ImageInclude -->
+<a id='snippet-Base64ImageInclude'></a>
+```cs
+var converter = new ReverseMarkdown.Converter();
+string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
+string result = converter.Convert(html);
+// Output: ![Sample Image](data:image/png;base64,iVBORw0KGg...)
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L50-L57' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageInclude' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+**Skip Base64 Images**
+
+To ignore base64-encoded images entirely:
+
+<!-- snippet: Base64ImageSkip -->
+<a id='snippet-Base64ImageSkip'></a>
+```cs
+var config = new ReverseMarkdown.Config
+{
+    Base64Images = Config.Base64ImageHandling.Skip
+};
+var converter = new ReverseMarkdown.Converter(config);
+string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
+string result = converter.Convert(html);
+// Output: (empty - image is skipped)
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L63-L73' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSkip' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+**Save Base64 Images to Disk**
+
+To extract and save base64-encoded images to disk:
+
+<!-- snippet: Base64ImageSaveToFile -->
+<a id='snippet-Base64ImageSaveToFile'></a>
+```cs
+var config = new ReverseMarkdown.Config
+{
+    Base64Images = Config.Base64ImageHandling.SaveToFile,
+    Base64ImageSaveDirectory = "/path/to/images"
+};
+var converter = new ReverseMarkdown.Converter(config);
+string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
+string result = converter.Convert(html);
+// Output: ![Sample Image](/path/to/images/image_0.png)
+// Image file saved to: /path/to/images/image_0.png
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L79-L91' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSaveToFile' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+**Custom Filename Generator**
+
+You can provide a custom filename generator for saved images:
+
+<!-- snippet: Base64ImageCustomFilename -->
+<a id='snippet-Base64ImageCustomFilename'></a>
+```cs
+var config = new ReverseMarkdown.Config
+{
+    Base64Images = Config.Base64ImageHandling.SaveToFile,
+    Base64ImageSaveDirectory = "/path/to/images",
+    Base64ImageFileNameGenerator = (index, mimeType) => 
+    {
+        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        return $"converted_{timestamp}_{index}";
+    }
+};
+var converter = new ReverseMarkdown.Converter(config);
+// Images will be saved as: converted_20260108_143022_0.png, converted_20260108_143022_1.jpg, etc.
+```
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L99-L114' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageCustomFilename' title='Start of snippet'>anchor</a></sup>
+<!-- endSnippet -->
+
+**Supported Image Formats:**
+- PNG (`image/png`)
+- JPEG (`image/jpeg`, `image/jpg`)
+- GIF (`image/gif`)
+- BMP (`image/bmp`)
+- TIFF (`image/tiff`)
+- WebP (`image/webp`)
+- SVG (`image/svg+xml`)
+
+## Features
+
+* Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
+* Supports nested lists
+* Github Flavoured Markdown conversion supported for br, pre, tasklists and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
+* Slack Flavoured Markdown conversion supported. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
+* Improved performance with optimized text writer approach and O(1) ancestor lookups
+* Support for nested tables (converted as HTML inside markdown)
+* Support for table captions (rendered as paragraph above table)
+* Base64-encoded image handling with options to include as-is, skip, or save to disk
 
 ## Breaking Changes
 
@@ -102,19 +210,9 @@ var converter = new ReverseMarkdown.Converter(config);
 
 * `UnknownTags` config has been changed to an enumeration
 
-## Features
-
-* Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
-* Supports nested lists
-* Github Flavoured Markdown conversion supported for br, pre, tasklists and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
-* Slack Flavoured Markdown conversion supported. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
-* Improved performance with optimized text writer approach and O(1) ancestor lookups
-* Support for nested tables (converted as HTML inside markdown)
-* Support for table captions (rendered as paragraph above table)
-
 ## Acknowledgements
 
-This library's initial implementation ideas were from the Ruby based Html to Markdown converter [ xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
+This library's initial implementation ideas from the Ruby based Html to Markdown converter [xijo/reverse_markdown](https://github.com/xijo/reverse_markdown).
 
 ## Copyright
 
