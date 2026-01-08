@@ -44,12 +44,8 @@ namespace ReverseMarkdown.Converters {
             ["%3E"] = "&gt;",
         };
 
-#if NET7_0_OR_GREATER
         [GeneratedRegex(@"`.*?`")]
         private static partial Regex BackTicks { get; }
-#else
-        private static readonly Regex BackTicks = new(@"`.*?`", RegexOptions.Compiled);
-#endif
 
         #endregion
 

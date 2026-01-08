@@ -6,26 +6,14 @@ using ReverseMarkdown.Helpers;
 namespace ReverseMarkdown;
 
 public static partial class Cleaner {
-#if NET7_0_OR_GREATER
     [GeneratedRegex(@"\*(\s\*)+")]
     private static partial Regex SlackBoldCleaner { get; }
-#else
-    private static Regex SlackBoldCleaner { get; } = new(@"\*(\s\*)+", RegexOptions.Compiled);
-#endif
 
-#if NET7_0_OR_GREATER
     [GeneratedRegex(@"_(\s_)+")]
     private static partial Regex SlackItalicCleaner { get; }
-#else
-    private static Regex SlackItalicCleaner { get; } = new(@"_(\s_)+", RegexOptions.Compiled);
-#endif
 
-#if NET7_0_OR_GREATER
     [GeneratedRegex(@"[\u0020\u00A0]")]
     private static partial Regex NonBreakingSpaces { get; }
-#else
-    private static Regex NonBreakingSpaces { get; } = new(@"[\u0020\u00A0]", RegexOptions.Compiled);
-#endif
 
     private static readonly StringReplaceValues TagBorders = new() {
         ["\n\t"] = string.Empty,

@@ -12,20 +12,10 @@ public static class StringExtensions {
             .Trim();
     }
 
-#if NET6_0_OR_GREATER
     internal static LineSplitEnumerator ReadLines(this string content)
     {
         return new LineSplitEnumerator(content);
     }
-#else
-    internal static System.Collections.Generic.IEnumerable<string> ReadLines(this string content)
-    {
-        var reader = new System.IO.StringReader(content);
-        while (reader.ReadLine() is { } line) {
-            yield return line;
-        }
-    }
-#endif
 
     internal static string Replace(this string content, StringReplaceValues replacements)
     {

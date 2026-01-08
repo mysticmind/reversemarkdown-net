@@ -92,12 +92,8 @@ namespace ReverseMarkdown.Converters {
         /// Extracts class attribute syntax using: highlight-json, highlight-source-json, language-json, brush: language
         /// Returns the Language in Match.Groups[2]
         /// </summary>
-#if NET7_0_OR_GREATER
         [GeneratedRegex(@"(highlight-source-|language-|highlight-|brush:\s)([a-zA-Z0-9]+)")]
         private static partial Regex ClassRegex { get; }
-#else
-        private static readonly Regex ClassRegex = new(@"(highlight-source-|language-|highlight-|brush:\s)([a-zA-Z0-9]+)", RegexOptions.Compiled);
-#endif
 
         /// <summary>
         /// Checks class attribute for language class identifiers for various

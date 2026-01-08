@@ -12,12 +12,11 @@ internal class StringReplaceValues : Dictionary<string, string> {
 
     private Regex Regex => _regex ??= new Regex($"{string.Join("|", this.Keys.Select(Regex.Escape))}", RegexOptions.Compiled);
 
-#if NET7_0_OR_GREATER
     public string Replace(string input)
     {
         var offset = 0;
         StringBuilder? sb = null;
-        foreach (var match in Regex.EnumerateMatches(input)) { // EnumerateMatches is new in .NET 7 or 8 ??
+        foreach (var match in Regex.EnumerateMatches(input)) {
             sb ??= new StringBuilder(input.Length);
             sb.Append(input.AsSpan(offset, match.Index - offset));
             sb.Append(this[input.AsSpan(match.Index, match.Length).ToString()]);
@@ -30,23 +29,4 @@ internal class StringReplaceValues : Dictionary<string, string> {
 
         return sb?.ToString() ?? input;
     }
-#else
-    public string Replace(string input)
-    {
-        var offset = 0;
-        StringBuilder? sb = null;
-        foreach (Match match in Regex.Matches(input)) {
-            sb ??= new StringBuilder(input.Length);
-            sb.Append(input.Substring(offset, match.Index - offset));
-            sb.Append(this[match.Value]);
-            offset = match.Index + match.Length;
-        }
-
-        if (sb is not null && offset != input.Length) {
-            sb.Append(input.Substring(offset, input.Length - offset));
-        }
-
-        return sb?.ToString() ?? input;
-    }
-#endif
 }

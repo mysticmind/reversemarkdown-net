@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-using System;
+﻿using System;
 
 
 namespace ReverseMarkdown.Helpers;
@@ -51,4 +50,3 @@ internal ref struct LineSplitEnumerator(string text) {
         }
     }
 }
-#endif
