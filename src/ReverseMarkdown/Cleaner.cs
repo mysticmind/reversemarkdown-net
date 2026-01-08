@@ -7,13 +7,13 @@ namespace ReverseMarkdown;
 
 public static partial class Cleaner {
     [GeneratedRegex(@"\*(\s\*)+")]
-    private static partial Regex SlackBoldCleaner { get; }
+    private static partial Regex SlackBoldCleaner();
 
     [GeneratedRegex(@"_(\s_)+")]
-    private static partial Regex SlackItalicCleaner { get; }
+    private static partial Regex SlackItalicCleaner();
 
     [GeneratedRegex(@"[\u0020\u00A0]")]
-    private static partial Regex NonBreakingSpaces { get; }
+    private static partial Regex NonBreakingSpaces();
 
     private static readonly StringReplaceValues TagBorders = new() {
         ["\n\t"] = string.Empty,
@@ -29,7 +29,7 @@ public static partial class Cleaner {
     private static string NormalizeSpaceChars(string content)
     {
         // replace unicode and non-breaking spaces to normal space
-        content = NonBreakingSpaces.Replace(content, " ");
+        content = NonBreakingSpaces().Replace(content, " ");
         return content;
     }
 
@@ -45,8 +45,8 @@ public static partial class Cleaner {
     {
         // Slack's escaping rules depend on whether the key characters appear in
         // next to word characters or not.
-        content = SlackBoldCleaner.Replace(content, "*");
-        content = SlackItalicCleaner.Replace(content, "_");
+        content = SlackBoldCleaner().Replace(content, "*");
+        content = SlackItalicCleaner().Replace(content, "_");
 
         return content;
     }

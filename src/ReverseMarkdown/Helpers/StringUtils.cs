@@ -35,7 +35,7 @@ public static partial class StringUtils {
 
 
     [GeneratedRegex(@"\r?\n\s*\r?\n", RegexOptions.Singleline)]
-    private static partial Regex LinkTextRegex { get; }
+    private static partial Regex LinkTextRegex();
 
     private static readonly StringReplaceValues _linkTextReplaceValues = new() {
         ["["] = @"\[",
@@ -47,7 +47,7 @@ public static partial class StringUtils {
     /// </summary>
     public static string EscapeLinkText(string rawText)
     {
-        return LinkTextRegex
+        return LinkTextRegex()
             .Replace(rawText, Environment.NewLine)
             .Replace(_linkTextReplaceValues);
     }

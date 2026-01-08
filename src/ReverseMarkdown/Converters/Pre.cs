@@ -93,7 +93,7 @@ namespace ReverseMarkdown.Converters {
         /// Returns the Language in Match.Groups[2]
         /// </summary>
         [GeneratedRegex(@"(highlight-source-|language-|highlight-|brush:\s)([a-zA-Z0-9]+)")]
-        private static partial Regex ClassRegex { get; }
+        private static partial Regex ClassRegex();
 
         /// <summary>
         /// Checks class attribute for language class identifiers for various
@@ -105,7 +105,7 @@ namespace ReverseMarkdown.Converters {
         {
             var val = node.GetAttributeValue("class", string.Empty);
             if (!string.IsNullOrEmpty(val)) {
-                return ClassRegex.Match(val);
+                return ClassRegex().Match(val);
             }
 
             return Match.Empty;

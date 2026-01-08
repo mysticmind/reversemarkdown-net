@@ -45,7 +45,7 @@ namespace ReverseMarkdown.Converters {
         };
 
         [GeneratedRegex(@"`.*?`")]
-        private static partial Regex BackTicks { get; }
+        private static partial Regex BackTicks();
 
         #endregion
 
@@ -102,7 +102,7 @@ namespace ReverseMarkdown.Converters {
             if (parent.Name != "a" && !Converter.Config.SlackFlavored) {
                 content = content.Replace(_escapedKeyChars);
                 // Preserve Key Chars Within BackTicks:
-                content = BackTicks.Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));
+                content = BackTicks().Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));
             }
 
             content = EscapeSpecialMarkdownCharacters(content);
