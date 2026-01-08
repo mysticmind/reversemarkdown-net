@@ -128,7 +128,7 @@ string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Ima
 string result = converter.Convert(html);
 // Output: (empty - image is skipped)
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L63-L73' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSkip' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L63-L74' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSkip' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 **Save Base64 Images to Disk**
@@ -149,7 +149,7 @@ string result = converter.Convert(html);
 // Output: ![Sample Image](/path/to/images/image_0.png)
 // Image file saved to: /path/to/images/image_0.png
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L79-L91' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSaveToFile' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L80-L93' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSaveToFile' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 **Custom Filename Generator**
