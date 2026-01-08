@@ -1626,14 +1626,70 @@ namespace ReverseMarkdown.Test
         {
             // Tests deeper nesting (10 levels) to ensure performance remains linear after fix
             var html = "<p>L1<p>L2<p>L3<p>L4<p>L5<p>L6<p>L7<p>L8<p>L9<p>L10</p></p></p></p></p></p></p></p></p></p>";
-            
+
             var config = new Config
             {
                 GithubFlavored = true,
                 UnknownTags = Config.UnknownTagsOption.Bypass
             };
-            
+
             return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_NestedTableIsInTable_LeaveNestedTableAsHtml()
+        {
+            // Issue #411: Nested tables should be left as HTML, similar to lists in tables
+            var html = "<table><tr><th>Step</th><th>Instructions</th></tr><tr><td>1</td><td><table><tr><th>Condition</th><th>Action</th></tr><tr><td>A</td><td>Do X</td></tr></table></td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task When_ComplexNestedTableIsInTable_LeaveNestedTableAsHtml()
+        {
+            // More complex nested table scenario
+            var html = @"<table>
+                <tr>
+                    <th>Category</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td>Products</td>
+                    <td>
+                        <table>
+                            <tr><th>Name</th><th>Price</th></tr>
+                            <tr><td>Item 1</td><td>$10</td></tr>
+                            <tr><td>Item 2</td><td>$20</td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task When_MultipleNestedTablesInTable_LeaveAllNestedTablesAsHtml()
+        {
+            // Multiple nested tables in different cells
+            var html = @"<table>
+                <tr>
+                    <th>Column 1</th>
+                    <th>Column 2</th>
+                </tr>
+                <tr>
+                    <td>
+                        <table>
+                            <tr><td>Nested 1</td></tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table>
+                            <tr><td>Nested 2</td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>";
+            return CheckConversion(html);
         }
     }
 }

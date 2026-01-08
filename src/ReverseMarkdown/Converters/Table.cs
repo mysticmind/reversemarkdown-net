@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -16,6 +17,13 @@ namespace ReverseMarkdown.Converters {
         {
             if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
+            }
+
+            // Tables inside tables are not supported as markdown, so leave as HTML
+            if (Context.AncestorsAny("table")) {
+                // Compact the nested table HTML to prevent breaking the markdown table
+                writer.Write(node.OuterHtml.CompactHtmlForMarkdown());
+                return;
             }
 
             // if table does not have a header row , add empty header row if set in config
