@@ -25,6 +25,10 @@ namespace ReverseMarkdown.Converters {
                 writer.Write(node.OuterHtml.CompactHtmlForMarkdown());
                 return;
             }
+            
+            var captionNode = node.SelectSingleNode("caption");
+            var captionText = captionNode?.InnerText?.Trim();
+            captionNode?.Remove();
 
             // if table does not have a header row , add empty header row if set in config
             var useEmptyRowForHeader = (
@@ -34,9 +38,18 @@ namespace ReverseMarkdown.Converters {
             var emptyHeaderRow = HasNoTableHeaderRow(node) && useEmptyRowForHeader
                 ? EmptyHeader(node)
                 : string.Empty;
+            
+            // add caption text as a paragraph above table
+            if (captionText != string.Empty)
+            {
+                writer.WriteLine();
+                writer.WriteLine();
+                writer.WriteLine(captionText);
+            }
 
             writer.WriteLine();
             writer.WriteLine();
+
             writer.Write(emptyHeaderRow);
             TreatChildren(writer, node);
             writer.WriteLine();

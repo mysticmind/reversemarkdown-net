@@ -1691,5 +1691,76 @@ namespace ReverseMarkdown.Test
             </table>";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task WhenTable_WithCaption_ThenCaptionAppearsAboveTable()
+        {
+            var html = "<table><caption>Monthly Sales Report</caption><tr><th>Month</th><th>Sales</th></tr><tr><td>January</td><td>$1000</td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenTable_WithoutCaption_ThenConvertNormally()
+        {
+            var html = "<table><tr><th>Month</th><th>Sales</th></tr><tr><td>January</td><td>$1000</td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenTable_WithEmptyCaption_ThenConvertNormally()
+        {
+            var html = "<table><caption></caption><tr><th>Month</th><th>Sales</th></tr><tr><td>January</td><td>$1000</td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenTable_WithCaptionContainingWhitespace_ThenTrimWhitespace()
+        {
+            var html = "<table><caption>   Table Caption   </caption><tr><th>Col1</th></tr><tr><td>Data1</td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenTable_WithCaptionContainingMarkdownChars_ThenHandleProperly()
+        {
+            var html = "<table><caption>Sales Report [2024] - **Important**</caption><tr><th>Month</th><th>Sales</th></tr><tr><td>Jan</td><td>$100</td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenTable_WithCaptionAndNoHeaderRow_EmptyRowHandling_ThenCaptionAppearsAboveTable()
+        {
+            var html = "<table><caption>Data Table</caption><tr><td>data1</td><td>data2</td></tr><tr><td>data3</td><td>data4</td></tr></table>";
+            var config = new Config
+            {
+                TableWithoutHeaderRowHandling = Config.TableWithoutHeaderRowHandlingOption.EmptyRow
+            };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task WhenTable_WithCaptionContainingNestedTags_ThenExtractTextOnly()
+        {
+            var html = "<table><caption>Sales <strong>Report</strong> for <em>2024</em></caption><tr><th>Month</th></tr><tr><td>Jan</td></tr></table>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
+        public Task WhenTable_WithCaptionAndGithubFlavored_ThenCaptionAppearsAboveTable()
+        {
+            var html = "<table><caption>Code Review Summary</caption><tr><th>PR</th><th>Status</th></tr><tr><td>#123</td><td>Approved</td></tr></table>";
+            var config = new Config
+            {
+                GithubFlavored = true
+            };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task WhenTable_WithCaptionContainingNewlines_ThenHandleNewlines()
+        {
+            var html = $"<table><caption>Multi{Environment.NewLine}Line{Environment.NewLine}Caption</caption><tr><th>Col</th></tr><tr><td>Data</td></tr></table>";
+            return CheckConversion(html);
+        }
     }
 }

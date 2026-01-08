@@ -38,25 +38,25 @@
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Check_Converter_With_Unknown_Tag_Raise_Option.verified.txt">
-      <DependentUpon>ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Check_Converter_With_Unknown_Tag_Raise_Option.DotNet6_0.received.txt">
-      <DependentUpon>ConverterTests.WhenThereIsUnorderedListAndBulletIsAsterisk_ThenConvertToMarkdownList.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.When_Anchor_Text_with_Underscore_Do_Not_Escape.verified.md">
-      <DependentUpon>ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.When_Strikethrough_And_Nested_Strikethrough.verified.md">
-      <DependentUpon>ConverterTests.WhenThereIsUnorderedListAndBulletIsAsterisk_ThenConvertToMarkdownList.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.When_Spaces_In_Inline_Tags_Should_Be_Retained.verified.md">
-      <DependentUpon>ConverterTests.WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Bug391_AnchorTagUnnecessarilyIndented.verified.md">
-      <DependentUpon>ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Bug393_RegressionWithVaryingNewLines.verified.md">
-      <DependentUpon>ConverterTests.WhenThereIsPreTag_ThenConvertToMarkdownPre.verified.md</DependentUpon>
+      <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Bug403_unexpectedBehaviourWhenTableBodyRowsWithTHCells.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
@@ -65,6 +65,33 @@
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Bug400_MissingSpanSpaceWithItalics.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaption_ThenCaptionAppearsAboveTable.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaptionAndGithubFlavored_ThenCaptionAppearsAboveTable.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaptionAndNoHeaderRow_EmptyRowHandling_ThenCaptionAppearsAboveTable.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaptionContainingMarkdownChars_ThenHandleProperly.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaptionContainingNestedTags_ThenExtractTextOnly.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaptionContainingNewlines_ThenHandleNewlines.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithCaptionContainingWhitespace_ThenTrimWhitespace.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithEmptyCaption_ThenConvertNormally.verified.md">
+      <DependentUpon>ConverterTests.cs</DependentUpon>
+    </None>
+    <None Update="ConverterTests.WhenTable_WithoutCaption_ThenConvertNormally.verified.md">
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None> 
   </ItemGroup>
