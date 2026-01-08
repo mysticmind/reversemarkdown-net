@@ -206,6 +206,10 @@ var converter = new ReverseMarkdown.Converter(config);
 **API Changes:**
 * `IConverter` interface signature changed from `string Convert(HtmlNode node)` to `void Convert(TextWriter writer, HtmlNode node)`. If you have custom converters, you'll need to update them to write to the TextWriter instead of returning a string
 
+**Target Framework Changes:**
+
+* Removed support for legacy and end-of-life .NET versions. Only actively supported .NET versions are now targeted i.e. .NET 8, .NET 9 and .NET 10.
+
 ### v2.0.0
 
 * `UnknownTags` config has been changed to an enumeration
