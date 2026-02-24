@@ -96,8 +96,10 @@ namespace ReverseMarkdown {
         {
             using var _ = EnsureContext();
 
+            html = html.ReplaceLineEndings("\n");
+
             if (Config.CommonMark && LooksLikeCommonMarkHtmlBlock(html)) {
-                return html;
+                return ApplyOutputLineEndings(html);
             }
 
             if (Config.CommonMark) {
@@ -105,7 +107,7 @@ namespace ReverseMarkdown {
                 if (trimmed.StartsWith("</", StringComparison.Ordinal) ||
                     html.Contains("<!--", StringComparison.Ordinal) ||
                     html.Contains("<![CDATA[", StringComparison.Ordinal)) {
-                    return html;
+                    return ApplyOutputLineEndings(html);
                 }
 
                 var paragraphTrimmed = html.Trim();
@@ -113,7 +115,7 @@ namespace ReverseMarkdown {
                     paragraphTrimmed.EndsWith("</p>", StringComparison.OrdinalIgnoreCase)) {
                     var inner = paragraphTrimmed.Substring(3, paragraphTrimmed.Length - 7);
                     if (inner.TrimStart().StartsWith("</", StringComparison.Ordinal)) {
-                        return inner;
+                        return ApplyOutputLineEndings(inner);
                     }
                 }
             }
@@ -146,16 +148,24 @@ namespace ReverseMarkdown {
             }
 
             if (!Config.CleanupUnnecessarySpaces) {
-                return result;
+                return ApplyOutputLineEndings(result);
             }
 
             if (Config.CommonMark) {
                 result = result.TrimEnd();
                 result = result.TrimStart('\r', '\n');
-                return result;
+                return ApplyOutputLineEndings(result);
             }
 
-            return result.Trim().FixMultipleNewlines();
+            return ApplyOutputLineEndings(result.Trim().FixMultipleNewlines());
+        }
+
+        private string ApplyOutputLineEndings(string content)
+        {
+            var lineEnding = string.IsNullOrEmpty(Config.OutputLineEnding)
+                ? Environment.NewLine
+                : Config.OutputLineEnding;
+            return content.ReplaceLineEndings(lineEnding);
         }
 
         private static bool LooksLikeCommonMarkHtmlBlock(string html)

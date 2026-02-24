@@ -85,6 +85,18 @@ var converter = new ReverseMarkdown.Converter(config);
 <sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
+If you need to preserve markdown-like text as literal content (for example `# Heading` or `- Item`), either enable `EscapeMarkdownLineStarts` or use `CommonMark`:
+
+```cs
+var config = new ReverseMarkdown.Config
+{
+    EscapeMarkdownLineStarts = true
+    // or CommonMark = true
+};
+
+var converter = new ReverseMarkdown.Converter(config);
+```
+
 ## Configuration options
 
 * `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
@@ -94,6 +106,9 @@ var converter = new ReverseMarkdown.Converter(config);
 * `CommonMarkUseHtmlInlineTags` - When CommonMark is enabled, emit HTML for inline tags (`em`, `strong`, `a`, `img`) to avoid delimiter edge cases. Default is true
 * `CommonMarkIntrawordEmphasisSpacing` - When CommonMark is enabled, insert spaces to avoid intraword emphasis. Default is false
   * Note: CommonMark is best used on its own. Combining `CommonMark` with `GithubFlavored` can produce mixed output; keep them separate unless you explicitly want that behavior.
+* `EscapeMarkdownLineStarts` - Escape markdown line starts (headings, lists, block markers) in plain text output. Default is false
+  * Note: If you need to preserve markdown-like text as literal content, enable `EscapeMarkdownLineStarts` or use `CommonMark`.
+* `OutputLineEnding` - Output line endings used in generated markdown. Default is `Environment.NewLine`
 * `CleanupUnnecessarySpaces` - Cleanup unnecessary spaces in the output. Default is true
 * `SuppressDivNewlines` - Removes prefixed newlines from `div` tags. Default is false
 * `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it. Note: This option is ignored when `SlackFlavored` is enabled
