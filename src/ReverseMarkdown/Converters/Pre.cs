@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using ReverseMarkdown.Helpers;
@@ -13,42 +14,51 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
-            var isFencedCodeBlock = Converter.Config.GithubFlavored;
+            var isFencedCodeBlock = Converter.Config.GithubFlavored || Converter.Config.CommonMark;
 
-            // check if indentation need to be added if it is under an ordered or unordered list
-            var indentation = IndentationFor(node);
+            var indentation = Converter.Config.CommonMark
+                ? string.Empty
+                : IndentationFor(node);
+            var contentIndentation = indentation;
 
             // 4 space indent for code if it is not fenced code block
             if (!isFencedCodeBlock) {
                 indentation += "    ";
+                contentIndentation = indentation;
             }
 
             writer.WriteLine();
             writer.WriteLine();
-
-            if (isFencedCodeBlock) {
-                var lang = GetLanguage(node);
-                writer.Write(indentation);
-                writer.Write("```");
-                writer.Write(lang);
-                writer.WriteLine();
-            }
 
             // content:
             var content = DecodeHtml(node.InnerText);
-            foreach (var line in content.ReadLines()) {
+
+            if (isFencedCodeBlock) {
+                var fence = Converter.Config.CommonMark
+                    ? CreateCommonMarkFence(content)
+                    : "```";
+                var lang = GetLanguage(node);
                 writer.Write(indentation);
+                writer.Write(fence);
+                writer.Write(lang);
+                writer.WriteLine();
+            }
+            foreach (var line in content.ReadLines()) {
+                writer.Write(contentIndentation);
                 writer.WriteLine(line);
             }
 
             if (string.IsNullOrEmpty(content)) {
-                if (!isFencedCodeBlock) writer.Write(indentation);
+                if (!isFencedCodeBlock) writer.Write(contentIndentation);
                 writer.WriteLine();
             }
 
             if (isFencedCodeBlock) {
+                var fence = Converter.Config.CommonMark
+                    ? CreateCommonMarkFence(content)
+                    : "```";
                 writer.Write(indentation);
-                writer.Write("```");
+                writer.Write(fence);
             }
 
             writer.WriteLine();
@@ -58,6 +68,10 @@ namespace ReverseMarkdown.Converters {
         private string? GetLanguage(HtmlNode node)
         {
             var language = GetLanguageFromHighlightClassAttribute(node);
+
+            if (!Converter.Config.CommonMark && !string.IsNullOrEmpty(language)) {
+                language = language.TrimEnd(';');
+            }
 
             return !string.IsNullOrEmpty(language)
                 ? language
@@ -92,7 +106,7 @@ namespace ReverseMarkdown.Converters {
         /// Extracts class attribute syntax using: highlight-json, highlight-source-json, language-json, brush: language
         /// Returns the Language in Match.Groups[2]
         /// </summary>
-        [GeneratedRegex(@"(highlight-source-|language-|highlight-|brush:\s)([a-zA-Z0-9]+)")]
+        [GeneratedRegex(@"(highlight-source-|language-|highlight-|brush:\s)([^\s]+)")]
         private static partial Regex ClassRegex();
 
         /// <summary>
@@ -105,10 +119,31 @@ namespace ReverseMarkdown.Converters {
         {
             var val = node.GetAttributeValue("class", string.Empty);
             if (!string.IsNullOrEmpty(val)) {
+                val = System.Net.WebUtility.HtmlDecode(val);
                 return ClassRegex().Match(val);
             }
 
             return Match.Empty;
+        }
+
+        private static string CreateCommonMarkFence(string content)
+        {
+            var maxRun = 0;
+            var currentRun = 0;
+            foreach (var c in content) {
+                if (c == '`') {
+                    currentRun++;
+                    if (currentRun > maxRun) {
+                        maxRun = currentRun;
+                    }
+                }
+                else {
+                    currentRun = 0;
+                }
+            }
+
+            var fenceLength = Math.Max(3, maxRun + 1);
+            return new string('`', fenceLength);
         }
     }
 }

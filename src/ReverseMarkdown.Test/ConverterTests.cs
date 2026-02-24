@@ -296,6 +296,18 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task When_CommonMark_Enabled_InlineEmphasisInsideWord_ThenInsertSpaces()
+        {
+            var html = "he<strong>ll</strong>o and th<em>in</em>g";
+            return CheckConversion(html, new Config
+            {
+                CommonMark = true,
+                CommonMarkIntrawordEmphasisSpacing = true,
+                CommonMarkUseHtmlInlineTags = false
+            });
+        }
+
+        [Fact]
         public Task WhenThereIsEncompassingEmOrITag_ThenConvertToMarkdownSingleAsterisks_AnyEmOrITagsInsideAreIgnored()
         {
             var html = "<em>This is a <span><i>sample</i></span> paragraph<em>";

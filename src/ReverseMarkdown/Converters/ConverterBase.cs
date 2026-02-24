@@ -53,6 +53,7 @@ namespace ReverseMarkdown.Converters {
         protected string IndentationFor(HtmlNode node, bool zeroIndex = false)
         {
             var length = Context.AncestorsCount("ol") + Context.AncestorsCount("ul");
+            var indentSize = Converter.Config.CommonMark ? 2 : 4;
 
             // li not required to have a parent ol/ul
             if (length == 0) {
@@ -63,15 +64,21 @@ namespace ReverseMarkdown.Converters {
                 length -= 1;
             }
 
-            return new string(' ', length * 4);
+            return new string(' ', length * indentSize);
         }
 
 
-        public static void TreatEmphasizeContentWhitespaceGuard(TextWriter writer, string content, string emphasis, string nextSiblingSpaceSuffix = "")
+        public static void TreatEmphasizeContentWhitespaceGuard(
+            TextWriter writer,
+            string content,
+            string emphasis,
+            string nextSiblingSpaceSuffix = "",
+            bool preserveLineEndings = false
+        )
         {
             WriteLeadingSpace(writer, content);
             writer.Write(emphasis);
-            writer.Write(content.Chomp());
+            writer.Write(preserveLineEndings ? content.Trim(' ') : content.Chomp());
             writer.Write(emphasis);
             WriteTrailingSpace(writer, content, nextSiblingSpaceSuffix);
 

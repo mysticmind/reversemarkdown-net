@@ -95,6 +95,33 @@ namespace ReverseMarkdown {
         public virtual string Convert(string html)
         {
             using var _ = EnsureContext();
+
+            if (Config.CommonMark && LooksLikeCommonMarkHtmlBlock(html)) {
+                return html;
+            }
+
+            if (Config.CommonMark) {
+                var trimmed = html.TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+                if (trimmed.StartsWith("</", StringComparison.Ordinal) ||
+                    html.Contains("<!--", StringComparison.Ordinal) ||
+                    html.Contains("<![CDATA[", StringComparison.Ordinal)) {
+                    return html;
+                }
+
+                var paragraphTrimmed = html.Trim();
+                if (paragraphTrimmed.StartsWith("<p>", StringComparison.OrdinalIgnoreCase) &&
+                    paragraphTrimmed.EndsWith("</p>", StringComparison.OrdinalIgnoreCase)) {
+                    var inner = paragraphTrimmed.Substring(3, paragraphTrimmed.Length - 7);
+                    if (inner.TrimStart().StartsWith("</", StringComparison.Ordinal)) {
+                        return inner;
+                    }
+                }
+            }
+
+            if (Config.CommonMark) {
+                html = html.Replace("\u00A0", "&nbsp;");
+            }
+
             html = Cleaner.PreTidy(html, Config.RemoveComments);
 
             var doc = new HtmlDocument();
@@ -109,15 +136,48 @@ namespace ReverseMarkdown {
 
             var result = ConvertNode(root);
 
-            // cleanup multiple new lines
-            result = Regex.Replace(result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
+            if (!Config.CommonMark) {
+                // cleanup multiple new lines
+                result = Regex.Replace(result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
+            }
 
             if (Config.SlackFlavored) {
                 result = Cleaner.SlackTidy(result);
             }
 
-            return Config.CleanupUnnecessarySpaces ? result.Trim().FixMultipleNewlines() : result;
+            if (!Config.CleanupUnnecessarySpaces) {
+                return result;
+            }
+
+            if (Config.CommonMark) {
+                result = result.TrimEnd();
+                result = result.TrimStart('\r', '\n');
+                return result;
+            }
+
+            return result.Trim().FixMultipleNewlines();
         }
+
+        private static bool LooksLikeCommonMarkHtmlBlock(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html)) {
+                return false;
+            }
+
+            var trimmed = html.TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+            if (trimmed.StartsWith("<!--", StringComparison.Ordinal) ||
+                trimmed.StartsWith("<?", StringComparison.Ordinal) ||
+                trimmed.StartsWith("<!", StringComparison.Ordinal)) {
+                return true;
+            }
+
+            return HtmlBlockStart.IsMatch(trimmed);
+        }
+
+        private static readonly Regex HtmlBlockStart = new(
+            @"^\s*<\/?(div|table|pre|script|style|iframe|article|section|header|footer|nav|aside|blockquote|h[1-6]|hr|details|summary|figure|figcaption|main|form|center|address|body|html|head|link|meta|title|tbody|thead|tfoot|tr|td|th)\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
+        );
 
         public virtual void Register(string tagName, IConverter converter)
         {

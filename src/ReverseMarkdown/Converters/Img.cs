@@ -18,6 +18,7 @@ namespace ReverseMarkdown.Converters {
                 throw new SlackUnsupportedTagException(node.Name);
             }
 
+            var altAttribute = node.Attributes["alt"];
             var alt = node.GetAttributeValue("alt", string.Empty);
             var src = node.GetAttributeValue("src", string.Empty);
 
@@ -56,6 +57,11 @@ namespace ReverseMarkdown.Converters {
                 if (!Converter.Config.IsSchemeWhitelisted(scheme)) {
                     return;
                 }
+            }
+
+            if (Converter.Config.CommonMark && altAttribute == null) {
+                writer.Write(node.OuterHtml);
+                return;
             }
 
             writer.Write("![");

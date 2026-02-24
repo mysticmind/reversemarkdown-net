@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using HtmlAgilityPack;
 
 
@@ -11,6 +12,29 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.CommonMark) {
+                var content = node.InnerHtml;
+                var fence = CreateCommonMarkCodeFence(content);
+                writer.Write(fence);
+                var needsBacktickPadding = content.Length > 0 && (content[0] == '`' || content[^1] == '`');
+                var needsWhitespacePadding = content.Length > 0 &&
+                                            (char.IsWhiteSpace(content[0]) || char.IsWhiteSpace(content[^1]));
+                var needsPadding = needsBacktickPadding || needsWhitespacePadding;
+
+                if (needsPadding) {
+                    writer.Write(' ');
+                }
+
+                DecodeHtml(writer, content);
+
+                if (needsPadding) {
+                    writer.Write(' ');
+                }
+
+                writer.Write(fence);
+                return;
+            }
+
             // Depending on the content "surrounding" the <code> element,
             // leading/trailing whitespace is significant. For example, the
             // following HTML renders as expected in a browser (meaning there is
@@ -52,6 +76,26 @@ namespace ReverseMarkdown.Converters {
             writer.Write('`');
             DecodeHtml(writer, node.InnerText);
             writer.Write('`');
+        }
+
+        private static string CreateCommonMarkCodeFence(string content)
+        {
+            var maxRun = 0;
+            var currentRun = 0;
+            foreach (var c in content) {
+                if (c == '`') {
+                    currentRun++;
+                    if (currentRun > maxRun) {
+                        maxRun = currentRun;
+                    }
+                }
+                else {
+                    currentRun = 0;
+                }
+            }
+
+            var fenceLength = Math.Max(1, maxRun + 1);
+            return new string('`', fenceLength);
         }
     }
 }

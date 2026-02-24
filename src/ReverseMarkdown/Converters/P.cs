@@ -29,10 +29,20 @@ namespace ReverseMarkdown.Converters {
         {
             // If p follows a list item, add newline and indent it
             var parentIsList = node.ParentNode.Name is "li" or "ol" or "ul";
+            if (Converter.Config.CommonMark && parentIsList) {
+                if (node.ParentNode.FirstChild != node) {
+                    writer.WriteLine();
+                    writer.WriteLine();
+                }
+
+                return;
+            }
+
             if (parentIsList && node.ParentNode.FirstChild != node) {
                 var length = Context.AncestorsCount("ol") + Context.AncestorsCount("ul");
+                var indentSize = Converter.Config.CommonMark ? 2 : 4;
                 writer.WriteLine();
-                writer.Write(new string(' ', length * 4));
+                writer.Write(new string(' ', length * indentSize));
                 return;
             }
 

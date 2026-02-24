@@ -13,6 +13,11 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.CommonMark) {
+                writer.Write(node.OuterHtml);
+                return;
+            }
+
             var content = TreatChildrenAsString(node);
 
             if (string.IsNullOrEmpty(content) || AlreadyStrikethrough()) {

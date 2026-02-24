@@ -24,11 +24,38 @@ namespace ReverseMarkdown.Converters {
 
             var level = node.Name[1] - '0'; // 'h1' -> 1, 'h2' -> 2, etc.
 
+            var content = TreatChildrenAsString(node);
+            if (Converter.Config.CommonMark) {
+                content = content.ReplaceLineEndings("&#10;");
+                content = EscapeTrailingHashes(content);
+            }
+
             writer.WriteLine();
             writer.Write(new string('#', level));
             writer.Write(' ');
-            TreatChildren(writer, node);
+            writer.Write(content);
             writer.WriteLine();
+        }
+
+        private static string EscapeTrailingHashes(string content)
+        {
+            if (string.IsNullOrEmpty(content)) {
+                return content;
+            }
+
+            var index = content.Length - 1;
+            while (index >= 0 && content[index] == '#') {
+                index--;
+            }
+
+            if (index == content.Length - 1) {
+                return content;
+            }
+
+            var hashCount = content.Length - 1 - index;
+            var escapedHashes = new string('#', hashCount);
+            escapedHashes = escapedHashes.Replace("#", "\\#");
+            return content[..(index + 1)] + escapedHashes;
         }
     }
 }

@@ -15,6 +15,11 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.CommonMark) {
+                writer.Write(node.OuterHtml);
+                return;
+            }
+
             if (Converter.Config.SlackFlavored) {
                 throw new SlackUnsupportedTagException(node.Name);
             }

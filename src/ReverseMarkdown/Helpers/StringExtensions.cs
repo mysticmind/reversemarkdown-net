@@ -49,4 +49,23 @@ public static class StringExtensions {
         // Also trim any leading/trailing whitespace
         return html.Trim();
     }
+
+    public static string CompactHtmlForCommonMarkBlock(this string html)
+    {
+        if (string.IsNullOrEmpty(html)) {
+            return html;
+        }
+
+        html = html.ReplaceLineEndings("\n");
+
+        html = Regex.Replace(html, @"<pre><code>(.*?)</code></pre>", match =>
+        {
+            var content = match.Groups[1].Value.Replace("\n", "&#10;");
+            return $"<pre><code>{content}</code></pre>";
+        }, RegexOptions.Singleline);
+
+        html = Regex.Replace(html, @">\s+<", "><");
+
+        return html.Trim();
+    }
 }
