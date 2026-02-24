@@ -1,0 +1,1238 @@
+[
+  {
+    "id": "WhenThereIsAsideTag",
+    "html": "<aside>This text is in an aside tag.</aside> This text appears after aside.",
+    "expectedFile": "ConverterTests.WhenThereIsAsideTag.verified.md"
+  },
+  {
+    "id": "WhenThereAreSemanticContainerTags",
+    "html": "<header>Whatever Inc.</header><main><p>Thanks for your enquiry.</p></main><section>Section intro</section><article>Article text</article><nav>Home</nav><figure>Diagram</figure><figcaption>Figure caption</figcaption><footer>Mail us</footer>",
+    "expectedFile": "ConverterTests.WhenThereAreSemanticContainerTags.verified.md",
+    "config": {
+      "UnknownTags": "PassThrough"
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlLink_ThenConvertToMarkdownLink",
+    "html": "This is <a href=\"http://test.com\">a link</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlLink_ThenConvertToMarkdownLink.verified.md"
+  },
+  {
+    "id": "WhenThereIsHtmlLinkWithTitle_ThenConvertToMarkdownLink",
+    "html": "This is <a href=\"http://test.com\" title=\"with title\">a link</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlLinkWithTitle_ThenConvertToMarkdownLink.verified.md"
+  },
+  {
+    "id": "WhenThereAreMultipleLinks_ThenConvertThemToMarkdownLinks",
+    "html": "This is <a href=\"http://test.com\">first link</a> and <a href=\"http://test1.com\">second link</a>",
+    "expectedFile": "ConverterTests.WhenThereAreMultipleLinks_ThenConvertThemToMarkdownLinks.verified.md"
+  },
+  {
+    "id": "WhenThereIsHtmlLinkNotWhitelisted_ThenBypass",
+    "html": "Leave <a href=\"http://example.com\">http</a>, <a href=\"https://example.com\">https</a>, <a href=\"ftp://example.com\">ftp</a>, <a href=\"ftps://example.com\">ftps</a>, <a href=\"file://example.com\">file</a>. Remove <a href=\"data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678\">data</a>, <a href=\"tel://example.com\">tel</a> and <a href=\"whatever://example.com\">whatever</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlLinkNotWhitelisted_ThenBypass.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "http",
+        "https",
+        "ftp",
+        "ftps",
+        "file"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereHtmlWithHrefAndNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown",
+    "html": "<a href=\"example.com\">yeah</a>",
+    "expectedFile": "ConverterTests.WhenThereHtmlWithHrefAndNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        ""
+      ]
+    }
+  },
+  {
+    "id": "WhenThereHtmlWithHrefAndNoSchema_NotWhitelisted_ThenConvertToPlain",
+    "html": "<a href=\"example.com\">yeah</a>",
+    "expectedFile": "ConverterTests.WhenThereHtmlWithHrefAndNoSchema_NotWhitelisted_ThenConvertToPlain.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "whatever"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlLinkWithDisallowedCharsInChildren_ThenEscapeTextInMarkdown",
+    "html": "<a href=\"http://example.com\">this ]( might break things</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlLinkWithDisallowedCharsInChildren_ThenEscapeTextInMarkdown.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlLinkWithParensInHref_ThenEscapeHrefInMarkdown",
+    "html": "<a href=\"http://example.com?id=foo)bar\">link</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlLinkWithParensInHref_ThenEscapeHrefInMarkdown.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlWithProtocolRelativeUrlHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown",
+    "html": "<a href=\"//example.com\">example.com</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlWithProtocolRelativeUrlHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlWithHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown",
+    "html": "<a href=\"https://example.com\">Something intact</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlWithHrefAndNameNotMatching_SmartHandling_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlWithHrefAndNameMatching_SmartHandling_ThenConvertToPlain",
+    "html": "<a href=\"http://example.com/abc?x\">http://example.com/abc?x</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlWithHrefAndNameMatching_SmartHandling_ThenConvertToPlain.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlWithMailtoSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain",
+    "html": "<a href=\"mailto:george@example.com\">george@example.com</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlWithMailtoSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlWithTelSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain",
+    "html": "<a href=\"tel:+1123-45678\">+1123-45678</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlWithTelSchemeAndNameWithoutScheme_SmartHandling_ThenConvertToPlain.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereIsHtmlLinkWithoutHttpSchemaAndNameWithoutScheme_SmartHandling_ThenConvertToMarkdown",
+    "html": "<a href=\"ftp://example.com\">example.com</a>",
+    "expectedFile": "ConverterTests.WhenThereIsHtmlLinkWithoutHttpSchemaAndNameWithoutScheme_SmartHandling_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "SmartHrefHandling": true
+    }
+  },
+  {
+    "id": "WhenThereAreStrongTag_ThenConvertToMarkdownDoubleAsterisks",
+    "html": "This paragraph contains <strong>bold</strong> text",
+    "expectedFile": "ConverterTests.WhenThereAreStrongTag_ThenConvertToMarkdownDoubleAsterisks.verified.md"
+  },
+  {
+    "id": "WhenThereAreBTag_ThenConvertToMarkdownDoubleAsterisks",
+    "html": "This paragraph contains <b>bold</b> text",
+    "expectedFile": "ConverterTests.WhenThereAreBTag_ThenConvertToMarkdownDoubleAsterisks.verified.md"
+  },
+  {
+    "id": "WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAsterisks_AnyStrongOrBTagsInsideAreIgnored",
+    "html": "<strong>Paragraph is encompassed with strong tag and also has <b>bold</b> text words within it</strong>",
+    "expectedFile": "ConverterTests.WhenThereIsEncompassingStrongOrBTag_ThenConvertToMarkdownDoubleAsterisks_AnyStrongOrBTagsInsideAreIgnored.verified.md"
+  },
+  {
+    "id": "WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk",
+    "html": "This is a sample(*) paragraph",
+    "expectedFile": "ConverterTests.WhenThereIsSingleAsteriskInText_ThenConvertToMarkdownEscapedAsterisk.verified.md"
+  },
+  {
+    "id": "WhenThereIsEmTag_ThenConvertToMarkdownSingleAsterisks",
+    "html": "This is a <em>sample</em> paragraph",
+    "expected": "This is a *sample* paragraph"
+  },
+  {
+    "id": "WhenThereIsITag_ThenConvertToMarkdownSingleAsterisks",
+    "html": "This is a <i>sample</i> paragraph",
+    "expected": "This is a *sample* paragraph"
+  },
+  {
+    "id": "When_CommonMark_Enabled_InlineEmphasisInsideWord_ThenInsertSpaces",
+    "html": "he<strong>ll</strong>o and th<em>in</em>g",
+    "expected": "he **ll** o and th *in* g",
+    "config": {
+      "CommonMark": true,
+      "CommonMarkIntrawordEmphasisSpacing": true,
+      "CommonMarkUseHtmlInlineTags": false
+    }
+  },
+  {
+    "id": "WhenThereIsEncompassingEmOrITag_ThenConvertToMarkdownSingleAsterisks_AnyEmOrITagsInsideAreIgnored",
+    "html": "<em>This is a <span><i>sample</i></span> paragraph<em>",
+    "expectedFile": "ConverterTests.WhenThereIsEncompassingEmOrITag_ThenConvertToMarkdownSingleAsterisks_AnyEmOrITagsInsideAreIgnored.verified.md"
+  },
+  {
+    "id": "WhenThereIsBreakTag_ThenConvertToMarkdownDoubleSpacesCarriageReturn",
+    "html": "This is a paragraph.<br />This line appears after break.",
+    "expectedFile": "ConverterTests.WhenThereIsBreakTag_ThenConvertToMarkdownDoubleSpacesCarriageReturn.verified.md"
+  },
+  {
+    "id": "WhenThereIsCodeTag_ThenConvertToMarkdownWithBackTick",
+    "html": "This text has code <code>alert();</code>",
+    "expected": "This text has code `alert();`"
+  },
+  {
+    "id": "WhenThereIsH1Tag_ThenConvertToMarkdownHeader",
+    "html": "This text has <h1>header</h1>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsH1Tag_ThenConvertToMarkdownHeader.verified.md"
+  },
+  {
+    "id": "WhenThereIsH2Tag_ThenConvertToMarkdownHeader",
+    "html": "This text has <h2>header</h2>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsH2Tag_ThenConvertToMarkdownHeader.verified.md"
+  },
+  {
+    "id": "WhenThereIsH3Tag_ThenConvertToMarkdownHeader",
+    "html": "This text has <h3>header</h3>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsH3Tag_ThenConvertToMarkdownHeader.verified.md"
+  },
+  {
+    "id": "WhenThereIsH4Tag_ThenConvertToMarkdownHeader",
+    "html": "This text has <h4>header</h4>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsH4Tag_ThenConvertToMarkdownHeader.verified.md"
+  },
+  {
+    "id": "WhenThereIsH5Tag_ThenConvertToMarkdownHeader",
+    "html": "This text has <h5>header</h5>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsH5Tag_ThenConvertToMarkdownHeader.verified.md"
+  },
+  {
+    "id": "WhenThereIsH6Tag_ThenConvertToMarkdownHeader",
+    "html": "This text has <h6>header</h6>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsH6Tag_ThenConvertToMarkdownHeader.verified.md"
+  },
+  {
+    "id": "WhenThereIsHeadingInsideTable_ThenIgnoreHeadingLevel",
+    "html": "<table>\n<tr><th><h2>Heading <strong>text</strong></h2></th></tr>\n<tr><td>Content</td></tr>\n</table>",
+    "expectedFile": "ConverterTests.WhenThereIsHeadingInsideTable_ThenIgnoreHeadingLevel.verified.md"
+  },
+  {
+    "id": "WhenThereIsBlockquoteTag_ThenConvertToMarkdownBlockquote",
+    "html": "This text has <blockquote>blockquote</blockquote>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsBlockquoteTag_ThenConvertToMarkdownBlockquote.verified.md"
+  },
+  {
+    "id": "WhenThereIsEmptyBlockquoteTag_ThenConvertToMarkdownBlockquote",
+    "html": "This text has <blockquote></blockquote>. This text appear after header.",
+    "expectedFile": "ConverterTests.WhenThereIsEmptyBlockquoteTag_ThenConvertToMarkdownBlockquote.verified.md"
+  },
+  {
+    "id": "WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter",
+    "html": "This text has markup <p>paragraph.</p> Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsParagraphTag_ThenConvertToMarkdownDoubleLineBreakBeforeAndAfter.verified.md"
+  },
+  {
+    "id": "WhenThereIsHorizontalRule_ThenConvertToMarkdownHorizontalRule",
+    "html": "This text has horizontal rule.<hr/>Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsHorizontalRule_ThenConvertToMarkdownHorizontalRule.verified.md"
+  },
+  {
+    "id": "WhenThereIsImgTag_ThenConvertToMarkdownImage",
+    "html": "This text has image <img alt=\"alt\" title=\"title\" src=\"http://test.com/images/test.png\"/>. Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsImgTag_ThenConvertToMarkdownImage.verified.md"
+  },
+  {
+    "id": "WhenThereIsImgTagWithoutTitle_ThenConvertToMarkdownImageWithoutTitle",
+    "html": "This text has image <img alt=\"alt\" src=\"http://test.com/images/test.png\"/>. Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithoutTitle_ThenConvertToMarkdownImageWithoutTitle.verified.md"
+  },
+  {
+    "id": "WhenThereIsImgTagWithoutAltText_ThenConvertToMarkdownImageWithoutAltText",
+    "html": "This text has image <img src=\"http://test.com/images/test.png\"/>. Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithoutAltText_ThenConvertToMarkdownImageWithoutAltText.verified.md"
+  },
+  {
+    "id": "WhenThereIsImgTagWithMultilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText",
+    "html": "This text has image <img alt=\"cat\n\ndog\" src=\"http://test.com/images/test.png\"/>. Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithMultilineAltText_ThenEnsureNoBlankLinesInMarkdownAltText.verified.md"
+  },
+  {
+    "id": "WhenThereIsImgTagWithBracesInAltText_ThenEnsureAltTextIsEscapedInMarkdown",
+    "html": "This text has image <img alt=\"a]b\" src=\"http://test.com/images/test.png\"/>. Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithBracesInAltText_ThenEnsureAltTextIsEscapedInMarkdown.verified.md"
+  },
+  {
+    "id": "WhenThereIsImgTag_SchemeNotWhitelisted_ThenEmptyOutput",
+    "html": "<img src=\"data:image/gif;base64,R0lGODlhEAAQ...\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTag_SchemeNotWhitelisted_ThenEmptyOutput.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "http"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsImgTag_SchemeIsWhitelisted_ThenConvertToMarkdown",
+    "html": "<img src=\"data:image/gif;base64,R0lGODlhEAAQ...\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTag_SchemeIsWhitelisted_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "data"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsImgTagAndSrcWithNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown",
+    "html": "<img src=\"example.com\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagAndSrcWithNoSchema_WhitelistedEmptyString_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        ""
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsImgTagAndSrcWithNoSchema_NotWhitelisted_ThenConvertToPlain",
+    "html": "<img src=\"data:image/gif;base64,R0lGODlhEAAQ...\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagAndSrcWithNoSchema_NotWhitelisted_ThenConvertToPlain.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "whatever"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsImgTagWithRelativeUrl_NotWhitelisted_ThenConvertToMarkdown",
+    "html": "<img src=\"/example.gif\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithRelativeUrl_NotWhitelisted_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "data"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsImgTagWithUnixUrl_ConfigHasWhitelist_ThenConvertToMarkdown",
+    "html": "<img src=\"/example.gif\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithUnixUrl_ConfigHasWhitelist_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "file"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsImgTagWithHttpProtocolRelativeUrl_ConfigHasWhitelist_ThenConvertToMarkdown",
+    "html": "<img src=\"//example.gif\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsImgTagWithHttpProtocolRelativeUrl_ConfigHasWhitelist_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "WhitelistUriSchemes": [
+        "http"
+      ]
+    }
+  },
+  {
+    "id": "WhenThereIsBase64ImgTag_WithDefaultConfig_ThenIncludeInMarkdown",
+    "html": "<p>Before</p><img alt=\"test\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/><p>After</p>",
+    "expectedFile": "ConverterTests.WhenThereIsBase64ImgTag_WithDefaultConfig_ThenIncludeInMarkdown.verified.md"
+  },
+  {
+    "id": "WhenThereIsBase64ImgTag_WithSkipConfig_ThenSkipImage",
+    "html": "<p>Before</p><img alt=\"test\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/><p>After</p>",
+    "expectedFile": "ConverterTests.WhenThereIsBase64ImgTag_WithSkipConfig_ThenSkipImage.verified.md",
+    "config": {
+      "Base64Images": "Skip"
+    }
+  },
+  {
+    "id": "WhenThereIsBase64JpegImgTag_WithSkipConfig_ThenSkipImage",
+    "html": "<img alt=\"jpeg\" src=\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=\"/>",
+    "expectedFile": "ConverterTests.WhenThereIsBase64JpegImgTag_WithSkipConfig_ThenSkipImage.verified.md",
+    "config": {
+      "Base64Images": "Skip"
+    }
+  },
+  {
+    "id": "WhenThereIsBase64ImgTag_WithSaveToFileConfigButNoDirectory_ThenSkipImage",
+    "html": "<p>Before</p><img alt=\"test\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/><p>After</p>",
+    "expectedFile": "ConverterTests.WhenThereIsBase64ImgTag_WithSaveToFileConfigButNoDirectory_ThenSkipImage.verified.md",
+    "config": {
+      "Base64Images": "SaveToFile"
+    }
+  },
+  {
+    "id": "WhenThereIsPreTag_ThenConvertToMarkdownPre",
+    "html": "This text has pre tag content <pre>Predefined text</pre>Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsPreTag_ThenConvertToMarkdownPre.verified.md"
+  },
+  {
+    "id": "WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre",
+    "html": "This text has pre tag content <pre><br/ ></pre>Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre.verified.md"
+  },
+  {
+    "id": "WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre_GFM",
+    "html": "This text has pre tag content <pre><br/ ></pre>Next line of text",
+    "expectedFile": "ConverterTests.WhenThereIsEmptyPreTag_ThenConvertToMarkdownPre_GFM.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenThereIsUnorderedList_ThenConvertToMarkdownList",
+    "html": "This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>",
+    "expectedFile": "ConverterTests.WhenThereIsUnorderedList_ThenConvertToMarkdownList.verified.md"
+  },
+  {
+    "id": "WhenThereIsUnorderedListAndBulletIsAsterisk_ThenConvertToMarkdownList",
+    "html": "This text has unordered list.<ul><li>Item1</li><li>Item2</li></ul>",
+    "expectedFile": "ConverterTests.WhenThereIsUnorderedListAndBulletIsAsterisk_ThenConvertToMarkdownList.verified.md",
+    "config": {
+      "ListBulletChar": "*"
+    }
+  },
+  {
+    "id": "WhenThereIsInputListWithGithubFlavoredEnabled_ThenConvertToMarkdownCheckList",
+    "html": "<ul><li><input type=\"checkbox\" disabled> Unchecked</li><li><input type=\"checkbox\" checked> Checked</li></ul>",
+    "expectedFile": "ConverterTests.WhenThereIsInputListWithGithubFlavoredEnabled_ThenConvertToMarkdownCheckList.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenThereIsInputListWithGithubFlavoredDisabled_ThenConvertToTypicalMarkdownList",
+    "html": "<ul><li><input type=\"checkbox\" disabled> Unchecked</li><li><input type=\"checkbox\" checked> Checked</li></ul>",
+    "expectedFile": "ConverterTests.WhenThereIsInputListWithGithubFlavoredDisabled_ThenConvertToTypicalMarkdownList.verified.md",
+    "config": {
+      "GithubFlavored": false
+    }
+  },
+  {
+    "id": "WhenThereIsOrderedList_ThenConvertToMarkdownList",
+    "html": "This text has ordered list.<ol><li>Item1</li><li>Item2</li></ol>",
+    "expectedFile": "ConverterTests.WhenThereIsOrderedList_ThenConvertToMarkdownList.verified.md"
+  },
+  {
+    "id": "WhenThereIsOrderedListWithNestedUnorderedList_ThenConvertToMarkdownListWithNestedList",
+    "html": "This text has ordered list.<ol><li>OuterItem1<ul><li>InnerItem1</li><li>InnerItem2</li></ul></li><li>Item2</li></ol>",
+    "expectedFile": "ConverterTests.WhenThereIsOrderedListWithNestedUnorderedList_ThenConvertToMarkdownListWithNestedList.verified.md"
+  },
+  {
+    "id": "WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList",
+    "html": "This text has ordered list.<ul><li>OuterItem1<ol><li>InnerItem1</li><li>InnerItem2</li></ol></li><li>Item2</li></ul>",
+    "expectedFile": "ConverterTests.WhenThereIsUnorderedListWithNestedOrderedList_ThenConvertToMarkdownListWithNestedList.verified.md"
+  },
+  {
+    "id": "WhenThereIsWhitespaceAroundNestedLists_PreventBlankLinesWhenConvertingToMarkdownList",
+    "html": "<ul>\n        <li>OuterItem1\n        <ol>\n            <li>InnerItem1</li>\n        </ol>\n    </li>\n    <li>Item2</li>\n    <ol>\n        <li>InnerItem2</li>\n    </ol>\n    <li>Item3</li>\n</ul>",
+    "expectedFile": "ConverterTests.WhenThereIsWhitespaceAroundNestedLists_PreventBlankLinesWhenConvertingToMarkdownList.verified.md"
+  },
+  {
+    "id": "WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped",
+    "html": "<ol><li>\t    This is a text with leading and trailing spaces and tabs\t\t</li></ol>",
+    "expectedFile": "ConverterTests.WhenListItemTextContainsLeadingAndTrailingSpacesAndTabs_ThenConvertToMarkdownListItemWithSpacesAndTabsStripped.verified.md"
+  },
+  {
+    "id": "WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown",
+    "html": "<ol>\n\t<li>\n\t\t<strong>Item1</strong></li>\n\t<li>\n\t\tItem2</li></ol>",
+    "expectedFile": "ConverterTests.WhenListContainsNewlineAndTabBetweenTagBorders_CleanupAndConvertToMarkdown.verified.md"
+  },
+  {
+    "id": "WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings",
+    "html": "<ol>\n\t<li>\n\t\t<p>Paragraph 1</p>\n        <p>Paragraph 1.1</p>\n        <p>Paragraph 1.2</p></li>\n\t<li>\n\t\t<p>Paragraph 3</p></li></ol>",
+    "expectedFile": "ConverterTests.WhenListContainsMultipleParagraphs_ConvertToMarkdownAndIndentSiblings.verified.md"
+  },
+  {
+    "id": "WhenListContainsParagraphsOutsideItems_ConvertToMarkdownAndIndentSiblings",
+    "html": "<ol>\n\t<li>Item1</li>\n\t<p>Item 1 additional info</p>\n\t<li>Item2</li>\n</ol>",
+    "expectedFile": "ConverterTests.WhenListContainsParagraphsOutsideItems_ConvertToMarkdownAndIndentSiblings.verified.md"
+  },
+  {
+    "id": "When_OrderedListIsInTable_LeaveListAsHtml",
+    "html": "<table><tr><th>Heading</th></tr><tr><td><ol><li>Item1</li></ol></td></tr></table>",
+    "expectedFile": "ConverterTests.When_OrderedListIsInTable_LeaveListAsHtml.verified.md"
+  },
+  {
+    "id": "When_UnorderedListIsInTable_LeaveListAsHtml",
+    "html": "<table><tr><th>Heading</th></tr><tr><td><ul><li>Item1</li></ul></td></tr></table>",
+    "expectedFile": "ConverterTests.When_UnorderedListIsInTable_LeaveListAsHtml.verified.md"
+  },
+  {
+    "id": "When_Underline_Tag_With_UnknownTagsReplacer_ThenConvertToItalics",
+    "html": "This is <u>underline</u> text.",
+    "expectedFile": "ConverterTests.When_Underline_Tag_With_UnknownTagsReplacer_ThenConvertToItalics.verified.md",
+    "config": {
+      "UnknownTagsReplacer": {
+        "u": "*"
+      }
+    }
+  },
+  {
+    "id": "When_Underline_Tag_With_TagAlias_ThenConvertToItalics",
+    "html": "This is <u>underline</u> text.",
+    "expectedFile": "ConverterTests.When_Underline_Tag_With_TagAlias_ThenConvertToItalics.verified.md",
+    "config": {
+      "TagAliases": {
+        "u": "em"
+      }
+    }
+  },
+  {
+    "id": "Check_Converter_With_Unknown_Tag_ByPass_Option",
+    "html": "<unknown-tag>text in unknown tag</unknown-tag>",
+    "expectedFile": "ConverterTests.Check_Converter_With_Unknown_Tag_ByPass_Option.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "WhenStyletagWithBypassOption_ReturnEmpty",
+    "html": "<body><style type=\"text/css\">.main {background-color: #ffffff;}</style></body>",
+    "expectedFile": "ConverterTests.WhenStyletagWithBypassOption_ReturnEmpty.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "Check_Converter_With_Unknown_Tag_Drop_Option",
+    "html": "<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>",
+    "expectedFile": "ConverterTests.Check_Converter_With_Unknown_Tag_Drop_Option.verified.md",
+    "config": {
+      "UnknownTags": "Drop"
+    }
+  },
+  {
+    "id": "Check_Converter_With_Unknown_Tag_PassThrough_Option",
+    "html": "<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>",
+    "expectedFile": "ConverterTests.Check_Converter_With_Unknown_Tag_PassThrough_Option.verified.md",
+    "config": {
+      "UnknownTags": "PassThrough"
+    }
+  },
+  {
+    "id": "WhenTable_ThenConvertToGFMTable",
+    "html": "<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_ThenConvertToGFMTable.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionEmptyRow_ThenConvertToGFMTable_WithEmptyHeaderRow",
+    "html": "<table><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionEmptyRow_ThenConvertToGFMTable_WithEmptyHeaderRow.verified.md",
+    "config": {
+      "UnknownTags": "Bypass",
+      "TableWithoutHeaderRowHandling": "EmptyRow"
+    }
+  },
+  {
+    "id": "WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionDefault_ThenConvertToGFMTable_WithFirstRowAsHeaderRow",
+    "html": "<table><colgroup><col><col><col></colgroup><tr><td>data1</td><td>data2</td><td>data3</td></tr><tr><td>data4</td><td>data5</td><td>data6</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithoutHeaderRow_With_TableWithoutHeaderRowHandlingOptionDefault_ThenConvertToGFMTable_WithFirstRowAsHeaderRow.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "WhenTable_Cell_Content_WithNewline_Add_BR_ThenConvertToGFMTable",
+    "html": "<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data line1\nline2</td><td>data2</td><td>data3</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_Cell_Content_WithNewline_Add_BR_ThenConvertToGFMTable.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "WhenTable_CellContainsParagraph_AddBrThenConvertToGFMTable",
+    "html": "<table><tr><th>col1</th></tr><tr><td><p>line1</p><p>line2</p></td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_CellContainsParagraph_AddBrThenConvertToGFMTable.verified.md"
+  },
+  {
+    "id": "WhenTable_ContainsTheadTh_ConvertToGFMTable",
+    "html": "<table><thead><tr><th>col1</th><th>col2</th></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>",
+    "expectedFile": "ConverterTests.WhenTable_ContainsTheadTh_ConvertToGFMTable.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenTable_ContainsTheadTd_ConvertToGFMTable",
+    "html": "<table><thead><tr><td>col1</td><td>col2</td></tr></thead><tbody><tr><td>data1</td><td>data2</td></tr><tbody></table>",
+    "expectedFile": "ConverterTests.WhenTable_ContainsTheadTd_ConvertToGFMTable.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenTable_CellContainsBr_PreserveBrAndConvertToGFMTable",
+    "html": "<table><tr><th>col1</th></tr><tr><td>line 1<br>line 2</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_CellContainsBr_PreserveBrAndConvertToGFMTable.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenTable_HasEmptyRow_DropsEmptyRow",
+    "html": "<table><tr><td>abc</td></tr><tr></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_HasEmptyRow_DropsEmptyRow.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "TableWithoutHeaderRowHandling": "EmptyRow"
+    }
+  },
+  {
+    "id": "When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR",
+    "html": "First part<br />Second part",
+    "expectedFile": "ConverterTests.When_BR_With_GitHubFlavored_Config_ThenConvertToGFM_BR.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_PRE_With_GitHubFlavored_Config_ThenConvertToGFM_PRE",
+    "html": "<pre>var test = 'hello world';</pre>",
+    "expectedFile": "ConverterTests.When_PRE_With_GitHubFlavored_Config_ThenConvertToGFM_PRE.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_PRE_With_Confluence_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE",
+    "html": "<pre class=\"brush: python;\">var test = 'hello world';</pre>",
+    "expectedFile": "ConverterTests.When_PRE_With_Confluence_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_PRE_With_Github_Site_DIV_Parent_And_GitHubFlavored_Config_ThenConvertToGFM_PRE",
+    "html": "<div class=\"highlight highlight-source-csharp\"><pre>var test = \"hello world\";</pre></div>",
+    "expectedFile": "ConverterTests.When_PRE_With_Github_Site_DIV_Parent_And_GitHubFlavored_Config_ThenConvertToGFM_PRE.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_PRE_With_HighlightJs_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE",
+    "html": "<pre><code class=\"hljs language-csharp\">var test = \"hello world\";</code></pre>",
+    "expectedFile": "ConverterTests.When_PRE_With_HighlightJs_Lang_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_PRE_With_Lang_Highlight_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE",
+    "html": "<pre class=\"highlight-python\">var test = 'hello world';</pre>",
+    "expectedFile": "ConverterTests.When_PRE_With_Lang_Highlight_Class_Att_And_GitHubFlavored_Config_ThenConvertToGFM_PRE.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenRemovedCommentsIsEnabled_CommentsAreRemoved",
+    "html": "Hello there <!-- This is a HTML comment block which will be removed! --><!-- This wont be removed because it is incomplete",
+    "expectedFile": "ConverterTests.WhenRemovedCommentsIsEnabled_CommentsAreRemoved.verified.md",
+    "config": {
+      "RemoveComments": true
+    }
+  },
+  {
+    "id": "WhenThereAreLineBreaksEncompassingParagraphText_It_Should_be_Removed",
+    "html": "<p>\nSome text goes here.\n</p>",
+    "expectedFile": "ConverterTests.WhenThereAreLineBreaksEncompassingParagraphText_It_Should_be_Removed.verified.md"
+  },
+  {
+    "id": "TestConversionOfMultiParagraphWithHeaders",
+    "html": "<h1>Heading1</h1><p>First paragraph.</p><h1>Heading2</h1><p>Second paragraph.</p>",
+    "expectedFile": "ConverterTests.TestConversionOfMultiParagraphWithHeaders.verified.md"
+  },
+  {
+    "id": "When_InlineCode_Shouldnt_Contain_Encoded_Chars",
+    "html": "This is inline code: <code>&lt;AspNetCoreHostingModel&gt;</code>.",
+    "expectedFile": "ConverterTests.When_InlineCode_Shouldnt_Contain_Encoded_Chars.verified.md"
+  },
+  {
+    "id": "When_TextContainsBacktickInlineCode_DecodeAngleEntities",
+    "html": "<p>`First &gt; last`</p>",
+    "expectedFile": "ConverterTests.When_TextContainsBacktickInlineCode_DecodeAngleEntities.verified.md"
+  },
+  {
+    "id": "When_FencedCodeBlocks_Shouldnt_Have_Trailing_Line",
+    "html": "<pre><code class=\"language-xml hljs\"><span class=\"hljs-tag\">&lt;<span class=\"hljs-name\">AspNetCoreHostingModel</span>&gt;</span>InProcess<span class=\"hljs-tag\">&lt;/<span class=\"hljs-name\">AspNetCoreHostingModel</span>&gt;</span>\n</code></pre>",
+    "expectedFile": "ConverterTests.When_FencedCodeBlocks_Shouldnt_Have_Trailing_Line.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_TextIsHtmlEncoded_DecodeText",
+    "html": "<p>cat&#39;s</p>",
+    "expectedFile": "ConverterTests.When_TextIsHtmlEncoded_DecodeText.verified.md"
+  },
+  {
+    "id": "When_TextContainsAngleBrackets_HexEscapeAngleBrackets",
+    "html": "<p>Value = &lt;Your text here&gt;</p>",
+    "expectedFile": "ConverterTests.When_TextContainsAngleBrackets_HexEscapeAngleBrackets.verified.md"
+  },
+  {
+    "id": "WhenTableCellsWithP_ThenDoNotAddNewlines",
+    "html": "<html><body><table><tbody><tr><td><p>col1</p></td><td><p>col2</p></td></tr><tr><td><p>data1</p></td><td><p>data2</p></td></tr></tbody></table></body></html>",
+    "expectedFile": "ConverterTests.WhenTableCellsWithP_ThenDoNotAddNewlines.verified.md"
+  },
+  {
+    "id": "WhenTableCellsWithDiv_ThenDoNotAddNewlines",
+    "html": "<html><body><table><tbody><tr><td><div>col1</div></td><td><div>col2</div></td></tr><tr><td><div>data1</div></td><td><div>data2</div></td></tr></tbody></table></body></html>",
+    "expectedFile": "ConverterTests.WhenTableCellsWithDiv_ThenDoNotAddNewlines.verified.md"
+  },
+  {
+    "id": "WhenTableCellsWithP_ThenNoNewlines",
+    "html": "<table><tr><td><p>data1</p></td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTableCellsWithP_ThenNoNewlines.verified.md"
+  },
+  {
+    "id": "WhenTableCellsWithMultipleP_ThenNoNewlines",
+    "html": "<table><tr><td><p>p1</p><p>p2</p></td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTableCellsWithMultipleP_ThenNoNewlines.verified.md"
+  },
+  {
+    "id": "WhenTableCellsWithDataAndP_ThenNewlineBeforeP",
+    "html": "<table><tr><td>data1<p>p</p></td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTableCellsWithDataAndP_ThenNewlineBeforeP.verified.md"
+  },
+  {
+    "id": "WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown",
+    "html": "<html><head><style></head><body><p>Test content</p></body></html>",
+    "expectedFile": "ConverterTests.WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown",
+    "html": "<html><body><script><p>Test content</p></body></html>",
+    "expectedFile": "ConverterTests.WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "WhenCommentOverlapTag_WithRemoveComments_ThenDoNotStripContentBetweenComments",
+    "html": "<p>test <!-- comment -->content<!-- another comment --></p>",
+    "expectedFile": "ConverterTests.WhenCommentOverlapTag_WithRemoveComments_ThenDoNotStripContentBetweenComments.verified.md",
+    "config": {
+      "RemoveComments": true
+    }
+  },
+  {
+    "id": "WhenBoldTagContainsBRTag_ThenConvertToMarkdown",
+    "html": "test<b><br/>test</b>",
+    "expectedFile": "ConverterTests.WhenBoldTagContainsBRTag_ThenConvertToMarkdown.verified.md"
+  },
+  {
+    "id": "WhenAnchorTagContainsImgTag_LinkTextShouldNotBeEscaped",
+    "html": "<a href=\"https://www.example.com\"><img src=\"https://example.com/image.jpg\"/></a>",
+    "expectedFile": "ConverterTests.WhenAnchorTagContainsImgTag_LinkTextShouldNotBeEscaped.verified.md"
+  },
+  {
+    "id": "When_PRE_Without_Lang_Marker_Class_Att_And_GitHubFlavored_Config_With_DefaultCodeBlockLanguage_ThenConvertToGFM_PRE",
+    "html": "<pre>var test = \"hello world\";</pre>",
+    "expectedFile": "ConverterTests.When_PRE_Without_Lang_Marker_Class_Att_And_GitHubFlavored_Config_With_DefaultCodeBlockLanguage_ThenConvertToGFM_PRE.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "DefaultCodeBlockLanguage": "csharp"
+    }
+  },
+  {
+    "id": "When_PRE_With_Parent_DIV_And_Non_GitHubFlavored_Config_FirstLine_CodeBlock_SpaceIndent_Should_Be_Retained",
+    "html": "<div><pre>var test = \"hello world\";</pre></div>",
+    "expectedFile": "ConverterTests.When_PRE_With_Parent_DIV_And_Non_GitHubFlavored_Config_FirstLine_CodeBlock_SpaceIndent_Should_Be_Retained.verified.md"
+  },
+  {
+    "id": "When_Converting_HTML_Ensure_To_Process_Only_Body",
+    "html": "<!DOCTYPE html><html lang=\"en\"><head><script>var x = 1;</script></head><body>sample text</body>",
+    "expectedFile": "ConverterTests.When_Converting_HTML_Ensure_To_Process_Only_Body.verified.md"
+  },
+  {
+    "id": "When_Html_Containing_Nested_DIVs_Process_ONLY_Inner_Most_DIV",
+    "html": "<div><div>sample text</div></div>",
+    "expectedFile": "ConverterTests.When_Html_Containing_Nested_DIVs_Process_ONLY_Inner_Most_DIV.verified.md"
+  },
+  {
+    "id": "When_SingleChild_BlockTag_With_Parent_DIV_Ignore_Processing_DIV",
+    "html": "<div><p>sample text</p></div>",
+    "expectedFile": "ConverterTests.When_SingleChild_BlockTag_With_Parent_DIV_Ignore_Processing_DIV.verified.md"
+  },
+  {
+    "id": "When_Table_Within_List_Should_Be_Indented",
+    "html": "<ol><li>Item1</li><li>Item2<table><tr><th>col1</th><th>col2</th><th>col3</th></tr><tr><td>data1</td><td>data2</td><td>data3</td></tr></table></li><li>Item3</li></ol>",
+    "expectedFile": "ConverterTests.When_Table_Within_List_Should_Be_Indented.verified.md"
+  },
+  {
+    "id": "When_Tag_In_PassThoughTags_List_Then_Use_PassThroughConverter",
+    "html": "This text has image <img alt=\"alt\" src=\"http://test.com/images/test.png\">. Next line of text",
+    "expectedFile": "ConverterTests.When_Tag_In_PassThoughTags_List_Then_Use_PassThroughConverter.verified.md",
+    "config": {
+      "PassThroughTags": [
+        "img"
+      ]
+    }
+  },
+  {
+    "id": "When_CodeContainsSpaces_ShouldPreserveSpaces",
+    "html": "A JavaScript<code> function </code>...",
+    "expectedFile": "ConverterTests.When_CodeContainsSpaces_ShouldPreserveSpaces.verified.md"
+  },
+  {
+    "id": "When_CodeContainsSpanWithExtraSpaces_Should_NotNormalizeSpaces",
+    "html": "A JavaScript<code><span>    function  </span></code>...",
+    "expectedFile": "ConverterTests.When_CodeContainsSpanWithExtraSpaces_Should_NotNormalizeSpaces.verified.md"
+  },
+  {
+    "id": "When_CodeContainsSpacesAndIsSurroundedByWhitespace_Should_NotRemoveSpaces",
+    "html": "A JavaScript <code> function </code> ...",
+    "expectedFile": "ConverterTests.When_CodeContainsSpacesAndIsSurroundedByWhitespace_Should_NotRemoveSpaces.verified.md"
+  },
+  {
+    "id": "When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation",
+    "html": "<pre><code>    function foo {</code></pre>",
+    "expectedFile": "ConverterTests.When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation.verified.md"
+  },
+  {
+    "id": "When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation_GFM",
+    "html": "<pre><code>    function foo {</code></pre>",
+    "expectedFile": "ConverterTests.When_PreTag_Contains_IndentedFirstLine_Should_PreserveIndentation_GFM.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_PreTag_Within_List_Should_Be_Indented",
+    "html": "<ol><li>Item1</li><li>Item2 <pre> test<br>\n  test</pre></li><li>Item3</li></ol>",
+    "expectedFile": "ConverterTests.When_PreTag_Within_List_Should_Be_Indented.verified.md"
+  },
+  {
+    "id": "When_PreTag_Within_List_Should_Be_Indented_With_GitHub_FlavouredMarkdown",
+    "html": "<ol><li>Item1</li><li>Item2 <pre> test<br>\n  test</pre></li><li>Item3</li></ol>",
+    "expectedFile": "ConverterTests.When_PreTag_Within_List_Should_Be_Indented_With_GitHub_FlavouredMarkdown.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR",
+    "html": "<p><span>line 1<br><span/><span>line 2<br><span/></div>",
+    "expectedFile": "ConverterTests.When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR.verified.md"
+  },
+  {
+    "id": "When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR_GitHub_Flavoured",
+    "html": "<p><span>line 1<br><span/><span>line 2<br><span/></div>",
+    "expectedFile": "ConverterTests.When_Text_Contains_NewLineChars_Should_Not_Convert_To_BR_GitHub_Flavoured.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "When_Consecutive_Strong_Tags_Should_Convert_Properly",
+    "html": "<Strong>block1</strong><Strong>block2</strong><b>block3</b><b>block4</b>",
+    "expectedFile": "ConverterTests.When_Consecutive_Strong_Tags_Should_Convert_Properly.verified.md"
+  },
+  {
+    "id": "When_Consecutive_Em_Tags_Should_Convert_Properly",
+    "html": "<em>block1</em><em>block2</em><i>block3</i><em>block4</em>",
+    "expectedFile": "ConverterTests.When_Consecutive_Em_Tags_Should_Convert_Properly.verified.md"
+  },
+  {
+    "id": "Li_With_No_Parent",
+    "html": "<li>item</li>",
+    "expectedFile": "ConverterTests.Li_With_No_Parent.verified.md"
+  },
+  {
+    "id": "When_Span_with_newline_Should_Convert_Properly",
+    "html": "<b>2 sets</b><span>\n</span><span>30 mountain climbers</span>",
+    "expectedFile": "ConverterTests.When_Span_with_newline_Should_Convert_Properly.verified.md"
+  },
+  {
+    "id": "Bug255_table_newline_char_issue",
+    "html": "<table><thead>\n<tr>\n<th style=\"text-align: left;\">Progression</th>\n<th style=\"text-align: left;\">Focus</th>\n</tr>\n</thead></table>",
+    "expectedFile": "ConverterTests.Bug255_table_newline_char_issue.verified.md"
+  },
+  {
+    "id": "When_Content_Contains_script_tags_ignore_it",
+    "html": "<div><script>var test = 10;</script><p>simple paragraph</p></div><script>var test2 = 20;</script>",
+    "expectedFile": "ConverterTests.When_Content_Contains_script_tags_ignore_it.verified.md"
+  },
+  {
+    "id": "When_DescriptionListTag_ThenConvertToMarkdown_List",
+    "html": "<dl><dt>Coffee</dt><dd>Filter Coffee</dd><dd>Hot Black Coffee</dd><dt>Milk</dt><dd>White Cold Drink</dd></dl>",
+    "expectedFile": "ConverterTests.When_DescriptionListTag_ThenConvertToMarkdown_List.verified.md"
+  },
+  {
+    "id": "Bug294_Table_bug_with_row_superfluous_newlines",
+    "html": "<table>\n<thead>\n<tr>\n<th>\u6bd4\u8f83</th>\n<th>wordpress</th>\n<th>hexo &amp; hugo</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>\u642d\u5efa\u8981\u6c42</td>\n<td>\u4e00\u53f0\u670d\u52a1\u5668\u4ee5\u53ca\u8fd0\u884c\u73af\u5883</td>\n<td>\u9759\u6001\u751f\u6210\u9875\u9762\uff0c\u65e0\u9700\u670d\u52a1\u5668\u3002</td>\n</tr>\n<tr>\n<td>\u6027\u80fd</td>\n<td>\u7531\u4e8e\u662f\u52a8\u6001\u751f\u6210\u9875\u9762\uff0c\u53ef\u4ee5\u901a\u8fc7\u81ea\u884c\u914d\u7f6e\u63d0\u9ad8\u6027\u80fd\uff0c\u4f46\u662f\u4ecd\u7136\u65e0\u6cd5\u5ab2\u7f8e\u9759\u6001\u9875\u9762</td>\n<td>\u51e0\u4e4e\u65e0\u9700\u8003\u8651\u6027\u80fd\u95ee\u9898</td>\n</tr>\n<tr>\n<td>\u8bbf\u95ee\u901f\u5ea6</td>\n<td>\u4f9d\u8d56\u4e8e\u670d\u52a1\u5668\u914d\u7f6e\u4ee5\u53cacdn\u52a0\u901f\u3002</td>\n<td>\u53ea\u9700\u8003\u8651cdn\u52a0\u901f</td>\n</tr>\n<tr>\n<td>\u529f\u80fd\u5b8c\u5584</td>\n<td>\u4f5c\u4e3a\u5f3a\u5927\u7684cms\u529f\u80fd\u5f88\u5b8c\u5584\uff0c\u9700\u8981\u7684\u529f\u80fd\u57fa\u672c\u53ef\u4ee5\u63d2\u4ef6\u4e0b\u8f7d\u76f4\u63a5\u5b9e\u73b0\u3002</td>\n<td>\u989d\u5916\u529f\u80fd\u4e5f\u53ef\u4ee5\u901a\u8fc7\u63d2\u4ef6\u5b9e\u73b0\uff0c\u4e0d\u8fc7\u7a0d\u5fae\u9700\u8981\u81ea\u884c\u67e5\u627e\u4ee5\u53cadiy</td>\n</tr>\n<tr>\n<td>\u540e\u53f0\u7ba1\u7406</td>\n<td>\u73b0\u6210\u7684\u540e\u53f0\u7ba1\u7406\u529f\u80fd\uff0c\u5f00\u7bb1\u5373\u7528</td>\n<td>\u7531\u4e8e\u9759\u6001\u535a\u5ba2\uff0c\u672c\u8eab\u6ca1\u6709\u540e\u53f0\u7ba1\u7406\uff0c\u6709\u9700\u6c42\u9700\u8981\u81ea\u884c\u641c\u7d22\u5b9e\u73b0</td>\n</tr>\n</tbody>\n</table>",
+    "expectedFile": "ConverterTests.Bug294_Table_bug_with_row_superfluous_newlines.verified.md"
+  },
+  {
+    "id": "WhenTableHeadingWithAlignmentStyles_ThenTableHeaderShouldHaveProperAlignment",
+    "html": "<table><tr><th style=\"text-align:left\">Col1</th><th style=\"text-align:center\">Col2</th><th style=\"text-align:right\">Col2</th></tr><tr><td>1</td><td>2</td><td>3</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTableHeadingWithAlignmentStyles_ThenTableHeaderShouldHaveProperAlignment.verified.md"
+  },
+  {
+    "id": "When_Sup_And_Nested_Sup",
+    "html": "This is the 1<sup>st</sup> sentence to t<sup>e<sup>s</sup></sup>t the sup tag conversion",
+    "expectedFile": "ConverterTests.When_Sup_And_Nested_Sup.verified.md"
+  },
+  {
+    "id": "When_Anchor_Text_with_Underscore_Do_Not_Escape",
+    "html": "This a sample <strong>paragraph</strong> from <a href=\"https://www.w3schools.com/html/mov_bbb.mp4\">https://www.w3schools.com/html/mov_bbb.mp4</a>",
+    "expectedFile": "ConverterTests.When_Anchor_Text_with_Underscore_Do_Not_Escape.verified.md"
+  },
+  {
+    "id": "When_Strikethrough_And_Nested_Strikethrough",
+    "html": "This is the 1<s>st</s> sentence to t<del>e<strike>s</strike></strike>t the strikethrough tag conversion",
+    "expectedFile": "ConverterTests.When_Strikethrough_And_Nested_Strikethrough.verified.md"
+  },
+  {
+    "id": "When_Spaces_In_Inline_Tags_Should_Be_Retained",
+    "html": "... example html <i>code </i>block",
+    "expectedFile": "ConverterTests.When_Spaces_In_Inline_Tags_Should_Be_Retained.verified.md"
+  },
+  {
+    "id": "When_SuppressNewlineFlag_PrefixDiv_Should_Be_Empty",
+    "html": "<div>the</div><div>fox</div><div>jumps</div><div>over</div>",
+    "expectedFile": "ConverterTests.When_SuppressNewlineFlag_PrefixDiv_Should_Be_Empty.verified.md",
+    "config": {
+      "SuppressDivNewlines": true
+    }
+  },
+  {
+    "id": "WhenTable_WithColSpan_TableHeaderColumnSpansHandling_ThenConvertToGFMTable",
+    "html": "<table><tr><th>col1</th><th colspan=\"2\">col2</th><th>col3</th></tr><tr><td>data1</td><td>data2.1</td><td>data2.2</td><td>data3</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithColSpan_TableHeaderColumnSpansHandling_ThenConvertToGFMTable.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "Bug391_AnchorTagUnnecessarilyIndented",
+    "html": "<p>\n\n</p>\n\n\n<div style=\"white-space: pre-line\" class=\"alert alert-warning\">\nAn error occurred while importing data from feed 'FBA Producten'. More details can be found in the latest <a href=\"<REDACTED>\">feed validation report</a>.\n</div>\n\n\n\n\n<a href=\"<REDACTED>\" class=\"btn btn-primary btn-sm my-2\" target=\"_blank\">View feed 4</a>",
+    "expectedFile": "ConverterTests.Bug391_AnchorTagUnnecessarilyIndented.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "Bug403_unexpectedBehaviourWhenTableBodyRowsWithTHCells",
+    "html": "<table>\n<tr><th>Heading1</th><th>Heading2</th></tr>\n<tr><th>data 1</th><td>data 2</td></tr>\n<tr><th>data 3</th><td>data 4</td></tr>\n</table>",
+    "expectedFile": "ConverterTests.Bug403_unexpectedBehaviourWhenTableBodyRowsWithTHCells.verified.md",
+    "config": {
+      "UnknownTags": "Bypass",
+      "ListBulletChar": "*",
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "EscapeMarkdownCharsInTextProperly",
+    "html": "<span>[a-z]([0-9]){0,4}</span>",
+    "expectedFile": "ConverterTests.EscapeMarkdownCharsInTextProperly.verified.md"
+  },
+  {
+    "id": "Bug400_MissingSpanSpaceWithItalics",
+    "html": "<h3 data-reset-style=\"true\" data-anchor-id=\"8b5e184d-26f7-4d9a-80e0-bab2cd825457\"><i style=\"font-size: 14pt;\">What we thought:<span>&nbsp;</span></i><span style=\"color: rgb(41, 63, 77); font-size: 14pt; font-weight: normal;\">When we built Pages, we assumed that customers would use them like newsletters to share relevant, continually-updated information with field teams.</span><div style=\"text-align: left;\"><span style=\"line-height: 16px;\"><span><span height=\"18\" width=\"18\"><span></span></span><span></span></span></span></div></h3>",
+    "expectedFile": "ConverterTests.Bug400_MissingSpanSpaceWithItalics.verified.md"
+  },
+  {
+    "id": "When_NestedParagraphs_FiveLevelsDeep_ThenConvertCorrectly",
+    "html": "<p>Level1<p>Level2<p>Level3<p>Level4<p>Level5</p></p></p></p></p>",
+    "expectedFile": "ConverterTests.When_NestedParagraphs_FiveLevelsDeep_ThenConvertCorrectly.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_NestedSpans_FiveLevelsDeep_ThenConvertCorrectly",
+    "html": "<span>Level1<span>Level2<span>Level3<span>Level4<span>Level5</span></span></span></span></span>",
+    "expectedFile": "ConverterTests.When_NestedSpans_FiveLevelsDeep_ThenConvertCorrectly.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_InterleavedParagraphsAndSpans_ThenConvertCorrectly",
+    "html": "<p><span>Text1<p><span>Text2<p><span>Text3<p><span>Text4</span></p></span></p></span></p>",
+    "expectedFile": "ConverterTests.When_InterleavedParagraphsAndSpans_ThenConvertCorrectly.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_ManySequentialUnclosedParagraphs_ThenConvertCorrectly",
+    "html": "<p>Part1<p>Part2<p>Part3<p>Part4<p>Part5<p>Part6<p>Part7<p>Part8",
+    "expectedFile": "ConverterTests.When_ManySequentialUnclosedParagraphs_ThenConvertCorrectly.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_UnclosedParagraphsWithSpansAndTextNodes_ThenConvertCorrectly",
+    "html": "<p><span>Intro</span></p> Filler text here. <p><span>Section1<p><span>Section2<p>Section3",
+    "expectedFile": "ConverterTests.When_UnclosedParagraphsWithSpansAndTextNodes_ThenConvertCorrectly.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_EmptyNestedParagraphs_ThenConvertCorrectly",
+    "html": "<p><p><p><p><p></p></p></p></p></p>",
+    "expectedFile": "ConverterTests.When_EmptyNestedParagraphs_ThenConvertCorrectly.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_AlternatingEmptyAndFilledNestedParagraphs_ThenConvertCorrectly",
+    "html": "<p>A<p><p>B<p><p>C<p><p>D<p><p>E</p></p></p></p></p></p></p></p></p>",
+    "expectedFile": "ConverterTests.When_AlternatingEmptyAndFilledNestedParagraphs_ThenConvertCorrectly.verified.md",
+    "config": {
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_NestedParagraphs_TenLevelsDeep_ThenConvertCorrectly",
+    "html": "<p>L1<p>L2<p>L3<p>L4<p>L5<p>L6<p>L7<p>L8<p>L9<p>L10</p></p></p></p></p></p></p></p></p></p>",
+    "expectedFile": "ConverterTests.When_NestedParagraphs_TenLevelsDeep_ThenConvertCorrectly.verified.md",
+    "config": {
+      "GithubFlavored": true,
+      "UnknownTags": "Bypass"
+    }
+  },
+  {
+    "id": "When_NestedTableIsInTable_LeaveNestedTableAsHtml",
+    "html": "<table><tr><th>Step</th><th>Instructions</th></tr><tr><td>1</td><td><table><tr><th>Condition</th><th>Action</th></tr><tr><td>A</td><td>Do X</td></tr></table></td></tr></table>",
+    "expectedFile": "ConverterTests.When_NestedTableIsInTable_LeaveNestedTableAsHtml.verified.md"
+  },
+  {
+    "id": "When_ComplexNestedTableIsInTable_LeaveNestedTableAsHtml",
+    "html": "<table>\n                <tr>\n                    <th>Category</th>\n                    <th>Details</th>\n                </tr>\n                <tr>\n                    <td>Products</td>\n                    <td>\n                        <table>\n                            <tr><th>Name</th><th>Price</th></tr>\n                            <tr><td>Item 1</td><td>$10</td></tr>\n                            <tr><td>Item 2</td><td>$20</td></tr>\n                        </table>\n                    </td>\n                </tr>\n            </table>",
+    "expectedFile": "ConverterTests.When_ComplexNestedTableIsInTable_LeaveNestedTableAsHtml.verified.md"
+  },
+  {
+    "id": "When_MultipleNestedTablesInTable_LeaveAllNestedTablesAsHtml",
+    "html": "<table>\n                <tr>\n                    <th>Column 1</th>\n                    <th>Column 2</th>\n                </tr>\n                <tr>\n                    <td>\n                        <table>\n                            <tr><td>Nested 1</td></tr>\n                        </table>\n                    </td>\n                    <td>\n                        <table>\n                            <tr><td>Nested 2</td></tr>\n                        </table>\n                    </td>\n                </tr>\n            </table>",
+    "expectedFile": "ConverterTests.When_MultipleNestedTablesInTable_LeaveAllNestedTablesAsHtml.verified.md"
+  },
+  {
+    "id": "WhenTable_WithCaption_ThenCaptionAppearsAboveTable",
+    "html": "<table><caption>Monthly Sales Report</caption><tr><th>Month</th><th>Sales</th></tr><tr><td>January</td><td>$1000</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaption_ThenCaptionAppearsAboveTable.verified.md"
+  },
+  {
+    "id": "WhenTable_WithoutCaption_ThenConvertNormally",
+    "html": "<table><tr><th>Month</th><th>Sales</th></tr><tr><td>January</td><td>$1000</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithoutCaption_ThenConvertNormally.verified.md"
+  },
+  {
+    "id": "WhenTable_WithEmptyCaption_ThenConvertNormally",
+    "html": "<table><caption></caption><tr><th>Month</th><th>Sales</th></tr><tr><td>January</td><td>$1000</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithEmptyCaption_ThenConvertNormally.verified.md"
+  },
+  {
+    "id": "WhenTable_WithCaptionContainingWhitespace_ThenTrimWhitespace",
+    "html": "<table><caption>   Table Caption   </caption><tr><th>Col1</th></tr><tr><td>Data1</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaptionContainingWhitespace_ThenTrimWhitespace.verified.md"
+  },
+  {
+    "id": "WhenTable_WithCaptionContainingMarkdownChars_ThenHandleProperly",
+    "html": "<table><caption>Sales Report [2024] - **Important**</caption><tr><th>Month</th><th>Sales</th></tr><tr><td>Jan</td><td>$100</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaptionContainingMarkdownChars_ThenHandleProperly.verified.md"
+  },
+  {
+    "id": "WhenTable_WithCaptionAndNoHeaderRow_EmptyRowHandling_ThenCaptionAppearsAboveTable",
+    "html": "<table><caption>Data Table</caption><tr><td>data1</td><td>data2</td></tr><tr><td>data3</td><td>data4</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaptionAndNoHeaderRow_EmptyRowHandling_ThenCaptionAppearsAboveTable.verified.md",
+    "config": {
+      "TableWithoutHeaderRowHandling": "EmptyRow"
+    }
+  },
+  {
+    "id": "WhenTable_WithCaptionContainingNestedTags_ThenExtractTextOnly",
+    "html": "<table><caption>Sales <strong>Report</strong> for <em>2024</em></caption><tr><th>Month</th></tr><tr><td>Jan</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaptionContainingNestedTags_ThenExtractTextOnly.verified.md"
+  },
+  {
+    "id": "WhenTable_WithCaptionAndGithubFlavored_ThenCaptionAppearsAboveTable",
+    "html": "<table><caption>Code Review Summary</caption><tr><th>PR</th><th>Status</th></tr><tr><td>#123</td><td>Approved</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaptionAndGithubFlavored_ThenCaptionAppearsAboveTable.verified.md",
+    "config": {
+      "GithubFlavored": true
+    }
+  },
+  {
+    "id": "WhenTable_WithCaptionContainingNewlines_ThenHandleNewlines",
+    "html": "<table><caption>Multi\nLine\nCaption</caption><tr><th>Col</th></tr><tr><td>Data</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTable_WithCaptionContainingNewlines_ThenHandleNewlines.verified.md"
+  },
+  {
+    "id": "WhenTableRowWithDuplicateStyleKeysAfterTrimming_ThenConvertWithoutException",
+    "html": "<table><tr><th style=\"font-size:12px; font-family:Work Sans; font-size:14px; font-size:14px\">Header</th></tr><tr><td>Data</td></tr></table>",
+    "expectedFile": "ConverterTests.WhenTableRowWithDuplicateStyleKeysAfterTrimming_ThenConvertWithoutException.verified.md"
+  },
+  {
+    "id": "SmartHandling_HttpScheme_Http",
+    "html": "<a href=\"http://example.com\">example.com</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_HttpScheme_Https",
+    "html": "<a href=\"https://example.com\">example.com</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_OutputOnlyHref_Http",
+    "html": "<a href=\"http://example.com\">example.com</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_OutputOnlyHref_Https",
+    "html": "<a href=\"https://example.com\">example.com</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_NonWellFormed",
+    "html": "<a href=\"http://example.com/path/file name.docx\">http://example.com/path/file name.docx</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_ImplicitFile",
+    "html": "<a href=\"c:\\\\directory\\filename\">\tc:\\\\directory\\filename</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_FileMissingSlash",
+    "html": "<a href=\"file://c:/directory/filename\">file://c:/directory/filename</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "SmartHandling_UnescapedBackslashes",
+    "html": "<a href=\"http:\\\\host/path/file\">http:\\\\host/path/file</a>",
+    "dataOnly": true
+  },
+  {
+    "id": "Base64_SaveToFile_Png",
+    "html": "<p>Before</p><img alt=\"test\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/><p>After</p>",
+    "dataOnly": true
+  },
+  {
+    "id": "Base64_SaveToFile_Jpeg",
+    "html": "<img alt=\"jpeg\" src=\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=\"/>",
+    "dataOnly": true
+  },
+  {
+    "id": "Base64_SaveToFile_Multiple",
+    "html": "<img alt=\"first\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/><img alt=\"second\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/>",
+    "dataOnly": true
+  },
+  {
+    "id": "Base64_SaveToFile_CustomName",
+    "html": "<img alt=\"test\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/>",
+    "dataOnly": true
+  },
+  {
+    "id": "Base64_SaveToFile_NonExistentDir",
+    "html": "<img alt=\"test\" src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==\"/>",
+    "dataOnly": true
+  },
+  {
+    "id": "Underline_Tag_Alias",
+    "html": "This is <u>underline</u> text.",
+    "dataOnly": true
+  },
+  {
+    "id": "Unknown_Tag_Raise",
+    "html": "<unknown-tag>text in unknown tag</unknown-tag><p>paragraph text</p>",
+    "dataOnly": true
+  },
+  {
+    "id": "PastedHtmlUnicodeSpaces",
+    "html": "<span style=\"color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;\">Markdown Monster is an easy to use and extensible<span>\u00a0</span></span><strong style=\"box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;\">Markdown Editor</strong><span style=\"color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;\">,<span>\u00a0</span></span><strong style=\"box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;\">Viewer</strong><span style=\"color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;\"><span>\u00a0</span>and<span>\u00a0</span></span><strong style=\"box-sizing: border-box; font-weight: 600; color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial;\">Weblog Publisher</strong><span style=\"color: rgb(36, 41, 46); font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 16px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; background-color: rgb(255, 255, 255); text-decoration-style: initial; text-decoration-color: initial; display: inline !important; float: none;\"><span>\u00a0</span>for Windows. Our goal is to provide the best Markdown specific editor for Windows and make it as easy as possible to create Markdown documents. We provide a core editor and previewer, and a number of non-intrusive helpers to help embed content like images, links, tables, code and more into your documents with minimal effort.</span>",
+    "dataOnly": true
+  },
+  {
+    "id": "Bug393_RegressionWithVaryingNewLines",
+    "html": "This is regular text\n<p class=\"c1\">This is HTML: <ul><li>Line 1</li><li>Line 2</li><li><mark>Line 3 has an unknown tag</mark></li></ul></p>",
+    "expectedFile": "ConverterTests.Bug393_RegressionWithVaryingNewLines.verified.md",
+    "config": {
+      "UnknownTags": "Bypass",
+      "ListBulletChar": "*"
+    }
+  },
+  {
+    "id": "SlackFlavored_Bold",
+    "html": "<b>test</b> | <strong>test</strong>",
+    "expectedFile": "ConverterTests.SlackFlavored_Bold.verified.md",
+    "config": {
+      "SlackFlavored": true
+    }
+  },
+  {
+    "id": "SlackFlavored_Bullets",
+    "html": "<ul>\n<li>Item 1</li>\n<li>Item 2</li>\n<li>Item 3</li>\n</ul>",
+    "expectedFile": "ConverterTests.SlackFlavored_Bullets.verified.md",
+    "config": {
+      "SlackFlavored": true
+    }
+  },
+  {
+    "id": "SlackFlavored_Italic",
+    "html": "<i>test</i> | <em>test</em>",
+    "expectedFile": "ConverterTests.SlackFlavored_Italic.verified.md",
+    "config": {
+      "SlackFlavored": true
+    }
+  },
+  {
+    "id": "SlackFlavored_Strikethrough",
+    "html": "<del>test</del>",
+    "expectedFile": "ConverterTests.SlackFlavored_Strikethrough.verified.md",
+    "config": {
+      "SlackFlavored": true
+    }
+  },
+  {
+    "id": "Converter_Is_Thread_Safe_For_Concurrent_Use",
+    "html": "<table><tr><th>Head</th></tr><tr><td><ol><li>Item1</li><li><strong>Item2</strong></li></ol></td></tr></table><p>Tail</p>",
+    "dataOnly": true
+  },
+  {
+    "id": "SlackFlavored_Unsupported_Hr",
+    "html": "<hr/>",
+    "dataOnly": true
+  },
+  {
+    "id": "SlackFlavored_Unsupported_Img",
+    "html": "<img src=\"\"/>",
+    "dataOnly": true
+  },
+  {
+    "id": "SlackFlavored_Unsupported_Sup",
+    "html": "<sup>test</sup>",
+    "dataOnly": true
+  },
+  {
+    "id": "SlackFlavored_Unsupported_Table",
+    "html": "<table></table>",
+    "dataOnly": true
+  },
+  {
+    "id": "SlackFlavored_Unsupported_Table_Td",
+    "html": "<td></td>",
+    "dataOnly": true
+  },
+  {
+    "id": "SlackFlavored_Unsupported_Table_Tr",
+    "html": "<tr></tr>",
+    "dataOnly": true
+  }
+]
