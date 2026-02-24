@@ -17,7 +17,7 @@ If you have used and benefitted from this library. Please feel free to sponsor m
 **Markdown flavors**
 - GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
 - Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
-- CommonMark-focused output with opt-in flags to preserve compatibility. Use `var config = new ReverseMarkdown.Config { CommonMark = true };`
+- CommonMark-focused output with opt-in flags to preserve compatibility. Use `var config = new ReverseMarkdown.Config { CommonMark = true };` This mode may emit inline HTML for tricky emphasis/link cases unless you disable `CommonMarkUseHtmlInlineTags`.
 
 **Tables**
 - Support for nested tables (converted as HTML inside markdown)
