@@ -12,10 +12,15 @@ namespace ReverseMarkdown.Converters {
         public override void Convert(TextWriter writer, HtmlNode node)
         {
             if (node.ParentNode.Name is "strong" or "b" or "em" or "i") {
-                return;
+                if (!Converter.Config.CommonMark) {
+                    return;
+                }
             }
 
-            if (Converter.Config.GithubFlavored) {
+            if (Converter.Config.CommonMark) {
+                writer.WriteLine("\\");
+            }
+            else if (Converter.Config.GithubFlavored) {
                 writer.WriteLine();
             }
             else {

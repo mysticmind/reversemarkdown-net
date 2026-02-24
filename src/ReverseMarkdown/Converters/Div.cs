@@ -19,6 +19,11 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.CommonMark) {
+                writer.Write(node.OuterHtml);
+                return;
+            }
+
             while (node.ChildNodes.Count == 1 && node.FirstChild.Name == "div") {
                 node = node.FirstChild;
             }

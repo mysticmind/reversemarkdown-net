@@ -11,6 +11,21 @@ namespace ReverseMarkdown
 
         public bool SlackFlavored { get; set; } = false;
 
+        /// <summary>
+        /// Enable CommonMark compatible emphasis handling (avoid intraword emphasis by inserting spaces).
+        /// </summary>
+        public bool CommonMark { get; set; } = false;
+
+        /// <summary>
+        /// When CommonMark is enabled, insert spaces to avoid intraword emphasis.
+        /// </summary>
+        public bool CommonMarkIntrawordEmphasisSpacing { get; set; } = false;
+
+        /// <summary>
+        /// When CommonMark is enabled, emit HTML for inline tags (em/strong/a/img) to avoid delimiter edge cases.
+        /// </summary>
+        public bool CommonMarkUseHtmlInlineTags { get; set; } = true;
+
         public bool SuppressDivNewlines { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;

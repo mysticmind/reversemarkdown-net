@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
@@ -52,18 +53,60 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
-            if (node.InnerText is " " or "&nbsp;" && node.ParentNode.Name is not ("ol" or "ul")) {
-                writer.Write(' ');
+            var isCommonMark = Converter.Config.CommonMark;
+            var innerText = node.InnerText;
+            if (innerText is " " or "&nbsp;" || innerText == "\u00A0") {
+                if (node.ParentNode.Name is not ("ol" or "ul")) {
+                    if (isCommonMark && innerText != " ") {
+                        writer.Write("&nbsp;");
+                    }
+                    else {
+                        writer.Write(' ');
+                    }
+
+                    return;
+                }
             }
-            else {
-                TreatText(writer, node);
+
+            if (isCommonMark) {
+                if (innerText == "!" && node.NextSibling?.Name == "a") {
+                    writer.Write("\\!");
+                    return;
+                }
+
+                if (innerText == "*" && node.NextSibling?.Name == "img") {
+                    writer.Write("\\*");
+                    return;
+                }
             }
+
+            TreatText(writer, node);
         }
 
 
         private void TreatText(TextWriter writer, HtmlNode node)
         {
-            var text = node.InnerText;
+            var isCommonMark = Converter.Config.CommonMark;
+            var rawText = isCommonMark
+                ? node.OuterHtml
+                : node.InnerText;
+            if (isCommonMark &&
+                (rawText.Contains("<!--", StringComparison.Ordinal) ||
+                 rawText.Contains("<![CDATA[", StringComparison.Ordinal) ||
+                 rawText.Contains("</", StringComparison.Ordinal) ||
+                 rawText.Contains("<!", StringComparison.Ordinal))) {
+                writer.Write(rawText);
+                return;
+            }
+            var text = isCommonMark
+                ? PreserveCommonMarkAmpersands(rawText)
+                : rawText;
+            var hasLeadingNbsp = isCommonMark &&
+                                 System.Text.RegularExpressions.Regex.IsMatch(
+                                     rawText,
+                                     @"^\s*(&nbsp;|&#160;)",
+                                     System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                                 );
             var parent = node.ParentNode;
 
             if (string.IsNullOrEmpty(text)) {
@@ -92,12 +135,36 @@ namespace ReverseMarkdown.Converters {
             content = DecodeHtml(content);
             content = content.Replace(_unPreserveAngleBrackets);
 
+            if (isCommonMark) {
+                content = EscapeCommonMarkBackslashes(content);
+                content = RestoreCommonMarkAmpersands(content);
+                content = content.Replace("\u00A0", "&nbsp;");
+                content = content.Replace("\t", "&#9;");
+                if (hasLeadingNbsp && !content.StartsWith("&nbsp;")) {
+                    content = "&nbsp;" + content.TrimStart();
+                }
+                if (!content.Contains("<!--", StringComparison.Ordinal) &&
+                    !content.Contains("<![CDATA[", StringComparison.Ordinal) &&
+                    !content.Contains("<!", StringComparison.Ordinal) &&
+                    !content.Contains("</", StringComparison.Ordinal)) {
+                    content = content.Replace("<", "&lt;").Replace(">", "&gt;");
+                }
+            }
+
             if (shouldTrim) {
                 content = content.Trim();
             }
 
+            if (Converter.Config.CommonMark) {
+                content = Regex.Replace(content, "\r?\n\r?\n", "&#10;&#10;");
+            }
+
             if (replaceLineEndings) {
                 content = content.ReplaceLineEndings("<br>");
+            }
+
+            if (Converter.Config.CommonMark && node.PreviousSibling?.Name == "br") {
+                content = content.TrimStart('\r', '\n');
             }
 
             if (parent.Name != "a" && !Converter.Config.SlackFlavored) {
@@ -108,6 +175,11 @@ namespace ReverseMarkdown.Converters {
 
             content = EscapeSpecialMarkdownCharacters(content);
 
+            if (isCommonMark) {
+                content = content.Replace("`", "\\`");
+                content = EscapeCommonMarkLineStarts(content);
+            }
+
             writer.Write(content);
         }
 
@@ -117,6 +189,142 @@ namespace ReverseMarkdown.Converters {
             return content.StartsWith('`') && content.EndsWith('`')
                 ? content
                 : content.Replace(_specialMarkdownCharacters);
+        }
+
+        private const string AmpersandPlaceholder = "__REVERSEMARKDOWN_AMP__";
+        private const string NbspPlaceholder = "__REVERSEMARKDOWN_NBSP__";
+
+        private static string PreserveCommonMarkAmpersands(string rawContent)
+        {
+            if (string.IsNullOrEmpty(rawContent)) {
+                return rawContent;
+            }
+
+            var preserved = Regex.Replace(rawContent, "&amp;", AmpersandPlaceholder, RegexOptions.IgnoreCase);
+            preserved = Regex.Replace(preserved, "&nbsp;", NbspPlaceholder, RegexOptions.IgnoreCase);
+            return preserved;
+        }
+
+        private static string RestoreCommonMarkAmpersands(string content)
+        {
+            if (string.IsNullOrEmpty(content)) {
+                return content;
+            }
+
+            var restored = Regex.Replace(
+                content,
+                AmpersandPlaceholder + @"(#[0-9]+|#x[0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]+);",
+                "\\&$1;"
+            );
+
+            restored = restored.Replace(NbspPlaceholder, "&nbsp;");
+            return restored.Replace(AmpersandPlaceholder, "&");
+        }
+
+        private static string EscapeCommonMarkBackslashes(string content)
+        {
+            if (string.IsNullOrEmpty(content)) {
+                return content;
+            }
+
+            return content.Replace("\\", "\\\\");
+        }
+
+        private static string EscapeCommonMarkLineStarts(string content)
+        {
+            if (string.IsNullOrEmpty(content)) {
+                return content;
+            }
+
+            var normalized = content.ReplaceLineEndings("\n");
+            var lines = normalized.Split('\n');
+            for (var i = 0; i < lines.Length; i++) {
+                lines[i] = EscapeLineStart(lines[i]);
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        private static string EscapeLineStart(string line)
+        {
+            if (string.IsNullOrEmpty(line)) {
+                return line;
+            }
+
+            var index = 0;
+            var maxIndent = 3;
+            while (index < line.Length && line[index] == ' ' && index < maxIndent) {
+                index++;
+            }
+
+            if (index >= line.Length || line[index] == '\\') {
+                return line;
+            }
+
+            var current = line[index];
+            if (IsSetextUnderline(line, index)) {
+                return line.Insert(index, "\\");
+            }
+
+            if (current == '#') {
+                return line.Insert(index, "\\");
+            }
+
+            if ((current == '-' || current == '*' || current == '+') && IsLineMarker(line, index, 1)) {
+                return line.Insert(index, "\\");
+            }
+
+            if (char.IsDigit(current)) {
+                var digitEnd = index;
+                while (digitEnd < line.Length && char.IsDigit(line[digitEnd])) {
+                    digitEnd++;
+                }
+
+                if (digitEnd < line.Length && (line[digitEnd] == '.' || line[digitEnd] == ')')) {
+                    if (IsLineMarker(line, digitEnd, 1)) {
+                        return line.Insert(digitEnd, "\\");
+                    }
+                }
+            }
+
+            return line;
+        }
+
+        private static bool IsSetextUnderline(string line, int index)
+        {
+            var trimmed = line[index..].TrimEnd();
+            if (trimmed.Length < 3) {
+                return false;
+            }
+
+            var first = trimmed[0];
+            if (first != '-' && first != '=') {
+                return false;
+            }
+
+            for (var i = 1; i < trimmed.Length; i++) {
+                if (trimmed[i] != first) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsLineMarker(string line, int markerIndex, int minTrailingSpaces)
+        {
+            var nextIndex = markerIndex + 1;
+            if (nextIndex >= line.Length) {
+                return false;
+            }
+
+            var spaceCount = 0;
+            while (nextIndex < line.Length && line[nextIndex] == ' ') {
+                spaceCount++;
+                nextIndex++;
+            }
+
+            return spaceCount >= minTrailingSpaces;
         }
     }
 }

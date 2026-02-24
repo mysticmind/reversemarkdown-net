@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -12,6 +13,11 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.CommonMark) {
+                writer.Write(node.OuterHtml.CompactHtmlForCommonMarkBlock());
+                return;
+            }
+
             // Lists inside tables are not supported as markdown, so leave as HTML
             if (Context.AncestorsAny("table")) {
                 writer.Write(node.OuterHtml);
@@ -23,7 +29,26 @@ namespace ReverseMarkdown.Converters {
 
             if (block) writer.WriteLine();
             TreatChildren(writer, node);
-            if (block) writer.WriteLine();
+            if (block) {
+                writer.WriteLine();
+                if (Converter.Config.CommonMark && NextElementIsList(node)) {
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private static bool NextElementIsList(HtmlNode node)
+        {
+            var sibling = node.NextSibling;
+            while (sibling != null) {
+                if (sibling.NodeType == HtmlNodeType.Element) {
+                    return sibling.Name is "ul" or "ol";
+                }
+
+                sibling = sibling.NextSibling;
+            }
+
+            return false;
         }
     }
 }

@@ -17,6 +17,7 @@ If you have used and benefitted from this library. Please feel free to sponsor m
 **Markdown flavors**
 - GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
 - Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
+- CommonMark-focused output with opt-in flags to preserve compatibility. Use `var config = new ReverseMarkdown.Config { CommonMark = true };`
 
 **Tables**
 - Support for nested tables (converted as HTML inside markdown)
@@ -89,6 +90,9 @@ var converter = new ReverseMarkdown.Converter(config);
 * `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
 * `SlackFlavored` - Slack style markdown formatting. When enabled, uses `*` for bold, `_` for italic, `~` for strikethrough, and `•` for list bullets. Default is false
+* `CommonMark` - Enable CommonMark-focused output rules. Default is false
+* `CommonMarkUseHtmlInlineTags` - When CommonMark is enabled, emit HTML for inline tags (`em`, `strong`, `a`, `img`) to avoid delimiter edge cases. Default is true
+* `CommonMarkIntrawordEmphasisSpacing` - When CommonMark is enabled, insert spaces to avoid intraword emphasis. Default is false
 * `CleanupUnnecessarySpaces` - Cleanup unnecessary spaces in the output. Default is true
 * `SuppressDivNewlines` - Removes prefixed newlines from `div` tags. Default is false
 * `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it. Note: This option is ignored when `SlackFlavored` is enabled
