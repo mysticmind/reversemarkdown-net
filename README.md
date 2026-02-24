@@ -197,14 +197,32 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Features
 
-* Supports all the established html tags like h1, h2, h3, h4, h5, h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br
-* Supports nested lists
-* Github Flavoured Markdown conversion supported for br, pre, tasklists and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
-* Slack Flavoured Markdown conversion supported. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
-* Improved performance with optimized text writer approach and O(1) ancestor lookups
-* Support for nested tables (converted as HTML inside markdown)
-* Support for table captions (rendered as paragraph above table)
-* Base64-encoded image handling with options to include as-is, skip, or save to disk
+**Core conversion**
+- Supports common HTML tags like h1-h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br, pre, del, strike, sup, dl, dt, dd, div, and span
+- Supports nested lists
+- Improved performance with optimized text writer approach and O(1) ancestor lookups
+
+**Markdown flavors**
+- GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
+- Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
+
+**Tables**
+- Support for nested tables (converted as HTML inside markdown)
+- Support for table captions (rendered as paragraph above table)
+- Configurable table header handling
+
+**Links and images**
+- Smart link handling and URI scheme whitelisting for links and images
+- Base64-encoded image handling with options to include as-is, skip, or save to disk
+
+**Extensibility and safety**
+- Tag aliasing and unknown tag replacement options for custom conversion behavior
+- Pass-through, bypass, drop, or raise strategies for unknown tags
+- Pre-tidy handling for malformed unclosed script/style tags
+
+**Formatting controls**
+- Configurable list bullets and default code block language
+- Comment removal and optional whitespace cleanup
 
 ## Breaking Changes
 
