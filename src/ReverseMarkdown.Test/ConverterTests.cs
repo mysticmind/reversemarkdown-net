@@ -1631,6 +1631,28 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public async Task Converter_Is_Thread_Safe_For_Concurrent_Use()
+        {
+            var html =
+                "<table><tr><th>Head</th></tr><tr><td><ol><li>Item1</li><li><strong>Item2</strong></li></ol></td></tr></table><p>Tail</p>";
+            var converter = new Converter(new Config { GithubFlavored = true });
+            var expected = converter.Convert(html);
+
+            const int iterations = 50;
+            var tasks = new Task<string>[iterations];
+
+            for (var i = 0; i < iterations; i++) {
+                tasks[i] = Task.Run(() => converter.Convert(html));
+            }
+
+            var results = await Task.WhenAll(tasks);
+
+            foreach (var result in results) {
+                Assert.Equal(expected, result);
+            }
+        }
+
+        [Fact]
         public Task SlackFlavored_Bold()
         {
             const string html = "<b>test</b> | <strong>test</strong>";

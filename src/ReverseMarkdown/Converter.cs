@@ -11,13 +11,18 @@ using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown {
+    /// <summary>
+    /// Converts HTML to Markdown. Thread-safe for concurrent use.
+    /// </summary>
     public class Converter {
         protected readonly IDictionary<string, IConverter> Converters = new Dictionary<string, IConverter>();
         protected readonly IConverter PassThroughTagsConverter;
         protected readonly IConverter DropTagsConverter;
         protected readonly IConverter ByPassTagsConverter;
 
-        public ConverterContext Context { get; } = new();
+        private readonly System.Threading.AsyncLocal<ConverterContext?> _context = new();
+
+        public ConverterContext Context => _context.Value ??= new ConverterContext();
 
         public Converter() : this(new Config())
         {
@@ -81,6 +86,7 @@ namespace ReverseMarkdown {
 
         public virtual string Convert(string html)
         {
+            using var _ = EnsureContext();
             html = Cleaner.PreTidy(html, Config.RemoveComments);
 
             var doc = new HtmlDocument();
@@ -134,6 +140,7 @@ namespace ReverseMarkdown {
 
         public virtual string ConvertNode(HtmlNode node)
         {
+            using var _ = EnsureContext();
             using var writer = CreateWriter(node);
             ConvertNode(writer, node);
             return writer.GetStringBuilder().ToString();
@@ -141,6 +148,7 @@ namespace ReverseMarkdown {
 
         public virtual void ConvertNode(TextWriter writer, HtmlNode node)
         {
+            using var _ = EnsureContext();
             var converter = Lookup(node.Name);
             Context.Enter(node);
             converter.Convert(writer, node);
@@ -165,6 +173,42 @@ namespace ReverseMarkdown {
                 Config.UnknownTagsOption.Bypass => ByPassTagsConverter,
                 _ => throw new UnknownTagException(tagName)
             };
+        }
+
+        private IDisposable EnsureContext()
+        {
+            if (_context.Value is not null) {
+                return NoopDisposable.Instance;
+            }
+
+            _context.Value = new ConverterContext();
+            return new ContextScope(_context);
+        }
+
+        private sealed class ContextScope : IDisposable {
+            private readonly System.Threading.AsyncLocal<ConverterContext?> _scope;
+
+            public ContextScope(System.Threading.AsyncLocal<ConverterContext?> scope)
+            {
+                _scope = scope;
+            }
+
+            public void Dispose()
+            {
+                _scope.Value = null;
+            }
+        }
+
+        private sealed class NoopDisposable : IDisposable {
+            public static readonly NoopDisposable Instance = new();
+
+            private NoopDisposable()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
         }
     }
 }
