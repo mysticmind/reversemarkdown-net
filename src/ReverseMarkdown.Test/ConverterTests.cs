@@ -1180,6 +1180,13 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task When_TextContainsBacktickInlineCode_DecodeAngleEntities()
+        {
+            var html = "<p>`First &gt; last`</p>";
+            return CheckConversion(html);
+        }
+
+        [Fact]
         public Task When_FencedCodeBlocks_Shouldnt_Have_Trailing_Line()
         {
             var html =

@@ -87,7 +87,8 @@ namespace ReverseMarkdown.Converters {
             //}
 
             // html decode:
-            var content = text.Replace(_preserveAngleBrackets);
+            var content = BackTicks().Replace(text, p => DecodeHtml(p.Value));
+            content = content.Replace(_preserveAngleBrackets);
             content = DecodeHtml(content);
             content = content.Replace(_unPreserveAngleBrackets);
 
