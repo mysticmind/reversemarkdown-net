@@ -1971,5 +1971,12 @@ namespace ReverseMarkdown.Test
             var html = $"<table><caption>Multi{Environment.NewLine}Line{Environment.NewLine}Caption</caption><tr><th>Col</th></tr><tr><td>Data</td></tr></table>";
             return CheckConversion(html);
         }
+
+        [Fact]
+        public Task WhenTableRowWithDuplicateStyleKeysAfterTrimming_ThenConvertWithoutException()
+        {
+            var html = "<table><tr><th style=\"font-size:12px; font-family:Work Sans; font-size:14px; font-size:14px\">Header</th></tr><tr><td>Data</td></tr></table>";
+            return CheckConversion(html);
+        }
     }
 }
