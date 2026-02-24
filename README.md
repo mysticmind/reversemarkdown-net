@@ -93,6 +93,7 @@ var converter = new ReverseMarkdown.Converter(config);
 * `CommonMark` - Enable CommonMark-focused output rules. Default is false
 * `CommonMarkUseHtmlInlineTags` - When CommonMark is enabled, emit HTML for inline tags (`em`, `strong`, `a`, `img`) to avoid delimiter edge cases. Default is true
 * `CommonMarkIntrawordEmphasisSpacing` - When CommonMark is enabled, insert spaces to avoid intraword emphasis. Default is false
+  * Note: CommonMark is best used on its own. Combining `CommonMark` with `GithubFlavored` can produce mixed output; keep them separate unless you explicitly want that behavior.
 * `CleanupUnnecessarySpaces` - Cleanup unnecessary spaces in the output. Default is true
 * `SuppressDivNewlines` - Removes prefixed newlines from `div` tags. Default is false
 * `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it. Note: This option is ignored when `SlackFlavored` is enabled
