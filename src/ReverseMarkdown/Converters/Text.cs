@@ -177,7 +177,10 @@ namespace ReverseMarkdown.Converters {
 
             if (isCommonMark) {
                 content = content.Replace("`", "\\`");
-                content = EscapeCommonMarkLineStarts(content);
+            }
+
+            if (isCommonMark || Converter.Config.EscapeMarkdownLineStarts) {
+                content = EscapeMarkdownLineStarts(content);
             }
 
             writer.Write(content);
@@ -230,7 +233,7 @@ namespace ReverseMarkdown.Converters {
             return content.Replace("\\", "\\\\");
         }
 
-        private static string EscapeCommonMarkLineStarts(string content)
+        private static string EscapeMarkdownLineStarts(string content)
         {
             if (string.IsNullOrEmpty(content)) {
                 return content;
