@@ -85,6 +85,17 @@ var converter = new ReverseMarkdown.Converter(config);
 <sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
+To treat `<pre>` (and `<pre><code>`) content as normal HTML instead of code blocks:
+
+```cs
+var config = new ReverseMarkdown.Config
+{
+    ConvertPreContentAsHtml = true
+};
+
+var converter = new ReverseMarkdown.Converter(config);
+```
+
 If you need to preserve markdown-like text as literal content (for example `# Heading` or `- Item`), either enable `EscapeMarkdownLineStarts` or use `CommonMark`:
 
 ```cs
@@ -111,6 +122,7 @@ var converter = new ReverseMarkdown.Converter(config);
 * `OutputLineEnding` - Output line endings used in generated markdown. Default is `Environment.NewLine`
 * `CleanupUnnecessarySpaces` - Cleanup unnecessary spaces in the output. Default is true
 * `SuppressDivNewlines` - Removes prefixed newlines from `div` tags. Default is false
+* `ConvertPreContentAsHtml` - Treat `<pre>` (and `<pre><code>`) content as normal HTML instead of a code block. Default is false
 * `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it. Note: This option is ignored when `SlackFlavored` is enabled
 * `RemoveComments` - Remove comment tags with text. Default is false
 * `SmartHrefHandling` - How to handle `<a>` tag href attribute

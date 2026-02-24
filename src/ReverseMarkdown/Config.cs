@@ -42,6 +42,12 @@ namespace ReverseMarkdown
         public bool RemoveComments { get; set; } = false;
 
         /// <summary>
+        /// When enabled, treat &lt;pre&gt; (and &lt;pre&gt;&lt;code&gt;) content as normal HTML
+        /// instead of converting it to a code block.
+        /// </summary>
+        public bool ConvertPreContentAsHtml { get; set; } = false;
+
+        /// <summary>
         /// Specify which schemes (without trailing colon) are to be allowed for &lt;a&gt; and &lt;img&gt; tags. Others will be bypassed. By default, allows everything.
         /// <para>If <see cref="string.Empty" /> provided and when href schema couldn't be determined - whitelists</para>
         /// </summary>

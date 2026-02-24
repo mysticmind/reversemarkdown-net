@@ -14,6 +14,11 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.ConvertPreContentAsHtml) {
+                ConvertHtmlContent(writer, node);
+                return;
+            }
+
             var isFencedCodeBlock = Converter.Config.GithubFlavored || Converter.Config.CommonMark;
 
             var indentation = Converter.Config.CommonMark
@@ -62,6 +67,20 @@ namespace ReverseMarkdown.Converters {
             }
 
             writer.WriteLine();
+        }
+
+        private void ConvertHtmlContent(TextWriter writer, HtmlNode node)
+        {
+            var contentNode = node.ChildNodes["code"] ?? node;
+            if (contentNode.HasChildNodes) {
+                foreach (var child in contentNode.ChildNodes) {
+                    Converter.ConvertNode(writer, child);
+                }
+
+                return;
+            }
+
+            TreatChildren(writer, node);
         }
 
 
