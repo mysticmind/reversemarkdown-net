@@ -7,6 +7,35 @@ ReverseMarkdown is a Html to Markdown converter library in C#. Conversion is ver
 If you have used and benefitted from this library. Please feel free to sponsor me!<br>
 <a href="https://github.com/sponsors/mysticmind" target="_blank"><img height="30" style="border:0px;height:36px;" src="https://img.shields.io/static/v1?label=GitHub Sponsor&message=%E2%9D%A4&logo=GitHub" border="0" alt="GitHub Sponsor" /></a>
 
+## Features
+
+**Core conversion**
+- Supports common HTML tags like h1-h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br, pre, del, strike, sup, dl, dt, dd, div, and span
+- Supports nested lists
+- Improved performance with optimized text writer approach and O(1) ancestor lookups
+
+**Markdown flavors**
+- GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
+- Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
+
+**Tables**
+- Support for nested tables (converted as HTML inside markdown)
+- Support for table captions (rendered as paragraph above table)
+- Configurable table header handling
+
+**Links and images**
+- Smart link handling and URI scheme whitelisting for links and images
+- Base64-encoded image handling with options to include as-is, skip, or save to disk
+
+**Extensibility and safety**
+- Tag aliasing and unknown tag replacement options for custom conversion behavior
+- Pass-through, bypass, drop, or raise strategies for unknown tags
+- Pre-tidy handling for malformed unclosed script/style tags
+
+**Formatting controls**
+- Configurable list bullets and default code block language
+- Comment removal and optional whitespace cleanup
+
 ## Usage
 
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and build it yourself.
@@ -194,35 +223,6 @@ var converter = new ReverseMarkdown.Converter(config);
 - TIFF (`image/tiff`)
 - WebP (`image/webp`)
 - SVG (`image/svg+xml`)
-
-## Features
-
-**Core conversion**
-- Supports common HTML tags like h1-h6, p, em, strong, i, b, blockquote, code, img, a, hr, li, ol, ul, table, tr, th, td, br, pre, del, strike, sup, dl, dt, dd, div, and span
-- Supports nested lists
-- Improved performance with optimized text writer approach and O(1) ancestor lookups
-
-**Markdown flavors**
-- GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
-- Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
-
-**Tables**
-- Support for nested tables (converted as HTML inside markdown)
-- Support for table captions (rendered as paragraph above table)
-- Configurable table header handling
-
-**Links and images**
-- Smart link handling and URI scheme whitelisting for links and images
-- Base64-encoded image handling with options to include as-is, skip, or save to disk
-
-**Extensibility and safety**
-- Tag aliasing and unknown tag replacement options for custom conversion behavior
-- Pass-through, bypass, drop, or raise strategies for unknown tags
-- Pre-tidy handling for malformed unclosed script/style tags
-
-**Formatting controls**
-- Configurable list bullets and default code block language
-- Comment removal and optional whitespace cleanup
 
 ## Breaking Changes
 
