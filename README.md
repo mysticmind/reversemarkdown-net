@@ -76,6 +76,8 @@ var converter = new ReverseMarkdown.Converter(config);
   * `UnknownTagsOption.Drop` - Drop the unknown tag and its content
   * `UnknownTagsOption.Bypass` - Ignore the unknown tag but try to convert its content
   * `UnknownTagsOption.Raise` - Raise an error to let you know
+* `UnknownTagsReplacer` - Optional replacements for unknown tags. Key is tag name and value is the markdown wrapper used as prefix/suffix around converted content (example: `{ ["u"] = "*" }`).
+* `TagAliases` - Optional alias map to treat a tag as another tag during conversion (example: `{ ["u"] = "em" }`).
 * `PassThroughTags` - Pass a list of tags to pass through as-is without any processing.
 * `WhitelistUriSchemes` - Specify which schemes (without trailing colon) are to be allowed for `<a>` and `<img>` tags. Others will be bypassed (output text or nothing). By default allows everything.
 
@@ -92,6 +94,15 @@ var converter = new ReverseMarkdown.Converter(config);
   * `Base64ImageHandling.SaveToFile` - Save base64-encoded images to disk and reference the saved file path in markdown. Requires `Base64ImageSaveDirectory` to be set
 * `Base64ImageSaveDirectory` - When `Base64Images` is set to `SaveToFile`, specifies the directory path where images should be saved
 * `Base64ImageFileNameGenerator` - When `Base64Images` is set to `SaveToFile`, this function generates a filename for each saved image. The function receives the image index (int) and MIME type (string), and should return a filename without extension. If not specified, images will be named as `image_0`, `image_1`, etc.
+
+### Custom converter alias
+
+You can also register a tag to reuse another tag's converter directly:
+
+```cs
+var converter = new ReverseMarkdown.Converter();
+converter.Register("u", new ReverseMarkdown.Converters.AliasConverter(converter, "em"));
+```
 
 ### Base64 Image Handling Examples
 

@@ -19,6 +19,8 @@ namespace ReverseMarkdown {
         protected readonly IConverter PassThroughTagsConverter;
         protected readonly IConverter DropTagsConverter;
         protected readonly IConverter ByPassTagsConverter;
+        private readonly Dictionary<string, UnknownTagReplacer> _unknownTagReplacerConverters = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, AliasTagConverter> _tagAliasConverters = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly System.Threading.AsyncLocal<ConverterContext?> _context = new();
 
@@ -72,9 +74,15 @@ namespace ReverseMarkdown {
             }
 
             // For each type to register ...
-            foreach (var converterType in types)
+            foreach (var converterType in types) {
+                var ctor = converterType.GetConstructor(new[] { typeof(Converter) });
+                if (ctor is null) {
+                    continue;
+                }
+
                 // ... activate them
                 Activator.CreateInstance(converterType, this);
+            }
 
             // register the unknown tags converters
             PassThroughTagsConverter = new PassThrough(this);
@@ -162,7 +170,69 @@ namespace ReverseMarkdown {
                 return PassThroughTagsConverter;
             }
 
-            return Converters.TryGetValue(tagName, out var converter) ? converter : GetDefaultConverter(tagName);
+            if (Converters.TryGetValue(tagName, out var converter)) {
+                return converter;
+            }
+
+            var aliasTargetTag = ResolveAliasTarget(tagName);
+            if (aliasTargetTag is not null) {
+                return GetAliasConverter(tagName, aliasTargetTag);
+            }
+
+            if (Config.UnknownTagsReplacer.TryGetValue(tagName, out var replacement)) {
+                return GetUnknownTagReplacer(tagName, replacement);
+            }
+
+            return GetDefaultConverter(tagName);
+        }
+
+        private IConverter GetUnknownTagReplacer(string tagName, string replacement)
+        {
+            if (_unknownTagReplacerConverters.TryGetValue(tagName, out var converter) &&
+                string.Equals(converter.Replacement, replacement, StringComparison.Ordinal)) {
+                return converter;
+            }
+
+            var replacer = new UnknownTagReplacer(this, tagName, replacement);
+            _unknownTagReplacerConverters[tagName] = replacer;
+            return replacer;
+        }
+
+        private IConverter GetAliasConverter(string tagName, string targetTag)
+        {
+            if (_tagAliasConverters.TryGetValue(tagName, out var converter) &&
+                string.Equals(converter.TargetTag, targetTag, StringComparison.OrdinalIgnoreCase)) {
+                return converter;
+            }
+
+            var alias = new AliasTagConverter(this, tagName, targetTag);
+            _tagAliasConverters[tagName] = alias;
+            return alias;
+        }
+
+        private string? ResolveAliasTarget(string tagName)
+        {
+            if (!Config.TagAliases.TryGetValue(tagName, out var targetTag) || string.IsNullOrWhiteSpace(targetTag)) {
+                return null;
+            }
+
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { tagName };
+
+            while (true) {
+                if (string.Equals(targetTag, tagName, StringComparison.OrdinalIgnoreCase)) {
+                    return null;
+                }
+
+                if (!visited.Add(targetTag)) {
+                    return null;
+                }
+
+                if (!Config.TagAliases.TryGetValue(targetTag, out var nextTag) || string.IsNullOrWhiteSpace(nextTag)) {
+                    return targetTag;
+                }
+
+                targetTag = nextTag;
+            }
         }
 
         private IConverter GetDefaultConverter(string tagName)

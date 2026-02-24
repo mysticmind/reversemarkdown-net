@@ -883,6 +883,40 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task When_Underline_Tag_With_UnknownTagsReplacer_ThenConvertToItalics()
+        {
+            var html = "This is <u>underline</u> text.";
+            var config = new Config
+            {
+                UnknownTagsReplacer = { ["u"] = "*" }
+            };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_Underline_Tag_With_TagAlias_ThenConvertToItalics()
+        {
+            var html = "This is <u>underline</u> text.";
+            var config = new Config
+            {
+                TagAliases = { ["u"] = "em" }
+            };
+            return CheckConversion(html, config);
+        }
+
+        [Fact]
+        public Task When_Underline_Tag_With_AliasConverter_Register_ThenConvertToItalics()
+        {
+            var html = "This is <u>underline</u> text.";
+            var converter = new Converter();
+            converter.Register("u", new ReverseMarkdown.Converters.AliasConverter(converter, "em"));
+            var result = converter.Convert(html);
+            var settings = new VerifySettings();
+            settings.DisableRequireUniquePrefix();
+            return Verifier.Verify(result, settings: settings, extension: "md");
+        }
+
+        [Fact]
         public Task Check_Converter_With_Unknown_Tag_ByPass_Option()
         {
             var html = "<unknown-tag>text in unknown tag</unknown-tag>";
@@ -1268,8 +1302,7 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html);
         }
 
-        [Fact(Skip =
-            "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
+        [Fact]
         public Task WhenUnclosedStyleTag_WithBypassUnknownTags_ThenConvertToMarkdown()
         {
             var html = "<html><head><style></head><body><p>Test content</p></body></html>";
@@ -1281,8 +1314,7 @@ namespace ReverseMarkdown.Test
             return CheckConversion(html, config);
         }
 
-        [Fact(Skip =
-            "Issue 61. Unclosed CDATA tags are invalid and HtmlAgilityPack won't parse it correctly. Browsers doesn't parse them correctly too.")]
+        [Fact]
         public Task WhenUnclosedScriptTag_WithBypassUnknownTags_ThenConvertToMarkdown()
         {
             var html = "<html><body><script><p>Test content</p></body></html>";

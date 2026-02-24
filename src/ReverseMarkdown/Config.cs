@@ -57,6 +57,17 @@ namespace ReverseMarkdown
         /// </summary>
         public HashSet<string> PassThroughTags { get; set; } = [];
 
+        /// <summary>
+        /// Optional replacements for unknown tags. The key is the tag name and the value is the
+        /// markdown wrapper to use as both prefix and suffix around converted content.
+        /// </summary>
+        public Dictionary<string, string> UnknownTagsReplacer { get; } = new (StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Optional alias map to treat a tag as another tag during conversion.
+        /// </summary>
+        public Dictionary<string, string> TagAliases { get; } = new (StringComparer.OrdinalIgnoreCase);
+
         public enum UnknownTagsOption
         {
             /// <summary>

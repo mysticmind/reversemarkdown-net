@@ -36,9 +36,27 @@ public static partial class Cleaner {
     public static string PreTidy(string content, bool removeComments)
     {
         content = NormalizeSpaceChars(content);
+        content = FixUnclosedTag(content, "script");
+        content = FixUnclosedTag(content, "style");
         content = CleanTagBorders(content);
 
         return content;
+    }
+
+    private static string FixUnclosedTag(string content, string tagName)
+    {
+        if (string.IsNullOrWhiteSpace(content)) {
+            return content;
+        }
+
+        var openRegex = new Regex($@"<\s*{Regex.Escape(tagName)}\b[^>]*>", RegexOptions.IgnoreCase);
+        var closeRegex = new Regex($@"</\s*{Regex.Escape(tagName)}\s*>", RegexOptions.IgnoreCase);
+
+        return openRegex.Replace(content, match =>
+        {
+            var remaining = content.Substring(match.Index);
+            return closeRegex.IsMatch(remaining) ? match.Value : string.Empty;
+        });
     }
 
     public static string SlackTidy(string content)
