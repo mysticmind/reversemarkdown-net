@@ -580,6 +580,40 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenPreContainsTable_ThenTreatAsCodeBlock()
+        {
+            var htmlTable = "<table><tr><td>a</td></tr></table>";
+            var htmlPre = $"<pre>{htmlTable}</pre>";
+            var htmlPreCode = $"<pre><code>{htmlTable}</code></pre>";
+            var converter = new Converter(new Config { GithubFlavored = true });
+            var expected = string.Join(Environment.NewLine, new[] {
+                "```",
+                "a",
+                "```"
+            });
+
+            Assert.Equal(expected, converter.Convert(htmlPre));
+            Assert.Equal(expected, converter.Convert(htmlPreCode));
+        }
+
+        [Fact]
+        public void WhenPreContainsHtml_WithConvertPreContentAsHtml_ThenConvertHtml()
+        {
+            var htmlContent = "<p>Title</p><p><strong>Bold</strong></p>";
+            var htmlPre = $"<pre>{htmlContent}</pre>";
+            var htmlPreCode = $"<pre><code>{htmlContent}</code></pre>";
+            var converter = new Converter(new Config { ConvertPreContentAsHtml = true });
+            var expected = string.Join(Environment.NewLine, new[] {
+                "Title",
+                string.Empty,
+                "**Bold**"
+            });
+
+            Assert.Equal(expected, converter.Convert(htmlPre));
+            Assert.Equal(expected, converter.Convert(htmlPreCode));
+        }
+
+        [Fact]
         public void SlackFlavored_Unsupported_Hr()
         {
             var html = LoadHtml("SlackFlavored_Unsupported_Hr");
