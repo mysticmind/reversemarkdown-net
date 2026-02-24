@@ -1,1 +1,0 @@
-This text has code `alert();`
