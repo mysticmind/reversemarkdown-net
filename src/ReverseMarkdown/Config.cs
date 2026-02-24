@@ -31,6 +31,12 @@ namespace ReverseMarkdown
         /// </summary>
         public bool EscapeMarkdownLineStarts { get; set; } = false;
 
+        /// <summary>
+        /// Output line endings to use for the generated markdown.
+        /// Defaults to <see cref="Environment.NewLine" />.
+        /// </summary>
+        public string OutputLineEnding { get; set; } = Environment.NewLine;
+
         public bool SuppressDivNewlines { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;

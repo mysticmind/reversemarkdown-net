@@ -117,6 +117,22 @@ namespace ReverseMarkdown.Test
             Assert.Equal(@"1\. Point 1", converter.Convert("<p>1. Point 1</p>"));
         }
 
+        [Fact]
+        public void WhenOutputLineEndingConfigured_ThenNormalizeOutputLineEndings()
+        {
+            var html = "<p>one</p>\r\n<p>two</p>\r<p>three</p>\n<p>four</p>";
+            var config = new Config
+            {
+                OutputLineEnding = "\n"
+            };
+            var converter = new Converter(config);
+
+            var result = converter.Convert(html);
+
+            Assert.Equal(result, result.ReplaceLineEndings("\n"));
+            Assert.DoesNotContain("\r", result);
+        }
+
         
 
         
