@@ -103,6 +103,20 @@ namespace ReverseMarkdown.Test
             Assert.Equal("https://example.com", result1, StringComparer.OrdinalIgnoreCase);
         }
 
+        [Fact]
+        public void WhenEscapeMarkdownLineStartsEnabled_ThenEscapeHeadingAndListMarkers()
+        {
+            var config = new Config
+            {
+                EscapeMarkdownLineStarts = true
+            };
+            var converter = new Converter(config);
+
+            Assert.Equal(@"\# Heading 1", converter.Convert("<p># Heading 1</p>"));
+            Assert.Equal(@"\- Point 1", converter.Convert("<p>- Point 1</p>"));
+            Assert.Equal(@"1\. Point 1", converter.Convert("<p>1. Point 1</p>"));
+        }
+
         
 
         

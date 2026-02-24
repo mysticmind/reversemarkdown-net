@@ -26,6 +26,11 @@ namespace ReverseMarkdown
         /// </summary>
         public bool CommonMarkUseHtmlInlineTags { get; set; } = true;
 
+        /// <summary>
+        /// Escape markdown line starts (headings, lists, block markers) in plain text output.
+        /// </summary>
+        public bool EscapeMarkdownLineStarts { get; set; } = false;
+
         public bool SuppressDivNewlines { get; set; } = false;
 
         public bool RemoveComments { get; set; } = false;
