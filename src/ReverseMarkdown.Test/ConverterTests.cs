@@ -28,6 +28,16 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public Task WhenThereAreSemanticContainerTags()
+        {
+            var html = "<header>Whatever Inc.</header><main><p>Thanks for your enquiry.</p></main><section>Section intro</section><article>Article text</article><nav>Home</nav><figure>Diagram</figure><figcaption>Figure caption</figcaption><footer>Mail us</footer>";
+            return CheckConversion(html, new Config
+            {
+                UnknownTags = Config.UnknownTagsOption.PassThrough
+            });
+        }
+
+        [Fact]
         public Task WhenThereIsHtmlLink_ThenConvertToMarkdownLink()
         {
             var html = @"This is <a href=""http://test.com"">a link</a>";
