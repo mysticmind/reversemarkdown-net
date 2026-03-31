@@ -25,6 +25,18 @@ namespace ReverseMarkdown.Converters {
             var level = node.Name[1] - '0'; // 'h1' -> 1, 'h2' -> 2, etc.
 
             var content = TreatChildrenAsString(node);
+            if (Converter.Config.TelegramMarkdownV2) {
+                writer.WriteLine();
+                for (var i = 0; i < level; i++) {
+                    writer.Write("\\#");
+                }
+
+                writer.Write(' ');
+                writer.Write(content);
+                writer.WriteLine();
+                return;
+            }
+
             if (Converter.Config.CommonMark) {
                 content = content.ReplaceLineEndings("&#10;");
                 content = EscapeTrailingHashes(content);

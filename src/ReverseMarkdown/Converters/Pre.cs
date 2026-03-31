@@ -19,9 +19,10 @@ namespace ReverseMarkdown.Converters {
                 return;
             }
 
-            var isFencedCodeBlock = Converter.Config.GithubFlavored || Converter.Config.CommonMark;
+            var isTelegram = Converter.Config.TelegramMarkdownV2;
+            var isFencedCodeBlock = Converter.Config.GithubFlavored || Converter.Config.CommonMark || isTelegram;
 
-            var indentation = Converter.Config.CommonMark
+            var indentation = (Converter.Config.CommonMark || isTelegram)
                 ? string.Empty
                 : IndentationFor(node);
             var contentIndentation = indentation;
@@ -37,6 +38,9 @@ namespace ReverseMarkdown.Converters {
 
             // content:
             var content = DecodeHtml(node.InnerText);
+            if (isTelegram) {
+                content = StringUtils.EscapeTelegramMarkdownV2Code(content);
+            }
 
             if (isFencedCodeBlock) {
                 var fence = Converter.Config.CommonMark

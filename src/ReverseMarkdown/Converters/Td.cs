@@ -16,6 +16,10 @@ namespace ReverseMarkdown.Converters {
                 throw new SlackUnsupportedTagException(node.Name);
             }
 
+            if (Converter.Config.TelegramMarkdownV2) {
+                throw new TelegramUnsupportedTagException(node.Name);
+            }
+
             var colSpan = GetColSpan(node);
 
             var content = TreatChildrenAsString(node)

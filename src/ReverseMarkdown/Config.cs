@@ -12,6 +12,11 @@ namespace ReverseMarkdown
         public bool SlackFlavored { get; set; } = false;
 
         /// <summary>
+        /// Telegram MarkdownV2 conversion.
+        /// </summary>
+        public bool TelegramMarkdownV2 { get; set; } = false;
+
+        /// <summary>
         /// Enable CommonMark compatible emphasis handling (avoid intraword emphasis by inserting spaces).
         /// </summary>
         public bool CommonMark { get; set; } = false;
