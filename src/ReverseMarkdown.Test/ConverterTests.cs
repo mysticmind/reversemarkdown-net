@@ -118,6 +118,18 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenTextContainsBracketsBracesAndParentheses_ThenDoNotEscapeThem()
+        {
+            const string html = "This is [a] test of the (reverse) {markdown} system.";
+
+            var converter = new Converter();
+            Assert.Equal(html, converter.Convert(html));
+
+            var commonMarkConverter = new Converter(new Config { CommonMark = true });
+            Assert.Equal("This is \\[a\\] test of the (reverse) {markdown} system.", commonMarkConverter.Convert(html));
+        }
+
+        [Fact]
         public void WhenOutputLineEndingConfigured_ThenNormalizeOutputLineEndings()
         {
             var html = "<p>one</p>\r\n<p>two</p>\r<p>three</p>\n<p>four</p>";

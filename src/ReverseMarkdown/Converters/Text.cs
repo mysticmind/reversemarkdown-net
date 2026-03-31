@@ -26,13 +26,9 @@ namespace ReverseMarkdown.Converters {
             [@"\_"] = "_",
         };
 
-        private static readonly StringReplaceValues _specialMarkdownCharacters = new() {
+        private static readonly StringReplaceValues _commonMarkSpecialMarkdownCharacters = new() {
             ["["] = @"\[",
             ["]"] = @"\]",
-            ["("] = @"\(",
-            [")"] = @"\)",
-            ["{"] = @"\{",
-            ["}"] = @"\}",
         };
 
         private static readonly StringReplaceValues _preserveAngleBrackets = new() {
@@ -173,9 +169,8 @@ namespace ReverseMarkdown.Converters {
                 content = BackTicks().Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));
             }
 
-            content = EscapeSpecialMarkdownCharacters(content);
-
             if (isCommonMark) {
+                content = EscapeSpecialCommonMarkCharacters(content);
                 content = content.Replace("`", "\\`");
             }
 
@@ -187,15 +182,15 @@ namespace ReverseMarkdown.Converters {
         }
 
 
-        private static string EscapeSpecialMarkdownCharacters(string content)
+        private const string AmpersandPlaceholder = "__REVERSEMARKDOWN_AMP__";
+        private const string NbspPlaceholder = "__REVERSEMARKDOWN_NBSP__";
+
+        private static string EscapeSpecialCommonMarkCharacters(string content)
         {
             return content.StartsWith('`') && content.EndsWith('`')
                 ? content
-                : content.Replace(_specialMarkdownCharacters);
+                : content.Replace(_commonMarkSpecialMarkdownCharacters);
         }
-
-        private const string AmpersandPlaceholder = "__REVERSEMARKDOWN_AMP__";
-        private const string NbspPlaceholder = "__REVERSEMARKDOWN_NBSP__";
 
         private static string PreserveCommonMarkAmpersands(string rawContent)
         {
