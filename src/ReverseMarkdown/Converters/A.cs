@@ -21,12 +21,18 @@ namespace ReverseMarkdown.Converters {
         public override void Convert(TextWriter writer, HtmlNode node)
         {
             var isCommonMark = Converter.Config.CommonMark;
+            var isTelegram = Converter.Config.TelegramMarkdownV2;
             var name = TreatChildrenAsString(node);
-            if (!isCommonMark) {
+            if (!isCommonMark && !isTelegram) {
                 name = name.Trim();
             }
-            else {
+            else if (isCommonMark) {
                 name = name.ReplaceLineEndings("&#10;");
+            }
+
+            if (isTelegram) {
+                ConvertTelegramMarkdownV2(writer, node, name);
+                return;
             }
 
             if (isCommonMark &&
@@ -198,6 +204,45 @@ namespace ReverseMarkdown.Converters {
 
                 writer.Write(")");
             }
+        }
+
+        private void ConvertTelegramMarkdownV2(TextWriter writer, HtmlNode node, string name)
+        {
+            var href = node.GetAttributeValue("href", string.Empty).Trim();
+            var hasHrefAttribute = node.Attributes["href"] != null;
+            var escapedName = StringUtils.EscapeTelegramMarkdownV2(name);
+
+            if (!hasHrefAttribute) {
+                writer.Write(escapedName);
+                return;
+            }
+
+            var scheme = StringUtils.GetScheme(href);
+
+            var isRemoveLinkWhenSameName = (
+                Converter.Config.SmartHrefHandling &&
+                scheme != string.Empty &&
+                Uri.IsWellFormedUriString(href, UriKind.RelativeOrAbsolute) && (
+                    href.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                    href.Equals($"tel:{name}", StringComparison.OrdinalIgnoreCase) ||
+                    href.Equals($"mailto:{name}", StringComparison.OrdinalIgnoreCase)
+                )
+            );
+
+            if (href.StartsWith("#", StringComparison.Ordinal)
+                || !Converter.Config.IsSchemeWhitelisted(scheme)
+                || isRemoveLinkWhenSameName
+                || string.IsNullOrEmpty(href)) {
+                writer.Write(escapedName);
+                return;
+            }
+
+            var escapedHref = StringUtils.EscapeTelegramMarkdownV2LinkUrl(href);
+            writer.Write('[');
+            writer.Write(escapedName);
+            writer.Write("](");
+            writer.Write(escapedHref);
+            writer.Write(')');
         }
 
         private static void WriteRawHtmlAnchor(TextWriter writer, HtmlNode node, string text)

@@ -20,6 +20,9 @@ namespace ReverseMarkdown.Converters {
             if (Converter.Config.CommonMark) {
                 writer.WriteLine("\\");
             }
+            else if (Converter.Config.TelegramMarkdownV2) {
+                writer.WriteLine();
+            }
             else if (Converter.Config.GithubFlavored) {
                 writer.WriteLine();
             }

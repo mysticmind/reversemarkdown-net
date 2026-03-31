@@ -88,6 +88,7 @@ namespace ReverseMarkdown.Converters {
         private void TreatText(TextWriter writer, HtmlNode node)
         {
             var isCommonMark = Converter.Config.CommonMark;
+            var isTelegram = Converter.Config.TelegramMarkdownV2;
             var rawText = isCommonMark
                 ? node.OuterHtml
                 : node.InnerText;
@@ -152,6 +153,10 @@ namespace ReverseMarkdown.Converters {
                 }
             }
 
+            if (isTelegram && parent.Name != "a") {
+                content = StringUtils.EscapeTelegramMarkdownV2(content);
+            }
+
             if (shouldTrim) {
                 content = content.Trim();
             }
@@ -168,7 +173,7 @@ namespace ReverseMarkdown.Converters {
                 content = content.TrimStart('\r', '\n');
             }
 
-            if (parent.Name != "a" && !Converter.Config.SlackFlavored) {
+            if (!isTelegram && parent.Name != "a" && !Converter.Config.SlackFlavored) {
                 content = content.Replace(_escapedKeyChars);
                 // Preserve Key Chars Within BackTicks:
                 content = BackTicks().Replace(content, p => p.Value.Replace(_escapedKeyCharsReverse));

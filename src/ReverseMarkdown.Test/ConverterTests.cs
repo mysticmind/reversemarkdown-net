@@ -648,6 +648,82 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void TelegramMarkdownV2_BasicFormatting()
+        {
+            var html = "This is <strong>bold</strong>, <em>italic</em>, <del>strikethrough</del> and <a href=\"https://example.com\">a link</a>";
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert(html);
+
+            Assert.Equal("This is *bold*, _italic_, ~strikethrough~ and [a link](https://example.com)", result);
+        }
+
+        [Fact]
+        public void TelegramMarkdownV2_EscapeSpecialCharactersInText()
+        {
+            var html = "<p>Special _ * [ ] ( ) ~ ` > # + - = | { } . ! \\</p>";
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert(html);
+
+            Assert.Equal("Special \\_ \\* \\[ \\] \\( \\) \\~ \\` \\> \\# \\+ \\- \\= \\| \\{ \\} \\. \\! \\\\", result);
+        }
+
+        [Fact]
+        public void TelegramMarkdownV2_EscapeLinkTextAndHref()
+        {
+            var html = "<a href=\"https://example.com/path_(one)?q=1)2\">a_b[c]</a>";
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert(html);
+
+            Assert.Equal("[a\\_b\\[c\\]](https://example.com/path_(one\\)?q=1\\)2)", result);
+        }
+
+        [Fact]
+        public void TelegramMarkdownV2_EscapesListMarkers()
+        {
+            var html = "<ul><li>Item 1</li></ul><ol><li>Item 2</li></ol>";
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert(html);
+
+            Assert.Contains("\\- Item 1", result);
+            Assert.Contains("1\\. Item 2", result);
+        }
+
+        [Fact]
+        public void TelegramMarkdownV2_Img_FallsBackToLink()
+        {
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert("<img src=\"https://example.com/test.png\" />");
+
+            Assert.Equal("[Image](https://example.com/test.png)", result);
+        }
+
+        [Fact]
+        public void TelegramMarkdownV2_Sup_FallsBackToCaretNotation()
+        {
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert("x<sup>2</sup>");
+
+            Assert.Equal("x^2", result);
+        }
+
+        [Fact]
+        public void TelegramMarkdownV2_Table_FallsBackToCodeBlock()
+        {
+            var converter = new Converter(new Config { TelegramMarkdownV2 = true });
+
+            var result = converter.Convert("<table><tr><td>value</td></tr></table>");
+
+            Assert.Contains("```", result);
+            Assert.Contains("value", result);
+        }
+
+        [Fact]
         public void SlackFlavored_Unsupported_Img()
         {
             var html = LoadHtml("SlackFlavored_Unsupported_Img");
@@ -808,6 +884,7 @@ namespace ReverseMarkdown.Test
 
             ApplyBool(overrides.GithubFlavored, value => config.GithubFlavored = value);
             ApplyBool(overrides.SlackFlavored, value => config.SlackFlavored = value);
+            ApplyBool(overrides.TelegramMarkdownV2, value => config.TelegramMarkdownV2 = value);
             ApplyBool(overrides.CommonMark, value => config.CommonMark = value);
             ApplyBool(overrides.CommonMarkIntrawordEmphasisSpacing,
                 value => config.CommonMarkIntrawordEmphasisSpacing = value);
@@ -924,6 +1001,7 @@ namespace ReverseMarkdown.Test
         {
             public bool? GithubFlavored { get; set; }
             public bool? SlackFlavored { get; set; }
+            public bool? TelegramMarkdownV2 { get; set; }
             public bool? CommonMark { get; set; }
             public bool? CommonMarkIntrawordEmphasisSpacing { get; set; }
             public bool? CommonMarkUseHtmlInlineTags { get; set; }

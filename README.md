@@ -17,6 +17,7 @@ If you have used and benefitted from this library. Please feel free to sponsor m
 **Markdown flavors**
 - GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
 - Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
+- Telegram MarkdownV2 conversion. Use `var config = new ReverseMarkdown.Config { TelegramMarkdownV2 = true };`
 - CommonMark-focused output with opt-in flags to preserve compatibility. Use `var config = new ReverseMarkdown.Config { CommonMark = true };` This mode may emit inline HTML for tricky emphasis/link cases unless you disable `CommonMarkUseHtmlInlineTags`.
 
 **Tables**
@@ -101,18 +102,42 @@ If you need to preserve markdown-like text as literal content (for example `# He
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    EscapeMarkdownLineStarts = true
+    EscapeMarkdownLineStarts = true,
     // or CommonMark = true
 };
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
+### Telegram MarkdownV2 mode
+
+When `TelegramMarkdownV2` is enabled, ReverseMarkdown applies Telegram-compatible formatting and escaping rules:
+
+```cs
+var converter = new ReverseMarkdown.Converter(new ReverseMarkdown.Config
+{
+    TelegramMarkdownV2 = true
+});
+
+var html = "This is <strong>bold</strong>, <em>italic</em>, <del>strikethrough</del> and <a href=\"https://example.com/path_(one)?q=1)2\">a_b[c]</a>";
+var result = converter.Convert(html);
+// This is *bold*, _italic_, ~strikethrough~ and [a\_b\[c\]](https://example.com/path_(one\)?q=1\)2)
+```
+
+Notes:
+
+- Text and link labels escape Telegram-reserved characters.
+- Ordered and unordered list markers are escaped (`1\.` and `\-`).
+- `<img>` falls back to a link label (for example `[Image: alt](url)`).
+- `<table>` falls back to a preformatted code block representation.
+- `<sup>` falls back to caret notation (for example `x^2`).
+
 ## Configuration options
 
 * `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
 * `GithubFlavored` - Github style markdown for br, pre and table. Default is false
 * `SlackFlavored` - Slack style markdown formatting. When enabled, uses `*` for bold, `_` for italic, `~` for strikethrough, and `•` for list bullets. Default is false
+* `TelegramMarkdownV2` - Telegram MarkdownV2 formatting and escaping rules. When enabled, output escapes Telegram-reserved characters and uses Telegram-compatible emphasis and link syntax. For unsupported Telegram constructs, ReverseMarkdown falls back to readable text (`<img>` to link label, `<table>` to preformatted block, `<sup>` to caret notation).
 * `CommonMark` - Enable CommonMark-focused output rules. Default is false
 * `CommonMarkUseHtmlInlineTags` - When CommonMark is enabled, emit HTML for inline tags (`em`, `strong`, `a`, `img`) to avoid delimiter edge cases. Default is true
 * `CommonMarkIntrawordEmphasisSpacing` - When CommonMark is enabled, insert spaces to avoid intraword emphasis. Default is false

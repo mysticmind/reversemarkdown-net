@@ -25,7 +25,9 @@ namespace ReverseMarkdown.Converters {
                 return;
             }
 
-            var emphasis = Converter.Config.SlackFlavored ? "~" : "~~";
+            var emphasis = Converter.Config.SlackFlavored || Converter.Config.TelegramMarkdownV2
+                ? "~"
+                : "~~";
             TreatEmphasizeContentWhitespaceGuard(writer, content, emphasis);
         }
 

@@ -18,6 +18,16 @@ namespace ReverseMarkdown.Converters {
 
             var content = TreatChildrenAsString(node);
 
+            if (Converter.Config.TelegramMarkdownV2) {
+                if (string.IsNullOrEmpty(content)) {
+                    return;
+                }
+
+                writer.Write('^');
+                writer.Write(content.Chomp());
+                return;
+            }
+
             if (string.IsNullOrEmpty(content) || AlreadySup()) {
                 writer.Write(content);
                 return;

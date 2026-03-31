@@ -50,6 +50,7 @@ namespace ReverseMarkdown.Converters {
                 : "";
 
             var emphasis = Converter.Config.SlackFlavored
+                || Converter.Config.TelegramMarkdownV2
                 ? "*"
                 : isCommonMark && Context.AncestorsAny("strong")
                     ? "__"

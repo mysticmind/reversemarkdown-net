@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 
 namespace ReverseMarkdown.Helpers;
 
 public static partial class StringUtils {
+    private static readonly HashSet<char> TelegramMarkdownV2EscapableChars = new() {
+        '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!', '\\'
+    };
+
     /// <summary>
     /// <para>Gets scheme for provided uri string to overcome different behavior between windows/linux. https://github.com/dotnet/corefx/issues/1745</para>
     /// Assume http for url starting with //
@@ -67,5 +72,38 @@ public static partial class StringUtils {
             .Select(styleParts => new[] { styleParts[0].Trim(), styleParts[1].Trim() })
             .DistinctBy(styleParts => styleParts[0], StringComparer.OrdinalIgnoreCase)
             .ToDictionary(styleParts => styleParts[0], styleParts => styleParts[1], StringComparer.OrdinalIgnoreCase);
+    }
+
+    public static string EscapeTelegramMarkdownV2(string content)
+    {
+        return EscapeChars(content, c => TelegramMarkdownV2EscapableChars.Contains(c));
+    }
+
+    public static string EscapeTelegramMarkdownV2Code(string content)
+    {
+        return EscapeChars(content, c => c is '`' or '\\');
+    }
+
+    public static string EscapeTelegramMarkdownV2LinkUrl(string url)
+    {
+        return EscapeChars(url, c => c is ')' or '\\');
+    }
+
+    private static string EscapeChars(string content, Func<char, bool> mustEscape)
+    {
+        if (string.IsNullOrEmpty(content)) {
+            return content;
+        }
+
+        var builder = new StringBuilder(content.Length + 16);
+        foreach (var c in content) {
+            if (mustEscape(c)) {
+                builder.Append('\\');
+            }
+
+            builder.Append(c);
+        }
+
+        return builder.ToString();
     }
 }

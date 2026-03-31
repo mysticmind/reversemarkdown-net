@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using HtmlAgilityPack;
+using ReverseMarkdown.Helpers;
 
 
 namespace ReverseMarkdown.Converters {
@@ -12,6 +13,13 @@ namespace ReverseMarkdown.Converters {
 
         public override void Convert(TextWriter writer, HtmlNode node)
         {
+            if (Converter.Config.TelegramMarkdownV2) {
+                writer.Write('`');
+                writer.Write(StringUtils.EscapeTelegramMarkdownV2Code(DecodeHtml(node.InnerText)));
+                writer.Write('`');
+                return;
+            }
+
             if (Converter.Config.CommonMark) {
                 var content = node.InnerHtml;
                 var fence = CreateCommonMarkCodeFence(content);

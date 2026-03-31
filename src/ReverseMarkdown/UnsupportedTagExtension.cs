@@ -15,3 +15,10 @@ public class SlackUnsupportedTagException : UnsupportedTagException {
     {
     }
 }
+
+public class TelegramUnsupportedTagException : UnsupportedTagException {
+    internal TelegramUnsupportedTagException(string tagName)
+        : base($"<{tagName}> tags cannot be converted to Telegram MarkdownV2")
+    {
+    }
+}
