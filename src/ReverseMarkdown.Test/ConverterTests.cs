@@ -126,7 +126,20 @@ namespace ReverseMarkdown.Test
             Assert.Equal(html, converter.Convert(html));
 
             var commonMarkConverter = new Converter(new Config { CommonMark = true });
-            Assert.Equal("This is \\[a\\] test of the (reverse) {markdown} system.", commonMarkConverter.Convert(html));
+            Assert.Equal(html, commonMarkConverter.Convert(html));
+        }
+
+        [Fact]
+        public void WhenCommonMarkTextContainsMarkdownLinkPattern_ThenEscapeOnlyPatternDelimiters()
+        {
+            const string html = "This is [a] and [label](https://example.com/path) with {plain} braces.";
+
+            var converter = new Converter(new Config { CommonMark = true });
+
+            Assert.Equal(
+                "This is [a] and \\[label\\]\\(https://example.com/path\\) with {plain} braces.",
+                converter.Convert(html)
+            );
         }
 
         [Fact]

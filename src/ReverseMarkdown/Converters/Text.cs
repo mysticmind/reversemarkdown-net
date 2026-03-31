@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using ReverseMarkdown.Helpers;
@@ -26,11 +27,6 @@ namespace ReverseMarkdown.Converters {
             [@"\_"] = "_",
         };
 
-        private static readonly StringReplaceValues _commonMarkSpecialMarkdownCharacters = new() {
-            ["["] = @"\[",
-            ["]"] = @"\]",
-        };
-
         private static readonly StringReplaceValues _preserveAngleBrackets = new() {
             ["&lt;"] = "%3C",
             ["&gt;"] = "%3E",
@@ -43,6 +39,15 @@ namespace ReverseMarkdown.Converters {
 
         [GeneratedRegex(@"`.*?`")]
         private static partial Regex BackTicks();
+
+        [GeneratedRegex(@"!?\[[^\]\r\n]*\]\([^\)\r\n]*\)")]
+        private static partial Regex CommonMarkInlineLinkOrImagePattern();
+
+        [GeneratedRegex(@"\[[^\]\r\n]+\]\[[^\]\r\n]*\]")]
+        private static partial Regex CommonMarkReferenceLinkPattern();
+
+        [GeneratedRegex(@"(?m)^ {0,3}\[[^\]\r\n]+\]:")]
+        private static partial Regex CommonMarkLinkDefinitionPattern();
 
         #endregion
 
@@ -91,7 +96,7 @@ namespace ReverseMarkdown.Converters {
                  rawText.Contains("<![CDATA[", StringComparison.Ordinal) ||
                  rawText.Contains("</", StringComparison.Ordinal) ||
                  rawText.Contains("<!", StringComparison.Ordinal))) {
-                writer.Write(rawText);
+                writer.Write(EscapeSpecialCommonMarkCharacters(rawText));
                 return;
             }
             var text = isCommonMark
@@ -170,7 +175,7 @@ namespace ReverseMarkdown.Converters {
             }
 
             if (isCommonMark) {
-                content = EscapeSpecialCommonMarkCharacters(content);
+                content = EscapeSpecialCommonMarkCharacters(content, node);
                 content = content.Replace("`", "\\`");
             }
 
@@ -185,11 +190,158 @@ namespace ReverseMarkdown.Converters {
         private const string AmpersandPlaceholder = "__REVERSEMARKDOWN_AMP__";
         private const string NbspPlaceholder = "__REVERSEMARKDOWN_NBSP__";
 
+        private static string EscapeSpecialCommonMarkCharacters(string content, HtmlNode node)
+        {
+            var escaped = EscapeSpecialCommonMarkCharacters(content);
+            return TryGetMarkedDelimiterSequence(node, out var delimiterMarks)
+                ? EscapeMarkedDelimiters(escaped, delimiterMarks)
+                : escaped;
+        }
+
         private static string EscapeSpecialCommonMarkCharacters(string content)
         {
             return content.StartsWith('`') && content.EndsWith('`')
                 ? content
-                : content.Replace(_commonMarkSpecialMarkdownCharacters);
+                : EscapeCommonMarkPatternDelimiters(content);
+        }
+
+        private static bool TryGetMarkedDelimiterSequence(HtmlNode node, out bool[] delimiterMarks)
+        {
+            delimiterMarks = Array.Empty<bool>();
+
+            var parent = node.ParentNode;
+            if (parent == null || parent.ChildNodes.Count < 2) {
+                return false;
+            }
+
+            if (!parent.ChildNodes.Any(child => child.NodeType != HtmlNodeType.Text)) {
+                return false;
+            }
+
+            var parentText = new StringBuilder();
+            var nodeInnerText = node.InnerText;
+            var nodeStart = -1;
+
+            foreach (var child in parent.ChildNodes) {
+                if (child == node) {
+                    nodeStart = parentText.Length;
+                }
+
+                parentText.Append(child.InnerText);
+            }
+
+            if (nodeStart < 0 || string.IsNullOrEmpty(nodeInnerText)) {
+                return false;
+            }
+
+            var combined = parentText.ToString();
+            var shouldEscape = new bool[combined.Length];
+            var hasDelimitersToEscape =
+                MarkCommonMarkPatternDelimiters(shouldEscape, combined, CommonMarkInlineLinkOrImagePattern()) |
+                MarkCommonMarkPatternDelimiters(shouldEscape, combined, CommonMarkReferenceLinkPattern()) |
+                MarkCommonMarkPatternDelimiters(shouldEscape, combined, CommonMarkLinkDefinitionPattern());
+
+            if (!hasDelimitersToEscape) {
+                return false;
+            }
+
+            var marks = new bool[nodeInnerText.Count(IsCommonMarkDelimiter)];
+            var delimiterIndex = 0;
+            var hasMarkedDelimiterInNode = false;
+            for (var i = 0; i < nodeInnerText.Length; i++) {
+                var currentChar = nodeInnerText[i];
+                if (!IsCommonMarkDelimiter(currentChar)) {
+                    continue;
+                }
+
+                var marked = shouldEscape[nodeStart + i];
+                marks[delimiterIndex++] = marked;
+                hasMarkedDelimiterInNode |= marked;
+            }
+
+            if (!hasMarkedDelimiterInNode) {
+                return false;
+            }
+
+            delimiterMarks = marks;
+            return true;
+        }
+
+        private static string EscapeMarkedDelimiters(string content, bool[] delimiterMarks)
+        {
+            if (string.IsNullOrEmpty(content) || delimiterMarks.Length == 0) {
+                return content;
+            }
+
+            var escaped = new StringBuilder(content.Length);
+            var delimiterIndex = 0;
+            for (var i = 0; i < content.Length; i++) {
+                var currentChar = content[i];
+                if (!IsCommonMarkDelimiter(currentChar)) {
+                    escaped.Append(currentChar);
+                    continue;
+                }
+
+                var shouldEscape = delimiterIndex < delimiterMarks.Length && delimiterMarks[delimiterIndex];
+                delimiterIndex++;
+                if (shouldEscape && (i == 0 || content[i - 1] != '\\')) {
+                    escaped.Append('\\');
+                }
+
+                escaped.Append(currentChar);
+            }
+
+            return escaped.ToString();
+        }
+
+        private static string EscapeCommonMarkPatternDelimiters(string content)
+        {
+            if (string.IsNullOrEmpty(content)) {
+                return content;
+            }
+
+            var shouldEscape = new bool[content.Length];
+            var hasDelimitersToEscape =
+                MarkCommonMarkPatternDelimiters(shouldEscape, content, CommonMarkInlineLinkOrImagePattern()) |
+                MarkCommonMarkPatternDelimiters(shouldEscape, content, CommonMarkReferenceLinkPattern()) |
+                MarkCommonMarkPatternDelimiters(shouldEscape, content, CommonMarkLinkDefinitionPattern());
+
+            if (!hasDelimitersToEscape) {
+                return content;
+            }
+
+            var escaped = new StringBuilder(content.Length);
+            for (var i = 0; i < content.Length; i++) {
+                if (shouldEscape[i] && (i == 0 || content[i - 1] != '\\')) {
+                    escaped.Append('\\');
+                }
+
+                escaped.Append(content[i]);
+            }
+
+            return escaped.ToString();
+        }
+
+        private static bool MarkCommonMarkPatternDelimiters(bool[] shouldEscape, string content, Regex pattern)
+        {
+            var foundDelimiters = false;
+
+            foreach (Match match in pattern.Matches(content)) {
+                var end = match.Index + match.Length;
+                for (var i = match.Index; i < end; i++) {
+                    if (IsCommonMarkDelimiter(content[i])) {
+                        shouldEscape[i] = true;
+                        foundDelimiters = true;
+                    }
+                }
+            }
+
+            return foundDelimiters;
+        }
+
+        private static bool IsCommonMarkDelimiter(char character)
+        {
+            return character is '[' or ']' or '(' or ')' or '{' or '}';
         }
 
         private static string PreserveCommonMarkAmpersands(string rawContent)
