@@ -48,8 +48,10 @@ namespace ReverseMarkdown.Writers
 
             var content = sb.ToString();
 
-            // Escape markup-significant characters so literal text round-trips.
+            // Escape markup-significant characters so literal text round-trips. Ampersand first
+            // so a literal "&ouml;" isn't reinterpreted as an entity.
             content = content
+                .Replace("&", "&amp;")
                 .Replace("\\", "\\\\")
                 .Replace("`", "\\`")
                 .Replace("*", "\\*")
@@ -60,6 +62,10 @@ namespace ReverseMarkdown.Writers
                 .Replace(">", "&gt;");
 
             content = EscapeLineStarts(content);
+
+            // A blank line inside one text run must stay within the paragraph: encode as &#10;.
+            content = System.Text.RegularExpressions.Regex.Replace(
+                content, "\n{2,}", m => string.Concat(System.Linq.Enumerable.Repeat("&#10;", m.Value.Length)));
 
             // Suppress redundant leading whitespace (space or newline) at a boundary so a
             // preceding hard break ("  \n") isn't doubled into a paragraph split.

@@ -78,6 +78,21 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdList node)
         {
+            // Alternate this list's marker if it directly follows a same-type sibling list.
+            var siblingRun = _adjacentListRun;
+            _adjacentListRun = 0; // nested lists start fresh
+
+            var orderedDelimiter = siblingRun % 2 == 1 ? ")" : ".";
+            string unorderedBullet;
+            if (UnorderedBullet == "-")
+            {
+                unorderedBullet = new[] { "-", "*", "+" }[siblingRun % 3];
+            }
+            else
+            {
+                unorderedBullet = UnorderedBullet;
+            }
+
             var first = true;
             var index = 0;
             foreach (var item in node.Items)
@@ -90,7 +105,9 @@ namespace ReverseMarkdown.Writers
 
                 first = false;
 
-                var marker = node.Ordered ? $"{node.Start + index}. " : UnorderedBullet + " ";
+                var marker = node.Ordered
+                    ? $"{node.Start + index}{orderedDelimiter} "
+                    : unorderedBullet + " ";
                 if (item.Checked is { } isChecked)
                 {
                     marker += isChecked ? "[x] " : "[ ] ";
@@ -300,9 +317,28 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdText node) => WriteText(node.Value);
 
-        public virtual void Visit(MdStrong node) => Wrap(StrongDelimiter, node.Children);
+        private int _strongDepth;
+        private int _emphasisDepth;
 
-        public virtual void Visit(MdEmphasis node) => Wrap(EmphasisDelimiter, node.Children);
+        public virtual void Visit(MdStrong node)
+        {
+            _strongDepth++;
+            Wrap(StrongDelimiterAt(_strongDepth), node.Children);
+            _strongDepth--;
+        }
+
+        public virtual void Visit(MdEmphasis node)
+        {
+            _emphasisDepth++;
+            Wrap(EmphasisDelimiterAt(_emphasisDepth), node.Children);
+            _emphasisDepth--;
+        }
+
+        // Alternate delimiters when nesting so em-in-em / strong-in-strong don't merge
+        // (e.g. em>em renders *_foo_* not **foo**).
+        protected virtual string StrongDelimiterAt(int depth) => depth % 2 == 1 ? StrongDelimiter : "__";
+
+        protected virtual string EmphasisDelimiterAt(int depth) => depth % 2 == 1 ? EmphasisDelimiter : "_";
 
         public virtual void Visit(MdStrikethrough node) => Wrap(StrikethroughDelimiter, node.Children);
 
@@ -374,7 +410,12 @@ namespace ReverseMarkdown.Writers
             }
 
             var fence = new string('`', longestRun + 1);
-            var pad = literal.Length > 0 && (literal[0] == '`' || literal[^1] == '`') ? " " : string.Empty;
+            // Pad with a space each side when the content starts/ends with a backtick or a space:
+            // the reader strips one space each side, round-tripping the original literal.
+            var needsPad = literal.Length > 0 &&
+                           (literal[0] is '`' or ' ' || literal[^1] is '`' or ' ') &&
+                           literal.Trim().Length > 0;
+            var pad = needsPad ? " " : string.Empty;
             Buffer.Append(fence).Append(pad).Append(literal).Append(pad).Append(fence);
         }
 
@@ -382,19 +423,26 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdRawInline node) => Buffer.Append(node.Html);
 
+        // How many same-type lists precede the current one in this block sequence (for marker
+        // alternation, so adjacent lists don't merge).
+        private int _adjacentListRun;
+
         /// <summary>Render block children separated by one blank line.</summary>
         protected void WriteBlocks(IEnumerable<MdBlock> blocks)
         {
-            var first = true;
+            MdBlock? prev = null;
+            var run = 0;
             foreach (var block in blocks)
             {
-                if (!first)
+                if (prev is not null)
                 {
                     Buffer.Append("\n\n");
                 }
 
-                first = false;
+                run = prev is MdList pl && block is MdList bl && pl.Ordered == bl.Ordered ? run + 1 : 0;
+                _adjacentListRun = run;
                 block.Accept(this);
+                prev = block;
             }
         }
 
@@ -519,9 +567,9 @@ namespace ReverseMarkdown.Writers
             return last == ' ' || last == '\n';
         }
 
-        private void TrimTrailingSpaces()
+        private protected void TrimTrailingSpaces()
         {
-            while (Buffer.Length > 0 && Buffer[^1] == ' ')
+            while (Buffer.Length > 0 && (Buffer[^1] == ' ' || Buffer[^1] == '\n'))
             {
                 Buffer.Length--;
             }

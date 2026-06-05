@@ -66,7 +66,7 @@ namespace ReverseMarkdown.Test
                     pass[ex.Section] = pass.GetValueOrDefault(ex.Section) + 1;
                     overallPass++;
                 }
-                else if (samples.Count < 25)
+                else
                 {
                     samples.Add($"[{ex.Section} #{ex.Example}] in={Inline(ex.Html)}\n   exp={Inline(Norm(ex.Html))}\n   got={Inline(actual)}");
                 }
@@ -85,6 +85,7 @@ namespace ReverseMarkdown.Test
                 sb.AppendLine(s);
             }
 
+            File.WriteAllText("/tmp/v6-cm-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
             // Regression gate: lock in current progress (92.0%). Raise as the writer improves.

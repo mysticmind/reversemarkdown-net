@@ -43,6 +43,10 @@ namespace ReverseMarkdown.Writers
         protected override string StrikethroughDelimiter => "~";
         protected override string UnorderedBullet => "•";
 
+        // Slack has no nested-emphasis alternation.
+        protected override string StrongDelimiterAt(int depth) => "*";
+        protected override string EmphasisDelimiterAt(int depth) => "_";
+
         // Slack mrkdwn does not use backslash escaping.
         protected override void AppendText(string text) => Buffer.Append(text);
 
@@ -83,6 +87,9 @@ namespace ReverseMarkdown.Writers
         protected override string StrongDelimiter => "*";
         protected override string EmphasisDelimiter => "_";
         protected override string StrikethroughDelimiter => "~";
+
+        protected override string StrongDelimiterAt(int depth) => "*";
+        protected override string EmphasisDelimiterAt(int depth) => "_";
 
         protected override void AppendText(string text) =>
             Buffer.Append(StringUtils.EscapeTelegramMarkdownV2(text));
