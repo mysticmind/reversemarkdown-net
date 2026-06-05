@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using AngleSharp.Html.Parser;
 using HtmlAgilityPack;
 using ReverseMarkdown.Converters;
 using ReverseMarkdown.Dom;
@@ -26,6 +27,9 @@ namespace ReverseMarkdown {
         private readonly Dictionary<string, AliasTagConverter> _tagAliasConverters = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly System.Threading.AsyncLocal<ConverterContext?> _context = new();
+
+        // v6 Markdown DOM path: AngleSharp parser (reusable across parses).
+        private readonly HtmlParser _htmlParser = new();
 
         public ConverterContext Context => _context.Value ??= new ConverterContext();
 
@@ -167,23 +171,15 @@ namespace ReverseMarkdown {
 
         /// <summary>
         /// EXPERIMENTAL (v6 preview): parse HTML into a mutable <see cref="MarkdownDocument"/>
-        /// you can traverse, filter and reshape before rendering. See docs/v6/.
+        /// you can traverse, filter and reshape before rendering. Uses AngleSharp's
+        /// HTML5-compliant parser. See docs/v6/.
         /// </summary>
         public virtual MarkdownDocument Parse(string html)
         {
             html = html.ReplaceLineEndings("\n");
-            html = Cleaner.PreTidy(html, Config.RemoveComments);
 
-            var doc = new HtmlDocument();
-            doc.LoadHtml(html);
-
-            var root = doc.DocumentNode;
-            if (root.Descendants("body").Any())
-            {
-                root = root.SelectSingleNode("//body");
-            }
-
-            return new MarkdownDomReader().Read(root);
+            var document = _htmlParser.ParseDocument(html);
+            return new MarkdownDomReader().Read(document.Body!);
         }
 
         /// <summary>

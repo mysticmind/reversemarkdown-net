@@ -15,6 +15,9 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   (commits `1b54db5`, `0f2f53f`)
 - ✅ **Flavor seam**: `Config.MarkdownFlavor` enum + `Render(doc, flavor)` + `WriterFactory`
   (Default/GitHub/CommonMark; others fall back to Default). (commit `426aced`)
+- ✅ **Parser**: v6 readers moved to **AngleSharp** (HTML5-compliant) — ADR 0002. HAP stays
+  for the v5 path until the Phase D flip. Native CSS selectors retire the deferred Fizzler
+  question for #79 HTML-side filtering.
 - ✅ **Parity harness**: `ParityHarnessTests` — dual-run v5-vs-v6, informational diff
   classification, gates on content-preservation (subsequence check). (commit `426aced`)
 - ⏳ **Remaining Phase B**: `table`/`tr`/`td`/`th`, `dl`/`dt`/`dd`, `sup`/`sub`, `div`/`span`/

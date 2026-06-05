@@ -1,20 +1,20 @@
 using System;
 using System.Collections.Generic;
-using HtmlAgilityPack;
+using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
 namespace ReverseMarkdown.Readers
 {
     /// <summary>
-    /// Builds a <see cref="MarkdownDocument"/> from an HTML tree by dispatching each node to
-    /// a registered <see cref="IMdReader"/> by tag name. Unknown tags fall back to a bypass
-    /// reader (emit children only). Phase A registers a hardcoded reader set; later phases
-    /// move to reflection-based discovery mirroring v5 converters.
+    /// Builds a <see cref="MarkdownDocument"/> from an AngleSharp HTML tree by dispatching each
+    /// element to a registered <see cref="IMdReader"/> by tag name. Text nodes become
+    /// <see cref="MdText"/>; comments are skipped; unknown tags fall back to a bypass reader
+    /// (emit children only). Phase B registers a hardcoded reader set; later phases move to
+    /// reflection-based discovery mirroring v5 converters.
     /// </summary>
     public sealed class MarkdownDomReader
     {
         private readonly Dictionary<string, IMdReader> _readers = new(StringComparer.OrdinalIgnoreCase);
-        private readonly IMdReader _text = new TextReader();
         private readonly IMdReader _bypass = new BypassReader();
 
         public MarkdownDomReader()
@@ -59,7 +59,7 @@ namespace ReverseMarkdown.Readers
             Register("pre", new PreReader());
         }
 
-        public MarkdownDocument Read(HtmlNode root)
+        public MarkdownDocument Read(IElement root)
         {
             var document = new MarkdownDocument();
             var ctx = new ReaderContext(this, document);
@@ -67,21 +67,33 @@ namespace ReverseMarkdown.Readers
             return document;
         }
 
-        internal void ReadNode(HtmlNode node, ReaderContext ctx)
+        internal void ReadNode(INode node, ReaderContext ctx)
         {
-            if (node.NodeType == HtmlNodeType.Text)
+            switch (node)
             {
-                _text.Read(node, ctx);
+                case IText text:
+                    ReadText(text, ctx);
+                    break;
+                case IElement element:
+                    var reader = _readers.TryGetValue(element.LocalName, out var found) ? found : _bypass;
+                    reader.Read(element, ctx);
+                    break;
+                // comments, processing instructions, doctype: ignored
+            }
+        }
+
+        private static void ReadText(IText text, ReaderContext ctx)
+        {
+            // AngleSharp already decodes entities into Data.
+            var value = text.Data;
+
+            // Drop whitespace-only text between block elements; keep it inside inline content.
+            if (string.IsNullOrWhiteSpace(value) && !ctx.CurrentAcceptsInline)
+            {
                 return;
             }
 
-            if (node.NodeType == HtmlNodeType.Comment)
-            {
-                return;
-            }
-
-            var reader = _readers.TryGetValue(node.Name, out var found) ? found : _bypass;
-            reader.Read(node, ctx);
+            ctx.Emit(new MdText(value) { SourceTag = "#text" });
         }
     }
 }

@@ -1,26 +1,9 @@
-using System.Net;
-using HtmlAgilityPack;
+using System;
+using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
 namespace ReverseMarkdown.Readers
 {
-    /// <summary>Text node reader: decodes HTML entities into an <see cref="MdText"/>.</summary>
-    public sealed class TextReader : IMdReader
-    {
-        public void Read(HtmlNode node, ReaderContext ctx)
-        {
-            var value = WebUtility.HtmlDecode(node.InnerText);
-
-            // Drop whitespace-only text between block elements; keep it inside inline content.
-            if (string.IsNullOrWhiteSpace(value) && !ctx.CurrentAcceptsInline)
-            {
-                return;
-            }
-
-            ctx.Emit(new MdText(value) { SourceTag = node.Name });
-        }
-    }
-
     /// <summary>Heading reader for <c>h1</c>–<c>h6</c>.</summary>
     public sealed class HeadingReader : IMdReader
     {
@@ -31,12 +14,12 @@ namespace ReverseMarkdown.Readers
             _level = level;
         }
 
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var heading = new MdHeading(_level) { SourceTag = node.Name };
+            var heading = new MdHeading(_level) { SourceTag = element.LocalName };
             using (ctx.Open(heading))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(heading);
@@ -46,12 +29,12 @@ namespace ReverseMarkdown.Readers
     /// <summary>Paragraph reader for <c>p</c>.</summary>
     public sealed class ParagraphReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var paragraph = new MdParagraph { SourceTag = node.Name };
+            var paragraph = new MdParagraph { SourceTag = element.LocalName };
             using (ctx.Open(paragraph))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(paragraph);
@@ -61,12 +44,12 @@ namespace ReverseMarkdown.Readers
     /// <summary>Strong reader for <c>strong</c> / <c>b</c>.</summary>
     public sealed class StrongReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var strong = new MdStrong { SourceTag = node.Name };
+            var strong = new MdStrong { SourceTag = element.LocalName };
             using (ctx.Open(strong))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(strong);
@@ -76,12 +59,12 @@ namespace ReverseMarkdown.Readers
     /// <summary>Emphasis reader for <c>em</c> / <c>i</c>.</summary>
     public sealed class EmphasisReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var em = new MdEmphasis { SourceTag = node.Name };
+            var em = new MdEmphasis { SourceTag = element.LocalName };
             using (ctx.Open(em))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(em);
@@ -91,12 +74,12 @@ namespace ReverseMarkdown.Readers
     /// <summary>Strikethrough reader for <c>s</c> / <c>del</c> / <c>strike</c>.</summary>
     public sealed class StrikethroughReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var strike = new MdStrikethrough { SourceTag = node.Name };
+            var strike = new MdStrikethrough { SourceTag = element.LocalName };
             using (ctx.Open(strike))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(strike);
@@ -106,20 +89,22 @@ namespace ReverseMarkdown.Readers
     /// <summary>Anchor reader for <c>a</c>.</summary>
     public sealed class AnchorReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var href = WebUtility.HtmlDecode(node.GetAttributeValue("href", string.Empty));
-            var link = new MdLink(href) { SourceTag = node.Name };
+            var link = new MdLink(element.GetAttribute("href") ?? string.Empty)
+            {
+                SourceTag = element.LocalName,
+            };
 
-            var title = node.GetAttributeValue("title", string.Empty);
+            var title = element.GetAttribute("title");
             if (!string.IsNullOrEmpty(title))
             {
-                link.Title = WebUtility.HtmlDecode(title);
+                link.Title = title;
             }
 
             using (ctx.Open(link))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(link);
@@ -129,19 +114,18 @@ namespace ReverseMarkdown.Readers
     /// <summary>Image reader for <c>img</c>.</summary>
     public sealed class ImageReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var src = WebUtility.HtmlDecode(node.GetAttributeValue("src", string.Empty));
-            var image = new MdImage(src)
+            var image = new MdImage(element.GetAttribute("src") ?? string.Empty)
             {
-                SourceTag = node.Name,
-                Alt = WebUtility.HtmlDecode(node.GetAttributeValue("alt", string.Empty)),
+                SourceTag = element.LocalName,
+                Alt = element.GetAttribute("alt") ?? string.Empty,
             };
 
-            var title = node.GetAttributeValue("title", string.Empty);
+            var title = element.GetAttribute("title");
             if (!string.IsNullOrEmpty(title))
             {
-                image.Title = WebUtility.HtmlDecode(title);
+                image.Title = title;
             }
 
             ctx.Emit(image);
@@ -151,39 +135,39 @@ namespace ReverseMarkdown.Readers
     /// <summary>Inline code reader for <c>code</c> (outside <c>pre</c>).</summary>
     public sealed class CodeReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            ctx.Emit(new MdInlineCode(WebUtility.HtmlDecode(node.InnerText)) { SourceTag = node.Name });
+            ctx.Emit(new MdInlineCode(element.TextContent) { SourceTag = element.LocalName });
         }
     }
 
     /// <summary>Line break reader for <c>br</c>.</summary>
     public sealed class LineBreakReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            ctx.Emit(new MdLineBreak { SourceTag = node.Name });
+            ctx.Emit(new MdLineBreak { SourceTag = element.LocalName });
         }
     }
 
     /// <summary>Thematic break reader for <c>hr</c>.</summary>
     public sealed class ThematicBreakReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            ctx.Emit(new MdThematicBreak { SourceTag = node.Name });
+            ctx.Emit(new MdThematicBreak { SourceTag = element.LocalName });
         }
     }
 
     /// <summary>Block quote reader for <c>blockquote</c>.</summary>
     public sealed class BlockquoteReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var quote = new MdBlockquote { SourceTag = node.Name };
+            var quote = new MdBlockquote { SourceTag = element.LocalName };
             using (ctx.Open(quote))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(quote);
@@ -200,17 +184,17 @@ namespace ReverseMarkdown.Readers
             _ordered = ordered;
         }
 
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var list = new MdList { Ordered = _ordered, SourceTag = node.Name };
-            if (_ordered)
+            var list = new MdList { Ordered = _ordered, SourceTag = element.LocalName };
+            if (_ordered && int.TryParse(element.GetAttribute("start"), out var start))
             {
-                list.Start = node.GetAttributeValue("start", 1);
+                list.Start = start;
             }
 
             using (ctx.Open(list))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(list);
@@ -220,12 +204,12 @@ namespace ReverseMarkdown.Readers
     /// <summary>List item reader for <c>li</c>.</summary>
     public sealed class ListItemReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var item = new MdListItem { SourceTag = node.Name };
+            var item = new MdListItem { SourceTag = element.LocalName };
             using (ctx.Open(item))
             {
-                ctx.ReadChildren(node);
+                ctx.ReadChildren(element);
             }
 
             ctx.Emit(item);
@@ -235,29 +219,28 @@ namespace ReverseMarkdown.Readers
     /// <summary>Code block reader for <c>pre</c> (and <c>pre&gt;code</c>).</summary>
     public sealed class PreReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx)
+        public void Read(IElement element, ReaderContext ctx)
         {
-            var codeNode = node.SelectSingleNode(".//code") ?? node;
-            var literal = WebUtility.HtmlDecode(codeNode.InnerText);
+            var codeNode = element.QuerySelector("code") ?? element;
 
-            ctx.Emit(new MdCodeBlock(literal)
+            ctx.Emit(new MdCodeBlock(codeNode.TextContent)
             {
-                SourceTag = node.Name,
+                SourceTag = element.LocalName,
                 Language = DetectLanguage(codeNode),
             });
         }
 
-        private static string? DetectLanguage(HtmlNode codeNode)
+        private static string? DetectLanguage(IElement codeNode)
         {
-            var cls = codeNode.GetAttributeValue("class", string.Empty);
+            var cls = codeNode.GetAttribute("class") ?? string.Empty;
             foreach (var token in cls.Split(' '))
             {
-                if (token.StartsWith("language-", System.StringComparison.OrdinalIgnoreCase))
+                if (token.StartsWith("language-", StringComparison.OrdinalIgnoreCase))
                 {
                     return token.Substring("language-".Length);
                 }
 
-                if (token.StartsWith("lang-", System.StringComparison.OrdinalIgnoreCase))
+                if (token.StartsWith("lang-", StringComparison.OrdinalIgnoreCase))
                 {
                     return token.Substring("lang-".Length);
                 }
@@ -273,6 +256,6 @@ namespace ReverseMarkdown.Readers
     /// </summary>
     public sealed class BypassReader : IMdReader
     {
-        public void Read(HtmlNode node, ReaderContext ctx) => ctx.ReadChildren(node);
+        public void Read(IElement element, ReaderContext ctx) => ctx.ReadChildren(element);
     }
 }

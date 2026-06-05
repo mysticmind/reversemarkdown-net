@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using HtmlAgilityPack;
+using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
 namespace ReverseMarkdown.Readers
@@ -70,13 +70,8 @@ namespace ReverseMarkdown.Readers
         }
 
         /// <summary>Read every child of <paramref name="node"/> into the current container.</summary>
-        public void ReadChildren(HtmlNode node)
+        public void ReadChildren(INode node)
         {
-            if (!node.HasChildNodes)
-            {
-                return;
-            }
-
             foreach (var child in node.ChildNodes)
             {
                 _reader.ReadNode(child, this);

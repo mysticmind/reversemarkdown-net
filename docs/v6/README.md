@@ -82,10 +82,11 @@ already use.
   Rationale: issue #79's "pick what I want / don't want" is fundamentally an edit-in-place
   operation; a mutable tree is the most direct, least-ceremony API for it. Safety is handled
   by an `MdRewriter` base for systematic transforms rather than by immutability. → architecture.md
-- **HTML-side filtering ships predicate-only; Fizzler/CSS deferred** (2026-06-05). v6.0
-  exposes `Config.HtmlFilters` (`Func<HtmlNode, FilterAction>`) and takes **no new
-  dependency**. A Fizzler-backed `AddExcludeSelector(string css)` convenience can be added
-  later as a non-breaking overload that compiles to a predicate. → architecture.md
+- **HTML-side filtering: predicate hooks, with CSS selectors now free via AngleSharp**
+  (updated 2026-06-05). v6.0 exposes predicate filters; because the reader parser is now
+  AngleSharp (ADR 0002), CSS-selector filtering comes from AngleSharp's native
+  `QuerySelectorAll` — no Fizzler dependency needed. The earlier "Fizzler deferred"
+  reasoning is moot. → architecture.md, [ADR 0002](../adr/0002-anglesharp-reader-parser.md)
 
 ## Open questions
 

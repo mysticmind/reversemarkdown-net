@@ -12,6 +12,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <!-- v6 Markdown DOM reader path uses AngleSharp's HTML5-compliant parser.
+         HtmlAgilityPack remains for the v5 Convert path until the Phase D flip. -->
+    <PackageReference Include="AngleSharp" Version="1.1.2" />
   </ItemGroup>
   <!--SourceLink specific settings-->
   <PropertyGroup>
