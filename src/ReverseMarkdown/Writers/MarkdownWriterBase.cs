@@ -84,7 +84,8 @@ namespace ReverseMarkdown.Writers
             {
                 if (!first)
                 {
-                    Buffer.Append('\n');
+                    // Loose lists separate items with a blank line.
+                    Buffer.Append(node.Tight ? "\n" : "\n\n");
                 }
 
                 first = false;
@@ -95,7 +96,7 @@ namespace ReverseMarkdown.Writers
                     marker += isChecked ? "[x] " : "[ ] ";
                 }
 
-                var inner = Capture(() => WriteItemBlocks(item.Children)).Replace("\r\n", "\n");
+                var inner = Capture(() => WriteItemBlocks(item.Children, node.Tight)).Replace("\r\n", "\n");
                 var lines = inner.Split('\n');
                 var indent = new string(' ', marker.Length);
 
@@ -320,10 +321,10 @@ namespace ReverseMarkdown.Writers
         {
             Buffer.Append('[');
             WriteInline(node.Children);
-            Buffer.Append("](").Append(node.Url);
+            Buffer.Append("](").Append(EncodeLinkDestination(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
             {
-                Buffer.Append(" \"").Append(node.Title).Append('"');
+                Buffer.Append(" \"").Append(EncodeTitle(node.Title)).Append('"');
             }
 
             Buffer.Append(')');
@@ -331,14 +332,28 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdImage node)
         {
-            Buffer.Append("![").Append(node.Alt).Append("](").Append(node.Url);
+            Buffer.Append("![").Append(node.Alt).Append("](").Append(EncodeLinkDestination(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
             {
-                Buffer.Append(" \"").Append(node.Title).Append('"');
+                Buffer.Append(" \"").Append(EncodeTitle(node.Title)).Append('"');
             }
 
             Buffer.Append(')');
         }
+
+        // CommonMark link destination: use the <...> form when it contains spaces, otherwise
+        // backslash-escape parentheses so unbalanced/embedded parens don't break parsing.
+        private static string EncodeLinkDestination(string url)
+        {
+            if (url.IndexOf(' ') >= 0 || url.IndexOf('\n') >= 0)
+            {
+                return "<" + url.Replace("<", "\\<").Replace(">", "\\>") + ">";
+            }
+
+            return url.Replace("(", "\\(").Replace(")", "\\)");
+        }
+
+        private static string EncodeTitle(string title) => title.Replace("\"", "\\\"");
 
         public virtual void Visit(MdInlineCode node)
         {
@@ -384,11 +399,11 @@ namespace ReverseMarkdown.Writers
         }
 
         /// <summary>
-        /// Render a list item's block children. Consecutive non-list blocks (e.g. multiple
-        /// paragraphs) are separated by a blank line (loose item); a nested list joins tightly
-        /// so it indents on the next line.
+        /// Render a list item's block children. In a loose item, consecutive non-list blocks
+        /// (e.g. multiple paragraphs) are separated by a blank line; a tight item — or a nested
+        /// list — joins with a single newline so it indents on the next line.
         /// </summary>
-        protected void WriteItemBlocks(IEnumerable<MdBlock> blocks)
+        protected void WriteItemBlocks(IEnumerable<MdBlock> blocks, bool tight = true)
         {
             var list = blocks.ToList();
             for (var i = 0; i < list.Count; i++)
@@ -396,7 +411,7 @@ namespace ReverseMarkdown.Writers
                 if (i > 0)
                 {
                     var adjacentToList = list[i] is MdList || list[i - 1] is MdList;
-                    Buffer.Append(adjacentToList ? "\n" : "\n\n");
+                    Buffer.Append(tight || adjacentToList ? "\n" : "\n\n");
                 }
 
                 list[i].Accept(this);

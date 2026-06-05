@@ -407,6 +407,11 @@ namespace ReverseMarkdown.Readers
                 list.Start = start;
             }
 
+            // A list is "loose" when any item wraps its content in a block (a <p> child) — the
+            // canonical HTML signal for loose CommonMark lists.
+            list.Tight = !element.Children.Any(li =>
+                li.LocalName == "li" && li.Children.Any(child => child.LocalName == "p"));
+
             using (ctx.Open(list))
             {
                 ctx.ReadChildren(element);

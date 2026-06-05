@@ -87,8 +87,8 @@ namespace ReverseMarkdown.Test
 
             _output.WriteLine(sb.ToString());
 
-            // Regression gate: lock in current progress (89.7%). Raise as the writer improves.
-            Assert.True(rate >= 0.88, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
+            // Regression gate: lock in current progress (92.0%). Raise as the writer improves.
+            Assert.True(rate >= 0.91, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         private static string Inline(string s) => s.Replace("\r\n", "\\n").Replace("\n", "\\n");
