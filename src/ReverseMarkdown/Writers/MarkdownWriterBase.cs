@@ -38,11 +38,83 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdParagraph node) => WriteInline(node.Children);
 
+        public virtual void Visit(MdThematicBreak node) => Buffer.Append("---");
+
+        public virtual void Visit(MdBlockquote node)
+        {
+            var inner = Capture(() => WriteBlocks(node.Children)).Replace("\r\n", "\n");
+            var lines = inner.Split('\n');
+            for (var i = 0; i < lines.Length; i++)
+            {
+                if (i > 0)
+                {
+                    Buffer.Append('\n');
+                }
+
+                Buffer.Append(lines[i].Length == 0 ? ">" : "> " + lines[i]);
+            }
+        }
+
+        public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);
+
         public virtual void Visit(MdText node) => Buffer.Append(node.Value);
 
         public virtual void Visit(MdStrong node) => Wrap("**", node.Children);
 
         public virtual void Visit(MdEmphasis node) => Wrap("*", node.Children);
+
+        public virtual void Visit(MdStrikethrough node) => Wrap("~~", node.Children);
+
+        public virtual void Visit(MdLink node)
+        {
+            Buffer.Append('[');
+            WriteInline(node.Children);
+            Buffer.Append("](").Append(node.Url);
+            if (!string.IsNullOrEmpty(node.Title))
+            {
+                Buffer.Append(" \"").Append(node.Title).Append('"');
+            }
+
+            Buffer.Append(')');
+        }
+
+        public virtual void Visit(MdImage node)
+        {
+            Buffer.Append("![").Append(node.Alt).Append("](").Append(node.Url);
+            if (!string.IsNullOrEmpty(node.Title))
+            {
+                Buffer.Append(" \"").Append(node.Title).Append('"');
+            }
+
+            Buffer.Append(')');
+        }
+
+        public virtual void Visit(MdInlineCode node)
+        {
+            var literal = node.Literal;
+            var longestRun = 0;
+            var run = 0;
+            foreach (var c in literal)
+            {
+                if (c == '`')
+                {
+                    run++;
+                    longestRun = run > longestRun ? run : longestRun;
+                }
+                else
+                {
+                    run = 0;
+                }
+            }
+
+            var fence = new string('`', longestRun + 1);
+            var pad = literal.Length > 0 && (literal[0] == '`' || literal[^1] == '`') ? " " : string.Empty;
+            Buffer.Append(fence).Append(pad).Append(literal).Append(pad).Append(fence);
+        }
+
+        public virtual void Visit(MdLineBreak node) => Buffer.Append(node.Hard ? "  \n" : "\n");
+
+        public virtual void Visit(MdRawInline node) => Buffer.Append(node.Html);
 
         /// <summary>Render block children separated by one blank line.</summary>
         protected void WriteBlocks(IEnumerable<MdBlock> blocks)
@@ -73,6 +145,17 @@ namespace ReverseMarkdown.Writers
             Buffer.Append(delimiter);
             WriteInline(children);
             Buffer.Append(delimiter);
+        }
+
+        /// <summary>Render via <paramref name="render"/> and return the produced text without
+        /// leaving it in the buffer — used for post-processing (e.g. blockquote line prefixes).</summary>
+        protected string Capture(System.Action render)
+        {
+            var start = Buffer.Length;
+            render();
+            var text = Buffer.ToString(start, Buffer.Length - start);
+            Buffer.Length = start;
+            return text;
         }
 
         /// <summary>

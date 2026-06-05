@@ -7,11 +7,23 @@ namespace ReverseMarkdown.Dom
     /// </summary>
     public interface IMdVisitor
     {
+        // Blocks
         void Visit(MarkdownDocument node);
         void Visit(MdHeading node);
         void Visit(MdParagraph node);
+        void Visit(MdThematicBreak node);
+        void Visit(MdBlockquote node);
+        void Visit(MdHtmlBlock node);
+
+        // Inlines
         void Visit(MdText node);
         void Visit(MdStrong node);
         void Visit(MdEmphasis node);
+        void Visit(MdStrikethrough node);
+        void Visit(MdLink node);
+        void Visit(MdImage node);
+        void Visit(MdInlineCode node);
+        void Visit(MdLineBreak node);
+        void Visit(MdRawInline node);
     }
 }

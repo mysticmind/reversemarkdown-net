@@ -40,6 +40,18 @@ namespace ReverseMarkdown.Readers
             var em = new EmphasisReader();
             Register("em", em);
             Register("i", em);
+
+            var strike = new StrikethroughReader();
+            Register("s", strike);
+            Register("del", strike);
+            Register("strike", strike);
+
+            Register("a", new AnchorReader());
+            Register("img", new ImageReader());
+            Register("code", new CodeReader());
+            Register("br", new LineBreakReader());
+            Register("hr", new ThematicBreakReader());
+            Register("blockquote", new BlockquoteReader());
         }
 
         public MarkdownDocument Read(HtmlNode root)

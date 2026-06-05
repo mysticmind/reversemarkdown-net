@@ -60,6 +60,44 @@ namespace ReverseMarkdown.Test
             Assert.Equal("Hello *there*", Norm(converter.Render(doc)));
         }
 
+        [Theory]
+        [InlineData("<p>see <a href=\"https://x.io\">site</a></p>", "see [site](https://x.io)")]
+        [InlineData("<p>see <a href=\"https://x.io\" title=\"t\">site</a></p>", "see [site](https://x.io \"t\")")]
+        [InlineData("<p>a <img src=\"i.png\" alt=\"pic\"> b</p>", "a ![pic](i.png) b")]
+        [InlineData("<p>run <code>dotnet build</code></p>", "run `dotnet build`")]
+        [InlineData("<p>x<br>y</p>", "x  \ny")]
+        [InlineData("<p>a <s>b</s> c</p>", "a ~~b~~ c")]
+        [InlineData("<p>a <del>b</del> c</p>", "a ~~b~~ c")]
+        public void Inline_nodes_render_through_commonmark(string html, string expected)
+        {
+            var converter = new Converter(new Config());
+            Assert.Equal(expected, Norm(converter.Render(converter.Parse(html))));
+        }
+
+        [Fact]
+        public void Thematic_break_renders()
+        {
+            var converter = new Converter(new Config());
+            Assert.Equal("a\n\n---\n\nb", Norm(converter.Render(converter.Parse("<p>a</p><hr><p>b</p>"))));
+        }
+
+        [Fact]
+        public void Blockquote_prefixes_each_line()
+        {
+            var converter = new Converter(new Config());
+            var md = converter.Render(converter.Parse("<blockquote><p>one</p><p>two</p></blockquote>"));
+            Assert.Equal("> one\n>\n> two", Norm(md));
+        }
+
+        [Fact]
+        public void Inline_code_widens_fence_when_content_has_backtick()
+        {
+            var converter = new Converter(new Config());
+            // HtmlAgilityPack keeps the backtick literal inside <code>
+            var md = converter.Render(converter.Parse("<p><code>a`b</code></p>"));
+            Assert.Equal("``a`b``", Norm(md));
+        }
+
         [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
