@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
@@ -17,10 +19,47 @@ namespace ReverseMarkdown.Readers
         private readonly Dictionary<string, IMdReader> _readers = new(StringComparer.OrdinalIgnoreCase);
         private readonly Config _config;
 
-        public MarkdownDomReader(Config config)
+        public MarkdownDomReader(Config config) : this(config, null)
+        {
+        }
+
+        public MarkdownDomReader(Config config, params Assembly[]? additionalAssemblies)
         {
             _config = config;
             RegisterDefaults();
+
+            // Auto-discover external readers (decorated with [MarkdownReader]) from additional
+            // assemblies; these override built-ins for the same tag, enabling customization.
+            if (additionalAssemblies is { Length: > 0 })
+            {
+                RegisterFromAssemblies(additionalAssemblies);
+            }
+        }
+
+        private void RegisterFromAssemblies(IEnumerable<Assembly> assemblies)
+        {
+            foreach (var assembly in assemblies)
+            {
+                foreach (var type in assembly.GetTypes())
+                {
+                    if (type.IsAbstract || !typeof(IMdReader).IsAssignableFrom(type))
+                    {
+                        continue;
+                    }
+
+                    var attribute = type.GetCustomAttribute<MarkdownReaderAttribute>();
+                    if (attribute is null || type.GetConstructor(Type.EmptyTypes) is null)
+                    {
+                        continue;
+                    }
+
+                    var instance = (IMdReader)Activator.CreateInstance(type)!;
+                    foreach (var tag in attribute.Tags)
+                    {
+                        Register(tag, instance);
+                    }
+                }
+            }
         }
 
         public void Register(string tag, IMdReader reader) => _readers[tag] = reader;

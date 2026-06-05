@@ -30,6 +30,7 @@ namespace ReverseMarkdown {
 
         // v6 Markdown DOM path: AngleSharp parser (reusable across parses).
         private readonly HtmlParser _htmlParser = new();
+        private readonly Assembly[]? _additionalAssemblies;
 
         public ConverterContext Context => _context.Value ??= new ConverterContext();
 
@@ -44,6 +45,7 @@ namespace ReverseMarkdown {
         public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
             Config = config;
+            _additionalAssemblies = additionalAssemblies;
 
             var assemblies = new List<Assembly>() {
                 typeof(IConverter).GetTypeInfo().Assembly
@@ -181,7 +183,7 @@ namespace ReverseMarkdown {
             var document = _htmlParser.ParseDocument(html);
             var body = document.Body!;
             ApplyHtmlFilters(body);
-            return new MarkdownDomReader(Config).Read(body);
+            return new MarkdownDomReader(Config, _additionalAssemblies).Read(body);
         }
 
         // Remove HTML elements matched by the configured CSS selectors / predicate filters

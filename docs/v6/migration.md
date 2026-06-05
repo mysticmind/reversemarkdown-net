@@ -29,12 +29,19 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   question for #79 HTML-side filtering.
 - ✅ **Parity harness**: `ParityHarnessTests` — dual-run v5-vs-v6, informational diff
   classification, gates on content-preservation (subsequence check). (commit `426aced`)
-- ⏳ **Remaining Phase B**: reflection-based reader discovery (replace hardcoded registry);
-  `UnknownTagsReplacer` support; base64 image handling / smart-href / whitelist schemes
-  (currently reader emits plain link/image); v5-default writer behaviors where we choose to
-  match (e.g. indented code, `* * *` HR).
-- ⏳ **Phase C+**: per-flavor writers (Slack/Telegram/MMD/Pandoc), Phase D flip,
-  Phase E new features, Phase F #79 public API + HTML-side filtering.
+- ✅ **Issue #79 public API** (Phase F brought forward): `Config.HtmlExcludeSelectors`
+  (CSS) + `Config.HtmlElementFilters` (predicate) HTML-side filtering in `Parse`;
+  `MdNode.RemoveWhere` Markdown-side pruning; multi-flavor render from one tree.
+- ✅ **Per-flavor writers** (Phase C): GitHub (≈base), Slack (single-char emphasis, •
+  bullets, `<url|text>`, raises on table/img/hr/sup), Telegram (MarkdownV2 escaping),
+  MultiMarkdown/Pandoc (native subscript). Base gained overridable seams.
+- ✅ **img/href + replacer**: scheme whitelist, smart-href, base64 Skip, `UnknownTagsReplacer`.
+- ✅ **Extensible reader discovery**: `[MarkdownReader(tags)]` auto-discovery from additional
+  assemblies (mirrors v5 `additionalAssemblies`); built-ins stay centrally registered.
+
+- ⏳ **Remaining**: base64 `SaveToFile` IO on the v6 path; v5-default writer specifics if we
+  choose to match (indented code, `* * *` HR); **Phase D flip** (`Convert` → v6 + remove HAP);
+  **Phase E** MMD/Pandoc feature readers (footnotes, math, metadata, citations, fenced divs).
 
 ## Phases
 
