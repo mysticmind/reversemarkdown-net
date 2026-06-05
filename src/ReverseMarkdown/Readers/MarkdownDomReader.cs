@@ -15,10 +15,11 @@ namespace ReverseMarkdown.Readers
     public sealed class MarkdownDomReader
     {
         private readonly Dictionary<string, IMdReader> _readers = new(StringComparer.OrdinalIgnoreCase);
-        private readonly IMdReader _bypass = new BypassReader();
+        private readonly Config _config;
 
-        public MarkdownDomReader()
+        public MarkdownDomReader(Config config)
         {
+            _config = config;
             RegisterDefaults();
         }
 
@@ -64,7 +65,9 @@ namespace ReverseMarkdown.Readers
         {
             var document = new MarkdownDocument();
             var ctx = new ReaderContext(this, document);
-            ReadNode(root, ctx);
+            // Read the root's children directly; the root (e.g. <body>) is a structural
+            // wrapper, not subject to UnknownTags handling.
+            ctx.ReadChildren(root);
             return document;
         }
 
@@ -76,10 +79,83 @@ namespace ReverseMarkdown.Readers
                     ReadText(text, ctx);
                     break;
                 case IElement element:
-                    var reader = _readers.TryGetValue(element.LocalName, out var found) ? found : _bypass;
-                    reader.Read(element, ctx);
+                    ReadElement(element, ctx);
                     break;
                 // comments, processing instructions, doctype: ignored
+            }
+        }
+
+        private void ReadElement(IElement element, ReaderContext ctx)
+        {
+            var tag = element.LocalName;
+
+            // Explicit pass-through list wins over everything (mirrors v5 Lookup order).
+            if (_config.PassThroughTags.Contains(tag))
+            {
+                EmitRaw(element, ctx);
+                return;
+            }
+
+            var reader = ResolveReader(tag);
+            if (reader is not null)
+            {
+                reader.Read(element, ctx);
+                return;
+            }
+
+            switch (_config.UnknownTags)
+            {
+                case Config.UnknownTagsOption.PassThrough:
+                    EmitRaw(element, ctx);
+                    break;
+                case Config.UnknownTagsOption.Drop:
+                    break;
+                case Config.UnknownTagsOption.Bypass:
+                    ctx.ReadChildren(element);
+                    break;
+                case Config.UnknownTagsOption.Raise:
+                    throw new UnknownTagException(tag);
+            }
+        }
+
+        // Resolve a reader for a tag, following tag aliases (with a cycle guard).
+        private IMdReader? ResolveReader(string tag)
+        {
+            if (_readers.TryGetValue(tag, out var direct))
+            {
+                return direct;
+            }
+
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { tag };
+            var current = tag;
+            while (_config.TagAliases.TryGetValue(current, out var target) && !string.IsNullOrWhiteSpace(target))
+            {
+                if (!visited.Add(target))
+                {
+                    break;
+                }
+
+                if (_readers.TryGetValue(target, out var aliased))
+                {
+                    return aliased;
+                }
+
+                current = target;
+            }
+
+            return null;
+        }
+
+        // Emit verbatim HTML via the escape hatch, choosing inline vs block by context.
+        private static void EmitRaw(IElement element, ReaderContext ctx)
+        {
+            if (ctx.CurrentAcceptsInline)
+            {
+                ctx.Emit(new MdRawInline(element.OuterHtml) { SourceTag = element.LocalName });
+            }
+            else
+            {
+                ctx.Emit(new MdHtmlBlock(element.OuterHtml) { SourceTag = element.LocalName });
             }
         }
 

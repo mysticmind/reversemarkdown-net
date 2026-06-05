@@ -179,7 +179,7 @@ namespace ReverseMarkdown {
             html = html.ReplaceLineEndings("\n");
 
             var document = _htmlParser.ParseDocument(html);
-            return new MarkdownDomReader().Read(document.Body!);
+            return new MarkdownDomReader(Config).Read(document.Body!);
         }
 
         /// <summary>

@@ -11,8 +11,12 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   `Converter.Parse`/`Render`. (commit `e0febea`)
 - 🚧 **Phase B** readers/writers ported: headings, paragraph, text, strong/b, em/i,
   s/del/strike, a, img, code, br, hr, blockquote, ul/ol/li (nested + ordered start +
-  task-list checkbox), pre/code (fenced + language), raw HTML escape hatch.
-  (commits `1b54db5`, `0f2f53f`)
+  task-list checkbox), pre/code (fenced + language), table (pipe tables: header detection,
+  alignment, caption, pipe escaping), raw HTML escape hatch.
+  (commits `1b54db5`, `0f2f53f`, `0c73713`)
+- ✅ **Unknown-tag handling** wired into the reader: `UnknownTags`
+  (PassThrough→raw / Drop / Bypass / Raise), `PassThroughTags` (raw), and `TagAliases`
+  (alias→reader with cycle guard), using the raw-HTML escape hatch.
 - ✅ **Flavor seam**: `Config.MarkdownFlavor` enum + `Render(doc, flavor)` + `WriterFactory`
   (Default/GitHub/CommonMark; others fall back to Default). (commit `426aced`)
 - ✅ **Parser**: v6 readers moved to **AngleSharp** (HTML5-compliant) — ADR 0002. HAP stays
@@ -20,10 +24,11 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   question for #79 HTML-side filtering.
 - ✅ **Parity harness**: `ParityHarnessTests` — dual-run v5-vs-v6, informational diff
   classification, gates on content-preservation (subsequence check). (commit `426aced`)
-- ⏳ **Remaining Phase B**: `table`/`tr`/`td`/`th`, `dl`/`dt`/`dd`, `sup`/`sub`, `div`/`span`/
-  `aside` semantics; reflection-based reader discovery (replace hardcoded registry);
-  honor `PassThroughTags`/`UnknownTags`/`TagAliases` in readers; v5-default writer
-  behaviors where we choose to match.
+- ⏳ **Remaining Phase B**: `dl`/`dt`/`dd`, `sup`/`sub`, `div`/`span`/`aside` semantics;
+  **inline whitespace normalization** in the writer (collapse runs / trim around dropped
+  nodes — currently leaves artifacts like double spaces); reflection-based reader discovery
+  (replace hardcoded registry); `UnknownTagsReplacer` support; v5-default writer behaviors
+  where we choose to match.
 - ⏳ **Phase C+**: per-flavor writers (Slack/Telegram/MMD/Pandoc), Phase D flip,
   Phase E new features, Phase F #79 public API + HTML-side filtering.
 

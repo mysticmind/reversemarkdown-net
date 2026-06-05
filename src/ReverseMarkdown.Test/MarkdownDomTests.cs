@@ -177,6 +177,54 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void Unknown_tag_bypass_keeps_content_drops_wrapper()
+        {
+            var converter = new Converter(new Config { UnknownTags = Config.UnknownTagsOption.Bypass });
+            Assert.Equal("hi", Norm(converter.Render(converter.Parse("<p><foo>hi</foo></p>"))));
+        }
+
+        [Fact]
+        public void Unknown_tag_drop_removes_content()
+        {
+            var converter = new Converter(new Config { UnknownTags = Config.UnknownTagsOption.Drop });
+            // The dropped <foo>b</foo> leaves the surrounding text "a " + " c". Inline
+            // whitespace collapsing is a later writer concern, hence the double space.
+            Assert.Equal("a  c", Norm(converter.Render(converter.Parse("<p>a <foo>b</foo> c</p>"))));
+        }
+
+        [Fact]
+        public void Unknown_tag_passthrough_emits_raw_html()
+        {
+            var converter = new Converter(new Config { UnknownTags = Config.UnknownTagsOption.PassThrough });
+            Assert.Equal("a <foo>b</foo> c", Norm(converter.Render(converter.Parse("<p>a <foo>b</foo> c</p>"))));
+        }
+
+        [Fact]
+        public void Unknown_tag_raise_throws()
+        {
+            var converter = new Converter(new Config { UnknownTags = Config.UnknownTagsOption.Raise });
+            Assert.Throws<UnknownTagException>(() => converter.Parse("<p><foo>b</foo></p>"));
+        }
+
+        [Fact]
+        public void PassThroughTags_emits_raw_regardless_of_mode()
+        {
+            var config = new Config { UnknownTags = Config.UnknownTagsOption.Bypass };
+            config.PassThroughTags.Add("foo");
+            var converter = new Converter(config);
+            Assert.Equal("<foo>b</foo>", Norm(converter.Render(converter.Parse("<p><foo>b</foo></p>"))));
+        }
+
+        [Fact]
+        public void TagAlias_routes_to_target_reader()
+        {
+            var config = new Config();
+            config.TagAliases.Add("u", "em");
+            var converter = new Converter(config);
+            Assert.Equal("a *x* b", Norm(converter.Render(converter.Parse("<p>a <u>x</u> b</p>"))));
+        }
+
+        [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
             var paragraph = new MdParagraph();
