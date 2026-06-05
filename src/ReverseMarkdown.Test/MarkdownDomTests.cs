@@ -187,9 +187,9 @@ namespace ReverseMarkdown.Test
         public void Unknown_tag_drop_removes_content()
         {
             var converter = new Converter(new Config { UnknownTags = Config.UnknownTagsOption.Drop });
-            // The dropped <foo>b</foo> leaves the surrounding text "a " + " c". Inline
-            // whitespace collapsing is a later writer concern, hence the double space.
-            Assert.Equal("a  c", Norm(converter.Render(converter.Parse("<p>a <foo>b</foo> c</p>"))));
+            // The dropped <foo>b</foo> leaves "a " + " c"; cross-node whitespace collapsing
+            // merges the boundary spaces into one.
+            Assert.Equal("a c", Norm(converter.Render(converter.Parse("<p>a <foo>b</foo> c</p>"))));
         }
 
         [Fact]
@@ -222,6 +222,18 @@ namespace ReverseMarkdown.Test
             config.TagAliases.Add("u", "em");
             var converter = new Converter(config);
             Assert.Equal("a *x* b", Norm(converter.Render(converter.Parse("<p>a <u>x</u> b</p>"))));
+        }
+
+        [Theory]
+        [InlineData("<p>a    b</p>", "a b")]                                   // collapse runs
+        [InlineData("<p>Hello\n    <strong>world</strong></p>", "Hello **world**")] // source newline+indent
+        [InlineData("<p>   spaced   </p>", "spaced")]                          // trim block edges
+        [InlineData("<p>a<strong> b </strong>c</p>", "a **b** c")]            // emphasis edge spaces move out
+        [InlineData("<p><em> x </em></p>", "*x*")]                            // emphasis edges + edge trim
+        public void Inline_whitespace_is_normalized(string html, string expected)
+        {
+            var converter = new Converter(new Config());
+            Assert.Equal(expected, Norm(converter.Render(converter.Parse(html))));
         }
 
         [Fact]

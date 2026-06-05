@@ -35,9 +35,14 @@ namespace ReverseMarkdown.Writers
         {
             Buffer.Append('#', node.Level).Append(' ');
             WriteInline(node.Children);
+            TrimTrailingSpaces();
         }
 
-        public virtual void Visit(MdParagraph node) => WriteInline(node.Children);
+        public virtual void Visit(MdParagraph node)
+        {
+            WriteInline(node.Children);
+            TrimTrailingSpaces();
+        }
 
         public virtual void Visit(MdThematicBreak node) => Buffer.Append("---");
 
@@ -184,7 +189,7 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);
 
-        public virtual void Visit(MdText node) => Buffer.Append(node.Value);
+        public virtual void Visit(MdText node) => WriteText(node.Value);
 
         public virtual void Visit(MdStrong node) => Wrap("**", node.Children);
 
@@ -283,11 +288,106 @@ namespace ReverseMarkdown.Writers
             }
         }
 
+        /// <summary>
+        /// Wrap inline content in a delimiter, moving any leading/trailing spaces *outside*
+        /// the delimiters (emphasis markers must hug non-space content to render). Mirrors v5's
+        /// emphasis whitespace guard.
+        /// </summary>
         protected void Wrap(string delimiter, IEnumerable<MdInline> children)
         {
-            Buffer.Append(delimiter);
-            WriteInline(children);
-            Buffer.Append(delimiter);
+            var inner = Capture(() =>
+            {
+                foreach (var child in children)
+                {
+                    child.Accept(this);
+                }
+            });
+
+            var core = inner.Trim(' ');
+            if (core.Length == 0)
+            {
+                Buffer.Append(inner);
+                return;
+            }
+
+            if (inner.Length > 0 && inner[0] == ' ')
+            {
+                Buffer.Append(' ');
+            }
+
+            Buffer.Append(delimiter).Append(core).Append(delimiter);
+
+            if (inner.Length > 0 && inner[^1] == ' ')
+            {
+                Buffer.Append(' ');
+            }
+        }
+
+        /// <summary>Write text content with HTML-style whitespace collapsing: runs of
+        /// whitespace (incl. newlines/tabs from source indentation) become a single space, and
+        /// a leading space is suppressed when the output is already at a whitespace boundary.</summary>
+        protected void WriteText(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            var collapsed = CollapseWhitespace(value);
+            if (collapsed.Length == 0)
+            {
+                return;
+            }
+
+            if (collapsed[0] == ' ' && AtWhitespaceBoundary())
+            {
+                collapsed = collapsed.Substring(1);
+            }
+
+            Buffer.Append(collapsed);
+        }
+
+        private bool AtWhitespaceBoundary()
+        {
+            if (Buffer.Length == 0)
+            {
+                return true;
+            }
+
+            var last = Buffer[^1];
+            return last == ' ' || last == '\n';
+        }
+
+        private void TrimTrailingSpaces()
+        {
+            while (Buffer.Length > 0 && Buffer[^1] == ' ')
+            {
+                Buffer.Length--;
+            }
+        }
+
+        private static string CollapseWhitespace(string s)
+        {
+            var sb = new StringBuilder(s.Length);
+            var inWhitespace = false;
+            foreach (var c in s)
+            {
+                if (char.IsWhiteSpace(c))
+                {
+                    if (!inWhitespace)
+                    {
+                        sb.Append(' ');
+                        inWhitespace = true;
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                    inWhitespace = false;
+                }
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>Render via <paramref name="render"/> and return the produced text without
