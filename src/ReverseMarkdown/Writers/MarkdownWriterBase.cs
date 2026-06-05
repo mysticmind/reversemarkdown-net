@@ -32,6 +32,14 @@ namespace ReverseMarkdown.Writers
         {
             Buffer.Clear();
             Visit(document);
+
+            // Footnote definitions are collected during reading and emitted at the document end.
+            foreach (var footnote in document.Meta.Footnotes)
+            {
+                Buffer.Append("\n\n");
+                footnote.Accept(this);
+            }
+
             return Buffer.ToString();
         }
 
@@ -219,6 +227,16 @@ namespace ReverseMarkdown.Writers
             var inner = Capture(() => WriteItemBlocks(node.Children))
                 .Replace("\r\n", " ").Replace('\n', ' ').Trim();
             Buffer.Append(":   ").Append(inner);
+        }
+
+        public virtual void Visit(MdFootnoteReference node) => Buffer.Append("[^").Append(node.Id).Append(']');
+
+        public virtual void Visit(MdFootnoteDefinition node)
+        {
+            Buffer.Append("[^").Append(node.Id).Append("]: ");
+            var inner = Capture(() => WriteItemBlocks(node.Children))
+                .Replace("\r\n", " ").Replace('\n', ' ').Trim();
+            Buffer.Append(inner);
         }
 
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);

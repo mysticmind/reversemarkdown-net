@@ -212,6 +212,25 @@ namespace ReverseMarkdown.Dom
         internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
     }
 
+    /// <summary>A footnote reference (e.g. <c>[^1]</c>). Leaf node.</summary>
+    public sealed class MdFootnoteReference : MdInline
+    {
+        public MdFootnoteReference(string id)
+        {
+            Id = id;
+        }
+
+        public string Id { get; set; }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Enumerable.Empty<MdNode>();
+
+        internal override bool RemoveChildCore(MdNode child) => false;
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
+    }
+
     /// <summary>Verbatim inline HTML — the inline escape hatch for unrepresentable input.</summary>
     public sealed class MdRawInline : MdInline
     {

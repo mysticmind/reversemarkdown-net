@@ -105,11 +105,17 @@ namespace ReverseMarkdown.Readers
             Register("dt", new DefinitionTermReader());
             Register("dd", new DefinitionDescriptionReader());
 
-            // Structural wrappers: bypass (emit converted content), regardless of UnknownTags.
+            // div/section may carry a footnotes block; the section reader handles that and
+            // otherwise bypasses.
+            var section = new SectionReader();
+            Register("div", section);
+            Register("section", section);
+
+            // Other structural wrappers: bypass (emit converted content), regardless of UnknownTags.
             var bypass = new BypassReader();
             foreach (var tag in new[]
                      {
-                         "div", "span", "section", "article", "header", "footer",
+                         "span", "article", "header", "footer",
                          "main", "nav", "aside", "figure", "figcaption",
                      })
             {

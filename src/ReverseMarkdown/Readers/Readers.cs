@@ -87,12 +87,28 @@ namespace ReverseMarkdown.Readers
         }
     }
 
-    /// <summary>Anchor reader for <c>a</c> (scheme whitelist + smart-href handling).</summary>
+    /// <summary>Anchor reader for <c>a</c> (footnotes + scheme whitelist + smart-href handling).</summary>
     public sealed class AnchorReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx)
         {
             var href = element.GetAttribute("href") ?? string.Empty;
+            var cls = element.GetAttribute("class") ?? string.Empty;
+
+            // Footnote back-reference (↩ link inside a definition): suppress entirely.
+            if (cls.Contains("footnote-back") || href.StartsWith("#fnref", StringComparison.OrdinalIgnoreCase)
+                || FootnoteHelper.IsBackArrow(element.TextContent))
+            {
+                return;
+            }
+
+            // Footnote reference: <a class="footnote-ref" href="#fn1"><sup>1</sup></a>.
+            if (cls.Contains("footnote-ref") || href.StartsWith("#fn", StringComparison.OrdinalIgnoreCase))
+            {
+                ctx.Emit(new MdFootnoteReference(FootnoteHelper.KeyFrom(href)) { SourceTag = element.LocalName });
+                return;
+            }
+
             var config = ctx.Config;
 
             // Scheme not whitelisted: bypass to plain content (v5 behavior).
@@ -506,11 +522,66 @@ namespace ReverseMarkdown.Readers
     }
 
     /// <summary>
+    /// Reader for <c>section</c> / <c>div</c>: collects a footnotes section into the document
+    /// meta (emitted at the end), otherwise bypasses to its children.
+    /// </summary>
+    public sealed class SectionReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var cls = element.GetAttribute("class") ?? string.Empty;
+            var role = element.GetAttribute("role") ?? string.Empty;
+
+            if (cls.Contains("footnotes") || role == "doc-endnotes")
+            {
+                foreach (var li in element.QuerySelectorAll("li[id]"))
+                {
+                    var key = FootnoteHelper.KeyFrom(li.GetAttribute("id") ?? string.Empty);
+                    if (key.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var definition = new MdFootnoteDefinition(key) { SourceTag = li.LocalName };
+                    using (ctx.Open(definition))
+                    {
+                        ctx.ReadChildren(li); // back-reference links are suppressed by AnchorReader
+                    }
+
+                    ctx.Document.Meta.Footnotes.Add(definition);
+                }
+
+                return;
+            }
+
+            ctx.ReadChildren(element);
+        }
+    }
+
+    /// <summary>
     /// Default reader for tags with no specific reader (e.g. <c>body</c>, wrapper
     /// <c>div</c>s): bypass the wrapper and read its children into the current container.
     /// </summary>
     public sealed class BypassReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx) => ctx.ReadChildren(element);
+    }
+
+    /// <summary>Footnote id/key helpers shared by the anchor and section readers.</summary>
+    internal static class FootnoteHelper
+    {
+        public static bool IsBackArrow(string text)
+        {
+            var t = text.Trim();
+            return t is "↩" or "↩︎" or "↩" or "↩︎";
+        }
+
+        // "fn1" / "#fn1" / "footnote-1" / "fnref1" -> "1"; falls back to the cleaned string.
+        public static string KeyFrom(string raw)
+        {
+            var s = raw.TrimStart('#');
+            var match = System.Text.RegularExpressions.Regex.Match(s, "\\d+");
+            return match.Success ? match.Value : s;
+        }
     }
 }

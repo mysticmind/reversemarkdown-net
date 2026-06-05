@@ -75,5 +75,8 @@ namespace ReverseMarkdown.Dom
     {
         public IList<KeyValuePair<string, string>> Metadata { get; } = new List<KeyValuePair<string, string>>();
         public IDictionary<string, string> Abbreviations { get; } = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        /// <summary>Footnote definitions collected during reading, emitted at document end.</summary>
+        public IList<MdFootnoteDefinition> Footnotes { get; } = new List<MdFootnoteDefinition>();
     }
 }

@@ -356,6 +356,31 @@ namespace ReverseMarkdown.Dom
             => MdChildOps.Replace(Children, oldChild, newChildren);
     }
 
+    /// <summary>A footnote definition (collected into <see cref="MdDocumentMeta"/>, emitted at end).</summary>
+    public sealed class MdFootnoteDefinition : MdBlock, IBlockSink
+    {
+        public MdFootnoteDefinition(string id)
+        {
+            Id = id;
+            Children = new MdNodeList<MdBlock>(this);
+        }
+
+        public string Id { get; set; }
+
+        public MdNodeList<MdBlock> Children { get; }
+
+        void IBlockSink.Add(MdBlock block) => Children.Add(block);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
     /// <summary>Verbatim block-level HTML — the block escape hatch for unrepresentable input.</summary>
     public sealed class MdHtmlBlock : MdBlock
     {
