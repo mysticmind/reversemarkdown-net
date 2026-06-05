@@ -31,6 +31,7 @@ namespace ReverseMarkdown.Writers
         public virtual string Write(MarkdownDocument document)
         {
             Buffer.Clear();
+            WritePreamble(document);
             Visit(document);
 
             // Footnote definitions are collected during reading and emitted at the document end.
@@ -412,6 +413,11 @@ namespace ReverseMarkdown.Writers
 
         /// <summary>Append normalized text to the buffer. Override to apply flavor escaping.</summary>
         protected virtual void AppendText(string text) => Buffer.Append(text);
+
+        /// <summary>Emit document-level preamble (e.g. metadata / YAML frontmatter). Default: none.</summary>
+        protected virtual void WritePreamble(MarkdownDocument document)
+        {
+        }
 
         private bool AtWhitespaceBoundary()
         {

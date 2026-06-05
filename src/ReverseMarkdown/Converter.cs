@@ -183,7 +183,36 @@ namespace ReverseMarkdown {
             var document = _htmlParser.ParseDocument(html);
             var body = document.Body!;
             ApplyHtmlFilters(body);
-            return new MarkdownDomReader(Config, _additionalAssemblies).Read(body);
+            var markdownDocument = new MarkdownDomReader(Config, _additionalAssemblies).Read(body);
+            CollectMetadata(document, markdownDocument);
+            return markdownDocument;
+        }
+
+        // Collect document metadata (title + <meta name=.. content=..>) for MMD/Pandoc.
+        // Flavor-agnostic: always collected; the writer decides whether to emit it.
+        private static void CollectMetadata(AngleSharp.Dom.IDocument document, MarkdownDocument markdownDocument)
+        {
+            var title = document.Title;
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                markdownDocument.Meta.Metadata.Add(new("title", title.Trim()));
+            }
+
+            var head = document.Head;
+            if (head is null)
+            {
+                return;
+            }
+
+            foreach (var meta in head.QuerySelectorAll("meta[name]"))
+            {
+                var name = meta.GetAttribute("name");
+                var content = meta.GetAttribute("content");
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(content))
+                {
+                    markdownDocument.Meta.Metadata.Add(new(name, content));
+                }
+            }
         }
 
         // Remove HTML elements matched by the configured CSS selectors / predicate filters

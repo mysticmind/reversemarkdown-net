@@ -100,6 +100,21 @@ namespace ReverseMarkdown.Writers
         }
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
+
+        protected override void WritePreamble(MarkdownDocument document)
+        {
+            if (document.Meta.Metadata.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var pair in document.Meta.Metadata)
+            {
+                Buffer.Append(pair.Key).Append(": ").Append(pair.Value).Append('\n');
+            }
+
+            Buffer.Append('\n');
+        }
     }
 
     /// <summary>
@@ -113,6 +128,22 @@ namespace ReverseMarkdown.Writers
         }
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
+
+        protected override void WritePreamble(MarkdownDocument document)
+        {
+            if (document.Meta.Metadata.Count == 0)
+            {
+                return;
+            }
+
+            Buffer.Append("---\n");
+            foreach (var pair in document.Meta.Metadata)
+            {
+                Buffer.Append(pair.Key).Append(": ").Append(pair.Value).Append('\n');
+            }
+
+            Buffer.Append("---\n\n");
+        }
     }
 
     /// <summary>
