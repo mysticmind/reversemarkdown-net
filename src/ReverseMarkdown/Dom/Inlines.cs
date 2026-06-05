@@ -114,6 +114,50 @@ namespace ReverseMarkdown.Dom
             => MdChildOps.Replace(Children, oldChild, newChildren);
     }
 
+    /// <summary>Superscript (<c>sup</c>).</summary>
+    public sealed class MdSuperscript : MdInline, IInlineSink
+    {
+        public MdSuperscript()
+        {
+            Children = new MdNodeList<MdInline>(this);
+        }
+
+        public MdNodeList<MdInline> Children { get; }
+
+        void IInlineSink.Add(MdInline inline) => Children.Add(inline);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
+    /// <summary>Subscript (<c>sub</c>).</summary>
+    public sealed class MdSubscript : MdInline, IInlineSink
+    {
+        public MdSubscript()
+        {
+            Children = new MdNodeList<MdInline>(this);
+        }
+
+        public MdNodeList<MdInline> Children { get; }
+
+        void IInlineSink.Add(MdInline inline) => Children.Add(inline);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
     /// <summary>An image (<c>img</c>). Leaf node.</summary>
     public sealed class MdImage : MdInline
     {

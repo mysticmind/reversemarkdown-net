@@ -13,19 +13,19 @@ namespace ReverseMarkdown.Readers
     public sealed class ReaderContext
     {
         private readonly MarkdownDomReader _reader;
-        private readonly Stack<MdNode> _open = new();
+        private readonly Stack<Frame> _frames = new();
 
         internal ReaderContext(MarkdownDomReader reader, MarkdownDocument document)
         {
             _reader = reader;
             Document = document;
-            _open.Push(document);
+            _frames.Push(new Frame(document));
         }
 
         public MarkdownDocument Document { get; }
 
         /// <summary>The container currently being built.</summary>
-        public MdNode Current => _open.Peek();
+        public MdNode Current => _frames.Peek().Container;
 
         /// <summary>True when the current container accepts inline content directly.</summary>
         public bool CurrentAcceptsInline => Current is IInlineSink;
@@ -33,39 +33,47 @@ namespace ReverseMarkdown.Readers
         /// <summary>Push <paramref name="container"/> as the current container until disposed.</summary>
         public IDisposable Open(MdNode container) => new Scope(this, container);
 
-        /// <summary>Attach a block to the current container.</summary>
+        /// <summary>Attach a block to the current container, closing any open implicit paragraph.</summary>
         public void Emit(MdBlock block)
         {
-            if (Current is IBlockSink sink)
+            var frame = _frames.Peek();
+            if (frame.Container is IBlockSink sink)
             {
                 sink.Add(block);
+                frame.ImplicitParagraph = null;
             }
             else
             {
                 throw new InvalidOperationException(
-                    $"Cannot emit block '{block.GetType().Name}' into '{Current.GetType().Name}'.");
+                    $"Cannot emit block '{block.GetType().Name}' into '{frame.Container.GetType().Name}'.");
             }
         }
 
         /// <summary>
-        /// Attach an inline to the current container. If the current container only accepts
-        /// blocks, wrap the inline in a paragraph (keeps loose inline content valid).
+        /// Attach an inline to the current container. If the container only accepts blocks,
+        /// the inline accrues into a single implicit paragraph (consecutive loose inline content
+        /// coalesces; an intervening block starts a fresh paragraph).
         /// </summary>
         public void Emit(MdInline inline)
         {
-            switch (Current)
+            var frame = _frames.Peek();
+            switch (frame.Container)
             {
                 case IInlineSink inlineSink:
                     inlineSink.Add(inline);
                     break;
                 case IBlockSink blockSink:
-                    var paragraph = new MdParagraph();
-                    ((IInlineSink)paragraph).Add(inline);
-                    blockSink.Add(paragraph);
+                    if (frame.ImplicitParagraph is null)
+                    {
+                        frame.ImplicitParagraph = new MdParagraph();
+                        blockSink.Add(frame.ImplicitParagraph);
+                    }
+
+                    ((IInlineSink)frame.ImplicitParagraph).Add(inline);
                     break;
                 default:
                     throw new InvalidOperationException(
-                        $"Cannot emit inline '{inline.GetType().Name}' into '{Current.GetType().Name}'.");
+                        $"Cannot emit inline '{inline.GetType().Name}' into '{frame.Container.GetType().Name}'.");
             }
         }
 
@@ -78,6 +86,18 @@ namespace ReverseMarkdown.Readers
             }
         }
 
+        private sealed class Frame
+        {
+            public Frame(MdNode container)
+            {
+                Container = container;
+            }
+
+            public MdNode Container { get; }
+
+            public MdParagraph? ImplicitParagraph { get; set; }
+        }
+
         private sealed class Scope : IDisposable
         {
             private readonly ReaderContext _ctx;
@@ -85,10 +105,10 @@ namespace ReverseMarkdown.Readers
             public Scope(ReaderContext ctx, MdNode container)
             {
                 _ctx = ctx;
-                ctx._open.Push(container);
+                ctx._frames.Push(new Frame(container));
             }
 
-            public void Dispose() => _ctx._open.Pop();
+            public void Dispose() => _ctx._frames.Pop();
         }
     }
 }

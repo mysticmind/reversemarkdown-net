@@ -197,6 +197,17 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdStrikethrough node) => Wrap("~~", node.Children);
 
+        public virtual void Visit(MdSuperscript node) => Wrap("^", node.Children);
+
+        // Default/CommonMark have no subscript syntax: degrade to inline HTML (content kept).
+        // MMD/Pandoc writers override this to `~text~`.
+        public virtual void Visit(MdSubscript node)
+        {
+            Buffer.Append("<sub>");
+            WriteInline(node.Children);
+            Buffer.Append("</sub>");
+        }
+
         public virtual void Visit(MdLink node)
         {
             Buffer.Append('[');

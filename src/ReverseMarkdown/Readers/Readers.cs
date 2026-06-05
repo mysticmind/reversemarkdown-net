@@ -251,6 +251,36 @@ namespace ReverseMarkdown.Readers
         }
     }
 
+    /// <summary>Superscript reader for <c>sup</c>.</summary>
+    public sealed class SuperscriptReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var sup = new MdSuperscript { SourceTag = element.LocalName };
+            using (ctx.Open(sup))
+            {
+                ctx.ReadChildren(element);
+            }
+
+            ctx.Emit(sup);
+        }
+    }
+
+    /// <summary>Subscript reader for <c>sub</c>.</summary>
+    public sealed class SubscriptReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var sub = new MdSubscript { SourceTag = element.LocalName };
+            using (ctx.Open(sub))
+            {
+                ctx.ReadChildren(element);
+            }
+
+            ctx.Emit(sub);
+        }
+    }
+
     /// <summary>Table reader for <c>table</c>. Drives rows/cells explicitly (pipe table model).</summary>
     public sealed class TableReader : IMdReader
     {

@@ -236,6 +236,18 @@ namespace ReverseMarkdown.Test
             Assert.Equal(expected, Norm(converter.Render(converter.Parse(html))));
         }
 
+        [Theory]
+        [InlineData("<p>x<sup>2</sup></p>", "x^2^")]
+        [InlineData("<p>H<sub>2</sub>O</p>", "H<sub>2</sub>O")]
+        [InlineData("<div><p>inside div</p></div>", "inside div")]
+        [InlineData("<div>a<span>b</span>c</div>", "abc")]
+        [InlineData("<section><h2>Heading</h2><p>body</p></section>", "## Heading\n\nbody")]
+        public void Sup_sub_and_structural_wrappers(string html, string expected)
+        {
+            var converter = new Converter(new Config());
+            Assert.Equal(expected, Norm(converter.Render(converter.Parse(html))));
+        }
+
         [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {

@@ -26,6 +26,8 @@ namespace ReverseMarkdown.Dom
         void Visit(MdStrong node);
         void Visit(MdEmphasis node);
         void Visit(MdStrikethrough node);
+        void Visit(MdSuperscript node);
+        void Visit(MdSubscript node);
         void Visit(MdLink node);
         void Visit(MdImage node);
         void Visit(MdInlineCode node);

@@ -54,11 +54,25 @@ namespace ReverseMarkdown.Readers
             Register("hr", new ThematicBreakReader());
             Register("blockquote", new BlockquoteReader());
 
+            Register("sup", new SuperscriptReader());
+            Register("sub", new SubscriptReader());
+
             Register("ul", new ListReader(ordered: false));
             Register("ol", new ListReader(ordered: true));
             Register("li", new ListItemReader());
             Register("pre", new PreReader());
             Register("table", new TableReader());
+
+            // Structural wrappers: bypass (emit converted content), regardless of UnknownTags.
+            var bypass = new BypassReader();
+            foreach (var tag in new[]
+                     {
+                         "div", "span", "section", "article", "header", "footer",
+                         "main", "nav", "aside", "figure", "figcaption",
+                     })
+            {
+                Register(tag, bypass);
+            }
         }
 
         public MarkdownDocument Read(IElement root)
