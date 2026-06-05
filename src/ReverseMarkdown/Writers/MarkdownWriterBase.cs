@@ -261,6 +261,13 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdBracketedSpan node) => WriteInline(node.Children);
 
+        // Default: a line block degrades to its inline content (line breaks preserved).
+        public virtual void Visit(MdLineBlock node)
+        {
+            WriteInline(node.Children);
+            TrimTrailingSpaces();
+        }
+
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);
 
         /// <summary>Format Pandoc attributes as <c>{#id .class key="value"}</c>.</summary>

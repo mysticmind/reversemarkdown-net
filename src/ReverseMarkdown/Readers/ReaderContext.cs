@@ -28,6 +28,11 @@ namespace ReverseMarkdown.Readers
         /// <summary>The active configuration (scheme whitelist, smart-href, base64, …).</summary>
         public Config Config { get; }
 
+        private int _imageIndex;
+
+        /// <summary>Next zero-based image index for this conversion (base64 SaveToFile naming).</summary>
+        public int NextImageIndex() => _imageIndex++;
+
         /// <summary>The container currently being built.</summary>
         public MdNode Current => _frames.Peek().Container;
 

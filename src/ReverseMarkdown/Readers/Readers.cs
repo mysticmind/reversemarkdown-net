@@ -156,11 +156,20 @@ namespace ReverseMarkdown.Readers
             var isBase64 = src.StartsWith("data:", StringComparison.OrdinalIgnoreCase);
             if (isBase64)
             {
-                // SaveToFile is not yet supported on the v6 path; Skip (and SaveToFile without
-                // a directory) drop the image, matching v5.
-                if (config.Base64Images != Config.Base64ImageHandling.Include)
+                switch (config.Base64Images)
                 {
-                    return;
+                    case Config.Base64ImageHandling.Skip:
+                        return;
+                    case Config.Base64ImageHandling.SaveToFile:
+                        var saved = Base64ImageWriter.Save(src, config, ctx);
+                        if (saved is null)
+                        {
+                            return; // no directory / decode failure -> drop, matching v5
+                        }
+
+                        src = saved;
+                        break;
+                    // Include: keep the data URI as-is
                 }
             }
             else if (!config.IsSchemeWhitelisted(UrlHelper.GetScheme(src)))
@@ -183,6 +192,56 @@ namespace ReverseMarkdown.Readers
 
             ctx.Emit(image);
         }
+    }
+
+    /// <summary>Decodes and saves a base64 data-URI image to disk, returning the saved filename.</summary>
+    internal static class Base64ImageWriter
+    {
+        public static string? Save(string dataUri, Config config, ReaderContext ctx)
+        {
+            if (string.IsNullOrEmpty(config.Base64ImageSaveDirectory))
+            {
+                return null;
+            }
+
+            var comma = dataUri.IndexOf(',');
+            if (comma < 0 || comma <= 5)
+            {
+                return null;
+            }
+
+            var meta = dataUri.Substring(5, comma - 5); // e.g. "image/png;base64"
+            var mime = meta.Split(';')[0];
+
+            byte[] bytes;
+            try
+            {
+                bytes = Convert.FromBase64String(dataUri.Substring(comma + 1));
+            }
+            catch (FormatException)
+            {
+                return null;
+            }
+
+            var index = ctx.NextImageIndex();
+            var name = config.Base64ImageFileNameGenerator?.Invoke(index, mime) ?? $"image{index}";
+            var fileName = name + "." + ExtensionFor(mime);
+
+            System.IO.Directory.CreateDirectory(config.Base64ImageSaveDirectory);
+            System.IO.File.WriteAllBytes(System.IO.Path.Combine(config.Base64ImageSaveDirectory, fileName), bytes);
+            return fileName;
+        }
+
+        private static string ExtensionFor(string mime) => mime.ToLowerInvariant() switch
+        {
+            "image/png" => "png",
+            "image/jpeg" or "image/jpg" => "jpg",
+            "image/gif" => "gif",
+            "image/webp" => "webp",
+            "image/svg+xml" => "svg",
+            "image/bmp" => "bmp",
+            _ => "img",
+        };
     }
 
     /// <summary>URL scheme / smart-href helpers shared by the anchor and image readers.</summary>
@@ -628,6 +687,19 @@ namespace ReverseMarkdown.Readers
                     ctx.Document.Meta.Footnotes.Add(definition);
                 }
 
+                return;
+            }
+
+            // Pandoc line block: <div class="line-block">a<br>b</div>.
+            if (cls.Contains("line-block"))
+            {
+                var lineBlock = new MdLineBlock { SourceTag = element.LocalName };
+                using (ctx.Open(lineBlock))
+                {
+                    ctx.ReadChildren(element);
+                }
+
+                ctx.Emit(lineBlock);
                 return;
             }
 

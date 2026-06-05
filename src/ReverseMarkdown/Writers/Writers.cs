@@ -193,6 +193,21 @@ namespace ReverseMarkdown.Writers
             Buffer.Append(']').Append(FormatAttributes(node.Attributes));
         }
 
+        public override void Visit(MdLineBlock node)
+        {
+            var inner = Capture(() => WriteInline(node.Children)).Replace("\r\n", "\n");
+            var lines = inner.Split('\n');
+            for (var i = 0; i < lines.Length; i++)
+            {
+                if (i > 0)
+                {
+                    Buffer.Append('\n');
+                }
+
+                Buffer.Append("| ").Append(lines[i].TrimEnd());
+            }
+        }
+
         protected override void WritePreamble(MarkdownDocument document)
         {
             if (document.Meta.Metadata.Count == 0)

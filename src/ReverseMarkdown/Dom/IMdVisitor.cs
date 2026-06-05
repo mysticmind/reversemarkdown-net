@@ -24,6 +24,7 @@ namespace ReverseMarkdown.Dom
         void Visit(MdDefinitionDescription node);
         void Visit(MdFootnoteDefinition node);
         void Visit(MdFencedDiv node);
+        void Visit(MdLineBlock node);
         void Visit(MdHtmlBlock node);
 
         // Inlines
