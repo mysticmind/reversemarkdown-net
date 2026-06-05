@@ -22,6 +22,12 @@ namespace ReverseMarkdown.Writers
 
         protected StringBuilder Buffer { get; } = new();
 
+        // Flavor-overridable seams.
+        protected virtual string StrongDelimiter => "**";
+        protected virtual string EmphasisDelimiter => "*";
+        protected virtual string StrikethroughDelimiter => "~~";
+        protected virtual string UnorderedBullet => "-";
+
         public virtual string Write(MarkdownDocument document)
         {
             Buffer.Clear();
@@ -74,7 +80,7 @@ namespace ReverseMarkdown.Writers
 
                 first = false;
 
-                var marker = node.Ordered ? $"{node.Start + index}. " : "- ";
+                var marker = node.Ordered ? $"{node.Start + index}. " : UnorderedBullet + " ";
                 if (item.Checked is { } isChecked)
                 {
                     marker += isChecked ? "[x] " : "[ ] ";
@@ -219,11 +225,11 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdText node) => WriteText(node.Value);
 
-        public virtual void Visit(MdStrong node) => Wrap("**", node.Children);
+        public virtual void Visit(MdStrong node) => Wrap(StrongDelimiter, node.Children);
 
-        public virtual void Visit(MdEmphasis node) => Wrap("*", node.Children);
+        public virtual void Visit(MdEmphasis node) => Wrap(EmphasisDelimiter, node.Children);
 
-        public virtual void Visit(MdStrikethrough node) => Wrap("~~", node.Children);
+        public virtual void Visit(MdStrikethrough node) => Wrap(StrikethroughDelimiter, node.Children);
 
         public virtual void Visit(MdSuperscript node) => Wrap("^", node.Children);
 
@@ -383,8 +389,11 @@ namespace ReverseMarkdown.Writers
                 collapsed = collapsed.Substring(1);
             }
 
-            Buffer.Append(collapsed);
+            AppendText(collapsed);
         }
+
+        /// <summary>Append normalized text to the buffer. Override to apply flavor escaping.</summary>
+        protected virtual void AppendText(string text) => Buffer.Append(text);
 
         private bool AtWhitespaceBoundary()
         {
