@@ -83,12 +83,27 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
   `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
   escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
-- 🚧 **CommonMark writer (in progress): 70% → 89.7% spec roundtrip.** `CommonMarkWriter` now
-  preserves soft line breaks, escapes markup-significant chars + line-start markers, passes
-  block-level/comment HTML through verbatim, and renders loose lists. Measured by
-  `CommonMarkV6MeasureTests` (gate ≥ 88% of the 651 `commonmark.json` examples roundtrip
-  through Markdig). Remaining ~67 failures: consecutive-list separation, deep nested-list
-  indentation, some entity/raw-inline edges.
+- 🚧 **CommonMark writer (in progress): 70% → 94.6% spec roundtrip.** `CommonMarkWriter` now
+  preserves soft line breaks, escapes markup-significant chars + line-start markers, encodes
+  in-paragraph blank lines, escapes `&`, pads code spans, alternates nested-emphasis and
+  adjacent-list markers, encodes link destinations, and passes `<div>`/block HTML through.
+  Measured by `CommonMarkV6MeasureTests` (gate ≥ 94%).
+  - **Verification is now parser-fair**: both the actual and expected HTML are canonicalized
+    through AngleSharp (`Canon`), so AngleSharp-vs-HtmlAgilityPack parsing differences
+    (attribute quoting, PI→comment, URL encoding) no longer count against v6's *conversion*
+    fidelity. This barely changed the rate (94.5→94.6%), confirming the remaining failures
+    are genuine conversion behavior, **not** parser artifacts.
+  - **Remaining ~35 failures, two groups:** (a) ~15 need **inline-HTML passthrough** — emit
+    `<del>`/`<i>`/`<a>`/`<img>` verbatim in CommonMark (exactly v5's `CommonMarkUseHtmlInlineTags`,
+    default true). This reaches ~99% but makes CommonMark output HTML-heavy, abandoning clean
+    markdown — **a philosophy decision to make before implementing.** (b) ~20 small bugs:
+    `!`-before-link escaping, image-alt escaping, double-space/tab/leading-`&nbsp;` preservation,
+    a couple list-looseness edges.
+
+> **NEXT (tomorrow):** decide (a) — do we want v6 CommonMark to emit raw inline HTML (matches
+> v5, ~99%, HTML-heavy) or stay clean markdown (~95%, cleaner)? Then grind group (b). A prototype
+> of (a) gated on `CommonMarkUseHtmlInlineTags` was tried and reverted pending this decision
+> (it would change `Same_tree_renders_to_multiple_flavors` to emit `<strong>` not `**`).
 - ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) still gated on:**
   - CommonMark roundtrip to ~parity with v5 (the last ~10%).
   - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent

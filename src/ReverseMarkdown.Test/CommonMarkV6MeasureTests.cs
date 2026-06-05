@@ -34,6 +34,7 @@ namespace ReverseMarkdown.Test
 
             var converter = new Converter(new Config { UseMarkdownDom = true, Flavor = Config.MarkdownFlavor.CommonMark });
             var pipeline = new MarkdownPipelineBuilder().Build();
+            var angle = new AngleSharp.Html.Parser.HtmlParser();
 
             var pass = new Dictionary<string, int>();
             var total = new Dictionary<string, int>();
@@ -54,21 +55,26 @@ namespace ReverseMarkdown.Test
                 string actual;
                 try
                 {
-                    actual = Norm(Markdown.ToHtml(converter.Convert(ex.Html), pipeline));
+                    actual = Canon(angle, Markdown.ToHtml(converter.Convert(ex.Html), pipeline));
                 }
                 catch (Exception e)
                 {
                     actual = "THREW: " + e.GetType().Name;
                 }
 
-                if (actual == Norm(ex.Html))
+                // Run BOTH sides through AngleSharp so its parser normalization (attribute
+                // quoting, PI->comment, URL encoding, implied tags) applies identically. What
+                // remains is v6's genuine conversion fidelity, independent of the parser.
+                var expected = Canon(angle, ex.Html);
+
+                if (actual == expected)
                 {
                     pass[ex.Section] = pass.GetValueOrDefault(ex.Section) + 1;
                     overallPass++;
                 }
                 else if (samples.Count < 25)
                 {
-                    samples.Add($"[{ex.Section} #{ex.Example}] in={Inline(ex.Html)}\n   exp={Inline(Norm(ex.Html))}\n   got={Inline(actual)}");
+                    samples.Add($"[{ex.Section} #{ex.Example}] in={Inline(ex.Html)}\n   exp={Inline(expected)}\n   got={Inline(actual)}");
                 }
             }
 
@@ -87,8 +93,20 @@ namespace ReverseMarkdown.Test
 
             _output.WriteLine(sb.ToString());
 
-            // Regression gate: lock in current progress (94.5%). Raise as the writer improves.
+            // Regression gate: lock in current progress (94.6%, parser-fair). Raise as the writer improves.
             Assert.True(rate >= 0.94, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
+        }
+
+        // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
+        // so both sides absorb identical parser normalization.
+        private static string Canon(AngleSharp.Html.Parser.HtmlParser angle, string html)
+        {
+            if (html.StartsWith("THREW", StringComparison.Ordinal))
+            {
+                return html;
+            }
+
+            return Norm(angle.ParseDocument(html).Body!.InnerHtml);
         }
 
         private static string Inline(string s) => s.Replace("\r\n", "\\n").Replace("\n", "\\n");
