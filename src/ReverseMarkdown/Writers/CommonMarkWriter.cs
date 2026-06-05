@@ -1,14 +1,184 @@
+using System.Text;
+using ReverseMarkdown.Dom;
+
 namespace ReverseMarkdown.Writers
 {
     /// <summary>
-    /// CommonMark writer. Phase A uses the <see cref="MarkdownWriterBase"/> defaults as-is;
-    /// CommonMark-specific behavior (HTML inline tags, intraword spacing, etc.) lands as
-    /// overrides in a later phase.
+    /// CommonMark writer. Unlike the base flavor, text is rendered roundtrip-faithfully:
+    /// soft line breaks are preserved (not collapsed to spaces), markup-significant characters
+    /// are escaped, and line-start markers are escaped so literal text is not reinterpreted.
     /// </summary>
     public sealed class CommonMarkWriter : MarkdownWriterBase
     {
         public CommonMarkWriter(Config config) : base(config)
         {
+        }
+
+        protected override void WriteText(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            // Collapse runs of spaces/tabs within a line, but preserve newlines (soft breaks).
+            var sb = new StringBuilder(value.Length);
+            var inSpace = false;
+            foreach (var c in value)
+            {
+                if (c == '\n')
+                {
+                    sb.Append('\n');
+                    inSpace = false;
+                }
+                else if (c is ' ' or '\t' or '\r')
+                {
+                    if (!inSpace)
+                    {
+                        sb.Append(' ');
+                        inSpace = true;
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                    inSpace = false;
+                }
+            }
+
+            var content = sb.ToString();
+
+            // Escape markup-significant characters so literal text round-trips.
+            content = content
+                .Replace("\\", "\\\\")
+                .Replace("`", "\\`")
+                .Replace("*", "\\*")
+                .Replace("_", "\\_")
+                .Replace("[", "\\[")
+                .Replace("]", "\\]")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
+
+            content = EscapeLineStarts(content);
+
+            // Suppress redundant leading whitespace (space or newline) at a boundary so a
+            // preceding hard break ("  \n") isn't doubled into a paragraph split.
+            if (AtWhitespaceBoundary())
+            {
+                content = content.TrimStart(' ', '\n');
+            }
+
+            Buffer.Append(content);
+        }
+
+        // Escape leading block markers (#, list bullets/numbers, setext underlines) per line.
+        private static string EscapeLineStarts(string content)
+        {
+            if (string.IsNullOrEmpty(content) || content.IndexOf('\n') < 0 && !StartsWithMarker(content))
+            {
+                return StartsWithMarker(content) ? EscapeLine(content) : content;
+            }
+
+            var lines = content.Split('\n');
+            for (var i = 0; i < lines.Length; i++)
+            {
+                lines[i] = EscapeLine(lines[i]);
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        private static bool StartsWithMarker(string line)
+        {
+            var i = 0;
+            while (i < line.Length && i < 3 && line[i] == ' ')
+            {
+                i++;
+            }
+
+            if (i >= line.Length)
+            {
+                return false;
+            }
+
+            var c = line[i];
+            return c is '#' or '-' or '*' or '+' || char.IsDigit(c);
+        }
+
+        private static string EscapeLine(string line)
+        {
+            if (string.IsNullOrEmpty(line))
+            {
+                return line;
+            }
+
+            var index = 0;
+            while (index < line.Length && index < 3 && line[index] == ' ')
+            {
+                index++;
+            }
+
+            if (index >= line.Length)
+            {
+                return line;
+            }
+
+            var current = line[index];
+
+            if (current == '#')
+            {
+                return line.Insert(index, "\\");
+            }
+
+            if (current is '-' or '*' or '+')
+            {
+                // bullet marker (followed by space) or setext/thematic run
+                if (IsMarkerFollowedBySpace(line, index) || IsRepeatedRun(line, index, current))
+                {
+                    return line.Insert(index, "\\");
+                }
+            }
+
+            if (char.IsDigit(current))
+            {
+                var end = index;
+                while (end < line.Length && char.IsDigit(line[end]))
+                {
+                    end++;
+                }
+
+                if (end < line.Length && (line[end] == '.' || line[end] == ')') && IsMarkerFollowedBySpace(line, end))
+                {
+                    return line.Insert(end, "\\");
+                }
+            }
+
+            return line;
+        }
+
+        private static bool IsMarkerFollowedBySpace(string line, int markerIndex)
+        {
+            var next = markerIndex + 1;
+            return next < line.Length && line[next] == ' ';
+        }
+
+        private static bool IsRepeatedRun(string line, int index, char ch)
+        {
+            var trimmed = line[index..].TrimEnd();
+            if (trimmed.Length < 3)
+            {
+                return false;
+            }
+
+            foreach (var c in trimmed)
+            {
+                if (c != ch && c != ' ')
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

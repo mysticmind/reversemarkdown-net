@@ -109,6 +109,24 @@ namespace ReverseMarkdown {
             // until v6 reaches CommonMark-spec + escaping parity (see docs/v6/migration.md).
             if (Config.UseMarkdownDom)
             {
+                if (Config.Flavor == Config.MarkdownFlavor.CommonMark)
+                {
+                    // CommonMark passes block-level / leading-close-tag / comment HTML through verbatim.
+                    var normalized = html.ReplaceLineEndings("\n");
+                    if (LooksLikeCommonMarkHtmlBlock(normalized))
+                    {
+                        return ApplyOutputLineEndings(normalized);
+                    }
+
+                    var trimmed = normalized.TrimStart('﻿', ' ', '\t', '\r', '\n');
+                    if (trimmed.StartsWith("</", StringComparison.Ordinal) ||
+                        normalized.Contains("<!--", StringComparison.Ordinal) ||
+                        normalized.Contains("<![CDATA[", StringComparison.Ordinal))
+                    {
+                        return ApplyOutputLineEndings(normalized);
+                    }
+                }
+
                 return Render(Parse(html), Config.Flavor);
             }
 

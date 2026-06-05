@@ -383,19 +383,23 @@ namespace ReverseMarkdown.Writers
             }
         }
 
-        /// <summary>Render a list item's block children tightly (single newline between blocks).</summary>
+        /// <summary>
+        /// Render a list item's block children. Consecutive non-list blocks (e.g. multiple
+        /// paragraphs) are separated by a blank line (loose item); a nested list joins tightly
+        /// so it indents on the next line.
+        /// </summary>
         protected void WriteItemBlocks(IEnumerable<MdBlock> blocks)
         {
-            var first = true;
-            foreach (var block in blocks)
+            var list = blocks.ToList();
+            for (var i = 0; i < list.Count; i++)
             {
-                if (!first)
+                if (i > 0)
                 {
-                    Buffer.Append('\n');
+                    var adjacentToList = list[i] is MdList || list[i - 1] is MdList;
+                    Buffer.Append(adjacentToList ? "\n" : "\n\n");
                 }
 
-                first = false;
-                block.Accept(this);
+                list[i].Accept(this);
             }
         }
 
@@ -445,7 +449,7 @@ namespace ReverseMarkdown.Writers
         /// <summary>Write text content with HTML-style whitespace collapsing: runs of
         /// whitespace (incl. newlines/tabs from source indentation) become a single space, and
         /// a leading space is suppressed when the output is already at a whitespace boundary.</summary>
-        protected void WriteText(string value)
+        protected virtual void WriteText(string value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -489,7 +493,7 @@ namespace ReverseMarkdown.Writers
         {
         }
 
-        private bool AtWhitespaceBoundary()
+        protected bool AtWhitespaceBoundary()
         {
             if (Buffer.Length == 0)
             {

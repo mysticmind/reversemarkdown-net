@@ -83,17 +83,19 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
   `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
   escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
-- ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) is BLOCKED on parity:**
-  - **CommonMark spec compliance.** `CommonMarkSpecTests` runs the full upstream
-    `commonmark.json` against v5's CommonMark mode; the v6 `CommonMarkWriter` is still a
-    thin stub. Flipping would regress the entire CommonMark surface.
-  - **Escaping/edge behaviors.** v5's `Text` converter also does line-start escaping, angle-
-    bracket preservation, and a CommonMark escaping pipeline not yet ported.
+- 🚧 **CommonMark writer (in progress): 70% → 89.7% spec roundtrip.** `CommonMarkWriter` now
+  preserves soft line breaks, escapes markup-significant chars + line-start markers, passes
+  block-level/comment HTML through verbatim, and renders loose lists. Measured by
+  `CommonMarkV6MeasureTests` (gate ≥ 88% of the 651 `commonmark.json` examples roundtrip
+  through Markdig). Remaining ~67 failures: consecutive-list separation, deep nested-list
+  indentation, some entity/raw-inline edges.
+- ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) still gated on:**
+  - CommonMark roundtrip to ~parity with v5 (the last ~10%).
   - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent
     specifics, …) that would need reviewed re-baselining.
-- **Plan:** port the CommonMark writer to spec parity + remaining escaping, expand the
-  dual-run harness over the real fixtures, re-baseline whitespace-only diffs, fix semantic
-  gaps, *then* default `Convert` to v6 and remove HAP. Tag **v6.0.0**.
+- **Plan:** finish CommonMark roundtrip, expand the dual-run harness over the real fixtures,
+  re-baseline whitespace-only diffs, fix semantic gaps, *then* default `Convert` to v6 and
+  remove HAP. Tag **v6.0.0**.
 
 ### Phase E — New flavors (now cheap)
 - `MultiMarkdownWriter`, `PandocWriter` + the new readers they need (footnotes, math,
