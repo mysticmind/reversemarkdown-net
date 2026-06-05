@@ -187,12 +187,18 @@ namespace ReverseMarkdown {
         }
 
         /// <summary>
-        /// EXPERIMENTAL (v6 preview): render a <see cref="MarkdownDocument"/> to markdown.
-        /// Phase A supports the CommonMark writer only.
+        /// EXPERIMENTAL (v6 preview): render a <see cref="MarkdownDocument"/> to markdown
+        /// using the writer selected by <see cref="Config.Flavor"/>.
         /// </summary>
-        public virtual string Render(MarkdownDocument document)
+        public virtual string Render(MarkdownDocument document) => Render(document, Config.Flavor);
+
+        /// <summary>
+        /// EXPERIMENTAL (v6 preview): render a <see cref="MarkdownDocument"/> to markdown in
+        /// the given flavor. Flavors without a dedicated writer yet fall back to the default.
+        /// </summary>
+        public virtual string Render(MarkdownDocument document, Config.MarkdownFlavor flavor)
         {
-            var writer = new CommonMarkWriter(Config);
+            var writer = WriterFactory.Create(flavor, Config);
             return ApplyOutputLineEndings(writer.Write(document));
         }
 

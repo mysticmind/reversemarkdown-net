@@ -9,6 +9,24 @@ namespace ReverseMarkdown
 
         public bool GithubFlavored { get; set; } = false;
 
+        /// <summary>
+        /// EXPERIMENTAL (v6): selects the writer used by the Markdown DOM render path
+        /// (<see cref="Converter.Parse"/> / <see cref="Converter.Render(Dom.MarkdownDocument)"/>).
+        /// Does not affect the v5 <see cref="Converter.Convert"/> path. See docs/v6/.
+        /// </summary>
+        public MarkdownFlavor Flavor { get; set; } = MarkdownFlavor.Default;
+
+        public enum MarkdownFlavor
+        {
+            Default,
+            GitHub,
+            CommonMark,
+            Slack,
+            Telegram,
+            MultiMarkdown,
+            Pandoc
+        }
+
         public bool SlackFlavored { get; set; } = false;
 
         /// <summary>
