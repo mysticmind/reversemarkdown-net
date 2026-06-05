@@ -96,6 +96,8 @@ namespace ReverseMarkdown.Readers
             Register("sup", new SuperscriptReader());
             Register("sub", new SubscriptReader());
             Register("cite", new CitationReader());
+            Register("abbr", new AbbrReader());
+            Register("span", new SpanReader());
 
             Register("ul", new ListReader(ordered: false));
             Register("ol", new ListReader(ordered: true));
@@ -116,7 +118,7 @@ namespace ReverseMarkdown.Readers
             var bypass = new BypassReader();
             foreach (var tag in new[]
                      {
-                         "span", "article", "header", "footer",
+                         "article", "header", "footer",
                          "main", "nav", "aside", "figure", "figcaption",
                      })
             {

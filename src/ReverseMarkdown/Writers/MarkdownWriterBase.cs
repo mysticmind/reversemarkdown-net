@@ -235,6 +235,19 @@ namespace ReverseMarkdown.Writers
         // Default: standard <cite> renders as italic; MMD/Pandoc override to a citation key.
         public virtual void Visit(MdCitation node) => Wrap(EmphasisDelimiter, node.Children);
 
+        // Default/MMD use LaTeX-style \(..\) / \[..\]; Pandoc overrides to $..$ / $$..$$.
+        public virtual void Visit(MdMath node)
+        {
+            if (node.Display)
+            {
+                Buffer.Append("\\[").Append(node.Literal).Append("\\]");
+            }
+            else
+            {
+                Buffer.Append("\\(").Append(node.Literal).Append("\\)");
+            }
+        }
+
         public virtual void Visit(MdFootnoteDefinition node)
         {
             Buffer.Append("[^").Append(node.Id).Append("]: ");

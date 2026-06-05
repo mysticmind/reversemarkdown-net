@@ -99,6 +99,19 @@ namespace ReverseMarkdown.Writers
         {
         }
 
+        public override string Write(MarkdownDocument document)
+        {
+            base.Write(document); // leaves the rendered document in Buffer
+
+            // MMD abbreviation definitions are appended at the document end.
+            foreach (var abbreviation in document.Meta.Abbreviations)
+            {
+                Buffer.Append("\n\n*[").Append(abbreviation.Key).Append("]: ").Append(abbreviation.Value);
+            }
+
+            return Buffer.ToString();
+        }
+
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
 
         public override void Visit(MdCitation node)
@@ -149,6 +162,12 @@ namespace ReverseMarkdown.Writers
             }
 
             base.Visit(node);
+        }
+
+        public override void Visit(MdMath node)
+        {
+            var delimiter = node.Display ? "$$" : "$";
+            Buffer.Append(delimiter).Append(node.Literal).Append(delimiter);
         }
 
         protected override void WritePreamble(MarkdownDocument document)

@@ -231,12 +231,51 @@ namespace ReverseMarkdown.Readers
         }
     }
 
-    /// <summary>Inline code reader for <c>code</c> (outside <c>pre</c>).</summary>
+    /// <summary>Inline code reader for <c>code</c> (or inline math when class contains "math").</summary>
     public sealed class CodeReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx)
         {
+            var cls = element.GetAttribute("class") ?? string.Empty;
+            if (cls.Contains("math"))
+            {
+                ctx.Emit(MathHelper.Build(element, cls));
+                return;
+            }
+
             ctx.Emit(new MdInlineCode(element.TextContent) { SourceTag = element.LocalName });
+        }
+    }
+
+    /// <summary>Span reader: math (class "math") today; otherwise bypass to children.</summary>
+    public sealed class SpanReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var cls = element.GetAttribute("class") ?? string.Empty;
+            if (cls.Contains("math"))
+            {
+                ctx.Emit(MathHelper.Build(element, cls));
+                return;
+            }
+
+            ctx.ReadChildren(element);
+        }
+    }
+
+    /// <summary>Abbreviation reader for <c>abbr</c>: emits the text and collects the title (MMD).</summary>
+    public sealed class AbbrReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var title = element.GetAttribute("title");
+            var text = element.TextContent.Trim();
+            if (!string.IsNullOrEmpty(title) && text.Length > 0)
+            {
+                ctx.Document.Meta.Abbreviations[text] = title;
+            }
+
+            ctx.ReadChildren(element);
         }
     }
 
@@ -585,6 +624,39 @@ namespace ReverseMarkdown.Readers
     public sealed class BypassReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx) => ctx.ReadChildren(element);
+    }
+
+    /// <summary>Builds <see cref="MdMath"/> from a math element, stripping any TeX delimiters.</summary>
+    internal static class MathHelper
+    {
+        public static MdMath Build(IElement element, string cls)
+        {
+            var display = cls.Contains("display");
+            return new MdMath(StripDelimiters(element.TextContent.Trim()), display)
+            {
+                SourceTag = element.LocalName,
+            };
+        }
+
+        private static string StripDelimiters(string t)
+        {
+            if (t.Length >= 4)
+            {
+                if ((t.StartsWith("\\(") && t.EndsWith("\\)")) ||
+                    (t.StartsWith("\\[") && t.EndsWith("\\]")) ||
+                    (t.StartsWith("$$") && t.EndsWith("$$")))
+                {
+                    return t.Substring(2, t.Length - 4).Trim();
+                }
+            }
+
+            if (t.Length >= 2 && t.StartsWith("$") && t.EndsWith("$"))
+            {
+                return t.Substring(1, t.Length - 2).Trim();
+            }
+
+            return t;
+        }
     }
 
     /// <summary>Footnote id/key helpers shared by the anchor and section readers.</summary>

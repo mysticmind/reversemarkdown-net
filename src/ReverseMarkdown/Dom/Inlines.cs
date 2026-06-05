@@ -212,6 +212,27 @@ namespace ReverseMarkdown.Dom
         internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
     }
 
+    /// <summary>Inline or display math. <see cref="Literal"/> is the bare TeX (delimiters stripped).</summary>
+    public sealed class MdMath : MdInline
+    {
+        public MdMath(string literal, bool display)
+        {
+            Literal = literal;
+            Display = display;
+        }
+
+        public string Literal { get; set; }
+        public bool Display { get; set; }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Enumerable.Empty<MdNode>();
+
+        internal override bool RemoveChildCore(MdNode child) => false;
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
+    }
+
     /// <summary>A citation (<c>cite</c> / <c>data-cite</c>) with display text and optional key.</summary>
     public sealed class MdCitation : MdInline, IInlineSink
     {

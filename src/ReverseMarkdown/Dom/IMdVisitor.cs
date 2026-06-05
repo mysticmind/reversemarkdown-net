@@ -39,5 +39,6 @@ namespace ReverseMarkdown.Dom
         void Visit(MdRawInline node);
         void Visit(MdFootnoteReference node);
         void Visit(MdCitation node);
+        void Visit(MdMath node);
     }
 }
