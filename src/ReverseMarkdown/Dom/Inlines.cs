@@ -212,6 +212,30 @@ namespace ReverseMarkdown.Dom
         internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
     }
 
+    /// <summary>A citation (<c>cite</c> / <c>data-cite</c>) with display text and optional key.</summary>
+    public sealed class MdCitation : MdInline, IInlineSink
+    {
+        public MdCitation()
+        {
+            Children = new MdNodeList<MdInline>(this);
+        }
+
+        public string? Key { get; set; }
+
+        public MdNodeList<MdInline> Children { get; }
+
+        void IInlineSink.Add(MdInline inline) => Children.Add(inline);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
     /// <summary>A footnote reference (e.g. <c>[^1]</c>). Leaf node.</summary>
     public sealed class MdFootnoteReference : MdInline
     {

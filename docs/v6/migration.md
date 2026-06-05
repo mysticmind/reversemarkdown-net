@@ -39,9 +39,15 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
 - ✅ **Extensible reader discovery**: `[MarkdownReader(tags)]` auto-discovery from additional
   assemblies (mirrors v5 `additionalAssemblies`); built-ins stay centrally registered.
 
-- ⏳ **Remaining**: base64 `SaveToFile` IO on the v6 path; v5-default writer specifics if we
-  choose to match (indented code, `* * *` HR); **Phase D flip** (`Convert` → v6 + remove HAP);
-  **Phase E** MMD/Pandoc feature readers (footnotes, math, metadata, citations, fenced divs).
+- 🚧 **Phase E (MMD/Pandoc features)**: ✅ footnotes (ref/def collection, back-ref
+  suppression, doc-end emission), ✅ metadata (MMD pairs / Pandoc YAML from `<head>`),
+  ✅ citations (`<cite data-cite>` → MMD `[#key]` / Pandoc `[@key]` / default italic).
+  ⏳ remaining: math (`code/span.math` → `\(..\)` / `$..$`), abbreviations
+  (`<abbr title>` → `*[X]: full`), Pandoc fenced divs / bracketed spans / heading attrs /
+  line blocks. All follow the established reader→DOM→writer pattern.
+- ⏳ **Other remaining**: base64 `SaveToFile` IO on the v6 path; v5-default writer specifics
+  if we choose to match (indented code, `* * *` HR); **Phase D flip** (`Convert` → v6 +
+  remove HAP).
 
 ## Phases
 

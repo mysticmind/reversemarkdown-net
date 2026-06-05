@@ -349,6 +349,26 @@ namespace ReverseMarkdown.Readers
         }
     }
 
+    /// <summary>Citation reader for <c>cite</c> (uses <c>data-cite</c> as the key when present).</summary>
+    public sealed class CitationReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var citation = new MdCitation
+            {
+                SourceTag = element.LocalName,
+                Key = element.GetAttribute("data-cite"),
+            };
+
+            using (ctx.Open(citation))
+            {
+                ctx.ReadChildren(element);
+            }
+
+            ctx.Emit(citation);
+        }
+    }
+
     /// <summary>Superscript reader for <c>sup</c>.</summary>
     public sealed class SuperscriptReader : IMdReader
     {

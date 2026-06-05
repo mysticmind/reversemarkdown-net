@@ -95,6 +95,7 @@ namespace ReverseMarkdown.Readers
 
             Register("sup", new SuperscriptReader());
             Register("sub", new SubscriptReader());
+            Register("cite", new CitationReader());
 
             Register("ul", new ListReader(ordered: false));
             Register("ol", new ListReader(ordered: true));

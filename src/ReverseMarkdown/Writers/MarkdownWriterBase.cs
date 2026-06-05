@@ -232,6 +232,9 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdFootnoteReference node) => Buffer.Append("[^").Append(node.Id).Append(']');
 
+        // Default: standard <cite> renders as italic; MMD/Pandoc override to a citation key.
+        public virtual void Visit(MdCitation node) => Wrap(EmphasisDelimiter, node.Children);
+
         public virtual void Visit(MdFootnoteDefinition node)
         {
             Buffer.Append("[^").Append(node.Id).Append("]: ");

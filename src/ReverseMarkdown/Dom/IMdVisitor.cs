@@ -38,5 +38,6 @@ namespace ReverseMarkdown.Dom
         void Visit(MdLineBreak node);
         void Visit(MdRawInline node);
         void Visit(MdFootnoteReference node);
+        void Visit(MdCitation node);
     }
 }

@@ -101,6 +101,17 @@ namespace ReverseMarkdown.Writers
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
 
+        public override void Visit(MdCitation node)
+        {
+            if (!string.IsNullOrEmpty(node.Key))
+            {
+                Buffer.Append("[#").Append(node.Key).Append(']');
+                return;
+            }
+
+            base.Visit(node);
+        }
+
         protected override void WritePreamble(MarkdownDocument document)
         {
             if (document.Meta.Metadata.Count == 0)
@@ -128,6 +139,17 @@ namespace ReverseMarkdown.Writers
         }
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
+
+        public override void Visit(MdCitation node)
+        {
+            if (!string.IsNullOrEmpty(node.Key))
+            {
+                Buffer.Append("[@").Append(node.Key).Append(']');
+                return;
+            }
+
+            base.Visit(node);
+        }
 
         protected override void WritePreamble(MarkdownDocument document)
         {

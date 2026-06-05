@@ -35,5 +35,16 @@ namespace ReverseMarkdown.Test
             var md = Norm(converter.Render(converter.Parse(Html), Config.MarkdownFlavor.Default));
             Assert.Equal("Body.", md);
         }
+
+        [Theory]
+        [InlineData(Config.MarkdownFlavor.MultiMarkdown, "see [#doe2020] now")]
+        [InlineData(Config.MarkdownFlavor.Pandoc, "see [@doe2020] now")]
+        [InlineData(Config.MarkdownFlavor.Default, "see *Doe 2020* now")]
+        public void Citation_renders_per_flavor(Config.MarkdownFlavor flavor, string expected)
+        {
+            var converter = new Converter(new Config());
+            var html = "<p>see <cite data-cite=\"doe2020\">Doe 2020</cite> now</p>";
+            Assert.Equal(expected, Norm(converter.Render(converter.Parse(html), flavor)));
+        }
     }
 }
