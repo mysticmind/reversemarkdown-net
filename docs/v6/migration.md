@@ -4,6 +4,26 @@ Strategy: **strangler fig**, not big-bang. Build the new path beside the old one
 parity tag-by-tag behind a verifiable harness, then flip `Convert` over and delete the old
 path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
 
+## Progress (living)
+
+- ✅ **Phase A** scaffolding: `MdNode` mutable tree, `IMdVisitor`, `ReaderContext`,
+  `MarkdownDomReader`, `MarkdownWriterBase` + `CommonMarkWriter`, additive
+  `Converter.Parse`/`Render`. (commit `e0febea`)
+- 🚧 **Phase B** readers/writers ported: headings, paragraph, text, strong/b, em/i,
+  s/del/strike, a, img, code, br, hr, blockquote, ul/ol/li (nested + ordered start +
+  task-list checkbox), pre/code (fenced + language), raw HTML escape hatch.
+  (commits `1b54db5`, `0f2f53f`)
+- ✅ **Flavor seam**: `Config.MarkdownFlavor` enum + `Render(doc, flavor)` + `WriterFactory`
+  (Default/GitHub/CommonMark; others fall back to Default). (commit `426aced`)
+- ✅ **Parity harness**: `ParityHarnessTests` — dual-run v5-vs-v6, informational diff
+  classification, gates on content-preservation (subsequence check). (commit `426aced`)
+- ⏳ **Remaining Phase B**: `table`/`tr`/`td`/`th`, `dl`/`dt`/`dd`, `sup`/`sub`, `div`/`span`/
+  `aside` semantics; reflection-based reader discovery (replace hardcoded registry);
+  honor `PassThroughTags`/`UnknownTags`/`TagAliases` in readers; v5-default writer
+  behaviors where we choose to match.
+- ⏳ **Phase C+**: per-flavor writers (Slack/Telegram/MMD/Pandoc), Phase D flip,
+  Phase E new features, Phase F #79 public API + HTML-side filtering.
+
 ## Phases
 
 ### Phase 0 — Flavor enum groundwork (no behavior change)
