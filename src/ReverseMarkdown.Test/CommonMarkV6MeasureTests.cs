@@ -66,7 +66,7 @@ namespace ReverseMarkdown.Test
                     pass[ex.Section] = pass.GetValueOrDefault(ex.Section) + 1;
                     overallPass++;
                 }
-                else
+                else if (samples.Count < 25)
                 {
                     samples.Add($"[{ex.Section} #{ex.Example}] in={Inline(ex.Html)}\n   exp={Inline(Norm(ex.Html))}\n   got={Inline(actual)}");
                 }
@@ -85,11 +85,10 @@ namespace ReverseMarkdown.Test
                 sb.AppendLine(s);
             }
 
-            File.WriteAllText("/tmp/v6-cm-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
-            // Regression gate: lock in current progress (92.0%). Raise as the writer improves.
-            Assert.True(rate >= 0.91, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
+            // Regression gate: lock in current progress (94.5%). Raise as the writer improves.
+            Assert.True(rate >= 0.94, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         private static string Inline(string s) => s.Replace("\r\n", "\\n").Replace("\n", "\\n");

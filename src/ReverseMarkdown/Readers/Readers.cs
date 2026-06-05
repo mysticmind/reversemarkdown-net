@@ -695,6 +695,13 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
+            // CommonMark: a <div> is a raw HTML block — emit it verbatim.
+            if (element.LocalName == "div" && ctx.Config.Flavor == Config.MarkdownFlavor.CommonMark)
+            {
+                ctx.Emit(new MdHtmlBlock(element.OuterHtml) { SourceTag = element.LocalName });
+                return;
+            }
+
             // Pandoc line block: <div class="line-block">a<br>b</div>.
             if (cls.Contains("line-block"))
             {
