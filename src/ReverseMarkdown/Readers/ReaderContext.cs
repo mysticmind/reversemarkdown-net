@@ -15,14 +15,18 @@ namespace ReverseMarkdown.Readers
         private readonly MarkdownDomReader _reader;
         private readonly Stack<Frame> _frames = new();
 
-        internal ReaderContext(MarkdownDomReader reader, MarkdownDocument document)
+        internal ReaderContext(MarkdownDomReader reader, MarkdownDocument document, Config config)
         {
             _reader = reader;
             Document = document;
+            Config = config;
             _frames.Push(new Frame(document));
         }
 
         public MarkdownDocument Document { get; }
+
+        /// <summary>The active configuration (scheme whitelist, smart-href, base64, …).</summary>
+        public Config Config { get; }
 
         /// <summary>The container currently being built.</summary>
         public MdNode Current => _frames.Peek().Container;

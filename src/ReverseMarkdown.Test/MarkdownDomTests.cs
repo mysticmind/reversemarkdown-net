@@ -265,6 +265,41 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void Link_with_nonwhitelisted_scheme_bypasses_to_text()
+        {
+            var config = new Config();
+            config.WhitelistUriSchemes.Add("https");
+            var converter = new Converter(config);
+            Assert.Equal("click", Norm(converter.Render(converter.Parse("<p><a href=\"javascript:alert(1)\">click</a></p>"))));
+        }
+
+        [Fact]
+        public void SmartHref_drops_link_when_text_equals_href()
+        {
+            var config = new Config { SmartHrefHandling = true };
+            var converter = new Converter(config);
+            Assert.Equal("https://x.io", Norm(converter.Render(converter.Parse("<p><a href=\"https://x.io\">https://x.io</a></p>"))));
+        }
+
+        [Fact]
+        public void Base64_image_skip_drops_it()
+        {
+            var config = new Config { Base64Images = Config.Base64ImageHandling.Skip };
+            var converter = new Converter(config);
+            var html = "<p>a<img src=\"data:image/png;base64,iVBOR\" alt=\"x\">b</p>";
+            Assert.Equal("ab", Norm(converter.Render(converter.Parse(html))));
+        }
+
+        [Fact]
+        public void UnknownTagsReplacer_wraps_content()
+        {
+            var config = new Config();
+            config.UnknownTagsReplacer.Add("u", "_");
+            var converter = new Converter(config);
+            Assert.Equal("a _x_ b", Norm(converter.Render(converter.Parse("<p>a <u>x</u> b</p>"))));
+        }
+
+        [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
             var paragraph = new MdParagraph();

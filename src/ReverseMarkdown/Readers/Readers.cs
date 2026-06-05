@@ -87,16 +87,29 @@ namespace ReverseMarkdown.Readers
         }
     }
 
-    /// <summary>Anchor reader for <c>a</c>.</summary>
+    /// <summary>Anchor reader for <c>a</c> (scheme whitelist + smart-href handling).</summary>
     public sealed class AnchorReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx)
         {
-            var link = new MdLink(element.GetAttribute("href") ?? string.Empty)
-            {
-                SourceTag = element.LocalName,
-            };
+            var href = element.GetAttribute("href") ?? string.Empty;
+            var config = ctx.Config;
 
+            // Scheme not whitelisted: bypass to plain content (v5 behavior).
+            if (!config.IsSchemeWhitelisted(UrlHelper.GetScheme(href)))
+            {
+                ctx.ReadChildren(element);
+                return;
+            }
+
+            // Smart href: when the visible text equals the href, drop the link wrapper.
+            if (config.SmartHrefHandling && UrlHelper.TextMatchesHref(element.TextContent.Trim(), href))
+            {
+                ctx.ReadChildren(element);
+                return;
+            }
+
+            var link = new MdLink(href) { SourceTag = element.LocalName };
             var title = element.GetAttribute("title");
             if (!string.IsNullOrEmpty(title))
             {
@@ -112,12 +125,31 @@ namespace ReverseMarkdown.Readers
         }
     }
 
-    /// <summary>Image reader for <c>img</c>.</summary>
+    /// <summary>Image reader for <c>img</c> (scheme whitelist + base64 handling).</summary>
     public sealed class ImageReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx)
         {
-            var image = new MdImage(element.GetAttribute("src") ?? string.Empty)
+            var src = element.GetAttribute("src") ?? string.Empty;
+            var config = ctx.Config;
+
+            var isBase64 = src.StartsWith("data:", StringComparison.OrdinalIgnoreCase);
+            if (isBase64)
+            {
+                // SaveToFile is not yet supported on the v6 path; Skip (and SaveToFile without
+                // a directory) drop the image, matching v5.
+                if (config.Base64Images != Config.Base64ImageHandling.Include)
+                {
+                    return;
+                }
+            }
+            else if (!config.IsSchemeWhitelisted(UrlHelper.GetScheme(src)))
+            {
+                // Non-whitelisted image scheme: drop (v5 emits empty output).
+                return;
+            }
+
+            var image = new MdImage(src)
             {
                 SourceTag = element.LocalName,
                 Alt = element.GetAttribute("alt") ?? string.Empty,
@@ -130,6 +162,56 @@ namespace ReverseMarkdown.Readers
             }
 
             ctx.Emit(image);
+        }
+    }
+
+    /// <summary>URL scheme / smart-href helpers shared by the anchor and image readers.</summary>
+    internal static class UrlHelper
+    {
+        public static string GetScheme(string url)
+        {
+            var colon = url.IndexOf(':');
+            if (colon <= 0)
+            {
+                return string.Empty;
+            }
+
+            var slash = url.IndexOf('/');
+            if (slash >= 0 && slash < colon)
+            {
+                return string.Empty;
+            }
+
+            var scheme = url.Substring(0, colon);
+            foreach (var c in scheme)
+            {
+                if (!char.IsLetterOrDigit(c) && c is not ('+' or '-' or '.'))
+                {
+                    return string.Empty;
+                }
+            }
+
+            return scheme;
+        }
+
+        public static bool TextMatchesHref(string text, string href)
+        {
+            if (string.Equals(text, href, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            // http(s)://text == href, or mailto:/tel: prefix removed equals text.
+            foreach (var prefix in new[] { "http://", "https://", "mailto:", "tel:" })
+            {
+                if (href.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(href.Substring(prefix.Length), text, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

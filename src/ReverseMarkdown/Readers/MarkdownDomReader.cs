@@ -81,7 +81,7 @@ namespace ReverseMarkdown.Readers
         public MarkdownDocument Read(IElement root)
         {
             var document = new MarkdownDocument();
-            var ctx = new ReaderContext(this, document);
+            var ctx = new ReaderContext(this, document, _config);
             // Read the root's children directly; the root (e.g. <body>) is a structural
             // wrapper, not subject to UnknownTags handling.
             ctx.ReadChildren(root);
@@ -117,6 +117,15 @@ namespace ReverseMarkdown.Readers
             if (reader is not null)
             {
                 reader.Read(element, ctx);
+                return;
+            }
+
+            // Unknown-tag replacer: wrap converted content with the configured markdown string.
+            if (_config.UnknownTagsReplacer.TryGetValue(tag, out var wrapper))
+            {
+                ctx.Emit(new MdRawInline(wrapper) { SourceTag = tag });
+                ctx.ReadChildren(element);
+                ctx.Emit(new MdRawInline(wrapper) { SourceTag = tag });
                 return;
             }
 
