@@ -16,6 +16,9 @@ namespace ReverseMarkdown.Dom
         void Visit(MdList node);
         void Visit(MdListItem node);
         void Visit(MdCodeBlock node);
+        void Visit(MdTable node);
+        void Visit(MdTableRow node);
+        void Visit(MdTableCell node);
         void Visit(MdHtmlBlock node);
 
         // Inlines

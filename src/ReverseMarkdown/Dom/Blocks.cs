@@ -190,6 +190,99 @@ namespace ReverseMarkdown.Dom
         internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
     }
 
+    /// <summary>Column text alignment for table cells.</summary>
+    public enum ColumnAlignment
+    {
+        None,
+        Left,
+        Center,
+        Right,
+    }
+
+    /// <summary>A table (<c>table</c>). Holds rows plus an optional caption.</summary>
+    public sealed class MdTable : MdBlock, IBlockSink
+    {
+        public MdTable()
+        {
+            Rows = new MdNodeList<MdTableRow>(this);
+        }
+
+        public string? Caption { get; set; }
+
+        public MdNodeList<MdTableRow> Rows { get; }
+
+        void IBlockSink.Add(MdBlock block)
+        {
+            if (block is MdTableRow row)
+            {
+                Rows.Add(row);
+            }
+        }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Rows;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Rows, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Rows, oldChild, newChildren);
+    }
+
+    /// <summary>A table row (<c>tr</c>). <see cref="IsHeader"/> marks header rows.</summary>
+    public sealed class MdTableRow : MdBlock, IBlockSink
+    {
+        public MdTableRow()
+        {
+            Cells = new MdNodeList<MdTableCell>(this);
+        }
+
+        public bool IsHeader { get; set; }
+
+        public MdNodeList<MdTableCell> Cells { get; }
+
+        void IBlockSink.Add(MdBlock block)
+        {
+            if (block is MdTableCell cell)
+            {
+                Cells.Add(cell);
+            }
+        }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Cells;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Cells, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Cells, oldChild, newChildren);
+    }
+
+    /// <summary>A table cell (<c>td</c> / <c>th</c>) holding block content.</summary>
+    public sealed class MdTableCell : MdBlock, IBlockSink
+    {
+        public MdTableCell()
+        {
+            Children = new MdNodeList<MdBlock>(this);
+        }
+
+        public ColumnAlignment Align { get; set; } = ColumnAlignment.None;
+
+        public MdNodeList<MdBlock> Children { get; }
+
+        void IBlockSink.Add(MdBlock block) => Children.Add(block);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
     /// <summary>Verbatim block-level HTML — the block escape hatch for unrepresentable input.</summary>
     public sealed class MdHtmlBlock : MdBlock
     {

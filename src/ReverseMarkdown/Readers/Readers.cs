@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
@@ -247,6 +248,103 @@ namespace ReverseMarkdown.Readers
             }
 
             return null;
+        }
+    }
+
+    /// <summary>Table reader for <c>table</c>. Drives rows/cells explicitly (pipe table model).</summary>
+    public sealed class TableReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var table = new MdTable { SourceTag = element.LocalName };
+
+            var caption = element.QuerySelector("caption");
+            if (caption is not null)
+            {
+                var text = caption.TextContent.Trim();
+                if (text.Length > 0)
+                {
+                    table.Caption = text;
+                }
+            }
+
+            using (ctx.Open(table))
+            {
+                foreach (var tr in element.QuerySelectorAll("tr"))
+                {
+                    var cells = tr.Children.Where(c => c.LocalName is "td" or "th").ToList();
+                    if (cells.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var inThead = tr.ParentElement?.LocalName == "thead";
+                    var row = new MdTableRow
+                    {
+                        SourceTag = tr.LocalName,
+                        IsHeader = inThead || cells.All(c => c.LocalName == "th"),
+                    };
+
+                    using (ctx.Open(row))
+                    {
+                        foreach (var cell in cells)
+                        {
+                            var mdCell = new MdTableCell
+                            {
+                                SourceTag = cell.LocalName,
+                                Align = ParseAlign(cell),
+                            };
+
+                            using (ctx.Open(mdCell))
+                            {
+                                ctx.ReadChildren(cell);
+                            }
+
+                            ctx.Emit(mdCell);
+                        }
+                    }
+
+                    ctx.Emit(row);
+                }
+            }
+
+            ctx.Emit(table);
+        }
+
+        private static ColumnAlignment ParseAlign(IElement cell)
+        {
+            var align = cell.GetAttribute("align");
+            if (string.IsNullOrEmpty(align))
+            {
+                var style = cell.GetAttribute("style") ?? string.Empty;
+                var idx = style.IndexOf("text-align", StringComparison.OrdinalIgnoreCase);
+                if (idx >= 0)
+                {
+                    align = style.Substring(idx + "text-align".Length).TrimStart(':', ' ');
+                }
+            }
+
+            if (string.IsNullOrEmpty(align))
+            {
+                return ColumnAlignment.None;
+            }
+
+            if (align.StartsWith("center", StringComparison.OrdinalIgnoreCase))
+            {
+                return ColumnAlignment.Center;
+            }
+
+            if (align.StartsWith("right", StringComparison.OrdinalIgnoreCase))
+            {
+                return ColumnAlignment.Right;
+            }
+
+            if (align.StartsWith("left", StringComparison.OrdinalIgnoreCase))
+            {
+                return ColumnAlignment.Left;
+            }
+
+            return ColumnAlignment.None;
         }
     }
 

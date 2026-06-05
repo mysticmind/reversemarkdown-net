@@ -139,6 +139,44 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void Table_with_header_renders_as_pipe_table()
+        {
+            var converter = new Converter(new Config());
+            var html = "<table><thead><tr><th>Name</th><th>Age</th></tr></thead>" +
+                       "<tbody><tr><td>Alice</td><td>30</td></tr></tbody></table>";
+            var md = converter.Render(converter.Parse(html));
+            Assert.Equal("| Name | Age |\n| --- | --- |\n| Alice | 30 |", Norm(md));
+        }
+
+        [Fact]
+        public void Table_without_header_uses_first_row()
+        {
+            var converter = new Converter(new Config());
+            var html = "<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>";
+            var md = converter.Render(converter.Parse(html));
+            Assert.Equal("| a | b |\n| --- | --- |\n| c | d |", Norm(md));
+        }
+
+        [Fact]
+        public void Table_honors_column_alignment()
+        {
+            var converter = new Converter(new Config());
+            var html = "<table><tr><th style=\"text-align:center\">A</th>" +
+                       "<th align=\"right\">B</th></tr><tr><td>1</td><td>2</td></tr></table>";
+            var md = converter.Render(converter.Parse(html));
+            Assert.Equal("| A | B |\n| :---: | ---: |\n| 1 | 2 |", Norm(md));
+        }
+
+        [Fact]
+        public void Table_escapes_pipes_in_cells()
+        {
+            var converter = new Converter(new Config());
+            var html = "<table><tr><th>h</th></tr><tr><td>a|b</td></tr></table>";
+            var md = converter.Render(converter.Parse(html));
+            Assert.Equal("| h |\n| --- |\n| a\\|b |", Norm(md));
+        }
+
+        [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
             var paragraph = new MdParagraph();

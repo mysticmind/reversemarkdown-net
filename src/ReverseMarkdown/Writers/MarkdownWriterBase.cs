@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ReverseMarkdown.Dom;
 
@@ -105,6 +106,80 @@ namespace ReverseMarkdown.Writers
             }
 
             Buffer.Append("```");
+        }
+
+        public virtual void Visit(MdTable node)
+        {
+            if (node.Rows.Count == 0)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(node.Caption))
+            {
+                Buffer.Append(node.Caption).Append("\n\n");
+            }
+
+            // Pick the header row; if none is marked, use the first row (v5 default behavior).
+            var headerRow = node.Rows.FirstOrDefault(r => r.IsHeader) ?? node.Rows[0];
+            var bodyRows = node.Rows.Where(r => !ReferenceEquals(r, headerRow));
+            var columns = node.Rows.Max(r => r.Cells.Count);
+
+            WriteTableRow(headerRow, columns);
+            Buffer.Append('\n');
+            WriteTableDelimiter(headerRow, columns);
+            foreach (var row in bodyRows)
+            {
+                Buffer.Append('\n');
+                WriteTableRow(row, columns);
+            }
+        }
+
+        public virtual void Visit(MdTableRow node)
+        {
+            var first = true;
+            foreach (var cell in node.Cells)
+            {
+                if (!first)
+                {
+                    Buffer.Append(' ');
+                }
+
+                first = false;
+                cell.Accept(this);
+            }
+        }
+
+        public virtual void Visit(MdTableCell node) => WriteItemBlocks(node.Children);
+
+        private void WriteTableRow(MdTableRow row, int columns)
+        {
+            Buffer.Append('|');
+            for (var i = 0; i < columns; i++)
+            {
+                var text = i < row.Cells.Count
+                    ? Capture(() => WriteItemBlocks(row.Cells[i].Children))
+                        .Replace("\r\n", " ").Replace('\n', ' ').Replace("|", "\\|").Trim()
+                    : string.Empty;
+                Buffer.Append(' ').Append(text).Append(" |");
+            }
+        }
+
+        private void WriteTableDelimiter(MdTableRow headerRow, int columns)
+        {
+            Buffer.Append('|');
+            for (var i = 0; i < columns; i++)
+            {
+                var align = i < headerRow.Cells.Count ? headerRow.Cells[i].Align : ColumnAlignment.None;
+                var marker = align switch
+                {
+                    ColumnAlignment.Left => ":---",
+                    ColumnAlignment.Center => ":---:",
+                    ColumnAlignment.Right => "---:",
+                    _ => "---",
+                };
+                Buffer.Append(' ').Append(marker).Append(" |");
+            }
         }
 
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);

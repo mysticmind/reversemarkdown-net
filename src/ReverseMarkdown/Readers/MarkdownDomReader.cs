@@ -57,6 +57,7 @@ namespace ReverseMarkdown.Readers
             Register("ol", new ListReader(ordered: true));
             Register("li", new ListItemReader());
             Register("pre", new PreReader());
+            Register("table", new TableReader());
         }
 
         public MarkdownDocument Read(IElement root)
