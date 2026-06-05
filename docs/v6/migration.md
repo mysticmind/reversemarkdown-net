@@ -80,9 +80,20 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - Port the inline whitespace guard (`ConverterBase.cs:71`) into a shared writer helper.
 
 ### Phase D — Flip the switch (the breaking release)
-- Redefine `Convert(html)` ⇒ `Render(Parse(html), Config.Flavor)`.
-- Delete the v5 converter classes and the `IConverter`/`TextWriter` path.
-- **Re-baseline** the snapshots that changed (whitespace-only, reviewed). Tag **v6.0.0**.
+- 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
+  `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
+  escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
+- ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) is BLOCKED on parity:**
+  - **CommonMark spec compliance.** `CommonMarkSpecTests` runs the full upstream
+    `commonmark.json` against v5's CommonMark mode; the v6 `CommonMarkWriter` is still a
+    thin stub. Flipping would regress the entire CommonMark surface.
+  - **Escaping/edge behaviors.** v5's `Text` converter also does line-start escaping, angle-
+    bracket preservation, and a CommonMark escaping pipeline not yet ported.
+  - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent
+    specifics, …) that would need reviewed re-baselining.
+- **Plan:** port the CommonMark writer to spec parity + remaining escaping, expand the
+  dual-run harness over the real fixtures, re-baseline whitespace-only diffs, fix semantic
+  gaps, *then* default `Convert` to v6 and remove HAP. Tag **v6.0.0**.
 
 ### Phase E — New flavors (now cheap)
 - `MultiMarkdownWriter`, `PandocWriter` + the new readers they need (footnotes, math,

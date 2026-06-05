@@ -105,6 +105,13 @@ namespace ReverseMarkdown {
         {
             using var _ = EnsureContext();
 
+            // v6 opt-in: route through the Markdown DOM path. The v5 path below is the default
+            // until v6 reaches CommonMark-spec + escaping parity (see docs/v6/migration.md).
+            if (Config.UseMarkdownDom)
+            {
+                return Render(Parse(html), Config.Flavor);
+            }
+
             html = html.ReplaceLineEndings("\n");
 
             if (Config.CommonMark && LooksLikeCommonMarkHtmlBlock(html)) {

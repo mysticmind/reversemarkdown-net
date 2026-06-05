@@ -466,8 +466,23 @@ namespace ReverseMarkdown.Writers
             AppendText(collapsed);
         }
 
-        /// <summary>Append normalized text to the buffer. Override to apply flavor escaping.</summary>
-        protected virtual void AppendText(string text) => Buffer.Append(text);
+        /// <summary>
+        /// Append normalized text to the buffer, escaping markdown emphasis delimiters
+        /// (<c>*</c>/<c>_</c>) so literal text isn't reinterpreted. Override to change escaping
+        /// (e.g. Slack escapes nothing; Telegram escapes the MarkdownV2 set).
+        /// </summary>
+        protected virtual void AppendText(string text)
+        {
+            foreach (var c in text)
+            {
+                if (c is '*' or '_')
+                {
+                    Buffer.Append('\\');
+                }
+
+                Buffer.Append(c);
+            }
+        }
 
         /// <summary>Emit document-level preamble (e.g. metadata / YAML frontmatter). Default: none.</summary>
         protected virtual void WritePreamble(MarkdownDocument document)

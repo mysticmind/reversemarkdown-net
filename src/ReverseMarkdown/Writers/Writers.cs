@@ -43,6 +43,9 @@ namespace ReverseMarkdown.Writers
         protected override string StrikethroughDelimiter => "~";
         protected override string UnorderedBullet => "•";
 
+        // Slack mrkdwn does not use backslash escaping.
+        protected override void AppendText(string text) => Buffer.Append(text);
+
         public override void Visit(MdHeading node) => Wrap("*", node.Children); // Slack has no headings
 
         public override void Visit(MdLink node)

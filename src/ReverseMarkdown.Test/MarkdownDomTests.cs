@@ -299,6 +299,15 @@ namespace ReverseMarkdown.Test
             Assert.Equal("a _x_ b", Norm(converter.Render(converter.Parse("<p>a <u>x</u> b</p>"))));
         }
 
+        [Theory]
+        [InlineData("<p>a * b _ c</p>", "a \\* b \\_ c")]                 // literal emphasis chars escaped
+        [InlineData("<p>snake_case and a*b</p>", "snake\\_case and a\\*b")]
+        public void Literal_emphasis_characters_are_escaped(string html, string expected)
+        {
+            var converter = new Converter(new Config());
+            Assert.Equal(expected, Norm(converter.Render(converter.Parse(html))));
+        }
+
         [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
