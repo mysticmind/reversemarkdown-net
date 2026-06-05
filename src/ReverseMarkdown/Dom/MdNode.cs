@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ReverseMarkdown.Dom
 {
@@ -81,6 +82,21 @@ namespace ReverseMarkdown.Dom
                 yield return p;
                 p = p.Parent;
             }
+        }
+
+        /// <summary>
+        /// Remove every descendant matching <paramref name="predicate"/> (Markdown-side
+        /// filtering for issue #79 — "pick what I don't want"). Returns the number removed.
+        /// </summary>
+        public int RemoveWhere(Func<MdNode, bool> predicate)
+        {
+            var matches = Descendants().Where(predicate).ToList();
+            foreach (var match in matches)
+            {
+                match.Remove();
+            }
+
+            return matches.Count;
         }
     }
 

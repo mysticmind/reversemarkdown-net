@@ -179,7 +179,38 @@ namespace ReverseMarkdown {
             html = html.ReplaceLineEndings("\n");
 
             var document = _htmlParser.ParseDocument(html);
-            return new MarkdownDomReader(Config).Read(document.Body!);
+            var body = document.Body!;
+            ApplyHtmlFilters(body);
+            return new MarkdownDomReader(Config).Read(body);
+        }
+
+        // Remove HTML elements matched by the configured CSS selectors / predicate filters
+        // before reading (HTML-side filtering for issue #79).
+        private void ApplyHtmlFilters(AngleSharp.Dom.IElement root)
+        {
+            foreach (var selector in Config.HtmlExcludeSelectors)
+            {
+                if (string.IsNullOrWhiteSpace(selector))
+                {
+                    continue;
+                }
+
+                foreach (var element in root.QuerySelectorAll(selector).ToList())
+                {
+                    element.Remove();
+                }
+            }
+
+            if (Config.HtmlElementFilters.Count > 0)
+            {
+                var toRemove = root.QuerySelectorAll("*")
+                    .Where(e => Config.HtmlElementFilters.Any(f => f(e)))
+                    .ToList();
+                foreach (var element in toRemove)
+                {
+                    element.Remove();
+                }
+            }
         }
 
         /// <summary>

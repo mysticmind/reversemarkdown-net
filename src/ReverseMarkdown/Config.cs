@@ -1,10 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using AngleSharp.Dom;
 
 namespace ReverseMarkdown
 {
     public class Config
     {
+        /// <summary>
+        /// EXPERIMENTAL (v6): CSS selectors whose matching elements are removed from the HTML
+        /// before conversion via the Markdown DOM path (<see cref="Converter.Parse"/>).
+        /// e.g. "div.advertisement, aside.related". HTML-side filtering — operates on classes/ids
+        /// that do not survive into Markdown. See docs/v6/. Does not affect <see cref="Converter.Convert"/>.
+        /// </summary>
+        public HashSet<string> HtmlExcludeSelectors { get; } = new();
+
+        /// <summary>
+        /// EXPERIMENTAL (v6): predicate filters run against every HTML element before conversion;
+        /// an element for which any predicate returns true is removed. Escape hatch for filtering
+        /// logic CSS selectors cannot express.
+        /// </summary>
+        public List<Func<IElement, bool>> HtmlElementFilters { get; } = new();
         public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
 
         public bool GithubFlavored { get; set; } = false;
