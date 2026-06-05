@@ -7,7 +7,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using ReverseMarkdown.Converters;
+using ReverseMarkdown.Dom;
 using ReverseMarkdown.Helpers;
+using ReverseMarkdown.Readers;
+using ReverseMarkdown.Writers;
 
 
 namespace ReverseMarkdown {
@@ -158,6 +161,39 @@ namespace ReverseMarkdown {
             }
 
             return ApplyOutputLineEndings(result.Trim().FixMultipleNewlines());
+        }
+
+        // ----- v6 Markdown DOM path (experimental; additive, does not affect Convert) -----
+
+        /// <summary>
+        /// EXPERIMENTAL (v6 preview): parse HTML into a mutable <see cref="MarkdownDocument"/>
+        /// you can traverse, filter and reshape before rendering. See docs/v6/.
+        /// </summary>
+        public virtual MarkdownDocument Parse(string html)
+        {
+            html = html.ReplaceLineEndings("\n");
+            html = Cleaner.PreTidy(html, Config.RemoveComments);
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+
+            var root = doc.DocumentNode;
+            if (root.Descendants("body").Any())
+            {
+                root = root.SelectSingleNode("//body");
+            }
+
+            return new MarkdownDomReader().Read(root);
+        }
+
+        /// <summary>
+        /// EXPERIMENTAL (v6 preview): render a <see cref="MarkdownDocument"/> to markdown.
+        /// Phase A supports the CommonMark writer only.
+        /// </summary>
+        public virtual string Render(MarkdownDocument document)
+        {
+            var writer = new CommonMarkWriter(Config);
+            return ApplyOutputLineEndings(writer.Write(document));
         }
 
         private string ApplyOutputLineEndings(string content)
