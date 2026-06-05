@@ -17,7 +17,11 @@ namespace ReverseMarkdown.Readers
 
         public void Read(IElement element, ReaderContext ctx)
         {
-            var heading = new MdHeading(_level) { SourceTag = element.LocalName };
+            var heading = new MdHeading(_level)
+            {
+                SourceTag = element.LocalName,
+                Attributes = AttributeHelper.From(element),
+            };
             using (ctx.Open(heading))
             {
                 ctx.ReadChildren(element);
@@ -256,6 +260,20 @@ namespace ReverseMarkdown.Readers
             if (cls.Contains("math"))
             {
                 ctx.Emit(MathHelper.Build(element, cls));
+                return;
+            }
+
+            // Pandoc bracketed span: a classed/id'd span carries attributes.
+            var attributes = AttributeHelper.From(element);
+            if (attributes is not null)
+            {
+                var span = new MdBracketedSpan { SourceTag = element.LocalName, Attributes = attributes };
+                using (ctx.Open(span))
+                {
+                    ctx.ReadChildren(element);
+                }
+
+                ctx.Emit(span);
                 return;
             }
 
@@ -613,7 +631,51 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
+            // Pandoc fenced div: a classed/id'd div/section carries attributes.
+            var attributes = AttributeHelper.From(element);
+            if (attributes is not null)
+            {
+                var div = new MdFencedDiv { SourceTag = element.LocalName, Attributes = attributes };
+                using (ctx.Open(div))
+                {
+                    ctx.ReadChildren(element);
+                }
+
+                ctx.Emit(div);
+                return;
+            }
+
             ctx.ReadChildren(element);
+        }
+    }
+
+    /// <summary>Builds <see cref="MdAttributes"/> (id + classes) from an element, or null if none.</summary>
+    internal static class AttributeHelper
+    {
+        public static MdAttributes? From(IElement element)
+        {
+            var id = element.GetAttribute("id");
+            var cls = element.GetAttribute("class");
+            if (string.IsNullOrEmpty(id) && string.IsNullOrEmpty(cls))
+            {
+                return null;
+            }
+
+            var attributes = new MdAttributes();
+            if (!string.IsNullOrEmpty(id))
+            {
+                attributes.Id = id;
+            }
+
+            if (!string.IsNullOrEmpty(cls))
+            {
+                foreach (var token in cls.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    attributes.Classes.Add(token);
+                }
+            }
+
+            return attributes;
         }
     }
 

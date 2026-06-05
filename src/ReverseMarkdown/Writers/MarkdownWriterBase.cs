@@ -256,7 +256,39 @@ namespace ReverseMarkdown.Writers
             Buffer.Append(inner);
         }
 
+        // Default: fenced divs / bracketed spans degrade to just their content.
+        public virtual void Visit(MdFencedDiv node) => WriteBlocks(node.Children);
+
+        public virtual void Visit(MdBracketedSpan node) => WriteInline(node.Children);
+
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);
+
+        /// <summary>Format Pandoc attributes as <c>{#id .class key="value"}</c>.</summary>
+        protected static string FormatAttributes(MdAttributes? attributes)
+        {
+            if (attributes is null)
+            {
+                return "{}";
+            }
+
+            var parts = new List<string>();
+            if (!string.IsNullOrEmpty(attributes.Id))
+            {
+                parts.Add("#" + attributes.Id);
+            }
+
+            foreach (var cls in attributes.Classes)
+            {
+                parts.Add("." + cls);
+            }
+
+            foreach (var pair in attributes.Properties)
+            {
+                parts.Add($"{pair.Key}=\"{pair.Value}\"");
+            }
+
+            return "{" + string.Join(" ", parts) + "}";
+        }
 
         public virtual void Visit(MdText node) => WriteText(node.Value);
 

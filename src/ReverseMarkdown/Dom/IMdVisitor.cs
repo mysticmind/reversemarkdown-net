@@ -23,6 +23,7 @@ namespace ReverseMarkdown.Dom
         void Visit(MdDefinitionTerm node);
         void Visit(MdDefinitionDescription node);
         void Visit(MdFootnoteDefinition node);
+        void Visit(MdFencedDiv node);
         void Visit(MdHtmlBlock node);
 
         // Inlines
@@ -40,5 +41,6 @@ namespace ReverseMarkdown.Dom
         void Visit(MdFootnoteReference node);
         void Visit(MdCitation node);
         void Visit(MdMath node);
+        void Visit(MdBracketedSpan node);
     }
 }

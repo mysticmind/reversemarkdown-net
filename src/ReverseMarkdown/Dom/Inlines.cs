@@ -276,6 +276,28 @@ namespace ReverseMarkdown.Dom
         internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
     }
 
+    /// <summary>A Pandoc bracketed span (<c>span</c> with class/id) with inline content.</summary>
+    public sealed class MdBracketedSpan : MdInline, IInlineSink
+    {
+        public MdBracketedSpan()
+        {
+            Children = new MdNodeList<MdInline>(this);
+        }
+
+        public MdNodeList<MdInline> Children { get; }
+
+        void IInlineSink.Add(MdInline inline) => Children.Add(inline);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
     /// <summary>Verbatim inline HTML — the inline escape hatch for unrepresentable input.</summary>
     public sealed class MdRawInline : MdInline
     {

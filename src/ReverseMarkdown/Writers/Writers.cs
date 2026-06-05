@@ -170,6 +170,29 @@ namespace ReverseMarkdown.Writers
             Buffer.Append(delimiter).Append(node.Literal).Append(delimiter);
         }
 
+        public override void Visit(MdHeading node)
+        {
+            base.Visit(node);
+            if (node.Attributes is not null)
+            {
+                Buffer.Append(' ').Append(FormatAttributes(node.Attributes));
+            }
+        }
+
+        public override void Visit(MdFencedDiv node)
+        {
+            Buffer.Append("::: ").Append(FormatAttributes(node.Attributes)).Append('\n');
+            WriteBlocks(node.Children);
+            Buffer.Append("\n:::");
+        }
+
+        public override void Visit(MdBracketedSpan node)
+        {
+            Buffer.Append('[');
+            WriteInline(node.Children);
+            Buffer.Append(']').Append(FormatAttributes(node.Attributes));
+        }
+
         protected override void WritePreamble(MarkdownDocument document)
         {
             if (document.Meta.Metadata.Count == 0)
