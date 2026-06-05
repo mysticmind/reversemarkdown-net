@@ -107,6 +107,89 @@ namespace ReverseMarkdown.Dom
             => MdChildOps.Replace(Children, oldChild, newChildren);
     }
 
+    /// <summary>An ordered (<c>ol</c>) or unordered (<c>ul</c>) list.</summary>
+    public sealed class MdList : MdBlock, IBlockSink
+    {
+        public MdList()
+        {
+            Items = new MdNodeList<MdListItem>(this);
+        }
+
+        public bool Ordered { get; set; }
+        public int Start { get; set; } = 1;
+        public bool Tight { get; set; } = true;
+
+        public MdNodeList<MdListItem> Items { get; }
+
+        void IBlockSink.Add(MdBlock block)
+        {
+            if (block is MdListItem item)
+            {
+                Items.Add(item);
+            }
+            else
+            {
+                // Stray non-li block inside a list: wrap it in an item to keep the tree valid.
+                var wrapper = new MdListItem();
+                ((IBlockSink)wrapper).Add(block);
+                Items.Add(wrapper);
+            }
+        }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Items;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Items, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Items, oldChild, newChildren);
+    }
+
+    /// <summary>A list item (<c>li</c>) holding block children. <see cref="Checked"/> is set for task lists.</summary>
+    public sealed class MdListItem : MdBlock, IBlockSink
+    {
+        public MdListItem()
+        {
+            Children = new MdNodeList<MdBlock>(this);
+        }
+
+        public bool? Checked { get; set; }
+
+        public MdNodeList<MdBlock> Children { get; }
+
+        void IBlockSink.Add(MdBlock block) => Children.Add(block);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
+    /// <summary>A code block (<c>pre</c> / <c>pre&gt;code</c>). Leaf block.</summary>
+    public sealed class MdCodeBlock : MdBlock
+    {
+        public MdCodeBlock(string literal)
+        {
+            Literal = literal;
+        }
+
+        public string Literal { get; set; }
+        public string? Language { get; set; }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => System.Linq.Enumerable.Empty<MdNode>();
+
+        internal override bool RemoveChildCore(MdNode child) => false;
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren) => false;
+    }
+
     /// <summary>Verbatim block-level HTML — the block escape hatch for unrepresentable input.</summary>
     public sealed class MdHtmlBlock : MdBlock
     {

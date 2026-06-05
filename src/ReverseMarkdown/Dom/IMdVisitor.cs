@@ -13,6 +13,9 @@ namespace ReverseMarkdown.Dom
         void Visit(MdParagraph node);
         void Visit(MdThematicBreak node);
         void Visit(MdBlockquote node);
+        void Visit(MdList node);
+        void Visit(MdListItem node);
+        void Visit(MdCodeBlock node);
         void Visit(MdHtmlBlock node);
 
         // Inlines

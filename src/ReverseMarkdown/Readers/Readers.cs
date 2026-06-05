@@ -190,6 +190,83 @@ namespace ReverseMarkdown.Readers
         }
     }
 
+    /// <summary>List reader for <c>ul</c> / <c>ol</c>.</summary>
+    public sealed class ListReader : IMdReader
+    {
+        private readonly bool _ordered;
+
+        public ListReader(bool ordered)
+        {
+            _ordered = ordered;
+        }
+
+        public void Read(HtmlNode node, ReaderContext ctx)
+        {
+            var list = new MdList { Ordered = _ordered, SourceTag = node.Name };
+            if (_ordered)
+            {
+                list.Start = node.GetAttributeValue("start", 1);
+            }
+
+            using (ctx.Open(list))
+            {
+                ctx.ReadChildren(node);
+            }
+
+            ctx.Emit(list);
+        }
+    }
+
+    /// <summary>List item reader for <c>li</c>.</summary>
+    public sealed class ListItemReader : IMdReader
+    {
+        public void Read(HtmlNode node, ReaderContext ctx)
+        {
+            var item = new MdListItem { SourceTag = node.Name };
+            using (ctx.Open(item))
+            {
+                ctx.ReadChildren(node);
+            }
+
+            ctx.Emit(item);
+        }
+    }
+
+    /// <summary>Code block reader for <c>pre</c> (and <c>pre&gt;code</c>).</summary>
+    public sealed class PreReader : IMdReader
+    {
+        public void Read(HtmlNode node, ReaderContext ctx)
+        {
+            var codeNode = node.SelectSingleNode(".//code") ?? node;
+            var literal = WebUtility.HtmlDecode(codeNode.InnerText);
+
+            ctx.Emit(new MdCodeBlock(literal)
+            {
+                SourceTag = node.Name,
+                Language = DetectLanguage(codeNode),
+            });
+        }
+
+        private static string? DetectLanguage(HtmlNode codeNode)
+        {
+            var cls = codeNode.GetAttributeValue("class", string.Empty);
+            foreach (var token in cls.Split(' '))
+            {
+                if (token.StartsWith("language-", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return token.Substring("language-".Length);
+                }
+
+                if (token.StartsWith("lang-", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return token.Substring("lang-".Length);
+                }
+            }
+
+            return null;
+        }
+    }
+
     /// <summary>
     /// Default reader for tags with no specific reader (e.g. <c>body</c>, wrapper
     /// <c>div</c>s): bypass the wrapper and read its children into the current container.

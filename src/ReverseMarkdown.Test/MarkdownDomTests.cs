@@ -99,6 +99,46 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void Unordered_list_renders()
+        {
+            var converter = new Converter(new Config());
+            var md = converter.Render(converter.Parse("<ul><li>one</li><li>two</li></ul>"));
+            Assert.Equal("- one\n- two", Norm(md));
+        }
+
+        [Fact]
+        public void Ordered_list_respects_start()
+        {
+            var converter = new Converter(new Config());
+            var md = converter.Render(converter.Parse("<ol start=\"3\"><li>a</li><li>b</li></ol>"));
+            Assert.Equal("3. a\n4. b", Norm(md));
+        }
+
+        [Fact]
+        public void Nested_list_is_indented()
+        {
+            var converter = new Converter(new Config());
+            var md = converter.Render(converter.Parse("<ul><li>top<ul><li>inner</li></ul></li></ul>"));
+            Assert.Equal("- top\n  - inner", Norm(md));
+        }
+
+        [Fact]
+        public void Code_block_is_fenced_with_language()
+        {
+            var converter = new Converter(new Config());
+            var md = converter.Render(converter.Parse("<pre><code class=\"language-csharp\">var x = 1;</code></pre>"));
+            Assert.Equal("```csharp\nvar x = 1;\n```", Norm(md));
+        }
+
+        [Fact]
+        public void Code_block_without_language()
+        {
+            var converter = new Converter(new Config());
+            var md = converter.Render(converter.Parse("<pre>plain\ntext</pre>"));
+            Assert.Equal("```\nplain\ntext\n```", Norm(md));
+        }
+
+        [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
             var paragraph = new MdParagraph();

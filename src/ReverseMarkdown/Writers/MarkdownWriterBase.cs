@@ -55,6 +55,58 @@ namespace ReverseMarkdown.Writers
             }
         }
 
+        public virtual void Visit(MdList node)
+        {
+            var first = true;
+            var index = 0;
+            foreach (var item in node.Items)
+            {
+                if (!first)
+                {
+                    Buffer.Append('\n');
+                }
+
+                first = false;
+
+                var marker = node.Ordered ? $"{node.Start + index}. " : "- ";
+                if (item.Checked is { } isChecked)
+                {
+                    marker += isChecked ? "[x] " : "[ ] ";
+                }
+
+                var inner = Capture(() => WriteItemBlocks(item.Children)).Replace("\r\n", "\n");
+                var lines = inner.Split('\n');
+                var indent = new string(' ', marker.Length);
+
+                Buffer.Append(marker).Append(lines[0]);
+                for (var k = 1; k < lines.Length; k++)
+                {
+                    Buffer.Append('\n');
+                    if (lines[k].Length > 0)
+                    {
+                        Buffer.Append(indent);
+                    }
+
+                    Buffer.Append(lines[k]);
+                }
+
+                index++;
+            }
+        }
+
+        public virtual void Visit(MdListItem node) => WriteItemBlocks(node.Children);
+
+        public virtual void Visit(MdCodeBlock node)
+        {
+            Buffer.Append("```").Append(node.Language ?? string.Empty).Append('\n').Append(node.Literal);
+            if (node.Literal.Length == 0 || node.Literal[^1] != '\n')
+            {
+                Buffer.Append('\n');
+            }
+
+            Buffer.Append("```");
+        }
+
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);
 
         public virtual void Visit(MdText node) => Buffer.Append(node.Value);
@@ -125,6 +177,22 @@ namespace ReverseMarkdown.Writers
                 if (!first)
                 {
                     Buffer.Append("\n\n");
+                }
+
+                first = false;
+                block.Accept(this);
+            }
+        }
+
+        /// <summary>Render a list item's block children tightly (single newline between blocks).</summary>
+        protected void WriteItemBlocks(IEnumerable<MdBlock> blocks)
+        {
+            var first = true;
+            foreach (var block in blocks)
+            {
+                if (!first)
+                {
+                    Buffer.Append('\n');
                 }
 
                 first = false;

@@ -52,6 +52,11 @@ namespace ReverseMarkdown.Readers
             Register("br", new LineBreakReader());
             Register("hr", new ThematicBreakReader());
             Register("blockquote", new BlockquoteReader());
+
+            Register("ul", new ListReader(ordered: false));
+            Register("ol", new ListReader(ordered: true));
+            Register("li", new ListItemReader());
+            Register("pre", new PreReader());
         }
 
         public MarkdownDocument Read(HtmlNode root)
