@@ -187,6 +187,34 @@ namespace ReverseMarkdown.Writers
             }
         }
 
+        public virtual void Visit(MdDefinitionList node)
+        {
+            var first = true;
+            foreach (var item in node.Items)
+            {
+                if (!first)
+                {
+                    Buffer.Append('\n');
+                }
+
+                first = false;
+                item.Accept(this);
+            }
+        }
+
+        public virtual void Visit(MdDefinitionTerm node)
+        {
+            WriteInline(node.Children);
+            TrimTrailingSpaces();
+        }
+
+        public virtual void Visit(MdDefinitionDescription node)
+        {
+            var inner = Capture(() => WriteItemBlocks(node.Children))
+                .Replace("\r\n", " ").Replace('\n', ' ').Trim();
+            Buffer.Append(":   ").Append(inner);
+        }
+
         public virtual void Visit(MdHtmlBlock node) => Buffer.Append(node.Html);
 
         public virtual void Visit(MdText node) => WriteText(node.Value);

@@ -249,6 +249,22 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void Definition_list_renders_term_and_description()
+        {
+            var converter = new Converter(new Config());
+            var html = "<dl><dt>Term</dt><dd>Definition</dd></dl>";
+            Assert.Equal("Term\n:   Definition", Norm(converter.Render(converter.Parse(html))));
+        }
+
+        [Fact]
+        public void Definition_list_multiple_entries()
+        {
+            var converter = new Converter(new Config());
+            var html = "<dl><dt>A</dt><dd>1</dd><dt>B</dt><dd>2</dd></dl>";
+            Assert.Equal("A\n:   1\nB\n:   2", Norm(converter.Render(converter.Parse(html))));
+        }
+
+        [Fact]
         public void Child_collections_maintain_parent_backpointer()
         {
             var paragraph = new MdParagraph();

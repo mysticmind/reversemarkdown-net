@@ -17,6 +17,11 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
 - ✅ **Unknown-tag handling** wired into the reader: `UnknownTags`
   (PassThrough→raw / Drop / Bypass / Raise), `PassThroughTags` (raw), and `TagAliases`
   (alias→reader with cycle guard), using the raw-HTML escape hatch.
+- ✅ **Output quality track**: inline whitespace normalization (collapse runs incl. source
+  newlines/indent, cross-node leading-space suppression, block-edge trim, emphasis
+  edge-space hoisting); `sup`/`sub`; structural-element bypass (div/span/section/…);
+  implicit-paragraph grouping of loose inline content; `dl`/`dt`/`dd` definition lists.
+  Parity harness: 11/15 corpus items identical to v5.
 - ✅ **Flavor seam**: `Config.MarkdownFlavor` enum + `Render(doc, flavor)` + `WriterFactory`
   (Default/GitHub/CommonMark; others fall back to Default). (commit `426aced`)
 - ✅ **Parser**: v6 readers moved to **AngleSharp** (HTML5-compliant) — ADR 0002. HAP stays
@@ -24,11 +29,10 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   question for #79 HTML-side filtering.
 - ✅ **Parity harness**: `ParityHarnessTests` — dual-run v5-vs-v6, informational diff
   classification, gates on content-preservation (subsequence check). (commit `426aced`)
-- ⏳ **Remaining Phase B**: `dl`/`dt`/`dd`, `sup`/`sub`, `div`/`span`/`aside` semantics;
-  **inline whitespace normalization** in the writer (collapse runs / trim around dropped
-  nodes — currently leaves artifacts like double spaces); reflection-based reader discovery
-  (replace hardcoded registry); `UnknownTagsReplacer` support; v5-default writer behaviors
-  where we choose to match.
+- ⏳ **Remaining Phase B**: reflection-based reader discovery (replace hardcoded registry);
+  `UnknownTagsReplacer` support; base64 image handling / smart-href / whitelist schemes
+  (currently reader emits plain link/image); v5-default writer behaviors where we choose to
+  match (e.g. indented code, `* * *` HR).
 - ⏳ **Phase C+**: per-flavor writers (Slack/Telegram/MMD/Pandoc), Phase D flip,
   Phase E new features, Phase F #79 public API + HTML-side filtering.
 

@@ -62,6 +62,9 @@ namespace ReverseMarkdown.Readers
             Register("li", new ListItemReader());
             Register("pre", new PreReader());
             Register("table", new TableReader());
+            Register("dl", new DefinitionListReader());
+            Register("dt", new DefinitionTermReader());
+            Register("dd", new DefinitionDescriptionReader());
 
             // Structural wrappers: bypass (emit converted content), regardless of UnknownTags.
             var bypass = new BypassReader();

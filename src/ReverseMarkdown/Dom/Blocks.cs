@@ -283,6 +283,79 @@ namespace ReverseMarkdown.Dom
             => MdChildOps.Replace(Children, oldChild, newChildren);
     }
 
+    /// <summary>A definition list (<c>dl</c>) holding terms and descriptions in order.</summary>
+    public sealed class MdDefinitionList : MdBlock, IBlockSink
+    {
+        public MdDefinitionList()
+        {
+            Items = new MdNodeList<MdBlock>(this);
+        }
+
+        /// <summary>Sequence of <see cref="MdDefinitionTerm"/> / <see cref="MdDefinitionDescription"/>.</summary>
+        public MdNodeList<MdBlock> Items { get; }
+
+        void IBlockSink.Add(MdBlock block)
+        {
+            if (block is MdDefinitionTerm or MdDefinitionDescription)
+            {
+                Items.Add(block);
+            }
+        }
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Items;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Items, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Items, oldChild, newChildren);
+    }
+
+    /// <summary>A definition term (<c>dt</c>) with inline content.</summary>
+    public sealed class MdDefinitionTerm : MdBlock, IInlineSink
+    {
+        public MdDefinitionTerm()
+        {
+            Children = new MdNodeList<MdInline>(this);
+        }
+
+        public MdNodeList<MdInline> Children { get; }
+
+        void IInlineSink.Add(MdInline inline) => Children.Add(inline);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
+    /// <summary>A definition description (<c>dd</c>) holding block content.</summary>
+    public sealed class MdDefinitionDescription : MdBlock, IBlockSink
+    {
+        public MdDefinitionDescription()
+        {
+            Children = new MdNodeList<MdBlock>(this);
+        }
+
+        public MdNodeList<MdBlock> Children { get; }
+
+        void IBlockSink.Add(MdBlock block) => Children.Add(block);
+
+        public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
+
+        protected internal override IEnumerable<MdNode> EnumerateChildren() => Children;
+
+        internal override bool RemoveChildCore(MdNode child) => MdChildOps.Remove(Children, child);
+
+        internal override bool ReplaceChildCore(MdNode oldChild, IReadOnlyList<MdNode> newChildren)
+            => MdChildOps.Replace(Children, oldChild, newChildren);
+    }
+
     /// <summary>Verbatim block-level HTML — the block escape hatch for unrepresentable input.</summary>
     public sealed class MdHtmlBlock : MdBlock
     {

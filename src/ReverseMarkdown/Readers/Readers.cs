@@ -281,6 +281,51 @@ namespace ReverseMarkdown.Readers
         }
     }
 
+    /// <summary>Definition list reader for <c>dl</c>.</summary>
+    public sealed class DefinitionListReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var list = new MdDefinitionList { SourceTag = element.LocalName };
+            using (ctx.Open(list))
+            {
+                ctx.ReadChildren(element);
+            }
+
+            ctx.Emit(list);
+        }
+    }
+
+    /// <summary>Definition term reader for <c>dt</c>.</summary>
+    public sealed class DefinitionTermReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var term = new MdDefinitionTerm { SourceTag = element.LocalName };
+            using (ctx.Open(term))
+            {
+                ctx.ReadChildren(element);
+            }
+
+            ctx.Emit(term);
+        }
+    }
+
+    /// <summary>Definition description reader for <c>dd</c>.</summary>
+    public sealed class DefinitionDescriptionReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var desc = new MdDefinitionDescription { SourceTag = element.LocalName };
+            using (ctx.Open(desc))
+            {
+                ctx.ReadChildren(element);
+            }
+
+            ctx.Emit(desc);
+        }
+    }
+
     /// <summary>Table reader for <c>table</c>. Drives rows/cells explicitly (pipe table model).</summary>
     public sealed class TableReader : IMdReader
     {
