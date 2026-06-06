@@ -53,7 +53,14 @@ namespace ReverseMarkdown.Writers
             // An ATX heading occupies a single line: a soft line break in the inline content would
             // otherwise split the heading, so collapse interior newlines to spaces.
             var inline = Capture(() => WriteInline(node.Children)).Replace("\r\n", "\n");
-            Buffer.Append(System.Text.RegularExpressions.Regex.Replace(inline, @"\s*\n\s*", " "));
+            inline = System.Text.RegularExpressions.Regex.Replace(inline, @"\s*\n\s*", " ");
+
+            // A trailing run of '#' would be read as an ATX closing sequence and stripped; escape
+            // each so it stays content (e.g. "foo ###" must not collapse to "foo").
+            inline = System.Text.RegularExpressions.Regex.Replace(
+                inline, "#+$", m => string.Concat(m.Value.Select(c => "\\" + c)));
+
+            Buffer.Append(inline);
             TrimTrailingSpaces();
         }
 
