@@ -99,6 +99,10 @@ namespace ReverseMarkdown.Readers
             }
         }
 
+        /// <summary>Finalize the root container, trimming its trailing implicit paragraph (the
+        /// root frame never goes through <see cref="Scope"/> disposal, so it needs this directly).</summary>
+        internal void FinalizeRoot() => TrimTrailingWhitespace(_frames.Peek().ImplicitParagraph);
+
         // Drop trailing whitespace newlines from the last text run of a closing implicit
         // paragraph; that whitespace separated it from a sibling block and is not content.
         private static void TrimTrailingWhitespace(MdParagraph? paragraph)

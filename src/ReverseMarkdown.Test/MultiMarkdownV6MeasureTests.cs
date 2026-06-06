@@ -192,6 +192,18 @@ namespace ReverseMarkdown.Test
                 img.Attributes["id"].Remove();
             }
 
+            // MMD auto-generates a cross-reference id on every heading, computed by its own
+            // algorithm over the *source* markdown. Because v6's (escaped) source differs from the
+            // original, the id can differ even when the rendered heading text is identical — so the
+            // id is generated anchor metadata, not content. Drop it symmetrically; a genuine text
+            // difference still shows up in the heading body comparison.
+            foreach (var h in doc.DocumentNode.Descendants()
+                         .Where(d => d.Name.Length == 2 && d.Name[0] == 'h' && d.Name[1] is >= '1' and <= '6'
+                                     && d.Attributes.Contains("id")).ToList())
+            {
+                h.Attributes["id"].Remove();
+            }
+
             // Attribute order is insignificant; sort it (the spec.txt and the installed
             // cmark-gfm serialize attributes in different orders).
             foreach (var el in doc.DocumentNode.Descendants().Where(d => d.HasAttributes).ToList())
@@ -217,6 +229,18 @@ namespace ReverseMarkdown.Test
             do { before = result; result = System.Text.RegularExpressions.Regex.Replace(
                 result, "<(strong|em|b|i|del|ins|s|sub|sup|mark|small|u)>\\s*</\\1>", ""); }
             while (result != before);
+
+            // MMD --snippet does not <p>-wrap a single line of text that follows a raw HTML block,
+            // but does wrap a standalone paragraph — so the wrapper's presence is a snippet/HTML-
+            // block-context artifact. When the whole document is one paragraph, unwrap it (applied
+            // symmetrically, so it only ever equates two otherwise-identical bodies).
+            result = result.Trim();
+            if (System.Text.RegularExpressions.Regex.Matches(result, "<p[ >]").Count == 1 &&
+                result.StartsWith("<p>", StringComparison.Ordinal) &&
+                result.EndsWith("</p>", StringComparison.Ordinal))
+            {
+                result = result.Substring(3, result.Length - 7).Trim();
+            }
 
             return result.Replace(" ", " ");
         }

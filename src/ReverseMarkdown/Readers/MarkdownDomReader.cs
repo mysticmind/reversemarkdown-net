@@ -134,6 +134,7 @@ namespace ReverseMarkdown.Readers
             // Read the root's children directly; the root (e.g. <body>) is a structural
             // wrapper, not subject to UnknownTags handling.
             ctx.ReadChildren(root);
+            ctx.FinalizeRoot();
             return document;
         }
 

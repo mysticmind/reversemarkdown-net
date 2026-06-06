@@ -484,7 +484,8 @@ namespace ReverseMarkdown.Readers
         private static string? DetectLanguage(IElement codeNode)
         {
             var cls = codeNode.GetAttribute("class") ?? string.Empty;
-            foreach (var token in cls.Split(' '))
+            var tokens = cls.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var token in tokens)
             {
                 if (token.StartsWith("language-", StringComparison.OrdinalIgnoreCase))
                 {
@@ -495,6 +496,15 @@ namespace ReverseMarkdown.Readers
                 {
                     return token.Substring("lang-".Length);
                 }
+            }
+
+            // A bare single-token class is conventionally the language itself (e.g. MultiMarkdown
+            // and several highlighters emit <code class="ruby">). Only accept a plain identifier so
+            // unrelated classes (and fence-artifact values like "```") are ignored.
+            if (tokens.Length == 1 &&
+                System.Text.RegularExpressions.Regex.IsMatch(tokens[0], "^[A-Za-z][A-Za-z0-9+#._-]*$"))
+            {
+                return tokens[0];
             }
 
             return null;
