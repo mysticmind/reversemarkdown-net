@@ -99,10 +99,11 @@ namespace ReverseMarkdown.Test
             File.WriteAllText("/tmp/v6-pandoc-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
-            // Gate at 100%: all 651 commonmark.json examples round-trip once the verification
-            // trusts AngleSharp's structure (Canon normalizes renderer artifacts — lone-element
-            // <p> wrapping and leading block whitespace — identically on both sides).
-            Assert.True(rate >= 0.84, $"v6 GFM roundtrip (canonical cmark-gfm) regressed to {100.0 * rate:F1}%\n{sb}");
+            // Gate: v6's Pandoc path round-trips ~91% of the commonmark.json corpus through the
+            // canonical pandoc binary. The remainder are irreducible — pathological raw/custom HTML
+            // that Pandoc rewrites to spans/data-attributes, raw-HTML-table passthrough vs
+            // pipe-table conversion, and Pandoc's own html-vs-markdown reader asymmetries.
+            Assert.True(rate >= 0.91, $"v6 Pandoc roundtrip (canonical pandoc) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,

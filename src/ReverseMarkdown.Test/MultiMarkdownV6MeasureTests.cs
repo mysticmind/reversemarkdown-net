@@ -100,10 +100,11 @@ namespace ReverseMarkdown.Test
             File.WriteAllText("/tmp/v6-mmd-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
-            // Gate at 100%: all 651 commonmark.json examples round-trip once the verification
-            // trusts AngleSharp's structure (Canon normalizes renderer artifacts — lone-element
-            // <p> wrapping and leading block whitespace — identically on both sides).
-            Assert.True(rate >= 0.0, $"v6 GFM roundtrip (canonical cmark-gfm) regressed to {100.0 * rate:F1}%\n{sb}");
+            // Gate: v6's MultiMarkdown path round-trips ~94% of the commonmark.json corpus through
+            // the canonical multimarkdown binary. The remainder are irreducible — markdown carried
+            // in an HTML alt attribute (lost on parse), MMD's own malformed output for pathological
+            // inputs, and raw-HTML-table passthrough vs pipe-table conversion.
+            Assert.True(rate >= 0.94, $"v6 MultiMarkdown roundtrip (canonical multimarkdown) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
