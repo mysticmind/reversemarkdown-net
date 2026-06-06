@@ -2,14 +2,15 @@
   <title id="title">ReverseMarkdown v5 vs v6 BenchmarkDotNet results</title>
   <desc id="desc">Horizontal bar charts comparing v5 HtmlAgilityPack and v6 Markdown DOM mean execution time and allocated memory across three HTML fixtures.</desc>
   <style>
-    .title { font: 700 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
-    .subtitle { font: 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #4b5563; }
-    .section { font: 700 18px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+    text { font-family: Arial, Helvetica, sans-serif; }
+    .title { font-size: 24px; font-weight: 700; fill: #111827; }
+    .subtitle { font-size: 14px; font-weight: 400; fill: #4b5563; }
+    .section { font-size: 18px; font-weight: 700; fill: #111827; }
     .axis { stroke: #d1d5db; stroke-width: 1; }
     .grid { stroke: #e5e7eb; stroke-width: 1; }
-    .label { font: 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #374151; }
-    .value { font: 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
-    .tick { font: 11px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6b7280; }
+    .label { font-size: 13px; font-weight: 400; fill: #374151; }
+    .value { font-size: 12px; font-weight: 400; fill: #111827; }
+    .tick { font-size: 11px; font-weight: 400; fill: #6b7280; }
     .v5 { fill: #ef4444; }
     .v6 { fill: #2563eb; }
     .panel { fill: #ffffff; stroke: #e5e7eb; stroke-width: 1; rx: 12; }
