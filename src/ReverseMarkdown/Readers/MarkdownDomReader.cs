@@ -146,7 +146,12 @@ namespace ReverseMarkdown.Readers
                 case IElement element:
                     ReadElement(element, ctx);
                     break;
-                // comments, processing instructions, doctype: ignored
+                case IComment comment
+                    when _config.Flavor == Config.MarkdownFlavor.CommonMark && !_config.RemoveComments:
+                    // CommonMark preserves HTML comments (incl. AngleSharp-normalized PIs/decls).
+                    ctx.Emit(new MdRawInline("<!--" + comment.Data + "-->") { SourceTag = "#comment" });
+                    break;
+                // other comments, processing instructions, doctype: ignored
             }
         }
 
