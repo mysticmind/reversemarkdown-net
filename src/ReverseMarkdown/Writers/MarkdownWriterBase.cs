@@ -458,8 +458,9 @@ namespace ReverseMarkdown.Writers
             {
                 if (i > 0)
                 {
-                    var adjacentToList = list[i] is MdList || list[i - 1] is MdList;
-                    Buffer.Append(tight || adjacentToList ? "\n" : "\n\n");
+                    // Tight items join blocks with a single newline; loose items use a blank line
+                    // (a nested list still attaches because it is indented).
+                    Buffer.Append(tight ? "\n" : "\n\n");
                 }
 
                 list[i].Accept(this);
