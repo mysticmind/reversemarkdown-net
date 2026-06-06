@@ -150,6 +150,16 @@ namespace ReverseMarkdown.Readers
             }
         }
 
+        // Inline HTML elements that CommonMark (with CommonMarkUseHtmlInlineTags) emits verbatim
+        // rather than converting — matching v5, which is how the spec round-trips exactly.
+        // Note: img/code are excluded — their clean markdown (![]() / `code`) round-trips more
+        // faithfully than raw HTML (img always gets an alt; code-span padding is exact).
+        private static readonly HashSet<string> InlineHtmlTags = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "a", "strong", "b", "em", "i", "del", "ins", "s", "strike",
+            "sub", "sup", "span", "abbr", "cite", "mark", "small", "q", "u", "kbd", "samp", "var",
+        };
+
         private void ReadElement(IElement element, ReaderContext ctx)
         {
             var tag = element.LocalName;
@@ -158,6 +168,15 @@ namespace ReverseMarkdown.Readers
             if (_config.PassThroughTags.Contains(tag))
             {
                 EmitRaw(element, ctx);
+                return;
+            }
+
+            // CommonMark inline-HTML passthrough: emit inline elements verbatim (v5 parity).
+            if (_config.Flavor == Config.MarkdownFlavor.CommonMark &&
+                _config.CommonMarkUseHtmlInlineTags &&
+                InlineHtmlTags.Contains(tag))
+            {
+                ctx.Emit(new MdRawInline(element.OuterHtml) { SourceTag = tag });
                 return;
             }
 

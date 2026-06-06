@@ -91,9 +91,10 @@ namespace ReverseMarkdown.Test
                 sb.AppendLine(s);
             }
 
+            File.WriteAllText("/tmp/v6-cm-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
-            // Regression gate: lock in current progress (94.6%, parser-fair). Raise as the writer improves.
+            // Regression gate: lock in current progress (parser-fair). Raise as the writer improves.
             Assert.True(rate >= 0.94, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
