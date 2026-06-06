@@ -21,32 +21,9 @@ namespace ReverseMarkdown.Writers
                 return;
             }
 
-            // Collapse runs of spaces/tabs within a line, but preserve newlines (soft breaks).
-            var sb = new StringBuilder(value.Length);
-            var inSpace = false;
-            foreach (var c in value)
-            {
-                if (c == '\n')
-                {
-                    sb.Append('\n');
-                    inSpace = false;
-                }
-                else if (c is ' ' or '\t' or '\r')
-                {
-                    if (!inSpace)
-                    {
-                        sb.Append(' ');
-                        inSpace = true;
-                    }
-                }
-                else
-                {
-                    sb.Append(c);
-                    inSpace = false;
-                }
-            }
-
-            var content = sb.ToString();
+            // CommonMark preserves significant whitespace in text (multiple spaces, tabs); only
+            // normalize CR out. Newlines stay as soft breaks.
+            var content = value.Replace("\r", string.Empty);
 
             // Escape markup-significant characters so literal text round-trips. Ampersand first
             // so a literal "&ouml;" isn't reinterpreted as an entity.
