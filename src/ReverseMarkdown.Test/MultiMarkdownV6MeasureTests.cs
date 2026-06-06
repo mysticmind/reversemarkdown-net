@@ -170,10 +170,10 @@ namespace ReverseMarkdown.Test
             n = n.Replace("&#10;", "\n").Replace("&#xA;", "\n");
             n = System.Text.RegularExpressions.Regex.Replace(n, @">\s+<", "><");
 
-            // MMD keeps a leading space inside <li> when the source put extra spaces after the list
-            // marker; v6 canonically emits one space after the marker. The leading space is marker
-            // spacing, not content, so drop it symmetrically on both sides.
-            n = System.Text.RegularExpressions.Regex.Replace(n, @"<li>[ \t]+", "<li>");
+            // MMD keeps a leading space inside <li>/<hN> when the source put extra spaces after the
+            // list marker or heading hashes; v6 canonically emits one space. That leading space is
+            // marker spacing, not content, so drop it symmetrically on both sides.
+            n = System.Text.RegularExpressions.Regex.Replace(n, @"(<(?:li|h[1-6])\b[^>]*>)[ \t]+", "$1");
 
             // v6 prefers clean markdown: an alt-less <img> round-trips as ![](src) (alt=""), and an
             // empty <p> is dropped as noise. These are benign, non-content normalizations — treat
