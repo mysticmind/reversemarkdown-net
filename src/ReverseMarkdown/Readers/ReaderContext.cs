@@ -60,6 +60,23 @@ namespace ReverseMarkdown.Readers
                 sink.Add(block);
                 frame.ImplicitParagraph = null;
             }
+            else if (frame.Container is IInlineSink inlineSink)
+            {
+                // A block nested inside an inline element (e.g. <del><p>..</p></del>, which the HTML
+                // parser does allow) cannot hold a block. Degrade by flattening the block's own
+                // inline content into the inline container rather than throwing.
+                foreach (var child in new List<MdNode>(block.EnumerateChildren()))
+                {
+                    if (child is MdInline childInline)
+                    {
+                        inlineSink.Add(childInline);
+                    }
+                    else if (child is MdBlock childBlock)
+                    {
+                        Emit(childBlock);
+                    }
+                }
+            }
             else
             {
                 throw new InvalidOperationException(
