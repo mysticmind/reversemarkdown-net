@@ -172,11 +172,14 @@ namespace ReverseMarkdown.Readers
                 if (image is not null)
                 {
                     var caption = new MdParagraph();
+                    var previous = ctx.ForceMarkdownInline;
+                    ctx.ForceMarkdownInline = true;
                     using (ctx.Open(caption))
                     {
                         ctx.ReadChildren(figcaption);
                     }
 
+                    ctx.ForceMarkdownInline = previous;
                     image.CaptionInlines = caption.Children.ToList();
                     ctx.Emit(image);
                     return;

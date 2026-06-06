@@ -197,6 +197,7 @@ namespace ReverseMarkdown.Readers
                                     hasCleanMmdMarkdown && element.Attributes.Length == 0;
             var passthroughTag = InlineHtmlTags.Contains(tag) && !gfmTextOnlyAnchor && !mmdConvertsInline;
             if (Config.PreservesInlineRawHtml(_config.Flavor) &&
+                !ctx.ForceMarkdownInline &&
                 _config.CommonMarkUseHtmlInlineTags &&
                 passthroughTag)
             {

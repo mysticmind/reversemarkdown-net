@@ -39,6 +39,11 @@ namespace ReverseMarkdown.Readers
         /// <summary>True when the current container accepts inline content directly.</summary>
         public bool CurrentAcceptsInline => Current is IInlineSink;
 
+        /// <summary>When true, inline elements are converted to markdown rather than passed through
+        /// as raw HTML — used while reading a figcaption captured as an image's alt, where the
+        /// content must be markdown (e.g. a link as <c>[x](y)</c>, not raw <c>&lt;a&gt;</c>).</summary>
+        public bool ForceMarkdownInline { get; set; }
+
         /// <summary>Push <paramref name="container"/> as the current container until disposed.</summary>
         public IDisposable Open(MdNode container) => new Scope(this, container);
 
