@@ -83,27 +83,20 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
   `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
   escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
-- 🚧 **CommonMark writer (in progress): 70% → 94.6% spec roundtrip.** `CommonMarkWriter` now
-  preserves soft line breaks, escapes markup-significant chars + line-start markers, encodes
-  in-paragraph blank lines, escapes `&`, pads code spans, alternates nested-emphasis and
-  adjacent-list markers, encodes link destinations, and passes `<div>`/block HTML through.
-  Measured by `CommonMarkV6MeasureTests` (gate ≥ 94%).
-  - **Verification is now parser-fair**: both the actual and expected HTML are canonicalized
-    through AngleSharp (`Canon`), so AngleSharp-vs-HtmlAgilityPack parsing differences
-    (attribute quoting, PI→comment, URL encoding) no longer count against v6's *conversion*
-    fidelity. This barely changed the rate (94.5→94.6%), confirming the remaining failures
-    are genuine conversion behavior, **not** parser artifacts.
-  - **Remaining ~35 failures, two groups:** (a) ~15 need **inline-HTML passthrough** — emit
-    `<del>`/`<i>`/`<a>`/`<img>` verbatim in CommonMark (exactly v5's `CommonMarkUseHtmlInlineTags`,
-    default true). This reaches ~99% but makes CommonMark output HTML-heavy, abandoning clean
-    markdown — **a philosophy decision to make before implementing.** (b) ~20 small bugs:
-    `!`-before-link escaping, image-alt escaping, double-space/tab/leading-`&nbsp;` preservation,
-    a couple list-looseness edges.
-
-> **NEXT (tomorrow):** decide (a) — do we want v6 CommonMark to emit raw inline HTML (matches
-> v5, ~99%, HTML-heavy) or stay clean markdown (~95%, cleaner)? Then grind group (b). A prototype
-> of (a) gated on `CommonMarkUseHtmlInlineTags` was tried and reverted pending this decision
-> (it would change `Same_tree_renders_to_multiple_flavors` to emit `<strong>` not `**`).
+- ✅ **CommonMark writer: 70% → 98.5% spec roundtrip** (gate ≥ 98%, parser-fair via `Canon`).
+  `CommonMarkWriter` preserves soft line breaks + significant whitespace, escapes markup /
+  line-start markers / `&`, encodes in-paragraph blank lines + leading tabs, pads code spans,
+  alternates nested-emphasis & adjacent-list markers, encodes link destinations & image alt,
+  renders loose lists, uses `***` for thematic breaks. Inline-HTML passthrough (gated on
+  `CommonMarkUseHtmlInlineTags`, default true, v5 parity) emits `<del>`/`<em>`/`<a>`/… verbatim
+  when parsing with the CommonMark flavor (a/img/code stay clean markdown — they round-trip
+  better). Verification canonicalizes both sides through AngleSharp so parser normalization
+  doesn't count against conversion fidelity.
+  - **Remaining ~10 failures are irreducible or exotic** and not worth chasing: markdown can't
+    represent an empty `<p>` or an `<img>` with no `alt`; the rest are malformed/unclosed `<a>`
+    fragments where AngleSharp's adoption-agency parsing and Markdig's raw-HTML re-escaping pull
+    in opposite directions (full-raw vs hybrid each fix some and break others). These are not
+    realistic real-world HTML.
 - ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) still gated on:**
   - CommonMark roundtrip to ~parity with v5 (the last ~10%).
   - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent

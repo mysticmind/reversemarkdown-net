@@ -91,11 +91,11 @@ namespace ReverseMarkdown.Test
                 sb.AppendLine(s);
             }
 
-            File.WriteAllText("/tmp/v6-cm-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
-            // Regression gate: lock in current progress (parser-fair). Raise as the writer improves.
-            Assert.True(rate >= 0.94, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
+            // Regression gate: lock in current progress (98.5%, parser-fair). The remaining ~10
+            // are irreducible (empty <p>, img-without-alt) or exotic AngleSharp+Markdig <a> edges.
+            Assert.True(rate >= 0.98, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
