@@ -49,6 +49,18 @@ namespace ReverseMarkdown.Writers
             if (AtWhitespaceBoundary())
             {
                 content = content.TrimStart(' ', '\n');
+
+                // A leading tab at a line start would be read as indented code; encode it.
+                var tabs = 0;
+                while (tabs < content.Length && content[tabs] == '\t')
+                {
+                    tabs++;
+                }
+
+                if (tabs > 0)
+                {
+                    content = string.Concat(System.Linq.Enumerable.Repeat("&#9;", tabs)) + content.Substring(tabs);
+                }
             }
 
             Buffer.Append(content);
