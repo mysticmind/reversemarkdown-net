@@ -128,6 +128,9 @@ namespace ReverseMarkdown.Writers
         // not at the marker width the way CommonMark does.
         protected override int ContinuationIndent(int markerWidth) => 4;
 
+        // MMD treats -, *, + as one list type, so adjacent lists need an explicit separator.
+        protected override string? ListSeparatorComment => "<!-- -->";
+
         public override void Visit(MdCitation node)
         {
             if (!string.IsNullOrEmpty(node.Key))
@@ -166,6 +169,9 @@ namespace ReverseMarkdown.Writers
         }
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
+
+        // Pandoc treats -, *, + as one list type, so adjacent lists need an explicit separator.
+        protected override string? ListSeparatorComment => "<!-- -->";
 
         public override void Visit(MdCitation node)
         {

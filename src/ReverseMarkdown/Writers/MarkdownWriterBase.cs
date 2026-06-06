@@ -150,6 +150,11 @@ namespace ReverseMarkdown.Writers
         /// </summary>
         protected virtual int ContinuationIndent(int markerWidth) => markerWidth;
 
+        /// <summary>Separator emitted between two adjacent same-type lists. CommonMark/GFM rely on
+        /// bullet alternation (null = none); flavors that treat all bullets as one list override
+        /// this with an empty HTML comment to keep the lists distinct.</summary>
+        protected virtual string? ListSeparatorComment => null;
+
         public virtual void Visit(MdCodeBlock node)
         {
             // The fence must be longer than the longest backtick run in the content, otherwise a
@@ -482,7 +487,17 @@ namespace ReverseMarkdown.Writers
                     Buffer.Append("\n\n");
                 }
 
-                run = prev is MdList pl && block is MdList bl && pl.Ordered == bl.Ordered ? run + 1 : 0;
+                var adjacentSameType = prev is MdList pl && block is MdList bl && pl.Ordered == bl.Ordered;
+                run = adjacentSameType ? run + 1 : 0;
+
+                // Two same-type lists in a row need a separator or the reader re-merges them. The
+                // bullet/number alternation below handles CommonMark; Pandoc and MultiMarkdown
+                // treat all bullets as one list, so they emit an empty HTML comment instead.
+                if (adjacentSameType && ListSeparatorComment is { } sep)
+                {
+                    Buffer.Append(sep).Append("\n\n");
+                }
+
                 _adjacentListRun = run;
                 block.Accept(this);
                 prev = block;

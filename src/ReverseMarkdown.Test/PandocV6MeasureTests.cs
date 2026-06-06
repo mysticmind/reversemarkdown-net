@@ -168,6 +168,11 @@ namespace ReverseMarkdown.Test
 
             n = n.Replace("<br>", "<br />").Replace("<br/>", "<br />").Replace("<hr>", "<hr />").Replace("<hr/>", "<hr />");
             n = n.Replace("&#10;", "\n").Replace("&#xA;", "\n");
+
+            // An empty HTML comment is the idiom for separating two adjacent same-type lists; it
+            // carries no content, so drop it symmetrically (one side emits it, the other may not).
+            n = System.Text.RegularExpressions.Regex.Replace(n, "<!--\\s*-->", string.Empty);
+
             n = System.Text.RegularExpressions.Regex.Replace(n, @">\s+<", "><");
 
             // v6 prefers clean markdown: an alt-less <img> round-trips as ![](src) (alt=""), and an
