@@ -147,11 +147,14 @@ Off-by-one in inline `code` padding/trim. *(Could be DECISION if v5 trimming was
 
 ## BUG — links / escaping / config options
 
-### 15. Smart link handling (4)
-`WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling` (no link emitted),
-`WhenThereIsHtmlLinkWithHttpSchemaAndNameWithout_SmartHandling` / `…HttpScheme…ConvertToPlain`
-(emit `example.com` not `http://example.com`),
-`WhenThereIsHtmlLinkWithParensInHref` (`\)` vs `%29` href encoding).
+### 15. Smart link handling (4) — ✅ FIXED
+`WhenThereIsHtmlNonWellFormedLinkLink_SmartHandling`, `…HttpSchemaAndNameWithout_SmartHandling`
+/ `…HttpScheme…ConvertToPlain` (emitted `example.com` not `http://example.com`),
+`WhenThereIsHtmlLinkWithParensInHref` (`\)` vs `%29`).
+→ Fixed: `AnchorReader` ports v5 smart handling — for a well-formed scheme'd URL, drop the link
+when text == href (or tel:/mailto: form), and output the full href for an `http(s)` link whose
+text is the scheme-less host. `DefaultWriter.Visit(MdLink)` percent-encodes the href
+(space→%20, ()→%28/%29) and trims the link text, matching v5's non-CommonMark output.
 
 ### 16. Text/anchor escaping options (5)
 `When_TextContainsAngleBrackets_HexEscapeAngleBrackets` (no `&lt;` escape),

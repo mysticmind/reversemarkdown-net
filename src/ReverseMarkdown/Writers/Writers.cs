@@ -78,6 +78,25 @@ namespace ReverseMarkdown.Writers
                 (MdStrong, MdStrong) => " ",
                 _ => null,
             };
+
+        // v5 percent-encodes spaces and parentheses in a link href (rather than CommonMark's
+        // backslash/<…> escaping), so the destination round-trips without breaking the ().
+        public override void Visit(MdLink node)
+        {
+            // v5 trims the link text (e.g. a leading tab in the anchor content).
+            var text = Capture(() => WriteInline(node.Children)).Trim();
+            Buffer.Append('[').Append(text);
+            Buffer.Append("](").Append(PercentEncodeHref(node.Url));
+            if (!string.IsNullOrEmpty(node.Title))
+            {
+                Buffer.Append(" \"").Append(node.Title.Replace("\"", "\\\"")).Append('"');
+            }
+
+            Buffer.Append(')');
+        }
+
+        private static string PercentEncodeHref(string url) =>
+            url.Replace(" ", "%20").Replace("(", "%28").Replace(")", "%29");
     }
 
     /// <summary>

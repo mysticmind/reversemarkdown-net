@@ -123,11 +123,29 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
-            // Smart href: when the visible text equals the href, drop the link wrapper.
-            if (config.SmartHrefHandling && UrlHelper.TextMatchesHref(element.TextContent.Trim(), href))
+            // Smart href handling (v5 parity), only for a well-formed URL with a scheme.
+            if (config.SmartHrefHandling && UrlHelper.GetScheme(href).Length > 0 &&
+                Uri.IsWellFormedUriString(href, UriKind.RelativeOrAbsolute))
             {
-                ctx.ReadChildren(element);
-                return;
+                var text = element.TextContent.Trim();
+                var scheme = UrlHelper.GetScheme(href);
+
+                // Text already equals the href (or its tel:/mailto: form): drop the link, keep text.
+                if (href.Equals(text, StringComparison.OrdinalIgnoreCase) ||
+                    href.Equals("tel:" + text, StringComparison.OrdinalIgnoreCase) ||
+                    href.Equals("mailto:" + text, StringComparison.OrdinalIgnoreCase))
+                {
+                    ctx.ReadChildren(element);
+                    return;
+                }
+
+                // http(s) link whose text is the href minus the scheme: output the full href.
+                if (scheme is "http" or "https" &&
+                    href.Equals($"{scheme}://{text}", StringComparison.OrdinalIgnoreCase))
+                {
+                    ctx.Emit(new MdText(href) { SourceTag = element.LocalName });
+                    return;
+                }
             }
 
             var link = new MdLink(href) { SourceTag = element.LocalName };
