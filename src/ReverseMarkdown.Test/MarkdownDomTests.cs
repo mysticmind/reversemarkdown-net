@@ -78,7 +78,7 @@ namespace ReverseMarkdown.Test
         public void Thematic_break_renders()
         {
             var converter = new Converter(new Config());
-            Assert.Equal("a\n\n---\n\nb", Norm(converter.Render(converter.Parse("<p>a</p><hr><p>b</p>"))));
+            Assert.Equal("a\n\n***\n\nb", Norm(converter.Render(converter.Parse("<p>a</p><hr><p>b</p>"))));
         }
 
         [Fact]

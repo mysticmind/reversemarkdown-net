@@ -59,7 +59,8 @@ namespace ReverseMarkdown.Writers
             TrimTrailingSpaces();
         }
 
-        public virtual void Visit(MdThematicBreak node) => Buffer.Append("---");
+        // Use *** (not ---) so a thematic break inside a "- " list item isn't ambiguous.
+        public virtual void Visit(MdThematicBreak node) => Buffer.Append("***");
 
         public virtual void Visit(MdBlockquote node)
         {
