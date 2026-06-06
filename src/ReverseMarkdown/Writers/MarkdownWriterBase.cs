@@ -49,7 +49,11 @@ namespace ReverseMarkdown.Writers
         public virtual void Visit(MdHeading node)
         {
             Buffer.Append('#', node.Level).Append(' ');
-            WriteInline(node.Children);
+
+            // An ATX heading occupies a single line: a soft line break in the inline content would
+            // otherwise split the heading, so collapse interior newlines to spaces.
+            var inline = Capture(() => WriteInline(node.Children)).Replace("\r\n", "\n");
+            Buffer.Append(System.Text.RegularExpressions.Regex.Replace(inline, @"\s*\n\s*", " "));
             TrimTrailingSpaces();
         }
 
