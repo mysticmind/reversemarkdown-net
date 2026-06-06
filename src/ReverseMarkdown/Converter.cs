@@ -31,6 +31,7 @@ namespace ReverseMarkdown {
         // v6 Markdown DOM path: AngleSharp parser (reusable across parses).
         private readonly HtmlParser _htmlParser = new();
         private readonly Assembly[]? _additionalAssemblies;
+        private readonly MarkdownDomReader _markdownDomReader;
 
         public ConverterContext Context => _context.Value ??= new ConverterContext();
 
@@ -46,6 +47,7 @@ namespace ReverseMarkdown {
         {
             Config = config;
             _additionalAssemblies = additionalAssemblies;
+            _markdownDomReader = new MarkdownDomReader(Config, _additionalAssemblies);
 
             var assemblies = new List<Assembly>() {
                 typeof(IConverter).GetTypeInfo().Assembly
@@ -127,7 +129,7 @@ namespace ReverseMarkdown {
                     }
                 }
 
-                return Render(Parse(html), Config.Flavor);
+                return Render(Parse(html, collectMetadata: EmitsMetadata(Config.Flavor)), Config.Flavor);
             }
 
             html = html.ReplaceLineEndings("\n");
@@ -203,15 +205,27 @@ namespace ReverseMarkdown {
         /// </summary>
         public virtual MarkdownDocument Parse(string html)
         {
+            return Parse(html, collectMetadata: true);
+        }
+
+        private MarkdownDocument Parse(string html, bool collectMetadata)
+        {
             html = html.ReplaceLineEndings("\n");
 
             var document = _htmlParser.ParseDocument(html);
             var body = document.Body!;
             ApplyHtmlFilters(body);
-            var markdownDocument = new MarkdownDomReader(Config, _additionalAssemblies).Read(body);
-            CollectMetadata(document, markdownDocument);
+            var markdownDocument = _markdownDomReader.Read(body);
+            if (collectMetadata)
+            {
+                CollectMetadata(document, markdownDocument);
+            }
+
             return markdownDocument;
         }
+
+        private static bool EmitsMetadata(Config.MarkdownFlavor flavor) =>
+            flavor is Config.MarkdownFlavor.MultiMarkdown or Config.MarkdownFlavor.Pandoc;
 
         // Collect document metadata (title + <meta name=.. content=..>) for MMD/Pandoc.
         // Flavor-agnostic: always collected; the writer decides whether to emit it.

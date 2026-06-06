@@ -674,6 +674,31 @@ namespace ReverseMarkdown.Writers
 
         private static string CollapseWhitespace(string s)
         {
+            var previousWasWhitespace = false;
+            var alreadyCollapsed = true;
+            foreach (var c in s)
+            {
+                if (char.IsWhiteSpace(c))
+                {
+                    if (c != ' ' || previousWasWhitespace)
+                    {
+                        alreadyCollapsed = false;
+                        break;
+                    }
+
+                    previousWasWhitespace = true;
+                }
+                else
+                {
+                    previousWasWhitespace = false;
+                }
+            }
+
+            if (alreadyCollapsed)
+            {
+                return s;
+            }
+
             var sb = new StringBuilder(s.Length);
             var inWhitespace = false;
             foreach (var c in s)

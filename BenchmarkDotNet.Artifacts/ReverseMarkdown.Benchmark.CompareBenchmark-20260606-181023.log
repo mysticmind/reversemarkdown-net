@@ -1,0 +1,251 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 3 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+Unable to find .sln or .csproj file. Will use current directory /Users/babuannamalai/oss_contrib/reversemarkdown-net to search for project file. If you don't use .sln file on purpose it should not be a problem.
+// start /usr/local/share/dotnet/dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/" /p:OutDir="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0/" /p:OutputPath="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0/" /p:PublishDir="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/publish/" in /Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1
+// command took 3.65 sec and exited with 0
+// start /usr/local/share/dotnet/dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/" /p:OutDir="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0/" /p:OutputPath="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0/" /p:PublishDir="/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/publish/" --output "/Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0/" in /Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1
+// command took 10.73 sec and exited with 0
+// ***** Done, took 00:00:14 (14.6 sec)   *****
+// Found 3 benchmarks:
+//   CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files(...).html [26]]
+//   CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files(...).html [25]]
+//   CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files/huge.html]
+
+// **************************
+// Benchmark: CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files(...).html [26]]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /usr/local/share/dotnet/dotnet ReverseMarkdown.Benchmark-ShortRun-1.dll --anonymousPipes 112 113 --benchmarkName "ReverseMarkdown.Benchmark.CompareBenchmark.V6_MarkdownDom(FileName: \"Files/1000-paragraphs.html\")" --job ShortRun --benchmarkId 0 in /Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 222666.00 ns, 222.6660 us/op
+WorkloadJitting  1: 1 op, 183537000.00 ns, 183.5370 ms/op
+
+WorkloadPilot    1: 2 op, 100348125.00 ns, 50.1741 ms/op
+WorkloadPilot    2: 3 op, 141886125.00 ns, 47.2954 ms/op
+WorkloadPilot    3: 4 op, 263378958.00 ns, 65.8447 ms/op
+WorkloadPilot    4: 5 op, 217263917.00 ns, 43.4528 ms/op
+WorkloadPilot    5: 6 op, 188426750.00 ns, 31.4045 ms/op
+WorkloadPilot    6: 7 op, 192226875.00 ns, 27.4610 ms/op
+WorkloadPilot    7: 8 op, 112842833.00 ns, 14.1054 ms/op
+WorkloadPilot    8: 9 op, 115767000.00 ns, 12.8630 ms/op
+WorkloadPilot    9: 10 op, 138605584.00 ns, 13.8606 ms/op
+WorkloadPilot   10: 11 op, 147259459.00 ns, 13.3872 ms/op
+WorkloadPilot   11: 12 op, 153298875.00 ns, 12.7749 ms/op
+WorkloadPilot   12: 13 op, 159886750.00 ns, 12.2990 ms/op
+WorkloadPilot   13: 14 op, 158441625.00 ns, 11.3173 ms/op
+WorkloadPilot   14: 15 op, 163543167.00 ns, 10.9029 ms/op
+WorkloadPilot   15: 16 op, 167814000.00 ns, 10.4884 ms/op
+WorkloadPilot   16: 32 op, 336372541.00 ns, 10.5116 ms/op
+WorkloadPilot   17: 64 op, 934177709.00 ns, 14.5965 ms/op
+
+WorkloadWarmup   1: 64 op, 847995333.00 ns, 13.2499 ms/op
+WorkloadWarmup   2: 64 op, 697623167.00 ns, 10.9004 ms/op
+WorkloadWarmup   3: 64 op, 672111416.00 ns, 10.5017 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 668522334.00 ns, 10.4457 ms/op
+WorkloadActual   2: 64 op, 651830209.00 ns, 10.1848 ms/op
+WorkloadActual   3: 64 op, 683996416.00 ns, 10.6874 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 668522334.00 ns, 10.4457 ms/op
+WorkloadResult   2: 64 op, 651830209.00 ns, 10.1848 ms/op
+WorkloadResult   3: 64 op, 683996416.00 ns, 10.6874 ms/op
+// GC:  97 63 31 530703896 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 33873 has exited with code 0.
+
+Mean = 10.439 ms, StdErr = 0.145 ms (1.39%), N = 3, StdDev = 0.251 ms
+Min = 10.185 ms, Q1 = 10.315 ms, Median = 10.446 ms, Q3 = 10.567 ms, Max = 10.687 ms
+IQR = 0.251 ms, LowerFence = 9.938 ms, UpperFence = 10.944 ms
+ConfidenceInterval = [5.854 ms; 15.025 ms] (CI 99.9%), Margin = 4.586 ms (43.93% of Mean)
+Skewness = -0.03, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 2 (66.7%) benchmark(s) to run. Estimated finish 2026-06-06 18:11 (0h 0m from now) **
+// **************************
+// Benchmark: CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files(...).html [25]]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /usr/local/share/dotnet/dotnet ReverseMarkdown.Benchmark-ShortRun-1.dll --anonymousPipes 112 113 --benchmarkName "ReverseMarkdown.Benchmark.CompareBenchmark.V6_MarkdownDom(FileName: \"Files/10k-paragraphs.html\")" --job ShortRun --benchmarkId 1 in /Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 168416.00 ns, 168.4160 us/op
+WorkloadJitting  1: 1 op, 534084750.00 ns, 534.0848 ms/op
+
+OverheadJitting  2: 1 op, 417.00 ns, 417.0000 ns/op
+WorkloadJitting  2: 1 op, 406445708.00 ns, 406.4457 ms/op
+
+WorkloadWarmup   1: 1 op, 251807125.00 ns, 251.8071 ms/op
+WorkloadWarmup   2: 1 op, 173908958.00 ns, 173.9090 ms/op
+WorkloadWarmup   3: 1 op, 138727125.00 ns, 138.7271 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 123779333.00 ns, 123.7793 ms/op
+WorkloadActual   2: 1 op, 126631500.00 ns, 126.6315 ms/op
+WorkloadActual   3: 1 op, 119816458.00 ns, 119.8165 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 123779333.00 ns, 123.7793 ms/op
+WorkloadResult   2: 1 op, 126631500.00 ns, 126.6315 ms/op
+WorkloadResult   3: 1 op, 119816458.00 ns, 119.8165 ms/op
+// GC:  11 5 2 73838224 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 33922 has exited with code 0.
+
+Mean = 123.409 ms, StdErr = 1.976 ms (1.60%), N = 3, StdDev = 3.423 ms
+Min = 119.816 ms, Q1 = 121.798 ms, Median = 123.779 ms, Q3 = 125.205 ms, Max = 126.632 ms
+IQR = 3.408 ms, LowerFence = 116.687 ms, UpperFence = 130.317 ms
+ConfidenceInterval = [60.969 ms; 185.850 ms] (CI 99.9%), Margin = 62.440 ms (50.60% of Mean)
+Skewness = -0.11, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 1 (33.3%) benchmark(s) to run. Estimated finish 2026-06-06 18:10 (0h 0m from now) **
+// **************************
+// Benchmark: CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files/huge.html]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /usr/local/share/dotnet/dotnet ReverseMarkdown.Benchmark-ShortRun-1.dll --anonymousPipes 112 113 --benchmarkName "ReverseMarkdown.Benchmark.CompareBenchmark.V6_MarkdownDom(FileName: \"Files/huge.html\")" --job ShortRun --benchmarkId 2 in /Users/babuannamalai/oss_contrib/reversemarkdown-net/src/ReverseMarkdown.Benchmark/bin/Release/net9.0/ReverseMarkdown.Benchmark-ShortRun-1/bin/Release/net9.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: ShortRun(IterationCount=3, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 172208.00 ns, 172.2080 us/op
+WorkloadJitting  1: 1 op, 1395820625.00 ns, 1.3958 s/op
+
+OverheadJitting  2: 1 op, 709.00 ns, 709.0000 ns/op
+WorkloadJitting  2: 1 op, 591192708.00 ns, 591.1927 ms/op
+
+WorkloadWarmup   1: 1 op, 510600500.00 ns, 510.6005 ms/op
+WorkloadWarmup   2: 1 op, 529747917.00 ns, 529.7479 ms/op
+WorkloadWarmup   3: 1 op, 499680500.00 ns, 499.6805 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 1 op, 540256000.00 ns, 540.2560 ms/op
+WorkloadActual   2: 1 op, 478888541.00 ns, 478.8885 ms/op
+WorkloadActual   3: 1 op, 441856875.00 ns, 441.8569 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 1 op, 540256000.00 ns, 540.2560 ms/op
+WorkloadResult   2: 1 op, 478888541.00 ns, 478.8885 ms/op
+WorkloadResult   3: 1 op, 441856875.00 ns, 441.8569 ms/op
+// GC:  41 15 2 318840680 1
+// Threading:  0 0 1
+
+// AfterAll
+// Benchmark Process 33931 has exited with code 0.
+
+Mean = 487.000 ms, StdErr = 28.693 ms (5.89%), N = 3, StdDev = 49.699 ms
+Min = 441.857 ms, Q1 = 460.373 ms, Median = 478.889 ms, Q3 = 509.572 ms, Max = 540.256 ms
+IQR = 49.200 ms, LowerFence = 386.573 ms, UpperFence = 583.372 ms
+ConfidenceInterval = [-419.687 ms; 1,393.688 ms] (CI 99.9%), Margin = 906.687 ms (186.18% of Mean)
+Skewness = 0.16, Kurtosis = 0.67, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-06-06 18:10 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts/results/ReverseMarkdown.Benchmark.CompareBenchmark-report.csv
+  BenchmarkDotNet.Artifacts/results/ReverseMarkdown.Benchmark.CompareBenchmark-report-github.md
+  BenchmarkDotNet.Artifacts/results/ReverseMarkdown.Benchmark.CompareBenchmark-report.html
+
+// * Detailed results *
+CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files(...).html [26]]
+Runtime = .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 10.439 ms, StdErr = 0.145 ms (1.39%), N = 3, StdDev = 0.251 ms
+Min = 10.185 ms, Q1 = 10.315 ms, Median = 10.446 ms, Q3 = 10.567 ms, Max = 10.687 ms
+IQR = 0.251 ms, LowerFence = 9.938 ms, UpperFence = 10.944 ms
+ConfidenceInterval = [5.854 ms; 15.025 ms] (CI 99.9%), Margin = 4.586 ms (43.93% of Mean)
+Skewness = -0.03, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[ 9.956 ms ; 10.338 ms) | @
+[10.338 ms ; 10.795 ms) | @@
+---------------------------------------------------
+
+CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files(...).html [25]]
+Runtime = .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 123.409 ms, StdErr = 1.976 ms (1.60%), N = 3, StdDev = 3.423 ms
+Min = 119.816 ms, Q1 = 121.798 ms, Median = 123.779 ms, Q3 = 125.205 ms, Max = 126.632 ms
+IQR = 3.408 ms, LowerFence = 116.687 ms, UpperFence = 130.317 ms
+ConfidenceInterval = [60.969 ms; 185.850 ms] (CI 99.9%), Margin = 62.440 ms (50.60% of Mean)
+Skewness = -0.11, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[116.702 ms ; 122.091 ms) | @
+[122.091 ms ; 128.320 ms) | @@
+---------------------------------------------------
+
+CompareBenchmark.V6_MarkdownDom: ShortRun(Toolchain=.NET 9.0, IterationCount=3, LaunchCount=1, WarmupCount=3) [FileName=Files/huge.html]
+Runtime = .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 487.000 ms, StdErr = 28.693 ms (5.89%), N = 3, StdDev = 49.699 ms
+Min = 441.857 ms, Q1 = 460.373 ms, Median = 478.889 ms, Q3 = 509.572 ms, Max = 540.256 ms
+IQR = 49.200 ms, LowerFence = 386.573 ms, UpperFence = 583.372 ms
+ConfidenceInterval = [-419.687 ms; 1,393.688 ms] (CI 99.9%), Margin = 906.687 ms (186.18% of Mean)
+Skewness = 0.16, Kurtosis = 0.67, MValue = 2
+-------------------- Histogram --------------------
+[415.145 ms ; 505.600 ms) | @@
+[505.600 ms ; 585.484 ms) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, macOS Tahoe 26.2 (25C56) [Darwin 25.2.0]
+Apple M1, 1 CPU, 8 logical and 8 physical cores
+  [Host]   : .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+  ShortRun : .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+
+Job=ShortRun  Toolchain=.NET 9.0  IterationCount=3  
+LaunchCount=1  WarmupCount=3  
+
+| Method         | FileName             | Mean      | Error      | StdDev    | Baseline | Gen0       | Gen1       | Gen2      | Allocated |
+|--------------- |--------------------- |----------:|-----------:|----------:|--------- |-----------:|-----------:|----------:|----------:|
+| V6_MarkdownDom | Files(...).html [26] |  10.44 ms |   4.586 ms |  0.251 ms | No       |  1515.6250 |   984.3750 |  484.3750 |   7.91 MB |
+| V6_MarkdownDom | Files(...).html [25] | 123.41 ms |  62.440 ms |  3.423 ms | No       | 11000.0000 |  5000.0000 | 2000.0000 |  70.42 MB |
+| V6_MarkdownDom | Files/huge.html      | 487.00 ms | 906.687 ms | 49.699 ms | No       | 41000.0000 | 15000.0000 | 2000.0000 | 304.07 MB |
+
+// * Legends *
+  FileName  : Value of the 'FileName' parameter
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  StdDev    : Standard deviation of all measurements
+  Gen0      : GC Generation 0 collects per 1000 operations
+  Gen1      : GC Generation 1 collects per 1000 operations
+  Gen2      : GC Generation 2 collects per 1000 operations
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 ms      : 1 Millisecond (0.001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:17 (17.4 sec), executed benchmarks: 3
+
+Global total time: 00:00:32 (32.43 sec), executed benchmarks: 3
+// * Artifacts cleanup *
+Artifacts cleanup is finished

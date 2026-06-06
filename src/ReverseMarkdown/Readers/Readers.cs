@@ -454,8 +454,28 @@ namespace ReverseMarkdown.Readers
 
             // A list is "loose" when any item wraps its content in a block (a <p> child) — the
             // canonical HTML signal for loose CommonMark lists.
-            list.Tight = !element.Children.Any(li =>
-                li.LocalName == "li" && li.Children.Any(child => child.LocalName == "p"));
+            list.Tight = true;
+            foreach (var li in element.Children)
+            {
+                if (li.LocalName != "li")
+                {
+                    continue;
+                }
+
+                foreach (var child in li.Children)
+                {
+                    if (child.LocalName == "p")
+                    {
+                        list.Tight = false;
+                        break;
+                    }
+                }
+
+                if (!list.Tight)
+                {
+                    break;
+                }
+            }
 
             using (ctx.Open(list))
             {
@@ -661,8 +681,20 @@ namespace ReverseMarkdown.Readers
             {
                 foreach (var tr in element.QuerySelectorAll("tr"))
                 {
-                    var cells = tr.Children.Where(c => c.LocalName is "td" or "th").ToList();
-                    if (cells.Count == 0)
+                    var hasCells = false;
+                    var allHeaderCells = true;
+                    foreach (var cell in tr.Children)
+                    {
+                        if (cell.LocalName is not ("td" or "th"))
+                        {
+                            continue;
+                        }
+
+                        hasCells = true;
+                        allHeaderCells &= cell.LocalName == "th";
+                    }
+
+                    if (!hasCells)
                     {
                         continue;
                     }
@@ -671,13 +703,18 @@ namespace ReverseMarkdown.Readers
                     var row = new MdTableRow
                     {
                         SourceTag = tr.LocalName,
-                        IsHeader = inThead || cells.All(c => c.LocalName == "th"),
+                        IsHeader = inThead || allHeaderCells,
                     };
 
                     using (ctx.Open(row))
                     {
-                        foreach (var cell in cells)
+                        foreach (var cell in tr.Children)
                         {
+                            if (cell.LocalName is not ("td" or "th"))
+                            {
+                                continue;
+                            }
+
                             var mdCell = new MdTableCell
                             {
                                 SourceTag = cell.LocalName,
