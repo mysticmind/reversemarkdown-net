@@ -109,6 +109,10 @@ namespace ReverseMarkdown.Writers
                 var marker = node.Ordered
                     ? $"{node.Start + index}{orderedDelimiter} "
                     : unorderedBullet + " ";
+
+                // Continuation/nesting indent aligns with the list marker only; a task-list
+                // checkbox ("[x] ") is item content, so it is not part of the indent.
+                var indent = new string(' ', marker.Length);
                 if (item.Checked is { } isChecked)
                 {
                     marker += isChecked ? "[x] " : "[ ] ";
@@ -116,7 +120,6 @@ namespace ReverseMarkdown.Writers
 
                 var inner = Capture(() => WriteItemBlocks(item.Children, node.Tight)).Replace("\r\n", "\n");
                 var lines = inner.Split('\n');
-                var indent = new string(' ', marker.Length);
 
                 Buffer.Append(marker).Append(lines[0]);
                 for (var k = 1; k < lines.Length; k++)

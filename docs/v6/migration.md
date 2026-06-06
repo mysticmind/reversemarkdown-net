@@ -94,11 +94,21 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - ✅ **CommonMark writer: 70% → 100% spec roundtrip** — verified against canonical `cmark-gfm`
   (651/651). Re-checking with the canonical renderer (vs the earlier Markdig) left it unchanged,
   confirming the result was real.
-- 🚧 **GitHub (GFM) writer: 96.4%** against canonical `cmark-gfm` (`GithubFlavoredV6MeasureTests`,
-  672 examples from the GFM spec). GFM inherits the full CommonMark writer (it's CommonMark +
-  extensions) and adds task lists (`<input type=checkbox>` → `[ ]`/`[x]`) and markdown links for
-  `<a>` (GFM autolinks bare URLs, so a raw `<a>` would get re-linked). Remaining ~24: autolink ↔
-  `<a>` tradeoffs, `tagfilter`/`<script>` interactions, and a few raw-HTML edges.
+- ✅ **GitHub (GFM) writer: 100%** (672/672) against canonical `cmark-gfm`
+  (`GithubFlavoredV6MeasureTests`). Key elements:
+  - GFM inherits the full CommonMark writer (`GithubWriter : CommonMarkWriter`; GFM = CommonMark
+    + extensions), sharing text escaping + raw-HTML passthroughs (`IsCommonMarkBased`).
+  - Task lists: `<input type=checkbox>` → `[ ]`/`[x]`; the checkbox is item content, so the
+    nesting indent uses the list marker width only.
+  - GFM `<a>`: a URL-like text anchor becomes a markdown link (GFM autolinks bare URLs, so a raw
+    `<a>` would have its URL text re-linked); other `<a>` stay raw so weird hrefs round-trip.
+    A literal `!` is escaped so `!`+link isn't an image.
+  - **The reference is rendered with per-section GFM flags**, matching how the GFM spec.txt is
+    generated (CommonMark sections plain; each extension section enables only its extension —
+    `table`/`tasklist`/`strikethrough`/`autolink`/`tagfilter`). Rendering all extensions globally
+    wrongly changed the CommonMark-inherited sections.
+  - `Canon` additionally sorts attributes and strips empty inline element pairs (benign
+    serialization / malformed-adoption artifacts), same principle as CommonMark.
   `CommonMarkWriter` preserves soft line breaks + significant whitespace, escapes markup /
   line-start markers / `&`, encodes in-paragraph blank lines + leading tabs, pads code spans,
   alternates nested-emphasis & adjacent-list markers, encodes link destinations & image alt,

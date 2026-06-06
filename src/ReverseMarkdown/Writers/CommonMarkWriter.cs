@@ -40,6 +40,14 @@ namespace ReverseMarkdown.Writers
 
             content = EscapeLineStarts(content);
 
+            // GitHub Flavored Markdown treats "![" as an image; escape a literal "!" so that a
+            // "!" immediately before a link doesn't form an image. (Bare-URL autolinking is GFM's
+            // expected behavior and is left intact.)
+            if (Config.Flavor == Config.MarkdownFlavor.GitHub)
+            {
+                content = content.Replace("!", "\\!");
+            }
+
             // A blank line inside one text run must stay within the paragraph: encode as &#10;.
             content = System.Text.RegularExpressions.Regex.Replace(
                 content, "\n{2,}", m => string.Concat(System.Linq.Enumerable.Repeat("&#10;", m.Value.Length)));

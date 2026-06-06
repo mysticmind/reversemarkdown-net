@@ -60,7 +60,7 @@ namespace ReverseMarkdown.Test
                 string actual;
                 try
                 {
-                    actual = Canon(angle, RunCmarkGfm(exe, converter.Convert(ex.Html)));
+                    actual = Canon(angle, RunCmarkGfm(exe, converter.Convert(ex.Html), ex.Section));
                 }
                 catch (Exception e)
                 {
@@ -101,7 +101,7 @@ namespace ReverseMarkdown.Test
             // Gate at 100%: all 651 commonmark.json examples round-trip once the verification
             // trusts AngleSharp's structure (Canon normalizes renderer artifacts — lone-element
             // <p> wrapping and leading block whitespace — identically on both sides).
-            Assert.True(rate >= 0.96, $"v6 GFM roundtrip (canonical cmark-gfm) regressed to {100.0 * rate:F1}%\n{sb}");
+            Assert.True(rate >= 1.0, $"v6 GFM roundtrip (canonical cmark-gfm) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
@@ -134,12 +134,20 @@ namespace ReverseMarkdown.Test
             return null;
         }
 
-        private static string RunCmarkGfm(string exe, string markdown)
+        // Render each example with the GFM extensions enabled for its section only, matching how
+        // the GFM spec.txt is generated (CommonMark sections plain; each extension section adds its
+        // own extension). Enabling extensions globally would change CommonMark-inherited sections.
+        private static string RunCmarkGfm(string exe, string markdown, string section)
         {
             var psi = new System.Diagnostics.ProcessStartInfo(exe)
             { RedirectStandardInput = true, RedirectStandardOutput = true, UseShellExecute = false };
-            foreach (var a in new[] { "-e", "table", "-e", "tasklist", "-e", "strikethrough", "-e", "autolink", "-e", "tagfilter", "--unsafe" })
-                psi.ArgumentList.Add(a);
+            psi.ArgumentList.Add("--unsafe");
+            void Ext(string n) { psi.ArgumentList.Add("-e"); psi.ArgumentList.Add(n); }
+            if (section.Contains("Tables")) Ext("table");
+            if (section.Contains("Task list")) Ext("tasklist");
+            if (section.Contains("Strikethrough")) Ext("strikethrough");
+            if (section.Contains("Autolinks (extension)")) Ext("autolink");
+            if (section.Contains("Disallowed Raw HTML")) Ext("tagfilter");
             using var proc = System.Diagnostics.Process.Start(psi)!;
             proc.StandardInput.Write(markdown);
             proc.StandardInput.Close();
@@ -188,6 +196,13 @@ namespace ReverseMarkdown.Test
             result = System.Text.RegularExpressions.Regex.Replace(result, "<p>(?:&nbsp;|\\s)+", "<p>", rx);
             result = System.Text.RegularExpressions.Regex.Replace(result, "<p>(<(\\w+)\\b[^>]*>.*?</\\2>)</p>", "$1", rx);
             result = System.Text.RegularExpressions.Regex.Replace(result, "<p>(<\\w+\\b[^>]*?/?>)</p>", "$1", rx);
+
+            // Empty inline element pairs render nothing; remove them (malformed-HTML
+            // adoption-agency artifacts, e.g. an unclosed <strong>/<em> spanning a block).
+            string before;
+            do { before = result; result = System.Text.RegularExpressions.Regex.Replace(
+                result, "<(strong|em|b|i|del|ins|s|sub|sup|mark|small|u)>\\s*</\\1>", ""); }
+            while (result != before);
 
             return result.Replace(" ", " ");
         }

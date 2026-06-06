@@ -177,10 +177,17 @@ namespace ReverseMarkdown.Readers
             }
 
             // CommonMark inline-HTML passthrough: emit inline elements verbatim (v5 parity).
-            // GFM autolinks bare URLs, so a raw <a> would have its URL text re-linked by the
-            // renderer; for GitHub, let <a> become a markdown link instead.
-            var passthroughTag = InlineHtmlTags.Contains(tag) &&
-                                 !(tag == "a" && _config.Flavor == Config.MarkdownFlavor.GitHub);
+            // GFM autolinks bare URLs, so a raw <a> whose text is a URL would get re-linked by the
+            // renderer; for GitHub, a text-only <a> becomes a markdown link instead (an empty <a>
+            // or one with element children still passes through raw — those weird cases need it).
+            // Convert <a> to a markdown link only when its text is URL-like (the case the GFM
+            // autolinker would otherwise re-link); other <a> stay raw so weird hrefs round-trip.
+            var anchorText = element.TextContent;
+            var gfmTextOnlyAnchor = tag == "a" && _config.Flavor == Config.MarkdownFlavor.GitHub &&
+                                    element.Children.Length == 0 &&
+                                    !string.IsNullOrWhiteSpace(anchorText) &&
+                                    (anchorText.Contains("://") || anchorText.Contains('@') || anchorText.Contains("www."));
+            var passthroughTag = InlineHtmlTags.Contains(tag) && !gfmTextOnlyAnchor;
             if (Config.IsCommonMarkBased(_config.Flavor) &&
                 _config.CommonMarkUseHtmlInlineTags &&
                 passthroughTag)
