@@ -145,6 +145,27 @@ namespace ReverseMarkdown.Readers
         }
     }
 
+    /// <summary>
+    /// Figure reader for <c>figure</c>: a figure wrapping an image (with a figcaption that just
+    /// repeats the alt, as MMD/Pandoc emit) converts to the image alone; otherwise bypass.
+    /// </summary>
+    public sealed class FigureReader : IMdReader
+    {
+        private static readonly ImageReader Image = new();
+
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            var img = element.QuerySelector("img");
+            if (img is not null && element.QuerySelector("figcaption") is not null)
+            {
+                Image.Read(img, ctx);
+                return;
+            }
+
+            ctx.ReadChildren(element);
+        }
+    }
+
     /// <summary>Image reader for <c>img</c> (scheme whitelist + base64 handling).</summary>
     public sealed class ImageReader : IMdReader
     {
@@ -722,6 +743,13 @@ namespace ReverseMarkdown.Readers
                 }
 
                 ctx.Emit(lineBlock);
+                return;
+            }
+
+            // MultiMarkdown has no fenced divs — preserve any <div> as a raw HTML block.
+            if (element.LocalName == "div" && ctx.Config.Flavor == Config.MarkdownFlavor.MultiMarkdown)
+            {
+                ctx.Emit(new MdHtmlBlock(element.OuterHtml) { SourceTag = element.LocalName });
                 return;
             }
 

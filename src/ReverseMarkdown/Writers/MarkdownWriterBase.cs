@@ -112,7 +112,7 @@ namespace ReverseMarkdown.Writers
 
                 // Continuation/nesting indent aligns with the list marker only; a task-list
                 // checkbox ("[x] ") is item content, so it is not part of the indent.
-                var indent = new string(' ', marker.Length);
+                var indent = new string(' ', ContinuationIndent(marker.Length));
                 if (item.Checked is { } isChecked)
                 {
                     marker += isChecked ? "[x] " : "[ ] ";
@@ -139,15 +139,48 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdListItem node) => WriteItemBlocks(node.Children);
 
+        /// <summary>
+        /// Width of the indent used to keep a list item's continuation blocks (extra paragraphs,
+        /// code, nested lists) attached to the item. CommonMark aligns with the marker; some
+        /// flavors (MultiMarkdown) require a fixed tab stop instead.
+        /// </summary>
+        protected virtual int ContinuationIndent(int markerWidth) => markerWidth;
+
         public virtual void Visit(MdCodeBlock node)
         {
-            Buffer.Append("```").Append(node.Language ?? string.Empty).Append('\n').Append(node.Literal);
+            // The fence must be longer than the longest backtick run in the content, otherwise a
+            // ``` line inside the code would close the block early (CommonMark fence rule).
+            var fence = new string('`', System.Math.Max(3, LongestBacktickRun(node.Literal) + 1));
+            Buffer.Append(fence).Append(node.Language ?? string.Empty).Append('\n').Append(node.Literal);
             if (node.Literal.Length == 0 || node.Literal[^1] != '\n')
             {
                 Buffer.Append('\n');
             }
 
-            Buffer.Append("```");
+            Buffer.Append(fence);
+        }
+
+        private static int LongestBacktickRun(string text)
+        {
+            var longest = 0;
+            var current = 0;
+            foreach (var ch in text)
+            {
+                if (ch == '`')
+                {
+                    current++;
+                    if (current > longest)
+                    {
+                        longest = current;
+                    }
+                }
+                else
+                {
+                    current = 0;
+                }
+            }
+
+            return longest;
         }
 
         public virtual void Visit(MdTable node)

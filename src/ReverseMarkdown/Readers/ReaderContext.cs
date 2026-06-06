@@ -48,6 +48,10 @@ namespace ReverseMarkdown.Readers
             var frame = _frames.Peek();
             if (frame.Container is IBlockSink sink)
             {
+                // A block sibling closes any open implicit paragraph: the newline whitespace at the
+                // paragraph's trailing edge is block-separator whitespace (e.g. the "\n\n" between a
+                // bare-text <li> run and a following <pre>), not content, so drop it.
+                TrimTrailingWhitespace(frame.ImplicitParagraph);
                 sink.Add(block);
                 frame.ImplicitParagraph = null;
             }
@@ -95,6 +99,21 @@ namespace ReverseMarkdown.Readers
             }
         }
 
+        // Drop trailing whitespace newlines from the last text run of a closing implicit
+        // paragraph; that whitespace separated it from a sibling block and is not content.
+        private static void TrimTrailingWhitespace(MdParagraph? paragraph)
+        {
+            if (paragraph is null || paragraph.Children.Count == 0)
+            {
+                return;
+            }
+
+            if (paragraph.Children[^1] is MdText text)
+            {
+                text.Value = text.Value.TrimEnd(' ', '\t', '\r', '\n');
+            }
+        }
+
         private sealed class Frame
         {
             public Frame(MdNode container)
@@ -117,7 +136,13 @@ namespace ReverseMarkdown.Readers
                 ctx._frames.Push(new Frame(container));
             }
 
-            public void Dispose() => _ctx._frames.Pop();
+            public void Dispose()
+            {
+                // The container is closing; trim its trailing implicit paragraph the same way a
+                // following block sibling would have (edge whitespace is not content).
+                TrimTrailingWhitespace(_ctx._frames.Peek().ImplicitParagraph);
+                _ctx._frames.Pop();
+            }
         }
     }
 }

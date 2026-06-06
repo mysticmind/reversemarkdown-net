@@ -88,6 +88,7 @@ namespace ReverseMarkdown.Readers
 
             Register("a", new AnchorReader());
             Register("img", new ImageReader());
+            Register("figure", new FigureReader());
             Register("code", new CodeReader());
             Register("br", new LineBreakReader());
             Register("hr", new ThematicBreakReader());
@@ -119,7 +120,7 @@ namespace ReverseMarkdown.Readers
             foreach (var tag in new[]
                      {
                          "article", "header", "footer",
-                         "main", "nav", "aside", "figure", "figcaption",
+                         "main", "nav", "aside", "figcaption",
                      })
             {
                 Register(tag, bypass);
@@ -147,7 +148,7 @@ namespace ReverseMarkdown.Readers
                     ReadElement(element, ctx);
                     break;
                 case IComment comment
-                    when Config.IsCommonMarkBased(_config.Flavor) && !_config.RemoveComments:
+                    when Config.PreservesInlineRawHtml(_config.Flavor) && !_config.RemoveComments:
                     // CommonMark preserves HTML comments (incl. AngleSharp-normalized PIs/decls).
                     ctx.Emit(new MdRawInline("<!--" + comment.Data + "-->") { SourceTag = "#comment" });
                     break;
@@ -187,8 +188,14 @@ namespace ReverseMarkdown.Readers
                                     element.Children.Length == 0 &&
                                     !string.IsNullOrWhiteSpace(anchorText) &&
                                     (anchorText.Contains("://") || anchorText.Contains('@') || anchorText.Contains("www."));
-            var passthroughTag = InlineHtmlTags.Contains(tag) && !gfmTextOnlyAnchor;
-            if (Config.IsCommonMarkBased(_config.Flavor) &&
+            // MultiMarkdown converts plain emphasis (em/i/strong/b with no attributes) to clean
+            // markdown so its text-derived heading ids match; only tags it lacks markdown for, or
+            // ones carrying attributes, pass through raw. CommonMark/GFM pass all of them through.
+            var hasCleanMmdMarkdown = tag is "em" or "i" or "strong" or "b";
+            var mmdConvertsInline = _config.Flavor == Config.MarkdownFlavor.MultiMarkdown &&
+                                    hasCleanMmdMarkdown && element.Attributes.Length == 0;
+            var passthroughTag = InlineHtmlTags.Contains(tag) && !gfmTextOnlyAnchor && !mmdConvertsInline;
+            if (Config.PreservesInlineRawHtml(_config.Flavor) &&
                 _config.CommonMarkUseHtmlInlineTags &&
                 passthroughTag)
             {

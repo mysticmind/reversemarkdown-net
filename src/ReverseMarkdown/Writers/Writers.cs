@@ -103,7 +103,7 @@ namespace ReverseMarkdown.Writers
     /// MultiMarkdown writer. Renders MMD-native constructs the base degrades — currently
     /// subscript (<c>~x~</c>). Footnotes/metadata/math/citations land with their readers in Phase E.
     /// </summary>
-    public sealed class MultiMarkdownWriter : MarkdownWriterBase
+    public sealed class MultiMarkdownWriter : CommonMarkWriter
     {
         public MultiMarkdownWriter(Config config) : base(config)
         {
@@ -123,6 +123,10 @@ namespace ReverseMarkdown.Writers
         }
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
+
+        // MultiMarkdown attaches list-item continuation blocks at a fixed 4-space tab stop,
+        // not at the marker width the way CommonMark does.
+        protected override int ContinuationIndent(int markerWidth) => 4;
 
         public override void Visit(MdCitation node)
         {
