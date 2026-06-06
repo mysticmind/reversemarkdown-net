@@ -522,11 +522,12 @@ namespace ReverseMarkdown.Readers
                 }
             }
 
-            // A bare single-token class is conventionally the language itself (e.g. MultiMarkdown
-            // and several highlighters emit <code class="ruby">). Only accept a plain identifier so
-            // unrelated classes (and fence-artifact values like "```") are ignored.
-            if (tokens.Length == 1 &&
-                System.Text.RegularExpressions.Regex.IsMatch(tokens[0], "^[A-Za-z][A-Za-z0-9+#._-]*$"))
+            // A bare single-token class is conventionally the language/info string itself (e.g.
+            // MultiMarkdown and several highlighters emit <code class="ruby">, and an info string
+            // may be any non-whitespace run such as "föö" or "foo+bar"). Accept any single token
+            // that has no whitespace and no delimiter that would break the fence (backtick/quote/
+            // angle bracket), which also excludes the "```" fence-artifact class.
+            if (tokens.Length == 1 && tokens[0].IndexOfAny(new[] { '`', '"', '\'', '<', '>' }) < 0)
             {
                 return tokens[0];
             }

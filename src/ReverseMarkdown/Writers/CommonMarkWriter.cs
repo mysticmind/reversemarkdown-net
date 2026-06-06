@@ -40,10 +40,10 @@ namespace ReverseMarkdown.Writers
 
             content = EscapeLineStarts(content);
 
-            // GitHub Flavored Markdown treats "![" as an image; escape a literal "!" so that a
-            // "!" immediately before a link doesn't form an image. (Bare-URL autolinking is GFM's
-            // expected behavior and is left intact.)
-            if (Config.Flavor == Config.MarkdownFlavor.GitHub)
+            // "![" forms an image, so a literal "!" immediately before a link would wrongly become
+            // one; escape it. GitHub and Pandoc both apply this (a literal "!" in text is never an
+            // intended image — real images are MdImage nodes). Bare-URL autolinking is unaffected.
+            if (Config.Flavor is Config.MarkdownFlavor.GitHub or Config.MarkdownFlavor.Pandoc)
             {
                 content = content.Replace("!", "\\!");
             }
