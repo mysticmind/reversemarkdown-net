@@ -170,9 +170,18 @@ namespace ReverseMarkdown.Dom
         public string? Title { get; set; }
         public string Alt { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Rich inline content for the image's alt text, captured from a wrapping
+        /// <c>&lt;figure&gt;</c>'s <c>&lt;figcaption&gt;</c>. MultiMarkdown and Pandoc render a
+        /// standalone image's markdown alt into the figcaption, so it is the faithful source for
+        /// the alt — emitting these as markdown (e.g. <c>*bar*</c>) round-trips back to the figure.
+        /// </summary>
+        public List<MdInline>? CaptionInlines { get; set; }
+
         public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
 
-        protected internal override IEnumerable<MdNode> EnumerateChildren() => Enumerable.Empty<MdNode>();
+        protected internal override IEnumerable<MdNode> EnumerateChildren() =>
+            CaptionInlines ?? Enumerable.Empty<MdNode>();
 
         internal override bool RemoveChildCore(MdNode child) => false;
 

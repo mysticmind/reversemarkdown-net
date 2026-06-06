@@ -156,10 +156,31 @@ namespace ReverseMarkdown.Readers
         public void Read(IElement element, ReaderContext ctx)
         {
             var img = element.QuerySelector("img");
-            if (img is not null && element.QuerySelector("figcaption") is not null)
+            var figcaption = element.QuerySelector("figcaption");
+            if (img is not null && figcaption is not null)
             {
-                Image.Read(img, ctx);
-                return;
+                // Build the image into a throwaway holder so we can attach the figcaption before
+                // emitting. The figcaption carries the rendered markdown of the original alt
+                // (MMD/Pandoc figure behavior), so it is the faithful alt source.
+                var holder = new MdParagraph();
+                using (ctx.Open(holder))
+                {
+                    Image.Read(img, ctx);
+                }
+
+                var image = holder.Children.OfType<MdImage>().FirstOrDefault();
+                if (image is not null)
+                {
+                    var caption = new MdParagraph();
+                    using (ctx.Open(caption))
+                    {
+                        ctx.ReadChildren(figcaption);
+                    }
+
+                    image.CaptionInlines = caption.Children.ToList();
+                    ctx.Emit(image);
+                    return;
+                }
             }
 
             ctx.ReadChildren(element);

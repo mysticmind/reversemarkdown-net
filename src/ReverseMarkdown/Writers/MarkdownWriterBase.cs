@@ -414,8 +414,12 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdImage node)
         {
-            var alt = node.Alt
-                .Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
+            // A figure-captured caption is already markdown-shaped (e.g. *bar*, [x](y), nested
+            // images): render it verbatim so it round-trips to the same figcaption. A plain alt
+            // string is literal text, so its markdown-significant brackets are escaped.
+            var alt = node.CaptionInlines is { Count: > 0 }
+                ? Capture(() => WriteInline(node.CaptionInlines))
+                : node.Alt.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
             Buffer.Append("![").Append(alt).Append("](").Append(EncodeLinkDestination(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
             {
