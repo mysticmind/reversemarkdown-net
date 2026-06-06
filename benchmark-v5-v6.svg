@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760" role="img" aria-labelledby="title desc">
+  <title id="title">ReverseMarkdown v5 vs v6 BenchmarkDotNet results</title>
+  <desc id="desc">Horizontal bar charts comparing v5 HtmlAgilityPack and v6 Markdown DOM mean execution time and allocated memory across three HTML fixtures.</desc>
+  <style>
+    .title { font: 700 24px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+    .subtitle { font: 14px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #4b5563; }
+    .section { font: 700 18px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+    .axis { stroke: #d1d5db; stroke-width: 1; }
+    .grid { stroke: #e5e7eb; stroke-width: 1; }
+    .label { font: 13px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #374151; }
+    .value { font: 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #111827; }
+    .tick { font: 11px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #6b7280; }
+    .v5 { fill: #ef4444; }
+    .v6 { fill: #2563eb; }
+    .panel { fill: #ffffff; stroke: #e5e7eb; stroke-width: 1; rx: 12; }
+  </style>
+
+  <rect width="1000" height="760" fill="#f9fafb" />
+  <text x="40" y="42" class="title">ReverseMarkdown v5 vs v6 performance</text>
+  <text x="40" y="66" class="subtitle">BenchmarkDotNet, .NET 9.0, lower is better. v5 baseline = HtmlAgilityPack path, v6 = Markdown DOM path.</text>
+
+  <rect x="40" y="92" width="920" height="310" class="panel" />
+  <text x="70" y="128" class="section">Mean execution time</text>
+  <rect x="720" y="111" width="14" height="14" class="v5" />
+  <text x="742" y="123" class="label">v5</text>
+  <rect x="790" y="111" width="14" height="14" class="v6" />
+  <text x="812" y="123" class="label">v6</text>
+
+  <line x1="230" y1="155" x2="880" y2="155" class="axis" />
+  <line x1="230" y1="155" x2="230" y2="345" class="axis" />
+  <line x1="447" y1="155" x2="447" y2="345" class="grid" />
+  <line x1="663" y1="155" x2="663" y2="345" class="grid" />
+  <line x1="880" y1="155" x2="880" y2="345" class="grid" />
+  <text x="226" y="371" class="tick">0 ms</text>
+  <text x="430" y="371" class="tick">200 ms</text>
+  <text x="646" y="371" class="tick">400 ms</text>
+  <text x="861" y="371" class="tick">600 ms</text>
+
+  <text x="70" y="183" class="label">1000 paragraphs</text>
+  <rect x="230" y="166" width="15" height="18" class="v5" />
+  <rect x="230" y="190" width="8" height="18" class="v6" />
+  <text x="255" y="180" class="value">13.834 ms</text>
+  <text x="248" y="204" class="value">7.701 ms</text>
+
+  <text x="70" y="251" class="label">10k paragraphs</text>
+  <rect x="230" y="234" width="139" height="18" class="v5" />
+  <rect x="230" y="258" width="93" height="18" class="v6" />
+  <text x="379" y="248" class="value">128.350 ms</text>
+  <text x="333" y="272" class="value">85.956 ms</text>
+
+  <text x="70" y="319" class="label">huge.html</text>
+  <rect x="230" y="302" width="637" height="18" class="v5" />
+  <rect x="230" y="326" width="357" height="18" class="v6" />
+  <text x="875" y="316" class="value">588.219 ms</text>
+  <text x="597" y="340" class="value">329.887 ms</text>
+
+  <rect x="40" y="432" width="920" height="310" class="panel" />
+  <text x="70" y="468" class="section">Allocated memory</text>
+  <rect x="720" y="451" width="14" height="14" class="v5" />
+  <text x="742" y="463" class="label">v5</text>
+  <rect x="790" y="451" width="14" height="14" class="v6" />
+  <text x="812" y="463" class="label">v6</text>
+
+  <line x1="230" y1="495" x2="880" y2="495" class="axis" />
+  <line x1="230" y1="495" x2="230" y2="685" class="axis" />
+  <line x1="393" y1="495" x2="393" y2="685" class="grid" />
+  <line x1="555" y1="495" x2="555" y2="685" class="grid" />
+  <line x1="718" y1="495" x2="718" y2="685" class="grid" />
+  <line x1="880" y1="495" x2="880" y2="685" class="grid" />
+  <text x="226" y="711" class="tick">0 MB</text>
+  <text x="374" y="711" class="tick">200 MB</text>
+  <text x="536" y="711" class="tick">400 MB</text>
+  <text x="698" y="711" class="tick">600 MB</text>
+  <text x="860" y="711" class="tick">800 MB</text>
+
+  <text x="70" y="523" class="label">1000 paragraphs</text>
+  <rect x="230" y="506" width="17" height="18" class="v5" />
+  <rect x="230" y="530" width="6" height="18" class="v6" />
+  <text x="257" y="520" class="value">20.79 MB</text>
+  <text x="246" y="544" class="value">7.91 MB</text>
+
+  <text x="70" y="591" class="label">10k paragraphs</text>
+  <rect x="230" y="574" width="149" height="18" class="v5" />
+  <rect x="230" y="598" width="57" height="18" class="v6" />
+  <text x="389" y="588" class="value">183.38 MB</text>
+  <text x="297" y="612" class="value">70.42 MB</text>
+
+  <text x="70" y="659" class="label">huge.html</text>
+  <rect x="230" y="642" width="633" height="18" class="v5" />
+  <rect x="230" y="666" width="247" height="18" class="v6" />
+  <text x="873" y="656" class="value">779.31 MB</text>
+  <text x="487" y="680" class="value">304.07 MB</text>
+</svg>

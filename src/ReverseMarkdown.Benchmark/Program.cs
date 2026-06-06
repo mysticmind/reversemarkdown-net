@@ -1,6 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
 using ReverseMarkdown.Benchmark;
 
-
-var summary = BenchmarkRunner.Run<CompareBenchmark>();
-Console.ReadLine();
+BenchmarkSwitcher.FromAssembly(typeof(CompareBenchmark).Assembly).Run(args);
