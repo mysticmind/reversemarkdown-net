@@ -373,6 +373,12 @@ namespace ReverseMarkdown.Writers
         private int _strongDepth;
         private int _emphasisDepth;
 
+        /// <summary>Open <c>&lt;strong&gt;</c> nesting depth (1 = outermost), valid inside a Visit.</summary>
+        protected int StrongDepth => _strongDepth;
+
+        /// <summary>Open <c>&lt;em&gt;</c> nesting depth (1 = outermost), valid inside a Visit.</summary>
+        protected int EmphasisDepth => _emphasisDepth;
+
         public virtual void Visit(MdStrong node)
         {
             _strongDepth++;

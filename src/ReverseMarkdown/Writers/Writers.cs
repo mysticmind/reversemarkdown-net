@@ -177,6 +177,37 @@ namespace ReverseMarkdown.Writers
         // continuation, so a list item's continuation blocks need a blank line before them.
         protected override bool ForceBlankLineBeforeItemBlock => true;
 
+        // Pandoc parses a symmetric "***foo***" as strong-outer, unlike CommonMark (em-outer). Only
+        // the sole-child nesting produces that symmetric run, so disambiguate exactly there: an
+        // emphasis directly wrapping just a strong (or vice versa) mixes families — asterisk for the
+        // emphasis (works intraword, e.g. foo*__bar__*baz) and underscore for the inner strong — so
+        // the delimiters never merge. Other arrangements keep the base per-type alternation.
+        public override void Visit(MdEmphasis node)
+        {
+            if (node.Children.Count == 1 && node.Children[0] is MdStrong strong)
+            {
+                Buffer.Append('*');
+                Wrap("__", strong.Children);
+                Buffer.Append('*');
+                return;
+            }
+
+            base.Visit(node);
+        }
+
+        public override void Visit(MdStrong node)
+        {
+            if (node.Children.Count == 1 && node.Children[0] is MdEmphasis emphasis)
+            {
+                Buffer.Append("**");
+                Wrap("_", emphasis.Children);
+                Buffer.Append("**");
+                return;
+            }
+
+            base.Visit(node);
+        }
+
         public override void Visit(MdCitation node)
         {
             if (!string.IsNullOrEmpty(node.Key))
