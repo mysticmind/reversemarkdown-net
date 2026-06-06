@@ -26,7 +26,7 @@ namespace ReverseMarkdown.Writers
         protected virtual string StrongDelimiter => "**";
         protected virtual string EmphasisDelimiter => "*";
         protected virtual string StrikethroughDelimiter => "~~";
-        protected virtual string UnorderedBullet => "-";
+        protected virtual string UnorderedBullet => Config.ListBulletChar.ToString();
 
         public virtual string Write(MarkdownDocument document)
         {
