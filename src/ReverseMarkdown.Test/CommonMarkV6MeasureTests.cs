@@ -91,6 +91,7 @@ namespace ReverseMarkdown.Test
                 sb.AppendLine(s);
             }
 
+            File.WriteAllText("/tmp/v6-cm-measure.txt", sb.ToString());
             _output.WriteLine(sb.ToString());
 
             // Regression gate: lock in current progress (parser-fair + benign-normalization-fair).

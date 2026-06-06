@@ -181,6 +181,30 @@ namespace ReverseMarkdown.Readers
                 _config.CommonMarkUseHtmlInlineTags &&
                 InlineHtmlTags.Contains(tag))
             {
+                // For an INLINE <a>, keep the open/close tags raw but emit text content as escaped
+                // markdown (so backslashes/backticks in the link text aren't re-escaped by the
+                // renderer) and child elements raw. A block-level <a> is a verbatim HTML block, so
+                // it falls through to full raw OuterHtml below.
+                if (tag == "a" && element.ChildNodes.Length > 0 && ctx.CurrentAcceptsInline)
+                {
+                    ctx.Emit(new MdRawInline(StartTag(element)) { SourceTag = tag });
+                    foreach (var child in element.ChildNodes)
+                    {
+                        switch (child)
+                        {
+                            case IText text:
+                                ctx.Emit(new MdText(text.Data) { SourceTag = "#text" });
+                                break;
+                            case IElement childElement:
+                                ctx.Emit(new MdRawInline(childElement.OuterHtml) { SourceTag = childElement.LocalName });
+                                break;
+                        }
+                    }
+
+                    ctx.Emit(new MdRawInline("</" + tag + ">") { SourceTag = tag });
+                    return;
+                }
+
                 ctx.Emit(new MdRawInline(element.OuterHtml) { SourceTag = tag });
                 return;
             }
@@ -214,6 +238,15 @@ namespace ReverseMarkdown.Readers
                 case Config.UnknownTagsOption.Raise:
                     throw new UnknownTagException(tag);
             }
+        }
+
+        // The element's serialized start tag (e.g. <a href="...">), taken verbatim from
+        // AngleSharp's OuterHtml so attribute quoting/escaping is exactly preserved.
+        private static string StartTag(IElement element)
+        {
+            var outer = element.OuterHtml;
+            var closeLength = element.LocalName.Length + 3; // "</" + name + ">"
+            return outer.Substring(0, outer.Length - element.InnerHtml.Length - closeLength);
         }
 
         // Resolve a reader for a tag, following tag aliases (with a cycle guard).
