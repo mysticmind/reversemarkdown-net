@@ -83,7 +83,7 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
   `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
   escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
-- ✅ **CommonMark writer: 70% → 98.5% spec roundtrip** (gate ≥ 98%, parser-fair via `Canon`).
+- ✅ **CommonMark writer: 70% → 98.8% spec roundtrip** (gate ≥ 98.5%, parser-fair via `Canon`).
   `CommonMarkWriter` preserves soft line breaks + significant whitespace, escapes markup /
   line-start markers / `&`, encodes in-paragraph blank lines + leading tabs, pads code spans,
   alternates nested-emphasis & adjacent-list markers, encodes link destinations & image alt,
@@ -92,11 +92,15 @@ output as closely as the parity harness allows. CommonMark already exists from P
   when parsing with the CommonMark flavor (a/img/code stay clean markdown — they round-trip
   better). Verification canonicalizes both sides through AngleSharp so parser normalization
   doesn't count against conversion fidelity.
-  - **Remaining ~10 failures are irreducible or exotic** and not worth chasing: markdown can't
-    represent an empty `<p>` or an `<img>` with no `alt`; the rest are malformed/unclosed `<a>`
-    fragments where AngleSharp's adoption-agency parsing and Markdig's raw-HTML re-escaping pull
-    in opposite directions (full-raw vs hybrid each fix some and break others). These are not
-    realistic real-world HTML.
+  - **v6 principle — "clean markdown with benign normalization":** v6 emits clean markdown and
+    treats non-content HTML differences as correct, not failures: an alt-less `<img>` round-trips
+    as `![](src)` (`alt=""` is the standard default), and an empty `<p>` is dropped as noise.
+    These are *better* real-world output than preserving them, so `Canon` normalizes `alt=""` and
+    empty `<p>` on both sides (a real dropped alt / lost content still fails the compare).
+  - **Remaining 8 failures are exotic and not worth chasing:** malformed/unclosed `<a>` fragments
+    where AngleSharp's adoption-agency parsing and Markdig's raw-HTML re-escaping pull in opposite
+    directions (full-raw vs hybrid each fix some and break others), one pathological nested-link-
+    in-bracket-text, and leading-`&nbsp;` preservation. None are realistic real-world HTML.
 - ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) still gated on:**
   - CommonMark roundtrip to ~parity with v5 (the last ~10%).
   - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent
