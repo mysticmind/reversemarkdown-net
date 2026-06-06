@@ -204,6 +204,21 @@ namespace ReverseMarkdown.Test
                 h.Attributes["id"].Remove();
             }
 
+            // HTML collapses runs of whitespace (incl. newlines) in flow text to a single space
+            // when rendered, so "aaa\nbbb" and "aaa\n bbb" are equivalent. MMD's serializer indents
+            // continuation lines by a space and preserves source double-spaces; v6 collapses to
+            // one. Normalize flow-text whitespace symmetrically — but never inside pre/code/textarea
+            // where it is significant.
+            foreach (var t in doc.DocumentNode.Descendants().OfType<HtmlAgilityPack.HtmlTextNode>().ToList())
+            {
+                if (t.Ancestors().Any(a => a.Name is "pre" or "code" or "textarea" or "script" or "style"))
+                {
+                    continue;
+                }
+
+                t.Text = System.Text.RegularExpressions.Regex.Replace(t.Text, @"\s+", " ");
+            }
+
             // Attribute order is insignificant; sort it (the spec.txt and the installed
             // cmark-gfm serialize attributes in different orders).
             foreach (var el in doc.DocumentNode.Descendants().Where(d => d.HasAttributes).ToList())
@@ -227,7 +242,7 @@ namespace ReverseMarkdown.Test
             // adoption-agency artifacts, e.g. an unclosed <strong>/<em> spanning a block).
             string before;
             do { before = result; result = System.Text.RegularExpressions.Regex.Replace(
-                result, "<(strong|em|b|i|del|ins|s|sub|sup|mark|small|u)>\\s*</\\1>", ""); }
+                result, "<(strong|em|b|i|del|ins|s|sub|sup|mark|small|u|a)\\b[^>]*>\\s*</\\1>", ""); }
             while (result != before);
 
             // MMD --snippet does not <p>-wrap a single line of text that follows a raw HTML block,
