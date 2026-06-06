@@ -83,7 +83,7 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
   `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
   escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
-- ✅ **CommonMark writer: 70% → 98.8% spec roundtrip** (gate ≥ 98.5%, parser-fair via `Canon`).
+- ✅ **CommonMark writer: 70% → 99.5% spec roundtrip** (gate ≥ 99.5%, parser-fair via `Canon`).
   `CommonMarkWriter` preserves soft line breaks + significant whitespace, escapes markup /
   line-start markers / `&`, encodes in-paragraph blank lines + leading tabs, pads code spans,
   alternates nested-emphasis & adjacent-list markers, encodes link destinations & image alt,
@@ -97,10 +97,14 @@ output as closely as the parity harness allows. CommonMark already exists from P
     as `![](src)` (`alt=""` is the standard default), and an empty `<p>` is dropped as noise.
     These are *better* real-world output than preserving them, so `Canon` normalizes `alt=""` and
     empty `<p>` on both sides (a real dropped alt / lost content still fails the compare).
-  - **Remaining 8 failures are exotic and not worth chasing:** malformed/unclosed `<a>` fragments
-    where AngleSharp's adoption-agency parsing and Markdig's raw-HTML re-escaping pull in opposite
-    directions (full-raw vs hybrid each fix some and break others), one pathological nested-link-
-    in-bracket-text, and leading-`&nbsp;` preservation. None are realistic real-world HTML.
+  - **Inline-HTML hybrid (AngleSharp-faithful):** an inline element is emitted as raw open/close
+    tags + its text content as *escaped markdown* + child elements raw — so markdown-significant
+    characters in the text survive the renderer while nested raw HTML round-trips. A block-level
+    element stays a verbatim HTML block. This took the writer from ~98.8% to 99.5%.
+  - **Final 3 are irreducible** given the AngleSharp + Markdig pipeline (not worth chasing):
+    leading-block-whitespace parse/serialize asymmetry in AngleSharp, and two multi-line /
+    backslash `<a href>` fragments that Markdig cannot emit as a bare HTML block. None are
+    realistic real-world HTML.
 - ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) still gated on:**
   - CommonMark roundtrip to ~parity with v5 (the last ~10%).
   - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent
