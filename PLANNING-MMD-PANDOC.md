@@ -1043,8 +1043,8 @@ binaries** over the 651-example commonmark.json corpus:
 |--------|------------------|-------|-----|
 | CommonMark | cmark-gfm | — | **100%** (651/651, gated) |
 | GitHub (GFM) | cmark-gfm (per-section flags) | — | **100%** (672/672, gated) |
-| MultiMarkdown | `multimarkdown --snippet --nosmart` | 81.9% | **95.1%** (619/651, gated ≥0.95) |
-| Pandoc | `pandoc -f … -t html --wrap=none` | 84.2% | **91.7%** (597/651, gated ≥0.91) |
+| MultiMarkdown | `multimarkdown --snippet --nosmart` | 81.9% | **96.9%** (631/651, gated ≥0.96) |
+| Pandoc | `pandoc -f … -t html --wrap=none` | 84.2% | **93.1%** (606/651, gated ≥0.93) |
 
 ### Real conversion fixes (shared base / readers)
 - List-item continuation indent: 4-space tab stop for MMD (vs CommonMark marker width).

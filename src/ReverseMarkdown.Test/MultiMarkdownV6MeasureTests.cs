@@ -104,7 +104,7 @@ namespace ReverseMarkdown.Test
             // the canonical multimarkdown binary. The remainder are irreducible — markdown carried
             // in an HTML alt attribute (lost on parse), MMD's own malformed output for pathological
             // inputs, and raw-HTML-table passthrough vs pipe-table conversion.
-            Assert.True(rate >= 0.95, $"v6 MultiMarkdown roundtrip (canonical multimarkdown) regressed to {100.0 * rate:F1}%\n{sb}");
+            Assert.True(rate >= 0.96, $"v6 MultiMarkdown roundtrip (canonical multimarkdown) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,

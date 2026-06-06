@@ -103,7 +103,7 @@ namespace ReverseMarkdown.Test
             // canonical pandoc binary. The remainder are irreducible — pathological raw/custom HTML
             // that Pandoc rewrites to spans/data-attributes, raw-HTML-table passthrough vs
             // pipe-table conversion, and Pandoc's own html-vs-markdown reader asymmetries.
-            Assert.True(rate >= 0.91, $"v6 Pandoc roundtrip (canonical pandoc) regressed to {100.0 * rate:F1}%\n{sb}");
+            Assert.True(rate >= 0.93, $"v6 Pandoc roundtrip (canonical pandoc) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
