@@ -177,6 +177,10 @@ namespace ReverseMarkdown.Writers
         // continuation, so a list item's continuation blocks need a blank line before them.
         protected override bool ForceBlankLineBeforeItemBlock => true;
 
+        // Pandoc miscounts the indent of a code block opening on the list-marker line; emit the
+        // marker alone and indent the block on the next line.
+        protected override bool MarkerOnOwnLineForLeadingBlock => true;
+
         // Pandoc parses a symmetric "***foo***" as strong-outer, unlike CommonMark (em-outer). Only
         // the sole-child nesting produces that symmetric run, so disambiguate exactly there: an
         // emphasis directly wrapping just a strong (or vice versa) mixes families — asterisk for the

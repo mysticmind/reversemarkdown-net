@@ -132,8 +132,15 @@ namespace ReverseMarkdown.Writers
                 var inner = Capture(() => WriteItemBlocks(item.Children, node.Tight)).Replace("\r\n", "\n");
                 var lines = inner.Split('\n');
 
-                Buffer.Append(marker).Append(lines[0]);
-                for (var k = 1; k < lines.Length; k++)
+                // A code block (or other non-paragraph block) opening on the marker line confuses
+                // some parsers' indent math (Pandoc reads the continuation indent as code content).
+                // Putting the block on the next line, fully indented, parses unambiguously.
+                var firstOnOwnLine = MarkerOnOwnLineForLeadingBlock &&
+                                     item.Children.FirstOrDefault() is not (MdParagraph or null) &&
+                                     item.Checked is null;
+
+                Buffer.Append(firstOnOwnLine ? marker.TrimEnd() : marker + lines[0]);
+                for (var k = firstOnOwnLine ? 0 : 1; k < lines.Length; k++)
                 {
                     Buffer.Append('\n');
                     if (lines[k].Length > 0)
@@ -550,6 +557,11 @@ namespace ReverseMarkdown.Writers
         /// (blockquote, code, heading, extra paragraph). CommonMark/GFM keep them attached with a
         /// single newline; Pandoc folds them as lazy continuations unless a blank line separates.</summary>
         protected virtual bool ForceBlankLineBeforeItemBlock => false;
+
+        /// <summary>Whether a list item whose first child is a non-paragraph block (e.g. a fenced
+        /// code block) puts the marker on its own line, with the block fully indented below. Pandoc
+        /// needs this; CommonMark/GFM parse the block opening on the marker line correctly.</summary>
+        protected virtual bool MarkerOnOwnLineForLeadingBlock => false;
 
         protected void WriteInline(IEnumerable<MdInline> inlines)
         {
