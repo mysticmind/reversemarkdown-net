@@ -427,6 +427,16 @@ namespace ReverseMarkdown.Readers
         public void Read(IElement element, ReaderContext ctx)
         {
             var item = new MdListItem { SourceTag = element.LocalName };
+
+            // Task list item: a leading <input type="checkbox"> becomes [ ] / [x].
+            var firstElement = element.Children.FirstOrDefault();
+            if (firstElement is { LocalName: "input" } &&
+                string.Equals(firstElement.GetAttribute("type"), "checkbox", StringComparison.OrdinalIgnoreCase))
+            {
+                item.Checked = firstElement.HasAttribute("checked");
+                firstElement.Remove();
+            }
+
             using (ctx.Open(item))
             {
                 ctx.ReadChildren(element);
@@ -696,7 +706,7 @@ namespace ReverseMarkdown.Readers
             }
 
             // CommonMark: a <div> is a raw HTML block — emit it verbatim.
-            if (element.LocalName == "div" && ctx.Config.Flavor == Config.MarkdownFlavor.CommonMark)
+            if (element.LocalName == "div" && Config.IsCommonMarkBased(ctx.Config.Flavor))
             {
                 ctx.Emit(new MdHtmlBlock(element.OuterHtml) { SourceTag = element.LocalName });
                 return;

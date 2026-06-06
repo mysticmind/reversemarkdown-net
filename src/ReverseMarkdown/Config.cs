@@ -42,6 +42,11 @@ namespace ReverseMarkdown
             Pandoc
         }
 
+        /// <summary>GitHub Flavored Markdown is CommonMark + extensions, so it shares CommonMark's
+        /// text handling (escaping, soft breaks) and inline/block raw-HTML passthrough.</summary>
+        internal static bool IsCommonMarkBased(MarkdownFlavor flavor) =>
+            flavor is MarkdownFlavor.CommonMark or MarkdownFlavor.GitHub;
+
         /// <summary>
         /// EXPERIMENTAL (v6): when true, <see cref="Converter.Convert"/> routes through the
         /// Markdown DOM path (<see cref="Converter.Parse"/> + <see cref="Converter.Render(Dom.MarkdownDocument)"/>)

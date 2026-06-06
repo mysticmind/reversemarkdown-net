@@ -9,17 +9,17 @@ using Xunit.Abstractions;
 namespace ReverseMarkdown.Test
 {
     // Measurement (not a gate): how does the v6 Markdown DOM CommonMark path roundtrip the spec?
-    public class CommonMarkV6MeasureTests
+    public class GithubFlavoredV6MeasureTests
     {
         private readonly ITestOutputHelper _output;
 
-        public CommonMarkV6MeasureTests(ITestOutputHelper output)
+        public GithubFlavoredV6MeasureTests(ITestOutputHelper output)
         {
             _output = output;
         }
 
         [Fact]
-        public void Measure_v6_commonmark_roundtrip()
+        public void Measure_v6_gfm_roundtrip()
         {
             var path = SpecPath();
             if (!File.Exists(path))
@@ -28,17 +28,17 @@ namespace ReverseMarkdown.Test
                 return;
             }
 
-            var examples = JsonSerializer.Deserialize<List<SpecExample>>(
-                File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-
-            var exe = CmarkPath();
+            var exe = CmarkGfmPath();
             if (exe is null)
             {
-                _output.WriteLine("cmark-gfm not found; skipping (canonical CommonMark reference).");
+                _output.WriteLine("cmark-gfm not found on PATH; skipping (canonical GFM reference).");
                 return;
             }
 
-            var converter = new Converter(new Config { UseMarkdownDom = true, Flavor = Config.MarkdownFlavor.CommonMark });
+            var examples = JsonSerializer.Deserialize<List<SpecExample>>(
+                File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+
+            var converter = new Converter(new Config { UseMarkdownDom = true, Flavor = Config.MarkdownFlavor.GitHub });
             var angle = new AngleSharp.Html.Parser.HtmlParser();
 
             var pass = new Dictionary<string, int>();
@@ -60,7 +60,7 @@ namespace ReverseMarkdown.Test
                 string actual;
                 try
                 {
-                    actual = Canon(angle, RunCmark(exe, converter.Convert(ex.Html)));
+                    actual = Canon(angle, RunCmarkGfm(exe, converter.Convert(ex.Html)));
                 }
                 catch (Exception e)
                 {
@@ -101,7 +101,7 @@ namespace ReverseMarkdown.Test
             // Gate at 100%: all 651 commonmark.json examples round-trip once the verification
             // trusts AngleSharp's structure (Canon normalizes renderer artifacts — lone-element
             // <p> wrapping and leading block whitespace — identically on both sides).
-            Assert.True(rate >= 1.0, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
+            Assert.True(rate >= 0.96, $"v6 GFM roundtrip (canonical cmark-gfm) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
@@ -117,9 +117,9 @@ namespace ReverseMarkdown.Test
         }
 
 
-        private static string? CmarkPath()
+        private static string? CmarkGfmPath()
         {
-            foreach (var c in new[] { "/opt/homebrew/bin/cmark-gfm", "/usr/local/bin/cmark-gfm", "cmark-gfm" })
+            foreach (var c in new[] { "/opt/homebrew/bin/cmark-gfm", "/usr/local/bin/cmark-gfm", "/usr/bin/cmark-gfm", "cmark-gfm" })
             {
                 try
                 {
@@ -128,17 +128,18 @@ namespace ReverseMarkdown.Test
                     probe!.WaitForExit();
                     if (probe.ExitCode == 0) return c;
                 }
-                catch { }
+                catch { /* try next */ }
             }
 
             return null;
         }
 
-        // Canonical CommonMark = cmark-gfm with no GFM extensions (--unsafe keeps raw HTML).
-        private static string RunCmark(string exe, string markdown)
+        private static string RunCmarkGfm(string exe, string markdown)
         {
-            var psi = new System.Diagnostics.ProcessStartInfo(exe) { RedirectStandardInput = true, RedirectStandardOutput = true, UseShellExecute = false };
-            psi.ArgumentList.Add("--unsafe");
+            var psi = new System.Diagnostics.ProcessStartInfo(exe)
+            { RedirectStandardInput = true, RedirectStandardOutput = true, UseShellExecute = false };
+            foreach (var a in new[] { "-e", "table", "-e", "tasklist", "-e", "strikethrough", "-e", "autolink", "-e", "tagfilter", "--unsafe" })
+                psi.ArgumentList.Add(a);
             using var proc = System.Diagnostics.Process.Start(psi)!;
             proc.StandardInput.Write(markdown);
             proc.StandardInput.Close();
@@ -169,6 +170,15 @@ namespace ReverseMarkdown.Test
 
             var doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(n);
+            // Attribute order is insignificant; sort it (the spec.txt and the installed
+            // cmark-gfm serialize attributes in different orders).
+            foreach (var el in doc.DocumentNode.Descendants().Where(d => d.HasAttributes).ToList())
+            {
+                var attrs = el.Attributes.OrderBy(a => a.Name, StringComparer.Ordinal).ToList();
+                el.Attributes.RemoveAll();
+                foreach (var a in attrs) el.Attributes.Add(a.Name, a.Value);
+            }
+
             var result = doc.DocumentNode.InnerHtml;
 
             // Trust AngleSharp's structure over the renderer's: a CommonMark renderer wraps a lone
@@ -190,7 +200,7 @@ namespace ReverseMarkdown.Test
                 dir = dir.Parent;
             }
 
-            return Path.Combine(dir!.FullName, "TestData", "commonmark.json");
+            return Path.Combine(dir!.FullName, "TestData", "gfm-spec.json");
         }
 
         private sealed class SpecExample

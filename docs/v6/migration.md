@@ -83,7 +83,22 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
   `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
   escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
-- ✅ **CommonMark writer: 70% → 100% spec roundtrip** (gate = 100% of all 651 `commonmark.json`).
+- ✅ **Flavor spec compliance uses the CANONICAL reference renderer, never a third-party one.**
+  The roundtrip check is `spec.html → v6.Convert(flavor) → markdown → reference-renderer → html`,
+  compared parser-fair via `Canon`. The reference renderer must be the flavor's authority:
+  - **CommonMark / GFM → `cmark-gfm`** (GitHub's reference C implementation; CommonMark = no
+    extensions, GFM = `-e table -e tasklist -e strikethrough -e autolink -e tagfilter --unsafe`).
+    Markdig was used initially but is *not canonical* — it adds non-spec decoration (task-list
+    classes, attribute order) — so it was dropped. The tests skip if `cmark-gfm` isn't on PATH.
+  - **Pandoc → the `pandoc` binary; MultiMarkdown → the `multimarkdown` binary** (same pattern).
+- ✅ **CommonMark writer: 70% → 100% spec roundtrip** — verified against canonical `cmark-gfm`
+  (651/651). Re-checking with the canonical renderer (vs the earlier Markdig) left it unchanged,
+  confirming the result was real.
+- 🚧 **GitHub (GFM) writer: 96.4%** against canonical `cmark-gfm` (`GithubFlavoredV6MeasureTests`,
+  672 examples from the GFM spec). GFM inherits the full CommonMark writer (it's CommonMark +
+  extensions) and adds task lists (`<input type=checkbox>` → `[ ]`/`[x]`) and markdown links for
+  `<a>` (GFM autolinks bare URLs, so a raw `<a>` would get re-linked). Remaining ~24: autolink ↔
+  `<a>` tradeoffs, `tagfilter`/`<script>` interactions, and a few raw-HTML edges.
   `CommonMarkWriter` preserves soft line breaks + significant whitespace, escapes markup /
   line-start markers / `&`, encodes in-paragraph blank lines + leading tabs, pads code spans,
   alternates nested-emphasis & adjacent-list markers, encodes link destinations & image alt,

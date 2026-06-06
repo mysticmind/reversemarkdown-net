@@ -8,7 +8,7 @@ namespace ReverseMarkdown.Writers
     /// soft line breaks are preserved (not collapsed to spaces), markup-significant characters
     /// are escaped, and line-start markers are escaped so literal text is not reinterpreted.
     /// </summary>
-    public sealed class CommonMarkWriter : MarkdownWriterBase
+    public class CommonMarkWriter : MarkdownWriterBase
     {
         public CommonMarkWriter(Config config) : base(config)
         {

@@ -147,7 +147,7 @@ namespace ReverseMarkdown.Readers
                     ReadElement(element, ctx);
                     break;
                 case IComment comment
-                    when _config.Flavor == Config.MarkdownFlavor.CommonMark && !_config.RemoveComments:
+                    when Config.IsCommonMarkBased(_config.Flavor) && !_config.RemoveComments:
                     // CommonMark preserves HTML comments (incl. AngleSharp-normalized PIs/decls).
                     ctx.Emit(new MdRawInline("<!--" + comment.Data + "-->") { SourceTag = "#comment" });
                     break;
@@ -177,9 +177,13 @@ namespace ReverseMarkdown.Readers
             }
 
             // CommonMark inline-HTML passthrough: emit inline elements verbatim (v5 parity).
-            if (_config.Flavor == Config.MarkdownFlavor.CommonMark &&
+            // GFM autolinks bare URLs, so a raw <a> would have its URL text re-linked by the
+            // renderer; for GitHub, let <a> become a markdown link instead.
+            var passthroughTag = InlineHtmlTags.Contains(tag) &&
+                                 !(tag == "a" && _config.Flavor == Config.MarkdownFlavor.GitHub);
+            if (Config.IsCommonMarkBased(_config.Flavor) &&
                 _config.CommonMarkUseHtmlInlineTags &&
-                InlineHtmlTags.Contains(tag))
+                passthroughTag)
             {
                 // For an INLINE element, keep the open/close tags raw but emit text content as
                 // escaped markdown (so markdown-significant chars in the text aren't reinterpreted

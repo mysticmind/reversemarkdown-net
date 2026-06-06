@@ -16,11 +16,11 @@ namespace ReverseMarkdown.Writers
     }
 
     /// <summary>
-    /// GitHub Flavored Markdown writer. The base already produces GFM-compatible output
-    /// (fenced code, pipe tables, <c>~~</c> strikethrough, task lists), so this is currently a
-    /// thin specialization — the clearest demonstration that GFM ≈ the base flavor.
+    /// GitHub Flavored Markdown writer. GFM is CommonMark + extensions, so it inherits the
+    /// CommonMark text handling (escaping, soft breaks, line-start escaping) and adds the GFM
+    /// extensions (pipe tables, task lists, <c>~~</c> strikethrough, autolinks) from the base.
     /// </summary>
-    public sealed class GithubWriter : MarkdownWriterBase
+    public sealed class GithubWriter : CommonMarkWriter
     {
         public GithubWriter(Config config) : base(config)
         {
