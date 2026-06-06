@@ -369,7 +369,9 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdImage node)
         {
-            Buffer.Append("![").Append(node.Alt).Append("](").Append(EncodeLinkDestination(node.Url));
+            var alt = node.Alt
+                .Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
+            Buffer.Append("![").Append(alt).Append("](").Append(EncodeLinkDestination(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
             {
                 Buffer.Append(" \"").Append(EncodeTitle(node.Title)).Append('"');
