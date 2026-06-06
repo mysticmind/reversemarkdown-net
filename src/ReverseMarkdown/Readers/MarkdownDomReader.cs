@@ -181,11 +181,11 @@ namespace ReverseMarkdown.Readers
                 _config.CommonMarkUseHtmlInlineTags &&
                 InlineHtmlTags.Contains(tag))
             {
-                // For an INLINE <a>, keep the open/close tags raw but emit text content as escaped
-                // markdown (so backslashes/backticks in the link text aren't re-escaped by the
-                // renderer) and child elements raw. A block-level <a> is a verbatim HTML block, so
-                // it falls through to full raw OuterHtml below.
-                if (tag == "a" && element.ChildNodes.Length > 0 && ctx.CurrentAcceptsInline)
+                // For an INLINE element, keep the open/close tags raw but emit text content as
+                // escaped markdown (so markdown-significant chars in the text aren't reinterpreted
+                // by the renderer) and child elements raw (so nested raw HTML still round-trips).
+                // A block-level element is a verbatim HTML block, so it falls through to full raw.
+                if (element.ChildNodes.Length > 0 && ctx.CurrentAcceptsInline)
                 {
                     ctx.Emit(new MdRawInline(StartTag(element)) { SourceTag = tag });
                     foreach (var child in element.ChildNodes)
