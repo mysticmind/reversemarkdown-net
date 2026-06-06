@@ -173,6 +173,10 @@ namespace ReverseMarkdown.Writers
         // Pandoc treats -, *, + as one list type, so adjacent lists need an explicit separator.
         protected override string? ListSeparatorComment => "<!-- -->";
 
+        // Pandoc folds a tight blockquote/code/heading into the preceding paragraph as a lazy
+        // continuation, so a list item's continuation blocks need a blank line before them.
+        protected override bool ForceBlankLineBeforeItemBlock => true;
+
         public override void Visit(MdCitation node)
         {
             if (!string.IsNullOrEmpty(node.Key))

@@ -516,9 +516,11 @@ namespace ReverseMarkdown.Writers
         }
 
         /// <summary>
-        /// Render a list item's block children. In a loose item, consecutive non-list blocks
-        /// (e.g. multiple paragraphs) are separated by a blank line; a tight item — or a nested
-        /// list — joins with a single newline so it indents on the next line.
+        /// Render a list item's block children. A nested list attaches on the next line (a single
+        /// newline) because its bullet/number identifies it; any other block — a second paragraph,
+        /// a blockquote, a code block, a heading — needs a blank line before it, or the reader
+        /// folds it into the preceding paragraph as a lazy continuation. The tight flag only
+        /// governs a single trailing nested list, which a tight item joins without a blank line.
         /// </summary>
         protected void WriteItemBlocks(IEnumerable<MdBlock> blocks, bool tight = true)
         {
@@ -527,14 +529,21 @@ namespace ReverseMarkdown.Writers
             {
                 if (i > 0)
                 {
-                    // Tight items join blocks with a single newline; loose items use a blank line
-                    // (a nested list still attaches because it is indented).
-                    Buffer.Append(tight ? "\n" : "\n\n");
+                    // Loose items always blank-line between blocks; a tight item joins with a single
+                    // newline. Some flavors (Pandoc) lazily fold a tight blockquote/code/heading
+                    // onto the previous paragraph, so they force a blank line before such a block.
+                    var forceBlank = ForceBlankLineBeforeItemBlock && list[i] is not MdList;
+                    Buffer.Append(!tight || forceBlank ? "\n\n" : "\n");
                 }
 
                 list[i].Accept(this);
             }
         }
+
+        /// <summary>Whether a tight list item must blank-line before a non-list continuation block
+        /// (blockquote, code, heading, extra paragraph). CommonMark/GFM keep them attached with a
+        /// single newline; Pandoc folds them as lazy continuations unless a blank line separates.</summary>
+        protected virtual bool ForceBlankLineBeforeItemBlock => false;
 
         protected void WriteInline(IEnumerable<MdInline> inlines)
         {
