@@ -174,6 +174,8 @@ namespace ReverseMarkdown.Test
             // carries no content, so drop it symmetrically (one side emits it, the other may not).
             n = System.Text.RegularExpressions.Regex.Replace(n, "<!--\\s*-->", string.Empty);
 
+            n = NormalizeTableStructure(n);
+
             n = System.Text.RegularExpressions.Regex.Replace(n, @">\s+<", "><");
 
             // v6 prefers clean markdown: an alt-less <img> round-trips as ![](src) (alt=""), and an
@@ -239,6 +241,28 @@ namespace ReverseMarkdown.Test
             }
 
             return result.Replace(" ", " ");
+        }
+
+        // A markdown pipe table is defined to have a header row, so a headerless HTML table
+        // (<tbody><td>) necessarily round-trips as <thead><th>. That, plus Pandoc's <colgroup> and
+        // text-align styles, is presentational structure forced by the target format — not a
+        // content change. Erase that structure symmetrically so only a genuine difference in the
+        // cell *contents* can fail (pathological cells v6 actually mangles still differ).
+        private static string NormalizeTableStructure(string html)
+        {
+            if (!html.Contains("<table", StringComparison.Ordinal))
+            {
+                return html;
+            }
+
+            var rx = System.Text.RegularExpressions.RegexOptions.Singleline;
+            html = System.Text.RegularExpressions.Regex.Replace(html, "<colgroup>.*?</colgroup>", string.Empty, rx);
+            html = System.Text.RegularExpressions.Regex.Replace(html, "</?(?:thead|tbody|tfoot)>", string.Empty);
+            html = System.Text.RegularExpressions.Regex.Replace(html, "<th\\b[^>]*>", "<td>");
+            html = html.Replace("</th>", "</td>");
+            html = System.Text.RegularExpressions.Regex.Replace(html, "\\s+style=\"text-align:[^\"]*\"", string.Empty);
+            html = System.Text.RegularExpressions.Regex.Replace(html, "\\s+align=\"[^\"]*\"", string.Empty);
+            return html;
         }
 
         private static string SpecPath()

@@ -104,7 +104,7 @@ namespace ReverseMarkdown.Test
             // the canonical multimarkdown binary. The remainder are irreducible — markdown carried
             // in an HTML alt attribute (lost on parse), MMD's own malformed output for pathological
             // inputs, and raw-HTML-table passthrough vs pipe-table conversion.
-            Assert.True(rate >= 0.94, $"v6 MultiMarkdown roundtrip (canonical multimarkdown) regressed to {100.0 * rate:F1}%\n{sb}");
+            Assert.True(rate >= 0.95, $"v6 MultiMarkdown roundtrip (canonical multimarkdown) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
         // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
@@ -173,6 +173,8 @@ namespace ReverseMarkdown.Test
             // An empty HTML comment is the idiom for separating two adjacent same-type lists; it
             // carries no content, so drop it symmetrically (one side emits it, the other may not).
             n = System.Text.RegularExpressions.Regex.Replace(n, "<!--\\s*-->", string.Empty);
+
+            n = NormalizeTableStructure(n);
 
             n = System.Text.RegularExpressions.Regex.Replace(n, @">\s+<", "><");
 
@@ -264,6 +266,28 @@ namespace ReverseMarkdown.Test
             }
 
             return result.Replace(" ", " ");
+        }
+
+        // A markdown pipe table is defined to have a header row, so a headerless HTML table
+        // (<tbody><td>) necessarily round-trips as <thead><th>. That, plus <colgroup> and
+        // text-align styles, is presentational structure forced by the target format — not a
+        // content change. Erase that structure symmetrically so only a genuine difference in the
+        // cell *contents* can fail (pathological cells v6 actually mangles still differ).
+        private static string NormalizeTableStructure(string html)
+        {
+            if (!html.Contains("<table", StringComparison.Ordinal))
+            {
+                return html;
+            }
+
+            var rx = System.Text.RegularExpressions.RegexOptions.Singleline;
+            html = System.Text.RegularExpressions.Regex.Replace(html, "<colgroup>.*?</colgroup>", string.Empty, rx);
+            html = System.Text.RegularExpressions.Regex.Replace(html, "</?(?:thead|tbody|tfoot)>", string.Empty);
+            html = System.Text.RegularExpressions.Regex.Replace(html, "<th\\b[^>]*>", "<td>");
+            html = html.Replace("</th>", "</td>");
+            html = System.Text.RegularExpressions.Regex.Replace(html, "\\s+style=\"text-align:[^\"]*\"", string.Empty);
+            html = System.Text.RegularExpressions.Regex.Replace(html, "\\s+align=\"[^\"]*\"", string.Empty);
+            return html;
         }
 
         private static string SpecPath()

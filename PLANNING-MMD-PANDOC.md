@@ -1043,8 +1043,8 @@ binaries** over the 651-example commonmark.json corpus:
 |--------|------------------|-------|-----|
 | CommonMark | cmark-gfm | — | **100%** (651/651, gated) |
 | GitHub (GFM) | cmark-gfm (per-section flags) | — | **100%** (672/672, gated) |
-| MultiMarkdown | `multimarkdown --snippet --nosmart` | 81.9% | **94.6%** (616/651, gated ≥0.94) |
-| Pandoc | `pandoc -f … -t html --wrap=none` | 84.2% | **91.2%** (594/651, gated ≥0.91) |
+| MultiMarkdown | `multimarkdown --snippet --nosmart` | 81.9% | **95.1%** (619/651, gated ≥0.95) |
+| Pandoc | `pandoc -f … -t html --wrap=none` | 84.2% | **91.7%** (597/651, gated ≥0.91) |
 
 ### Real conversion fixes (shared base / readers)
 - List-item continuation indent: 4-space tab stop for MMD (vs CommonMark marker width).
@@ -1068,9 +1068,12 @@ empty `<a>`/inline-pair adoption artifacts, Pandoc `<ol type="1">` default style
   was `*foo* bar` — information lost on HTML parse.
 - **malformed reference-tool output** (Links ~5): MMD/Pandoc emit broken HTML (e.g.
   `<a href="</my">`) for pathological link markdown; no converter round-trips it.
-- **raw-HTML-table passthrough vs pipe-table conversion** (HTML blocks, both): the reference
-  tools keep a raw `<table>` as `<tbody><td>`; v6 converts to a pipe table that re-renders as
-  `<thead><th>`. v6's conversion is the *correct* behavior for issue #79's structured-output
-  goal; the byte-roundtrip penalty is a metric artifact.
+- **raw-HTML-table conversion** (HTML blocks, both): the reference tools keep a raw `<table>`
+  as `<tbody><td>`; v6 converts to a pipe table that re-renders as `<thead><th>`. A markdown
+  pipe table is *defined* to have a header row, so this structural difference is forced by the
+  target format, not a conversion error. The harness now normalizes table *structure*
+  (thead/tbody, th↔td, colgroup, align styles) symmetrically, so simple tables pass and only
+  genuinely lossy cells (multi-line / nested-block content that cannot be a pipe cell) still
+  fail — which is the correct signal.
 - **tool-internal asymmetries** (Pandoc code spans/tabs): Pandoc's HTML reader collapses inline
   code whitespace / expands tabs differently than its markdown reader.
