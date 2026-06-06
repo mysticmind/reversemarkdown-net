@@ -155,7 +155,7 @@ namespace ReverseMarkdown.Writers
     /// Pandoc writer. Renders Pandoc-native constructs the base degrades — currently
     /// subscript (<c>~x~</c>). Fenced divs/bracketed spans/heading attrs land in Phase E.
     /// </summary>
-    public sealed class PandocWriter : MarkdownWriterBase
+    public sealed class PandocWriter : CommonMarkWriter
     {
         public PandocWriter(Config config) : base(config)
         {

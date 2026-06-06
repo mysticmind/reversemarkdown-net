@@ -739,6 +739,13 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
+            // Pandoc preserves an unclassed <div> as a raw HTML block.
+            if (element.LocalName == "div" && ctx.Config.Flavor == Config.MarkdownFlavor.Pandoc)
+            {
+                ctx.Emit(new MdHtmlBlock(element.OuterHtml) { SourceTag = element.LocalName });
+                return;
+            }
+
             ctx.ReadChildren(element);
         }
     }
