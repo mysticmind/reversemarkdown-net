@@ -180,6 +180,7 @@ namespace ReverseMarkdown.Dom
 
         public string Literal { get; set; }
         public string? Language { get; set; }
+        public bool LanguageIsAttribute { get; set; }
 
         public override void Accept(IMdVisitor visitor) => visitor.Visit(this);
 

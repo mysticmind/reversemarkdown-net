@@ -1,3 +1,4 @@
+using System;
 using ReverseMarkdown.Dom;
 using ReverseMarkdown.Helpers;
 
@@ -168,6 +169,8 @@ namespace ReverseMarkdown.Writers
         {
         }
 
+        protected override bool EscapeAtSigns => true;
+
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);
 
         // Pandoc treats -, *, + as one list type, so adjacent lists need an explicit separator.
@@ -229,6 +232,48 @@ namespace ReverseMarkdown.Writers
             Buffer.Append(delimiter).Append(node.Literal).Append(delimiter);
         }
 
+        public override void Visit(MdCodeBlock node)
+        {
+            if (node.Literal.IndexOf('\t') >= 0)
+            {
+                Buffer.Append("<pre><code>")
+                    .Append(EscapeRawHtmlText(TrimSingleTrailingNewline(node.Literal)))
+                    .Append("</code></pre>");
+                return;
+            }
+
+            var literal = node.Literal.Length > 0 && node.Literal[0] == '\n'
+                ? node.Literal.Substring(1)
+                : node.Literal;
+            WriteFencedCodeBlock(literal, node.Language, node.LanguageIsAttribute);
+        }
+
+        public override void Visit(MdInlineCode node)
+        {
+            var literal = node.Literal;
+            if (literal.Length > 0 && (literal[0] == ' ' || literal[^1] == ' '))
+            {
+                Buffer.Append("<code>").Append(EscapeRawHtmlText(literal)).Append("</code>");
+                return;
+            }
+
+            base.Visit(node);
+        }
+
+        public override void Visit(MdLink node)
+        {
+            if (node.Title?.IndexOf('\n') >= 0)
+            {
+                Buffer.Append("<a href=\"").Append(EscapeRawHtmlAttribute(node.Url)).Append("\" title=\"")
+                    .Append(EscapeRawHtmlAttribute(node.Title)).Append("\">")
+                    .Append(EscapeRawHtmlText(Capture(() => WriteInline(node.Children))))
+                    .Append("</a>");
+                return;
+            }
+
+            base.Visit(node);
+        }
+
         public override void Visit(MdHeading node)
         {
             base.Visit(node);
@@ -281,6 +326,71 @@ namespace ReverseMarkdown.Writers
             }
 
             Buffer.Append("---\n\n");
+        }
+
+        private static string EscapeRawHtmlText(string text) => text
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+
+        private static string EscapeRawHtmlAttribute(string text) => EscapeRawHtmlText(text).Replace("\"", "&quot;");
+
+        private void WriteFencedCodeBlock(string literal, string? language, bool languageIsAttribute)
+        {
+            var fence = new string('`', System.Math.Max(3, LongestBacktickRun(literal) + 1));
+            Buffer.Append(fence);
+            if (!string.IsNullOrEmpty(language))
+            {
+                if (languageIsAttribute)
+                {
+                    Buffer.Append("{language=\"").Append(language.Replace("\"", "\\\"")).Append("\"}");
+                }
+                else
+                {
+                    Buffer.Append(language);
+                }
+            }
+
+            Buffer.Append('\n').Append(literal);
+            if (literal.Length == 0 || literal[^1] != '\n')
+            {
+                Buffer.Append('\n');
+            }
+
+            Buffer.Append(fence);
+        }
+
+        private static int LongestBacktickRun(string text)
+        {
+            var longest = 0;
+            var current = 0;
+            foreach (var ch in text)
+            {
+                if (ch == '`')
+                {
+                    current++;
+                    if (current > longest)
+                    {
+                        longest = current;
+                    }
+                }
+                else
+                {
+                    current = 0;
+                }
+            }
+
+            return longest;
+        }
+
+        private static string TrimSingleTrailingNewline(string text)
+        {
+            if (text.EndsWith("\r\n", StringComparison.Ordinal))
+            {
+                return text.Substring(0, text.Length - 2);
+            }
+
+            return text.EndsWith("\n", StringComparison.Ordinal) ? text.Substring(0, text.Length - 1) : text;
         }
     }
 

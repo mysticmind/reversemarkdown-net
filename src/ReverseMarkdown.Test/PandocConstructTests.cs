@@ -50,6 +50,41 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void Pandoc_preserves_inline_code_edge_spaces_with_raw_code()
+        {
+            Assert.Equal("<code> a</code>",
+                Render("<p><code> a</code></p>", Config.MarkdownFlavor.Pandoc));
+        }
+
+        [Fact]
+        public void Pandoc_preserves_tabs_in_code_blocks_with_raw_pre()
+        {
+            Assert.Equal("<pre><code>foo\tbaz</code></pre>",
+                Render("<pre><code>foo\tbaz\n</code></pre>", Config.MarkdownFlavor.Pandoc));
+        }
+
+        [Fact]
+        public void Pandoc_pre_language_attribute_is_not_syntax_highlight_class()
+        {
+            Assert.Equal("```{language=\"haskell\"}\nmain = pure ()\n```",
+                Render("<pre language=\"haskell\"><code>main = pure ()\n</code></pre>", Config.MarkdownFlavor.Pandoc));
+        }
+
+        [Fact]
+        public void Pandoc_preserves_multiline_link_titles_as_raw_anchor()
+        {
+            Assert.Equal("<a href=\"/url\" title=\"\ntitle\nline1\n\">foo</a>",
+                Render("<p><a href=\"/url\" title=\"\ntitle\nline1\n\">foo</a></p>", Config.MarkdownFlavor.Pandoc));
+        }
+
+        [Fact]
+        public void Pandoc_escapes_literal_at_signs_to_avoid_citations()
+        {
+            Assert.Equal("&lt;foo+\\@bar.example.com&gt;",
+                Render("<p>&lt;foo+@bar.example.com&gt;</p>", Config.MarkdownFlavor.Pandoc));
+        }
+
+        [Fact]
         public void Default_bracketed_span_degrades_to_content()
         {
             Assert.Equal("a hi b",

@@ -14,6 +14,8 @@ namespace ReverseMarkdown.Writers
         {
         }
 
+        protected virtual bool EscapeAtSigns => Config.Flavor == Config.MarkdownFlavor.Pandoc;
+
         protected override void WriteText(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -46,6 +48,11 @@ namespace ReverseMarkdown.Writers
             if (Config.Flavor is Config.MarkdownFlavor.GitHub or Config.MarkdownFlavor.Pandoc)
             {
                 content = content.Replace("!", "\\!");
+            }
+
+            if (EscapeAtSigns)
+            {
+                content = content.Replace("@", "\\@");
             }
 
             // A blank line inside one text run must stay within the paragraph: encode as &#10;.

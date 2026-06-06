@@ -498,10 +498,19 @@ namespace ReverseMarkdown.Readers
         {
             var codeNode = element.QuerySelector("code") ?? element;
 
+            var language = DetectLanguage(codeNode);
+            var languageIsAttribute = false;
+            if (language is null)
+            {
+                language = element.GetAttribute("language");
+                languageIsAttribute = language is not null;
+            }
+
             ctx.Emit(new MdCodeBlock(codeNode.TextContent)
             {
                 SourceTag = element.LocalName,
-                Language = DetectLanguage(codeNode),
+                Language = language,
+                LanguageIsAttribute = languageIsAttribute,
             });
         }
 
