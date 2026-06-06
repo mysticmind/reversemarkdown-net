@@ -2,12 +2,12 @@
 
 - Status: **Accepted**
 - Date: 2026-06-05
-- Supersedes (for the v6 path only): HtmlAgilityPack
+- Supersedes: HtmlAgilityPack
 - Context branch: `feature/v6-markdown-dom`
 
 ## Context
 
-v5 parses HTML with HtmlAgilityPack (HAP) and exposes `HtmlNode` through `IConverter`.
+v5 parsed HTML with HtmlAgilityPack (HAP) and exposed `HtmlNode` through `IConverter`.
 The v6 reader stage is the *only* place the HTML parser is touched — everything downstream
 (Markdown DOM, writers, the parity harness) is parser-agnostic. Since the readers are
 being rewritten for v6 anyway, this is the cheapest moment to reconsider the parser; after
@@ -24,13 +24,12 @@ Two pressures motivated the change:
 
 ## Decision
 
-Use **AngleSharp** (WHATWG HTML5-compliant parser) for the v6 reader path.
+Use **AngleSharp** (WHATWG HTML5-compliant parser) for the reader path.
 `IMdReader.Read` takes AngleSharp's `IElement`; text/comment nodes are dispatched by
 `MarkdownDomReader`. `Converter.Parse` parses with a reusable `HtmlParser` and reads
 `document.Body`.
 
-HtmlAgilityPack **remains** for the v5 `Convert` path until the Phase D flip, so the v5
-path stays a stable parity oracle. Both parsers are dependencies during migration.
+HtmlAgilityPack and the v5 `IConverter`/`HtmlNode` path were removed at the Phase D flip.
 
 ## Consequences
 
@@ -47,10 +46,8 @@ path stays a stable parity oracle. Both parsers are dependencies during migratio
 - New runtime dependency (`AngleSharp`) on the main library.
 - Public-API break for the v6 reader surface: `IMdReader` exposes `IElement`, not
   `HtmlNode`. Appropriate for a major version.
-- Two HTML parsers loaded during migration (until Phase D removes HAP with the v5 path).
-- The parity harness now compares two *different* parse trees (HAP-v5 vs AngleSharp-v6), so
-  some informational diffs originate in the parser. Acceptable: byte parity is out of scope
-  and the harness gate is content-preservation, which survives parser-tree differences.
+- The parity harness no longer has the old HAP path as a runtime oracle; v6 correctness is gated
+  against canonical flavor renderers and reviewed fixture rebaselines.
 - AngleSharp builds a richer DOM (somewhat heavier than HAP). Not a concern for 6.0.
 
 ### Notes
@@ -61,5 +58,5 @@ path stays a stable parity oracle. Both parsers are dependencies during migratio
 
 ## Validation
 
-Swap landed with the v6 reader suite + parity harness green (full suite 230/230). The v5
-`Convert` path and its ~209 snapshot tests are untouched.
+Swap landed with the v6 reader suite, canonical flavor gates, and benchmark evidence. The v5
+`Convert` path has been removed for v6.

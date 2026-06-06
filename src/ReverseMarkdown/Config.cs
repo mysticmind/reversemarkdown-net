@@ -55,14 +55,6 @@ namespace ReverseMarkdown
         internal static bool PreservesInlineRawHtml(MarkdownFlavor flavor) =>
             IsCommonMarkBased(flavor) || flavor is MarkdownFlavor.MultiMarkdown;
 
-        /// <summary>
-        /// EXPERIMENTAL (v6): when true, <see cref="Converter.Convert"/> routes through the
-        /// Markdown DOM path (<see cref="Converter.Parse"/> + <see cref="Converter.Render(Dom.MarkdownDocument)"/>)
-        /// using <see cref="Flavor"/>. Default false keeps the v5 path. This is the opt-in
-        /// migration switch ahead of the eventual v6 default; see docs/v6/migration.md.
-        /// </summary>
-        public bool UseMarkdownDom { get; set; } = false;
-
         public bool SlackFlavored { get; set; } = false;
 
         /// <summary>

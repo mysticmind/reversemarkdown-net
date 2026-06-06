@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using AngleSharp.Html.Parser;
-using HtmlAgilityPack;
-using ReverseMarkdown.Converters;
 using ReverseMarkdown.Dom;
-using ReverseMarkdown.Helpers;
 using ReverseMarkdown.Readers;
 using ReverseMarkdown.Writers;
 
@@ -19,21 +14,9 @@ namespace ReverseMarkdown {
     /// Converts HTML to Markdown. Thread-safe for concurrent use.
     /// </summary>
     public class Converter {
-        protected readonly IDictionary<string, IConverter> Converters = new Dictionary<string, IConverter>();
-        protected readonly IConverter PassThroughTagsConverter;
-        protected readonly IConverter DropTagsConverter;
-        protected readonly IConverter ByPassTagsConverter;
-        private readonly Dictionary<string, UnknownTagReplacer> _unknownTagReplacerConverters = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, AliasTagConverter> _tagAliasConverters = new(StringComparer.OrdinalIgnoreCase);
-
-        private readonly System.Threading.AsyncLocal<ConverterContext?> _context = new();
-
-        // v6 Markdown DOM path: AngleSharp parser (reusable across parses).
+        // AngleSharp parser and Markdown DOM reader are reusable across parses.
         private readonly HtmlParser _htmlParser = new();
-        private readonly Assembly[]? _additionalAssemblies;
         private readonly MarkdownDomReader _markdownDomReader;
-
-        public ConverterContext Context => _context.Value ??= new ConverterContext();
 
         public Converter() : this(new Config())
         {
@@ -46,162 +29,60 @@ namespace ReverseMarkdown {
         public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
             Config = config;
-            _additionalAssemblies = additionalAssemblies;
-            _markdownDomReader = new MarkdownDomReader(Config, _additionalAssemblies);
-
-            var assemblies = new List<Assembly>() {
-                typeof(IConverter).GetTypeInfo().Assembly
-            };
-
-            if (!(additionalAssemblies is null))
-                assemblies.AddRange(additionalAssemblies);
-
-            var types = new List<Type>();
-            // instantiate all converters excluding the unknown tags converters
-            foreach (var assembly in assemblies) {
-                foreach (var converterType in assembly.GetTypes()
-                             .Where(t => t.GetTypeInfo().GetInterfaces().Contains(typeof(IConverter)) &&
-                                         !t.GetTypeInfo().IsAbstract
-                                         && t != typeof(PassThrough)
-                                         && t != typeof(Drop)
-                                         && t != typeof(ByPass))) {
-                    // Check to see if any existing types are children/equal to
-                    // the type to add.
-                    if (types.Any(e => converterType.IsAssignableFrom(e)))
-                        // If they are, ignore the type.
-                        continue;
-
-                    // See if there is a type that is a parent of the
-                    // current type.
-                    var toRemove = types.FirstOrDefault(e => e.IsAssignableFrom(converterType));
-                    // if there is ...
-                    if (!(toRemove is null))
-                        // ... remove the parent.
-                        types.Remove(toRemove);
-
-                    // finally, add the type.
-                    types.Add(converterType);
-                }
-            }
-
-            // For each type to register ...
-            foreach (var converterType in types) {
-                var ctor = converterType.GetConstructor(new[] { typeof(Converter) });
-                if (ctor is null) {
-                    continue;
-                }
-
-                // ... activate them
-                Activator.CreateInstance(converterType, this);
-            }
-
-            // register the unknown tags converters
-            PassThroughTagsConverter = new PassThrough(this);
-            DropTagsConverter = new Drop(this);
-            ByPassTagsConverter = new ByPass(this);
+            _markdownDomReader = new MarkdownDomReader(Config, additionalAssemblies);
         }
 
         public Config Config { get; protected set; }
 
+        /// <summary>
+        /// The flavor actually used to render. The legacy boolean switches
+        /// (<see cref="Config.SlackFlavored"/>, <see cref="Config.TelegramMarkdownV2"/>) select
+        /// their dedicated writer; otherwise <see cref="Config.Flavor"/> applies.
+        /// </summary>
+        internal Config.MarkdownFlavor EffectiveFlavor =>
+            Config.SlackFlavored ? Config.MarkdownFlavor.Slack
+            : Config.TelegramMarkdownV2 ? Config.MarkdownFlavor.Telegram
+            : Config.Flavor;
+
         public virtual string Convert(string html)
         {
-            using var _ = EnsureContext();
-
-            // v6 opt-in: route through the Markdown DOM path. The v5 path below is the default
-            // until v6 reaches CommonMark-spec + escaping parity (see docs/v6/migration.md).
-            if (Config.UseMarkdownDom)
+            var flavor = EffectiveFlavor;
+            if (flavor == Config.MarkdownFlavor.Slack)
             {
-                if (Config.IsCommonMarkBased(Config.Flavor))
+                // Slack has no tables. A well-formed <table> raises in the writer (MdTable), but the
+                // HTML5 parser silently discards orphan <td>/<tr>/<th> before the reader sees them,
+                // so guard those tags here to keep v5's "unsupported tag" behavior.
+                var orphan = OrphanTablePart.Match(html);
+                if (orphan.Success)
                 {
-                    // CommonMark passes block-level / leading-close-tag / comment HTML through verbatim.
-                    var normalized = html.ReplaceLineEndings("\n");
-                    if (LooksLikeCommonMarkHtmlBlock(normalized))
-                    {
-                        return ApplyOutputLineEndings(normalized);
-                    }
+                    throw new SlackUnsupportedTagException(orphan.Groups[1].Value.ToLowerInvariant());
+                }
+            }
 
-                    var trimmed = normalized.TrimStart('﻿', ' ', '\t', '\r', '\n');
-                    if (trimmed.StartsWith("</", StringComparison.Ordinal) ||
-                        normalized.Contains("<!--", StringComparison.Ordinal) ||
-                        normalized.Contains("<![CDATA[", StringComparison.Ordinal))
-                    {
-                        return ApplyOutputLineEndings(normalized);
-                    }
+            if (Config.IsCommonMarkBased(flavor))
+            {
+                // CommonMark passes block-level / leading-close-tag / comment HTML through verbatim.
+                var normalized = html.ReplaceLineEndings("\n");
+                if (LooksLikeCommonMarkHtmlBlock(normalized))
+                {
+                    return ApplyOutputLineEndings(normalized);
                 }
 
-                return Render(Parse(html, collectMetadata: EmitsMetadata(Config.Flavor)), Config.Flavor);
-            }
-
-            html = html.ReplaceLineEndings("\n");
-
-            if (Config.CommonMark && LooksLikeCommonMarkHtmlBlock(html)) {
-                return ApplyOutputLineEndings(html);
-            }
-
-            if (Config.CommonMark) {
-                var trimmed = html.TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+                var trimmed = normalized.TrimStart('﻿', ' ', '\t', '\r', '\n');
                 if (trimmed.StartsWith("</", StringComparison.Ordinal) ||
-                    html.Contains("<!--", StringComparison.Ordinal) ||
-                    html.Contains("<![CDATA[", StringComparison.Ordinal)) {
-                    return ApplyOutputLineEndings(html);
-                }
-
-                var paragraphTrimmed = html.Trim();
-                if (paragraphTrimmed.StartsWith("<p>", StringComparison.OrdinalIgnoreCase) &&
-                    paragraphTrimmed.EndsWith("</p>", StringComparison.OrdinalIgnoreCase)) {
-                    var inner = paragraphTrimmed.Substring(3, paragraphTrimmed.Length - 7);
-                    if (inner.TrimStart().StartsWith("</", StringComparison.Ordinal)) {
-                        return ApplyOutputLineEndings(inner);
-                    }
+                    normalized.Contains("<!--", StringComparison.Ordinal) ||
+                    normalized.Contains("<![CDATA[", StringComparison.Ordinal))
+                {
+                    return ApplyOutputLineEndings(normalized);
                 }
             }
 
-            if (Config.CommonMark) {
-                html = html.Replace("\u00A0", "&nbsp;");
-            }
-
-            html = Cleaner.PreTidy(html, Config.RemoveComments);
-
-            var doc = new HtmlDocument();
-            doc.LoadHtml(html);
-
-            var root = doc.DocumentNode;
-
-            // ensure to start from body and ignore head etc
-            if (root.Descendants("body").Any()) {
-                root = root.SelectSingleNode("//body");
-            }
-
-            var result = ConvertNode(root);
-
-            if (!Config.CommonMark) {
-                // cleanup multiple new lines
-                result = Regex.Replace(result, @"(^\p{Zs}*(\r\n|\n)){2,}", Environment.NewLine, RegexOptions.Multiline);
-            }
-
-            if (Config.SlackFlavored) {
-                result = Cleaner.SlackTidy(result);
-            }
-
-            if (!Config.CleanupUnnecessarySpaces) {
-                return ApplyOutputLineEndings(result);
-            }
-
-            if (Config.CommonMark) {
-                result = result.TrimEnd();
-                result = result.TrimStart('\r', '\n');
-                return ApplyOutputLineEndings(result);
-            }
-
-            return ApplyOutputLineEndings(result.Trim().FixMultipleNewlines());
+            return Render(Parse(html, collectMetadata: EmitsMetadata(flavor)), flavor);
         }
 
-        // ----- v6 Markdown DOM path (experimental; additive, does not affect Convert) -----
-
         /// <summary>
-        /// EXPERIMENTAL (v6 preview): parse HTML into a mutable <see cref="MarkdownDocument"/>
-        /// you can traverse, filter and reshape before rendering. Uses AngleSharp's
-        /// HTML5-compliant parser. See docs/v6/.
+        /// Parse HTML into a mutable <see cref="MarkdownDocument"/> you can traverse, filter and
+        /// reshape before rendering. Uses AngleSharp's HTML5-compliant parser.
         /// </summary>
         public virtual MarkdownDocument Parse(string html)
         {
@@ -284,14 +165,13 @@ namespace ReverseMarkdown {
         }
 
         /// <summary>
-        /// EXPERIMENTAL (v6 preview): render a <see cref="MarkdownDocument"/> to markdown
-        /// using the writer selected by <see cref="Config.Flavor"/>.
+        /// Render a <see cref="MarkdownDocument"/> to markdown using the writer selected by
+        /// <see cref="Config.Flavor"/>.
         /// </summary>
-        public virtual string Render(MarkdownDocument document) => Render(document, Config.Flavor);
+        public virtual string Render(MarkdownDocument document) => Render(document, EffectiveFlavor);
 
         /// <summary>
-        /// EXPERIMENTAL (v6 preview): render a <see cref="MarkdownDocument"/> to markdown in
-        /// the given flavor. Flavors without a dedicated writer yet fall back to the default.
+        /// Render a <see cref="MarkdownDocument"/> to markdown in the given flavor.
         /// </summary>
         public virtual string Render(MarkdownDocument document, Config.MarkdownFlavor flavor)
         {
@@ -323,171 +203,15 @@ namespace ReverseMarkdown {
             return HtmlBlockStart.IsMatch(trimmed);
         }
 
+        private static readonly Regex OrphanTablePart = new(
+            @"<(td|tr|th)(\s|/|>)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled
+        );
+
         private static readonly Regex HtmlBlockStart = new(
             @"^\s*<\/?(div|table|pre|script|style|iframe|article|section|header|footer|nav|aside|blockquote|h[1-6]|hr|details|summary|figure|figcaption|main|form|center|address|body|html|head|link|meta|title|tbody|thead|tfoot|tr|td|th)\b",
             RegexOptions.IgnoreCase | RegexOptions.Compiled
         );
 
-        public virtual void Register(string tagName, IConverter converter)
-        {
-            Converters[tagName] = converter;
-        }
-
-        internal int MesureCapacity(HtmlNode node)
-        {
-            var startIndex = Math.Max(0, node.InnerStartIndex);
-            var endNode = (node.EndNode ?? node.LastChild);
-            var endIndex = Math.Max(startIndex, endNode.OuterStartIndex + endNode.OuterLength);
-            var length = endIndex - startIndex;
-            if (length < 10) length = 100;
-
-            var capacity = (int) (length * 0.8);
-            return capacity;
-        }
-
-        internal StringWriter CreateWriter(HtmlNode node)
-        {
-            var capacity = MesureCapacity(node);
-            // TODO : use a pooled StringBuilder to further cut down memory allocations
-            // important: find a way to select the best instance form pool based on the capacity needed
-            var sb = new StringBuilder(capacity);
-            var writer = new StringWriter(sb);
-            return writer;
-        }
-
-        public virtual string ConvertNode(HtmlNode node)
-        {
-            using var _ = EnsureContext();
-            using var writer = CreateWriter(node);
-            ConvertNode(writer, node);
-            return writer.GetStringBuilder().ToString();
-        }
-
-        public virtual void ConvertNode(TextWriter writer, HtmlNode node)
-        {
-            using var _ = EnsureContext();
-            var converter = Lookup(node.Name);
-            Context.Enter(node);
-            converter.Convert(writer, node);
-            Context.Leave(node);
-        }
-
-        public virtual IConverter Lookup(string tagName)
-        {
-            // if a tag is in the pass through list then use the pass through tags converter
-            if (Config.PassThroughTags.Contains(tagName)) {
-                return PassThroughTagsConverter;
-            }
-
-            if (Converters.TryGetValue(tagName, out var converter)) {
-                return converter;
-            }
-
-            var aliasTargetTag = ResolveAliasTarget(tagName);
-            if (aliasTargetTag is not null) {
-                return GetAliasConverter(tagName, aliasTargetTag);
-            }
-
-            if (Config.UnknownTagsReplacer.TryGetValue(tagName, out var replacement)) {
-                return GetUnknownTagReplacer(tagName, replacement);
-            }
-
-            return GetDefaultConverter(tagName);
-        }
-
-        private IConverter GetUnknownTagReplacer(string tagName, string replacement)
-        {
-            if (_unknownTagReplacerConverters.TryGetValue(tagName, out var converter) &&
-                string.Equals(converter.Replacement, replacement, StringComparison.Ordinal)) {
-                return converter;
-            }
-
-            var replacer = new UnknownTagReplacer(this, tagName, replacement);
-            _unknownTagReplacerConverters[tagName] = replacer;
-            return replacer;
-        }
-
-        private IConverter GetAliasConverter(string tagName, string targetTag)
-        {
-            if (_tagAliasConverters.TryGetValue(tagName, out var converter) &&
-                string.Equals(converter.TargetTag, targetTag, StringComparison.OrdinalIgnoreCase)) {
-                return converter;
-            }
-
-            var alias = new AliasTagConverter(this, tagName, targetTag);
-            _tagAliasConverters[tagName] = alias;
-            return alias;
-        }
-
-        private string? ResolveAliasTarget(string tagName)
-        {
-            if (!Config.TagAliases.TryGetValue(tagName, out var targetTag) || string.IsNullOrWhiteSpace(targetTag)) {
-                return null;
-            }
-
-            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { tagName };
-
-            while (true) {
-                if (string.Equals(targetTag, tagName, StringComparison.OrdinalIgnoreCase)) {
-                    return null;
-                }
-
-                if (!visited.Add(targetTag)) {
-                    return null;
-                }
-
-                if (!Config.TagAliases.TryGetValue(targetTag, out var nextTag) || string.IsNullOrWhiteSpace(nextTag)) {
-                    return targetTag;
-                }
-
-                targetTag = nextTag;
-            }
-        }
-
-        private IConverter GetDefaultConverter(string tagName)
-        {
-            return Config.UnknownTags switch {
-                Config.UnknownTagsOption.PassThrough => PassThroughTagsConverter,
-                Config.UnknownTagsOption.Drop => DropTagsConverter,
-                Config.UnknownTagsOption.Bypass => ByPassTagsConverter,
-                _ => throw new UnknownTagException(tagName)
-            };
-        }
-
-        private IDisposable EnsureContext()
-        {
-            if (_context.Value is not null) {
-                return NoopDisposable.Instance;
-            }
-
-            _context.Value = new ConverterContext();
-            return new ContextScope(_context);
-        }
-
-        private sealed class ContextScope : IDisposable {
-            private readonly System.Threading.AsyncLocal<ConverterContext?> _scope;
-
-            public ContextScope(System.Threading.AsyncLocal<ConverterContext?> scope)
-            {
-                _scope = scope;
-            }
-
-            public void Dispose()
-            {
-                _scope.Value = null;
-            }
-        }
-
-        private sealed class NoopDisposable : IDisposable {
-            public static readonly NoopDisposable Instance = new();
-
-            private NoopDisposable()
-            {
-            }
-
-            public void Dispose()
-            {
-            }
-        }
     }
 }

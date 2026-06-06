@@ -93,7 +93,7 @@ namespace ReverseMarkdown.Test
         public void Inline_code_widens_fence_when_content_has_backtick()
         {
             var converter = new Converter(new Config());
-            // HtmlAgilityPack keeps the backtick literal inside <code>
+            // AngleSharp keeps the backtick literal inside <code>
             var md = converter.Render(converter.Parse("<p><code>a`b</code></p>"));
             Assert.Equal("``a`b``", Norm(md));
         }

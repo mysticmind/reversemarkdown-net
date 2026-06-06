@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760" role="img" aria-labelledby="title desc">
   <title id="title">ReverseMarkdown v5 vs v6 BenchmarkDotNet results</title>
-  <desc id="desc">Horizontal bar charts comparing v5 HtmlAgilityPack and v6 Markdown DOM mean execution time and allocated memory across three HTML fixtures.</desc>
+  <desc id="desc">Horizontal bar charts comparing v5 HtmlAgilityPack and v6 AngleSharp plus Markdown DOM mean execution time and allocated memory across three HTML fixtures.</desc>
   <style>
     text { font-family: Arial, Helvetica, sans-serif; }
     .title { font-size: 24px; font-weight: 700; fill: #111827; }
@@ -18,14 +18,14 @@
 
   <rect width="1000" height="760" fill="#f9fafb" />
   <text x="40" y="42" class="title">ReverseMarkdown v5 vs v6 performance</text>
-  <text x="40" y="66" class="subtitle">BenchmarkDotNet, .NET 9.0, lower is better. v5 baseline = HtmlAgilityPack path, v6 = Markdown DOM path.</text>
+  <text x="40" y="66" class="subtitle">BenchmarkDotNet, .NET 9.0, lower is better. v5 baseline = HtmlAgilityPack path, v6 = AngleSharp + Markdown DOM path.</text>
 
   <rect x="40" y="92" width="920" height="310" class="panel" />
   <text x="70" y="128" class="section">Mean execution time</text>
   <rect x="720" y="111" width="14" height="14" class="v5" />
   <text x="742" y="123" class="label">v5</text>
   <rect x="790" y="111" width="14" height="14" class="v6" />
-  <text x="812" y="123" class="label">v6</text>
+  <text x="812" y="123" class="label">v6 AngleSharp</text>
 
   <line x1="230" y1="155" x2="880" y2="155" class="axis" />
   <line x1="230" y1="155" x2="230" y2="345" class="axis" />
@@ -60,7 +60,7 @@
   <rect x="720" y="451" width="14" height="14" class="v5" />
   <text x="742" y="463" class="label">v5</text>
   <rect x="790" y="451" width="14" height="14" class="v6" />
-  <text x="812" y="463" class="label">v6</text>
+  <text x="812" y="463" class="label">v6 AngleSharp</text>
 
   <line x1="230" y1="495" x2="880" y2="495" class="axis" />
   <line x1="230" y1="495" x2="230" y2="685" class="axis" />

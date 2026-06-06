@@ -38,7 +38,7 @@ namespace ReverseMarkdown.Test
             var examples = JsonSerializer.Deserialize<List<SpecExample>>(
                 File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
-            var converter = new Converter(new Config { UseMarkdownDom = true, Flavor = Config.MarkdownFlavor.GitHub });
+            var converter = new Converter(new Config { Flavor = Config.MarkdownFlavor.GitHub });
             var angle = new AngleSharp.Html.Parser.HtmlParser();
 
             var pass = new Dictionary<string, int>();
@@ -104,8 +104,7 @@ namespace ReverseMarkdown.Test
             Assert.True(rate >= 1.0, $"v6 GFM roundtrip (canonical cmark-gfm) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
-        // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
-        // so both sides absorb identical parser normalization.
+        // Canonicalize by parsing through AngleSharp so both sides absorb identical parser normalization.
         private static string Canon(AngleSharp.Html.Parser.HtmlParser angle, string html)
         {
             if (html.StartsWith("THREW", StringComparison.Ordinal))
@@ -176,18 +175,20 @@ namespace ReverseMarkdown.Test
             n = System.Text.RegularExpressions.Regex.Replace(n, "\\s+alt=\"\"", string.Empty);
             n = System.Text.RegularExpressions.Regex.Replace(n, "<p>\\s*</p>", string.Empty);
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(n);
+            var doc = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(n);
             // Attribute order is insignificant; sort it (the spec.txt and the installed
             // cmark-gfm serialize attributes in different orders).
-            foreach (var el in doc.DocumentNode.Descendants().Where(d => d.HasAttributes).ToList())
+            foreach (var el in doc.Body!.QuerySelectorAll("*").Where(d => d.Attributes.Length > 1).ToList())
             {
                 var attrs = el.Attributes.OrderBy(a => a.Name, StringComparer.Ordinal).ToList();
-                el.Attributes.RemoveAll();
-                foreach (var a in attrs) el.Attributes.Add(a.Name, a.Value);
+                foreach (var a in attrs) el.RemoveAttribute(a.Name);
+                foreach (var a in attrs)
+                {
+                    try { el.SetAttribute(a.Name, a.Value); } catch (AngleSharp.Dom.DomException) { }
+                }
             }
 
-            var result = doc.DocumentNode.InnerHtml;
+            var result = doc.Body!.InnerHtml;
 
             // Trust AngleSharp's structure over the renderer's: a CommonMark renderer wraps a lone
             // inline element in <p> and drops/re-adds leading block whitespace. Those are rendering

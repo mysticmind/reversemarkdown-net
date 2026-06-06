@@ -14,6 +14,70 @@ namespace ReverseMarkdown.Writers
         public DefaultWriter(Config config) : base(config)
         {
         }
+
+        private int _strikeDepth;
+        private int _superscriptDepth;
+
+        // v5 collapses nested same-type emphasis to a single outer wrap (e.g. <em><em>x</em></em>
+        // → *x*), rather than the base writer's alternating delimiters (*_x_*).
+        public override void Visit(MdEmphasis node)
+        {
+            if (EmphasisDepth >= 1)
+            {
+                WriteInline(node.Children);
+                return;
+            }
+
+            base.Visit(node);
+        }
+
+        public override void Visit(MdStrong node)
+        {
+            if (StrongDepth >= 1)
+            {
+                WriteInline(node.Children);
+                return;
+            }
+
+            base.Visit(node);
+        }
+
+        public override void Visit(MdStrikethrough node)
+        {
+            if (_strikeDepth >= 1)
+            {
+                WriteInline(node.Children);
+                return;
+            }
+
+            _strikeDepth++;
+            base.Visit(node);
+            _strikeDepth--;
+        }
+
+        public override void Visit(MdSuperscript node)
+        {
+            if (_superscriptDepth >= 1)
+            {
+                WriteInline(node.Children);
+                return;
+            }
+
+            _superscriptDepth++;
+            base.Visit(node);
+            _superscriptDepth--;
+        }
+
+        // v5 inserts a space between two adjacent same-type emphasis runs so their delimiters
+        // don't merge (*a**b* mis-parses; emit *a* *b*). Mixed types (em then strong) are left
+        // untouched.
+        protected override string? InlineSeparator(MdInline previous, MdInline next) =>
+            (previous, next) switch
+            {
+                (MdEmphasis, MdEmphasis) => " ",
+                (MdStrong, MdStrong) => " ",
+                _ => null,
+            };
     }
 
     /// <summary>
@@ -95,9 +159,43 @@ namespace ReverseMarkdown.Writers
         protected override void AppendText(string text) =>
             Buffer.Append(StringUtils.EscapeTelegramMarkdownV2(text));
 
+        // List markers are MarkdownV2 special characters and must be escaped (\- / 1\.).
+        protected override string OrderedListMarker(int number, string delimiter) => $"{number}\\{delimiter}";
+
+        protected override string UnorderedListMarker(string bullet) => "\\" + bullet;
+
         public override void Visit(MdHeading node) => Wrap("*", node.Children); // Telegram has no headings
 
         public override void Visit(MdThematicBreak node) => Buffer.Append("\\-\\-\\-");
+
+        public override void Visit(MdLink node)
+        {
+            Buffer.Append('[');
+            WriteInline(node.Children); // text is escaped by AppendText
+            Buffer.Append("](").Append(StringUtils.EscapeTelegramMarkdownV2LinkUrl(node.Url)).Append(')');
+        }
+
+        // Telegram MarkdownV2 has no image syntax: fall back to a link (alt text or "Image").
+        public override void Visit(MdImage node)
+        {
+            var text = string.IsNullOrEmpty(node.Alt) ? "Image" : node.Alt;
+            Buffer.Append('[').Append(StringUtils.EscapeTelegramMarkdownV2(text))
+                .Append("](").Append(StringUtils.EscapeTelegramMarkdownV2LinkUrl(node.Url)).Append(')');
+        }
+
+        // Telegram has no superscript: fall back to caret notation (x^2, no closing caret).
+        public override void Visit(MdSuperscript node)
+        {
+            Buffer.Append('^');
+            WriteInline(node.Children);
+        }
+
+        // Telegram has no tables: fall back to a fenced code block showing the rendered table.
+        public override void Visit(MdTable node)
+        {
+            var rendered = Capture(() => base.Visit(node));
+            Buffer.Append("```\n").Append(rendered).Append("\n```");
+        }
     }
 
     /// <summary>

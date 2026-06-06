@@ -11,9 +11,7 @@
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-    <!-- v6 Markdown DOM reader path uses AngleSharp's HTML5-compliant parser.
-         HtmlAgilityPack remains for the v5 Convert path until the Phase D flip. -->
+    <!-- v6 uses AngleSharp's HTML5-compliant parser. -->
     <PackageReference Include="AngleSharp" Version="1.1.2" />
   </ItemGroup>
   <!--SourceLink specific settings-->

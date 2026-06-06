@@ -198,7 +198,9 @@ namespace ReverseMarkdown.Readers
             var src = element.GetAttribute("src") ?? string.Empty;
             var config = ctx.Config;
 
-            var isBase64 = src.StartsWith("data:", StringComparison.OrdinalIgnoreCase);
+            // Only a well-formed image data URI counts as base64; a malformed/truncated data: URI
+            // falls through to the scheme whitelist check (its scheme is "data"), matching v5.
+            var isBase64 = ImageUtils.IsValidBase64ImageData(src);
             if (isBase64)
             {
                 switch (config.Base64Images)
@@ -269,7 +271,7 @@ namespace ReverseMarkdown.Readers
             }
 
             var index = ctx.NextImageIndex();
-            var name = config.Base64ImageFileNameGenerator?.Invoke(index, mime) ?? $"image{index}";
+            var name = config.Base64ImageFileNameGenerator?.Invoke(index, mime) ?? $"image_{index}";
             var fileName = name + "." + ExtensionFor(mime);
 
             System.IO.Directory.CreateDirectory(config.Base64ImageSaveDirectory);
@@ -294,6 +296,19 @@ namespace ReverseMarkdown.Readers
     {
         public static string GetScheme(string url)
         {
+            // Per RFC 3986 ambiguity handling (matching v5): a protocol-relative URL (//host) is
+            // treated as http, and a Unix-style absolute path (/path) as file, so scheme whitelists
+            // can allow/deny them.
+            if (url.StartsWith("//", StringComparison.Ordinal) && url.Length > 2 && url[2] != '/')
+            {
+                return "http";
+            }
+
+            if (url.StartsWith("/", StringComparison.Ordinal) && url.Length > 1 && url[1] != '/')
+            {
+                return "file";
+            }
+
             var colon = url.IndexOf(':');
             if (colon <= 0)
             {
@@ -896,6 +911,18 @@ namespace ReverseMarkdown.Readers
     public sealed class BypassReader : IMdReader
     {
         public void Read(IElement element, ReaderContext ctx) => ctx.ReadChildren(element);
+    }
+
+    /// <summary>
+    /// Reader for tags whose content is never markdown (e.g. <c>script</c>, <c>style</c>):
+    /// drop the element and its content entirely, regardless of the <c>UnknownTags</c> option.
+    /// </summary>
+    public sealed class DropReader : IMdReader
+    {
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            // Intentionally emit nothing and do not descend into children.
+        }
     }
 
     /// <summary>Builds <see cref="MdMath"/> from a math element, stripping any TeX delimiters.</summary>

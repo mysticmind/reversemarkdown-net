@@ -38,7 +38,7 @@ namespace ReverseMarkdown.Test
                 return;
             }
 
-            var converter = new Converter(new Config { UseMarkdownDom = true, Flavor = Config.MarkdownFlavor.CommonMark });
+            var converter = new Converter(new Config { Flavor = Config.MarkdownFlavor.CommonMark });
             var angle = new AngleSharp.Html.Parser.HtmlParser();
 
             var pass = new Dictionary<string, int>();
@@ -104,8 +104,7 @@ namespace ReverseMarkdown.Test
             Assert.True(rate >= 1.0, $"v6 CommonMark roundtrip regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
-        // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
-        // so both sides absorb identical parser normalization.
+        // Canonicalize by parsing through AngleSharp so both sides absorb identical parser normalization.
         private static string Canon(AngleSharp.Html.Parser.HtmlParser angle, string html)
         {
             if (html.StartsWith("THREW", StringComparison.Ordinal))
@@ -167,9 +166,7 @@ namespace ReverseMarkdown.Test
             n = System.Text.RegularExpressions.Regex.Replace(n, "\\s+alt=\"\"", string.Empty);
             n = System.Text.RegularExpressions.Regex.Replace(n, "<p>\\s*</p>", string.Empty);
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(n);
-            var result = doc.DocumentNode.InnerHtml;
+            var result = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(n).Body?.InnerHtml ?? string.Empty;
 
             // Trust AngleSharp's structure over the renderer's: a CommonMark renderer wraps a lone
             // inline element in <p> and drops/re-adds leading block whitespace. Those are rendering

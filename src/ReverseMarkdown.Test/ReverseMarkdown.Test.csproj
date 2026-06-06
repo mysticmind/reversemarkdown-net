@@ -27,6 +27,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ChildConverterTests.cs" />
+    <Compile Remove="Children\IgnoreAWhenHasClass.cs" />
+  </ItemGroup>
   
   <ItemGroup>
     <None Update="ConverterTests.When_Span_with_newline_Should_Convert_Properly.verified.md">

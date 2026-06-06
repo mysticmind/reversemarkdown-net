@@ -109,6 +109,12 @@ namespace ReverseMarkdown.Readers
             Register("dt", new DefinitionTermReader());
             Register("dd", new DefinitionDescriptionReader());
 
+            // script/style content is never markdown: drop it (and its content) outright,
+            // regardless of the UnknownTags option.
+            var drop = new DropReader();
+            Register("script", drop);
+            Register("style", drop);
+
             // div/section may carry a footnotes block; the section reader handles that and
             // otherwise bypasses.
             var section = new SectionReader();

@@ -8,8 +8,7 @@ namespace ReverseMarkdown.Benchmark;
 public class CompareBenchmark
 {
     private string _html = null!;
-    private Converter _v5 = null!;
-    private Converter _v6 = null!;
+    private Converter _converter = null!;
 
     [Params(
         "Files/1000-paragraphs.html",
@@ -21,19 +20,12 @@ public class CompareBenchmark
     public void Setup()
     {
         _html = FileHelper.ReadFile(FileName);
-        _v5 = new Converter(new ReverseMarkdown.Config());
-        _v6 = new Converter(new ReverseMarkdown.Config { UseMarkdownDom = true });
+        _converter = new Converter(new ReverseMarkdown.Config());
     }
 
     [Benchmark(Baseline = true)]
-    public string V5_HtmlAgilityPack()
+    public string V6_AngleSharpMarkdownDom()
     {
-        return _v5.Convert(_html);
-    }
-
-    [Benchmark]
-    public string V6_MarkdownDom()
-    {
-        return _v6.Convert(_html);
+        return _converter.Convert(_html);
     }
 }

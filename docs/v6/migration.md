@@ -24,8 +24,8 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   Parity harness: 11/15 corpus items identical to v5.
 - ✅ **Flavor seam**: `Config.MarkdownFlavor` enum + `Render(doc, flavor)` + `WriterFactory`
   (Default/GitHub/CommonMark; others fall back to Default). (commit `426aced`)
-- ✅ **Parser**: v6 readers moved to **AngleSharp** (HTML5-compliant) — ADR 0002. HAP stays
-  for the v5 path until the Phase D flip. Native CSS selectors retire the deferred Fizzler
+- ✅ **Parser**: v6 readers use **AngleSharp** (HTML5-compliant) — ADR 0002. The HAP/v5
+  path was removed at the Phase D flip. Native CSS selectors retire the deferred Fizzler
   question for #79 HTML-side filtering.
 - ✅ **Parity harness**: `ParityHarnessTests` — dual-run v5-vs-v6, informational diff
   classification, gates on content-preservation (subsequence check). (commit `426aced`)
@@ -45,15 +45,14 @@ path. Ship MMD/Pandoc and the #79 API only *after* the core is at parity.
   bracketed spans (`[text]{.x}`). All flavor-agnostic readers + flavor-specific writers.
   ⏳ remaining (minor): Pandoc line blocks (`<div class="line-block">`).
 - ⏳ **Other remaining**: base64 `SaveToFile` IO on the v6 path; v5-default writer specifics
-  if we choose to match (indented code, `* * *` HR); **Phase D flip** (`Convert` → v6 +
-  remove HAP) — the one-way door, best taken last.
+  only where we choose to preserve behavior after reviewed rebaselining.
 
 ## Phases
 
 ### Phase 0 — Flavor enum groundwork (no behavior change)
 Land `PLANNING-MMD-PANDOC.md` Tasks 0.1–0.4 on this branch first: the `MarkdownFlavor`
 enum, backward-compatible boolean wrappers, and capability helpers on `Config`. These are
-useful to both the v5 path (today) and v6 writers (later), and they're low-risk.
+useful to v6 writers, and they're low-risk.
 - ✅ Existing suite must stay green with zero re-baselining.
 
 ### Phase A — Scaffolding (new path, dormant)
@@ -80,9 +79,10 @@ output as closely as the parity harness allows. CommonMark already exists from P
 - Port the inline whitespace guard (`ConverterBase.cs:71`) into a shared writer helper.
 
 ### Phase D — Flip the switch (the breaking release)
-- 🚧 **Staged via opt-in (done):** `Config.UseMarkdownDom = true` routes `Convert` through
-  `Render(Parse(html), Flavor)` today; default stays the v5 path. v6 default-mode now also
-  escapes literal `*`/`_` in text (Slack escapes nothing, Telegram uses MarkdownV2).
+- ✅ **Default flipped:** `Convert` now routes through `Render(Parse(html), Flavor)` using the
+  AngleSharp + Markdown DOM path. The temporary v5 HtmlAgilityPack path and `UseMarkdownDom`
+  switch have been removed. v6 default-mode also escapes literal `*`/`_` in text (Slack escapes
+  nothing, Telegram uses MarkdownV2).
 - ✅ **Flavor spec compliance uses the CANONICAL reference renderer, never a third-party one.**
   The roundtrip check is `spec.html → v6.Convert(flavor) → markdown → reference-renderer → html`,
   compared parser-fair via `Canon`. The reference renderer must be the flavor's authority:
@@ -133,13 +133,10 @@ output as closely as the parity harness allows. CommonMark already exists from P
     idiosyncrasies), `Canon` normalizes those two artifacts identically on both sides. v6's actual
     markdown output is unchanged; this only stops the metric from penalizing the renderer. The
     normalizations are safe — applied to both sides, a real content difference still fails.
-- ⛔ **Full flip (Convert defaults to v6 + delete HtmlAgilityPack) still gated on:**
-  - CommonMark roundtrip to ~parity with v5 (the last ~10%).
-  - **172 verified snapshots** encode v5 edge cases (nested-table-as-HTML, list/indent
-    specifics, …) that would need reviewed re-baselining.
-- **Plan:** finish CommonMark roundtrip, expand the dual-run harness over the real fixtures,
-  re-baseline whitespace-only diffs, fix semantic gaps, *then* default `Convert` to v6 and
-  remove HAP. Tag **v6.0.0**.
+- ⏳ **Remaining cleanup:** reviewed re-baselining of v5-era verified snapshots that encode
+  incidental HAP/string-writer behavior (nested-table-as-HTML, list/indent specifics, …).
+- **Plan:** expand fixture coverage, re-baseline reviewed semantic-equivalent diffs, fix semantic
+  gaps, then tag **v6.0.0**.
 
 ### Phase E — New flavors (now cheap)
 - `MultiMarkdownWriter`, `PandocWriter` + the new readers they need (footnotes, math,
@@ -160,8 +157,8 @@ expected and accepted — writers emit the cleanest correct whitespace rather th
 v5 character-for-character.
 
 Approach:
-1. **Dual-run harness.** A test mode that runs both the v5 path and the v6 path on every
-   existing fixture and diffs them. Classify each diff:
+1. **Fixture harness.** A test mode that runs the v6 path on every existing fixture and compares
+   reviewed diffs from the previous v5 baseline. Classify each diff:
    - *Identical* → no action.
    - *Whitespace-only* (trailing spaces, blank-line count) → **accepted**; re-baseline in a
      batch via Verify. No per-diff justification needed beyond "whitespace normalization".
@@ -201,7 +198,7 @@ strings; v6 emits nodes). Everything else is source-compatible.
 | Performance regression | Medium | Accept one extra tree; defer pooling/streaming-writer optimizations; benchmark before/after flip |
 | Scope creep into exotic Pandoc | Medium | Node set is a bounded superset; everything else → raw escape hatch (see node-model "do not model") |
 | Two filter points confused by users | Low | Distinct APIs + docs; HTML-side = classes/ids, Markdown-side = node shape |
-| Long-lived branch drifts from `master` | Medium | Land Phase 0 + scaffolding fast; rebase regularly; keep v5 path intact until Phase D |
+| Long-lived branch drifts from `master` | Medium | Land Phase 0 + scaffolding fast; rebase regularly; Phase D removes the v5 path |
 
 ## Definition of done (v6.0.0)
 
@@ -211,4 +208,4 @@ strings; v6 emits nodes). Everything else is source-compatible.
 - [ ] MMD + Pandoc writers with the node-model degradation matrix implemented.
 - [ ] Issue #79: mutable DOM traversal + HTML-side and Markdown-side filtering, with tests.
 - [ ] `rebaseline-log.md` complete; release notes list the breaking changes.
-- [ ] v5 converter path deleted.
+- [x] v5 converter path deleted.

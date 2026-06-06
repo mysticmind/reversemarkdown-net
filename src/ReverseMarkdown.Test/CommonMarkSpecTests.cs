@@ -88,9 +88,8 @@ namespace ReverseMarkdown.Test
             normalized = normalized.Replace("&#xA;", "\n");
             normalized = System.Text.RegularExpressions.Regex.Replace(normalized, @">\s+<", "><");
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(normalized);
-            normalized = doc.DocumentNode.InnerHtml;
+            var doc = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(normalized);
+            normalized = doc.Body?.InnerHtml ?? string.Empty;
             normalized = normalized.Replace("\u00A0", " ");
 
             return normalized;

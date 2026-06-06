@@ -118,8 +118,8 @@ namespace ReverseMarkdown.Writers
                 first = false;
 
                 var marker = node.Ordered
-                    ? $"{node.Start + index}{orderedDelimiter} "
-                    : unorderedBullet + " ";
+                    ? OrderedListMarker(node.Start + index, orderedDelimiter) + " "
+                    : UnorderedListMarker(unorderedBullet) + " ";
 
                 // Continuation/nesting indent aligns with the list marker only; a task-list
                 // checkbox ("[x] ") is item content, so it is not part of the indent.
@@ -163,6 +163,14 @@ namespace ReverseMarkdown.Writers
         /// flavors (MultiMarkdown) require a fixed tab stop instead.
         /// </summary>
         protected virtual int ContinuationIndent(int markerWidth) => markerWidth;
+
+        /// <summary>The ordered-list marker (number + delimiter, without the trailing space).
+        /// Telegram MarkdownV2 overrides this to escape the delimiter (<c>1\.</c>).</summary>
+        protected virtual string OrderedListMarker(int number, string delimiter) => $"{number}{delimiter}";
+
+        /// <summary>The unordered-list marker (bullet, without the trailing space). Telegram
+        /// MarkdownV2 overrides this to escape the bullet (<c>\-</c>).</summary>
+        protected virtual string UnorderedListMarker(string bullet) => bullet;
 
         /// <summary>Separator emitted between two adjacent same-type lists. CommonMark/GFM rely on
         /// bullet alternation (null = none); flavors that treat all bullets as one list override
@@ -256,11 +264,39 @@ namespace ReverseMarkdown.Writers
             for (var i = 0; i < columns; i++)
             {
                 var text = i < row.Cells.Count
-                    ? Capture(() => WriteItemBlocks(row.Cells[i].Children))
-                        .Replace("\r\n", " ").Replace('\n', ' ').Replace("|", "\\|").Trim()
+                    ? RenderTableCell(row.Cells[i])
                     : string.Empty;
                 Buffer.Append(' ').Append(text).Append(" |");
             }
+        }
+
+        // A GFM table cell is a single line, so structural line breaks within it (a <br>, a newline
+        // in the source text, or a blank line between block children) become <br>. Block children
+        // are separated by a blank line so two paragraphs render as <br><br>, matching v5.
+        private string RenderTableCell(MdTableCell cell)
+        {
+            var wasInCell = _inTableCell;
+            _inTableCell = true;
+            var raw = Capture(() =>
+            {
+                var first = true;
+                foreach (var block in cell.Children)
+                {
+                    if (!first)
+                    {
+                        Buffer.Append("\n\n");
+                    }
+
+                    first = false;
+                    block.Accept(this);
+                }
+            });
+            _inTableCell = wasInCell;
+
+            // Collapse spaces around each newline (e.g. a hard break's trailing "  "), trim the
+            // cell, then turn every remaining newline into <br> and escape pipes.
+            raw = System.Text.RegularExpressions.Regex.Replace(raw.Replace("\r\n", "\n"), " *\n *", "\n");
+            return raw.Trim('\n', ' ').Replace("\n", "<br>").Replace("|", "\\|");
         }
 
         private void WriteTableDelimiter(MdTableRow headerRow, int columns)
@@ -565,11 +601,23 @@ namespace ReverseMarkdown.Writers
 
         protected void WriteInline(IEnumerable<MdInline> inlines)
         {
+            MdInline? previous = null;
             foreach (var inline in inlines)
             {
+                if (previous is not null && InlineSeparator(previous, inline) is { } separator)
+                {
+                    Buffer.Append(separator);
+                }
+
                 inline.Accept(this);
+                previous = inline;
             }
         }
+
+        /// <summary>Optional separator inserted between two adjacent inline nodes. Default: none.
+        /// The default writer uses it to space apart adjacent same-type emphasis runs whose
+        /// delimiters would otherwise merge (<c>*a**b*</c> → <c>*a* *b*</c>).</summary>
+        protected virtual string? InlineSeparator(MdInline previous, MdInline next) => null;
 
         /// <summary>
         /// Wrap inline content in a delimiter, moving any leading/trailing spaces *outside*
@@ -609,6 +657,10 @@ namespace ReverseMarkdown.Writers
         /// <summary>Write text content with HTML-style whitespace collapsing: runs of
         /// whitespace (incl. newlines/tabs from source indentation) become a single space, and
         /// a leading space is suppressed when the output is already at a whitespace boundary.</summary>
+        // Set while rendering a table cell: a source newline in cell text is significant (it
+        // becomes a <br>), so it is preserved here rather than collapsed to a space.
+        private bool _inTableCell;
+
         protected virtual void WriteText(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -616,7 +668,7 @@ namespace ReverseMarkdown.Writers
                 return;
             }
 
-            var collapsed = CollapseWhitespace(value);
+            var collapsed = _inTableCell ? CollapseWhitespaceKeepNewlines(value) : CollapseWhitespace(value);
             if (collapsed.Length == 0)
             {
                 return;
@@ -670,6 +722,37 @@ namespace ReverseMarkdown.Writers
             {
                 Buffer.Length--;
             }
+        }
+
+        // Like CollapseWhitespace but keeps newlines (collapsing only spaces/tabs runs), so a
+        // newline in table-cell text survives to become a <br>.
+        private static string CollapseWhitespaceKeepNewlines(string s)
+        {
+            var sb = new StringBuilder(s.Length);
+            var inSpace = false;
+            foreach (var c in s)
+            {
+                if (c == '\n')
+                {
+                    sb.Append('\n');
+                    inSpace = false;
+                }
+                else if (char.IsWhiteSpace(c))
+                {
+                    if (!inSpace)
+                    {
+                        sb.Append(' ');
+                        inSpace = true;
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                    inSpace = false;
+                }
+            }
+
+            return sb.ToString();
         }
 
         private static string CollapseWhitespace(string s)

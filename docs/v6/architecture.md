@@ -5,8 +5,8 @@
 ```
                     ┌────────────────────────── Converter.Convert(html) ──────────────────────────┐
                     │                                                                              │
- html ──► Cleaner.PreTidy ──► HtmlDocument ──► [HtmlFilter*] ──► Reader ──► [Transform*] ──► Writer ──► post ──► string
-          (existing)          (HtmlNode)        (optional)      (NEW)        (optional)      (NEW)
+ html ──────────────────────► AngleSharp DOM ─► [HtmlFilter*] ──► Reader ──► [Transform*] ──► Writer ──► post ──► string
+                              (HTML5 parser)     (optional)                    (optional)
                                   ▲                 ▲              │             ▲             │
                               HTML DOM         issue #79a     Markdown DOM   issue #79b   flavor output
 ```
@@ -18,10 +18,9 @@ Two stages are new (`Reader`, `Writer`); two are optional hooks (`HtmlFilter`,
 
 | Stage | Input → Output | Flavor-aware? | Notes |
 |-------|----------------|---------------|-------|
-| PreTidy | string → string | no | Reuse `Cleaner.PreTidy` (`Converter.cs:127`) |
-| Parse | string → `HtmlNode` | no | Reuse HtmlAgilityPack; still `//body` scoping |
-| **HtmlFilter** | `HtmlNode` → `HtmlNode` | no | Optional. Prune by tag/class/id. Operates on HTML facts. |
-| **Reader** | `HtmlNode` → `MarkdownDocument` | **no** | One reader per tag. Builds the richest tree always. |
+| Parse | string → AngleSharp `IDocument` | no | HTML5-compliant parsing; reads from `document.Body`. |
+| **HtmlFilter** | AngleSharp `IElement` → same | no | Optional. Prune by tag/class/id. Operates on HTML facts. |
+| **Reader** | AngleSharp `IElement` → `MarkdownDocument` | **no** | One reader per tag. Builds the richest tree always. |
 | **Transform** | `MarkdownDocument` → same | no | Optional. Visit / prune / reshape Markdown nodes. |
 | **Writer** | `MarkdownDocument` → string | **yes** | One per flavor. Owns all degradation. |
 | Post | string → string | minimal | Line-ending normalization (`ApplyOutputLineEndings`). |
@@ -72,13 +71,12 @@ Design rules:
 public interface IMdReader
 {
     // Build zero or more Markdown nodes from an HTML node, using ctx to recurse.
-    void Read(HtmlNode node, ReaderContext ctx);
+    void Read(IElement element, ReaderContext ctx);
 }
 ```
 
-- Registration mirrors v5: each reader registers for tag name(s) exactly as converters do
-  today (`Converter.Register`). The reflection-based discovery in `Converter.cs:48-85`
-  carries over unchanged.
+- Built-in readers are centrally registered by tag name. External readers can be discovered from
+  additional assemblies with `[MarkdownReader(tags)]`.
 - `ReaderContext` replaces the `AsyncLocal` `ConverterContext`. It is **passed explicitly**
   down the recursion and owns:
   - the current parent block/inline being built (a builder cursor),
@@ -93,11 +91,11 @@ Example (illustrative):
 ```csharp
 public sealed class StrongReader : IMdReader
 {
-    public void Read(HtmlNode node, ReaderContext ctx)
+    public void Read(IElement element, ReaderContext ctx)
     {
-        var strong = new MdStrong { SourceTag = node.Name };
+        var strong = new MdStrong { SourceTag = element.LocalName };
         using (ctx.Open(strong))          // push as current parent, also pushes ancestor
-            ctx.ReadChildren(node);        // recurse; children attach to `strong`
+            ctx.ReadChildren(element);     // recurse; children attach to `strong`
         ctx.Emit(strong);                  // attach to whatever is currently open
     }
 }
@@ -188,7 +186,7 @@ A tree + naive serializer will **not** reproduce these byte-for-byte. The v6 sta
 ```csharp
 var converter = new Converter(config);
 
-// v5-compatible one-shot (unchanged behavior contract, new internals):
+// One-shot conversion through AngleSharp + Markdown DOM:
 string md = converter.Convert(html);                 // == Render(Parse(html))
 
 // v6 structured API:
@@ -222,17 +220,13 @@ Class/id-based selection is an **HTML DOM** concern — `class`/`id` mostly don'
 into Markdown. So it runs *before* the reader:
 
 ```csharp
-config.HtmlFilters.Add(node => node.GetAttributeValue("class","").Split(' ').Contains("ad")
-                                 ? FilterAction.Drop : FilterAction.Keep);
+config.HtmlElementFilters.Add(element =>
+    (element.GetAttribute("class") ?? string.Empty).Split(' ').Contains("ad"));
 ```
 
-**Decided (2026-06-05): predicate-only, no new dependency.** v6.0 ships
-`Config.HtmlFilters` (`Func<HtmlNode, FilterAction>`) and nothing else. CSS selectors are
-deferred — a Fizzler-backed `config.AddExcludeSelector("div.advertisement, aside.related")`
-can be added later as a *non-breaking* convenience that simply compiles the selector to a
-predicate (`node => node.QuerySelectorAll(css).Contains(node)`). Keeping the dependency
-count at zero matters for a widely-consumed library; the predicate is the primitive
-everything else builds on.
+**Updated after ADR 0002:** v6.0 ships both predicate filters
+(`Config.HtmlElementFilters`, `Func<IElement, bool>`) and native CSS selector filters
+(`Config.HtmlExcludeSelectors`) because AngleSharp provides `QuerySelectorAll` directly.
 
 Do **not** fold this into Markdown-side transforms — keeping the two filter points
 distinct (HTML facts vs Markdown shape) is a documented design rule, not an accident.
@@ -251,7 +245,7 @@ instance is thread-safe across concurrent `Convert` calls. v6 improves on this:
 
 ## 8. Performance
 
-Building a tree adds allocations versus pure streaming. Accept it: HtmlAgilityPack already
+Building a tree adds allocations versus pure streaming. Accept it: AngleSharp already
 materializes a full HTML tree, so v6 adds *one* more tree of comparable size — not a new
 order of magnitude. Correctness first. Later levers if needed: pooled `StringBuilder`
 (already TODO'd at `Converter.cs:212`), struct/readonly nodes for hot inline types, and a

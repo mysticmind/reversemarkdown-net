@@ -38,7 +38,7 @@ namespace ReverseMarkdown.Test
             var examples = JsonSerializer.Deserialize<List<SpecExample>>(
                 File.ReadAllText(path), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
 
-            var converter = new Converter(new Config { UseMarkdownDom = true, Flavor = Config.MarkdownFlavor.Pandoc });
+            var converter = new Converter(new Config { Flavor = Config.MarkdownFlavor.Pandoc });
             var angle = new AngleSharp.Html.Parser.HtmlParser();
 
             var pass = new Dictionary<string, int>();
@@ -106,8 +106,7 @@ namespace ReverseMarkdown.Test
             Assert.True(rate >= 0.93, $"v6 Pandoc roundtrip (canonical pandoc) regressed to {100.0 * rate:F1}%\n{sb}");
         }
 
-        // Canonicalize by parsing through AngleSharp (same parser v6 uses) then HAP-normalizing,
-        // so both sides absorb identical parser normalization.
+        // Canonicalize by parsing through AngleSharp so both sides absorb identical parser normalization.
         private static string Canon(AngleSharp.Html.Parser.HtmlParser angle, string html)
         {
             if (html.StartsWith("THREW", StringComparison.Ordinal))
@@ -184,34 +183,36 @@ namespace ReverseMarkdown.Test
             n = System.Text.RegularExpressions.Regex.Replace(n, "\\s+alt=\"\"", string.Empty);
             n = System.Text.RegularExpressions.Regex.Replace(n, "<p>\\s*</p>", string.Empty);
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(n);
+            var doc = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(n);
 
             // HTML collapses runs of whitespace (incl. newlines) in flow text to a single space
             // when rendered, so trailing/interior whitespace differences in text are not content.
             // Normalize symmetrically — but never inside pre/code/textarea where it is significant.
             // Pandoc's HTML reader collapses whitespace even inside an inline <code> span (only
             // block <pre> code keeps it), so skip pre/textarea/script/style but not inline code.
-            foreach (var t in doc.DocumentNode.Descendants().OfType<HtmlAgilityPack.HtmlTextNode>().ToList())
+            foreach (var t in TextNodes(doc.Body!).ToList())
             {
-                if (t.Ancestors().Any(a => a.Name is "pre" or "textarea" or "script" or "style"))
+                if (HasAncestor(t, "pre", "textarea", "script", "style"))
                 {
                     continue;
                 }
 
-                t.Text = System.Text.RegularExpressions.Regex.Replace(t.Text, @"\s+", " ");
+                t.Data = System.Text.RegularExpressions.Regex.Replace(t.Data, @"\s+", " ");
             }
 
             // Attribute order is insignificant; sort it (the spec.txt and the installed
             // cmark-gfm serialize attributes in different orders).
-            foreach (var el in doc.DocumentNode.Descendants().Where(d => d.HasAttributes).ToList())
+            foreach (var el in doc.Body!.QuerySelectorAll("*").Where(d => d.Attributes.Length > 1).ToList())
             {
                 var attrs = el.Attributes.OrderBy(a => a.Name, StringComparer.Ordinal).ToList();
-                el.Attributes.RemoveAll();
-                foreach (var a in attrs) el.Attributes.Add(a.Name, a.Value);
+                foreach (var a in attrs) el.RemoveAttribute(a.Name);
+                foreach (var a in attrs)
+                {
+                    try { el.SetAttribute(a.Name, a.Value); } catch (AngleSharp.Dom.DomException) { }
+                }
             }
 
-            var result = doc.DocumentNode.InnerHtml;
+            var result = doc.Body!.InnerHtml;
 
             // Trust AngleSharp's structure over the renderer's: a CommonMark renderer wraps a lone
             // inline element in <p> and drops/re-adds leading block whitespace. Those are rendering
@@ -274,6 +275,35 @@ namespace ReverseMarkdown.Test
             }
 
             return Path.Combine(dir!.FullName, "TestData", "commonmark.json");
+        }
+
+        private static bool HasAncestor(AngleSharp.Dom.INode node, params string[] names)
+        {
+            for (var parent = node.ParentElement; parent is not null; parent = parent.ParentElement)
+            {
+                if (names.Contains(parent.LocalName, StringComparer.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static IEnumerable<AngleSharp.Dom.IText> TextNodes(AngleSharp.Dom.INode node)
+        {
+            foreach (var child in node.ChildNodes)
+            {
+                if (child is AngleSharp.Dom.IText text)
+                {
+                    yield return text;
+                }
+
+                foreach (var descendant in TextNodes(child))
+                {
+                    yield return descendant;
+                }
+            }
         }
 
         private sealed class SpecExample

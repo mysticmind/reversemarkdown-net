@@ -4,8 +4,8 @@
 
 ## TL;DR
 
-v5 converts HTML to Markdown in **one streaming pass**: each tag converter reads an
-`HtmlNode` and writes Markdown **text** straight to a `TextWriter`. Flavor logic
+v5 converted HTML to Markdown in **one streaming pass**: each tag converter read an
+HTML parser node and wrote Markdown **text** straight to a `TextWriter`. Flavor logic
 (`CommonMark` / `GithubFlavored` / `SlackFlavored` / `TelegramMarkdownV2`) is duplicated
 inside ~21 converters across ~63 branch sites.
 
@@ -14,7 +14,7 @@ equivalent) and splits the engine into:
 
 ```
 HTML string
-  └─ HtmlAgilityPack parse ───────────► HTML DOM        (HtmlNode tree — already exists)
+  └─ AngleSharp parse ────────────────► HTML DOM        (HTML5-compliant DOM)
        └─ [optional] HTML-side filter ─► HTML DOM'       (prune by tag/class/id — issue #79a)
             └─ READER ─────────────────► Markdown DOM     (MdNode tree — NEW)
                  └─ [optional] transform► Markdown DOM'    (visit / prune / reshape — issue #79b)
