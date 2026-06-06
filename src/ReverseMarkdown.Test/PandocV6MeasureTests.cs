@@ -182,9 +182,11 @@ namespace ReverseMarkdown.Test
             // HTML collapses runs of whitespace (incl. newlines) in flow text to a single space
             // when rendered, so trailing/interior whitespace differences in text are not content.
             // Normalize symmetrically — but never inside pre/code/textarea where it is significant.
+            // Pandoc's HTML reader collapses whitespace even inside an inline <code> span (only
+            // block <pre> code keeps it), so skip pre/textarea/script/style but not inline code.
             foreach (var t in doc.DocumentNode.Descendants().OfType<HtmlAgilityPack.HtmlTextNode>().ToList())
             {
-                if (t.Ancestors().Any(a => a.Name is "pre" or "code" or "textarea" or "script" or "style"))
+                if (t.Ancestors().Any(a => a.Name is "pre" or "textarea" or "script" or "style"))
                 {
                     continue;
                 }
