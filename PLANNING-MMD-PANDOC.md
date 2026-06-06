@@ -1030,3 +1030,47 @@ var config2 = new Config { Flavor = MarkdownFlavor.GithubFlavored };
 2. `dotnet test src/ReverseMarkdown.Test/` — all existing tests pass (backward compat)
 3. Run new MMD/Pandoc-specific tests
 4. Manual testing with real HTML documents from Pandoc and MMD processors
+
+---
+
+## Spec-Compliance Results (v6 Markdown DOM path)
+
+Roundtrip fidelity of the v6 path measured against the **canonical reference
+binaries** over the 651-example commonmark.json corpus:
+`spec HTML → v6.Convert(flavor) → reference renderer → HTML′`, compared parser-fairly.
+
+| Flavor | Reference binary | Start | Now |
+|--------|------------------|-------|-----|
+| CommonMark | cmark-gfm | — | **100%** (651/651, gated) |
+| GitHub (GFM) | cmark-gfm (per-section flags) | — | **100%** (672/672, gated) |
+| MultiMarkdown | `multimarkdown --snippet --nosmart` | 81.9% | **94.6%** (616/651, gated ≥0.94) |
+| Pandoc | `pandoc -f … -t html --wrap=none` | 84.2% | **91.2%** (594/651, gated ≥0.91) |
+
+### Real conversion fixes (shared base / readers)
+- List-item continuation indent: 4-space tab stop for MMD (vs CommonMark marker width).
+- Code fences sized past the longest backtick run so embedded ``` lines don't close early.
+- Inline raw-HTML passthrough for MMD (del/s/i-class/span have no MMD markdown; plain
+  em/strong/i/b still convert so MMD's text-derived heading ids stay clean).
+- Trim block-separator whitespace at implicit-paragraph edges (root + nested containers).
+- Detect a bare single-token code class (`<code class="ruby">`) as the fence language.
+- Collapse soft line breaks in heading content to spaces (ATX is single-line).
+- Separate adjacent same-type lists with `<!-- -->` for Pandoc/MMD (they treat -,*,+ as one
+  type; bullet alternation only works for CommonMark) via `ListSeparatorComment` seam.
+
+### Fair symmetric Canon normalizations (applied to both sides)
+MMD-generated heading/figure-img anchor ids, `class="```"` fence artifact, leading marker
+spacing inside `<li>`/`<hN>`, flow-text whitespace collapse, whole-document `<p>` unwrap,
+empty `<a>`/inline-pair adoption artifacts, Pandoc `<ol type="1">` default style, empty
+`<!-- -->` list separators.
+
+### Remaining failures are largely irreducible (not chasing to a literal 100%)
+- **markdown-in-alt images** (MMD ~7): `<img alt="foo bar">` cannot recover that the source
+  was `*foo* bar` — information lost on HTML parse.
+- **malformed reference-tool output** (Links ~5): MMD/Pandoc emit broken HTML (e.g.
+  `<a href="</my">`) for pathological link markdown; no converter round-trips it.
+- **raw-HTML-table passthrough vs pipe-table conversion** (HTML blocks, both): the reference
+  tools keep a raw `<table>` as `<tbody><td>`; v6 converts to a pipe table that re-renders as
+  `<thead><th>`. v6's conversion is the *correct* behavior for issue #79's structured-output
+  goal; the byte-roundtrip penalty is a metric artifact.
+- **tool-internal asymmetries** (Pandoc code spans/tabs): Pandoc's HTML reader collapses inline
+  code whitespace / expands tabs differently than its markdown reader.
