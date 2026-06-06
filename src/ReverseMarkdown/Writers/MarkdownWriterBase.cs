@@ -48,6 +48,14 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdHeading node)
         {
+            // A heading inside a table cell has no block context: render its inline content only
+            // (the level marker would otherwise leak into the cell, e.g. "| ## Heading |").
+            if (_inTableCell)
+            {
+                WriteInline(node.Children);
+                return;
+            }
+
             Buffer.Append('#', node.Level).Append(' ');
 
             // An ATX heading occupies a single line: a soft line break in the inline content would
@@ -226,10 +234,27 @@ namespace ReverseMarkdown.Writers
                 Buffer.Append(node.Caption).Append("\n\n");
             }
 
-            // Pick the header row; if none is marked, use the first row (v5 default behavior).
+            var columns = node.Rows.Max(r => r.Cells.Count);
+
+            // A table with no marked header row: by default the first row becomes the header;
+            // with EmptyRow handling, a synthetic empty header is added and every row is body.
+            if (!node.Rows.Any(r => r.IsHeader) &&
+                Config.TableWithoutHeaderRowHandling == Config.TableWithoutHeaderRowHandlingOption.EmptyRow)
+            {
+                WriteEmptyHeaderRow(columns);
+                Buffer.Append('\n');
+                WriteTableDelimiter(null, columns);
+                foreach (var row in node.Rows)
+                {
+                    Buffer.Append('\n');
+                    WriteTableRow(row, columns);
+                }
+
+                return;
+            }
+
             var headerRow = node.Rows.FirstOrDefault(r => r.IsHeader) ?? node.Rows[0];
             var bodyRows = node.Rows.Where(r => !ReferenceEquals(r, headerRow));
-            var columns = node.Rows.Max(r => r.Cells.Count);
 
             WriteTableRow(headerRow, columns);
             Buffer.Append('\n');
@@ -238,6 +263,16 @@ namespace ReverseMarkdown.Writers
             {
                 Buffer.Append('\n');
                 WriteTableRow(row, columns);
+            }
+        }
+
+        // A synthetic header row of empty (<!---->) cells, used by EmptyRow handling.
+        private void WriteEmptyHeaderRow(int columns)
+        {
+            Buffer.Append('|');
+            for (var i = 0; i < columns; i++)
+            {
+                Buffer.Append(" <!----> |");
             }
         }
 
@@ -299,12 +334,14 @@ namespace ReverseMarkdown.Writers
             return raw.Trim('\n', ' ').Replace("\n", "<br>").Replace("|", "\\|");
         }
 
-        private void WriteTableDelimiter(MdTableRow headerRow, int columns)
+        private void WriteTableDelimiter(MdTableRow? headerRow, int columns)
         {
             Buffer.Append('|');
             for (var i = 0; i < columns; i++)
             {
-                var align = i < headerRow.Cells.Count ? headerRow.Cells[i].Align : ColumnAlignment.None;
+                var align = headerRow is not null && i < headerRow.Cells.Count
+                    ? headerRow.Cells[i].Align
+                    : ColumnAlignment.None;
                 var marker = align switch
                 {
                     ColumnAlignment.Left => ":---",

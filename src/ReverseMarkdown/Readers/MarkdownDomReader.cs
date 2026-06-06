@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
@@ -184,6 +185,14 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
+            // A nested table or list inside a table cell has no markdown representation, so emit it
+            // as compacted raw HTML (v5 leaves it as-is, single-spaced between tags).
+            if (ctx.InTableCell && tag is "table" or "ol" or "ul")
+            {
+                ctx.Emit(new MdHtmlBlock(CompactNestedHtml(element.OuterHtml)) { SourceTag = tag });
+                return;
+            }
+
             // CommonMark inline-HTML passthrough: emit inline elements verbatim (v5 parity).
             // GFM autolinks bare URLs, so a raw <a> whose text is a URL would get re-linked by the
             // renderer; for GitHub, a text-only <a> becomes a markdown link instead (an empty <a>
@@ -264,6 +273,17 @@ namespace ReverseMarkdown.Readers
                 case Config.UnknownTagsOption.Raise:
                     throw new UnknownTagException(tag);
             }
+        }
+
+        // Compact nested-in-table HTML to a single line (v5 CompactHtmlForMarkdown): drop line
+        // endings, collapse inter-tag whitespace to one space, and strip the <tbody> the HTML5
+        // parser auto-inserts (v5's HAP serialization didn't add it).
+        private static string CompactNestedHtml(string html)
+        {
+            html = html.Replace("\r\n", string.Empty).Replace("\n", string.Empty);
+            html = Regex.Replace(html, @">\s+<", "> <");
+            html = html.Replace("<tbody>", string.Empty).Replace("</tbody>", string.Empty);
+            return html.Trim();
         }
 
         // The element's serialized start tag (e.g. <a href="...">), taken verbatim from

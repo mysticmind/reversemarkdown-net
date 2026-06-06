@@ -44,6 +44,10 @@ namespace ReverseMarkdown.Readers
         /// content must be markdown (e.g. a link as <c>[x](y)</c>, not raw <c>&lt;a&gt;</c>).</summary>
         public bool ForceMarkdownInline { get; set; }
 
+        /// <summary>True while reading a table cell's content. A nested table/list inside a cell
+        /// can't be represented as markdown, so it is emitted as compacted raw HTML instead.</summary>
+        public bool InTableCell { get; set; }
+
         /// <summary>Push <paramref name="container"/> as the current container until disposed.</summary>
         public IDisposable Open(MdNode container) => new Scope(this, container);
 

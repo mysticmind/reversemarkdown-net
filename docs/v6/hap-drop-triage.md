@@ -102,27 +102,36 @@ can't be distinguished from the double-`<br>` p-p case: the reader wraps the bar
 would need the reader to keep bare cell text inline (mark implicit paragraphs) — deferred;
 rebaseline or do the reader change.
 
-### 10. Table structural handling (5)
-`WhenTable_WithoutHeaderRow…EmptyRow` and `WhenTable_WithCaptionAndNoHeaderRow…` don't emit
-the `<!---->` empty header. `WhenTable_HasEmptyRow_DropsEmptyRow` keeps the row as header.
-`WhenTable_WithColSpan…HeaderColumnSpans` mis-expands colspan. `WhenThereIsHeadingInsideTable`
-emits `## Heading` instead of stripping the level.
+### 10. Table structural handling (5) — ✅ FIXED
+`WhenTable_WithoutHeaderRow…EmptyRow` / `WhenTable_WithCaptionAndNoHeaderRow…` didn't emit
+the `<!---->` empty header; `WhenTable_HasEmptyRow_DropsEmptyRow` kept the row as header;
+`WhenTable_WithColSpan…HeaderColumnSpans` mis-expanded colspan; `WhenThereIsHeadingInsideTable`
+emitted `## Heading`.
+→ Fixed: writer emits a synthetic `<!---->` header under `EmptyRow` handling when no row is a
+header; `Visit(MdHeading)` renders inline-only inside a cell; the reader repeats a `th` per
+`colspan` (under `TableHeaderColumnSpanHandling`).
 
-### 11. Nested table / list-in-cell not left as raw HTML (5)
+### 11. Nested table / list-in-cell not left as raw HTML (5) — ✅ FIXED
 `When_NestedTableIsInTable`, `When_ComplexNestedTableIsInTable`,
-`When_MultipleNestedTablesInTable` escape the inner `<table>` to `\| … \|`.
-`When_OrderedListIsInTable` / `When_UnorderedListIsInTable` convert instead of leaving
-`<ol>`/`<ul>` raw. "Leave-as-HTML" guard for table cells missing.
+`When_MultipleNestedTablesInTable` escaped the inner `<table>` to `\| … \|`.
+`When_OrderedListIsInTable` / `When_UnorderedListIsInTable` converted instead of leaving
+`<ol>`/`<ul>` raw.
+→ Fixed: an `InTableCell` reader flag emits a nested `table`/`ol`/`ul` as compacted raw HTML
+(v5 `CompactHtmlForMarkdown` + stripping the parser's auto-inserted `<tbody>`). Also fixed a
+latent bug: `TableReader` selected rows with recursive `QuerySelectorAll("tr")`, pulling a
+nested table's rows into the outer table — now scoped with `tr.Closest("table") == element`.
 
 ---
 
 ## BUG — PRE / code
 
-### 12. Code-fence language class parsing (4)
-`When_PRE_With_Confluence_Lang…` / `…Github_Site_DIV_Parent…` lose the language
-(`` ```python `` → `` ``` ``). `…Lang_Highlight_Class…` keeps raw `highlight-python`.
-`…DefaultCodeBlockLanguage…` ignores the configured default. Language extraction from
-class attributes not ported.
+### 12. Code-fence language class parsing (4) — ✅ FIXED
+`When_PRE_With_Confluence_Lang…` / `…Github_Site_DIV_Parent…` lost the language
+(`` ```python `` → `` ``` ``). `…Lang_Highlight_Class…` kept raw `highlight-python`.
+`…DefaultCodeBlockLanguage…` ignored the configured default.
+→ Fixed: `PreReader.DetectLanguage` ports v5's regex
+(`highlight-source-|language-|highlight-|brush:\s`) checked on the code/pre/parent-div/child-code
+class, and falls back to `Config.DefaultCodeBlockLanguage`.
 
 ### 13. Non-GFM code style regressed to fences (3)
 `When_PRE_With_Parent_DIV_And_Non_GitHubFlavored…` and `When_PreTag_Contains_IndentedFirstLine`

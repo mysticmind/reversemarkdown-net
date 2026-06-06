@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
 
@@ -529,16 +530,29 @@ namespace ReverseMarkdown.Readers
     /// <summary>Code block reader for <c>pre</c> (and <c>pre&gt;code</c>).</summary>
     public sealed class PreReader : IMdReader
     {
+        // Common highlighter class conventions (v5 parity): highlight-source-json,
+        // language-json, highlight-json, "brush: json". The language is group 2.
+        private static readonly Regex HighlightClassRegex = new(
+            @"(highlight-source-|language-|highlight-|brush:\s)([^\s]+)",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public void Read(IElement element, ReaderContext ctx)
         {
             var codeNode = element.QuerySelector("code") ?? element;
 
-            var language = DetectLanguage(codeNode);
+            var language = DetectLanguage(element, codeNode);
             var languageIsAttribute = false;
             if (language is null)
             {
                 language = element.GetAttribute("language");
                 languageIsAttribute = language is not null;
+            }
+
+            // Last resort: the configured default GFM language.
+            if (string.IsNullOrEmpty(language))
+            {
+                language = ctx.Config.DefaultCodeBlockLanguage;
+                languageIsAttribute = false;
             }
 
             ctx.Emit(new MdCodeBlock(codeNode.TextContent)
@@ -549,28 +563,38 @@ namespace ReverseMarkdown.Readers
             });
         }
 
-        private static string? DetectLanguage(IElement codeNode)
+        private static string? DetectLanguage(IElement pre, IElement codeNode)
         {
-            var cls = codeNode.GetAttribute("class") ?? string.Empty;
-            var tokens = cls.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var token in tokens)
+            // Highlighter conventions, in v5's lookup order: the code/pre class, the parent
+            // (GitHub <div class="highlight highlight-source-json">), then a child <code>.
+            foreach (var candidate in new[] { codeNode, pre, pre.ParentElement, pre.QuerySelector("code") })
             {
-                if (token.StartsWith("language-", StringComparison.OrdinalIgnoreCase))
+                var cls = candidate?.GetAttribute("class");
+                if (string.IsNullOrEmpty(cls))
                 {
-                    return token.Substring("language-".Length);
+                    continue;
                 }
 
+                var match = HighlightClassRegex.Match(cls);
+                if (match.Success)
+                {
+                    return match.Groups[2].Value.TrimEnd(';');
+                }
+            }
+
+            // Fallbacks the regex doesn't cover: a lang- prefix, and a bare single-token class
+            // (e.g. <code class="ruby">; an info string may be any non-whitespace run). Exclude
+            // tokens with fence-breaking delimiters (backtick/quote/angle bracket).
+            var codeCls = codeNode.GetAttribute("class") ?? string.Empty;
+            var tokens = codeCls.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var token in tokens)
+            {
                 if (token.StartsWith("lang-", StringComparison.OrdinalIgnoreCase))
                 {
                     return token.Substring("lang-".Length);
                 }
             }
 
-            // A bare single-token class is conventionally the language/info string itself (e.g.
-            // MultiMarkdown and several highlighters emit <code class="ruby">, and an info string
-            // may be any non-whitespace run such as "föö" or "foo+bar"). Accept any single token
-            // that has no whitespace and no delimiter that would break the fence (backtick/quote/
-            // angle bracket), which also excludes the "```" fence-artifact class.
             if (tokens.Length == 1 && tokens[0].IndexOfAny(new[] { '`', '"', '\'', '<', '>' }) < 0)
             {
                 return tokens[0];
@@ -696,6 +720,13 @@ namespace ReverseMarkdown.Readers
             {
                 foreach (var tr in element.QuerySelectorAll("tr"))
                 {
+                    // QuerySelectorAll is recursive; skip rows that belong to a nested table
+                    // (they're emitted as raw HTML inside their cell, not as rows of this table).
+                    if (tr.Closest("table") != element)
+                    {
+                        continue;
+                    }
+
                     var hasCells = false;
                     var allHeaderCells = true;
                     foreach (var cell in tr.Children)
@@ -730,18 +761,31 @@ namespace ReverseMarkdown.Readers
                                 continue;
                             }
 
-                            var mdCell = new MdTableCell
-                            {
-                                SourceTag = cell.LocalName,
-                                Align = ParseAlign(cell),
-                            };
+                            // A header cell spanning columns is repeated once per spanned column
+                            // (v5 TableHeaderColumnSpanHandling); re-read its content per copy so the
+                            // cells are independent nodes.
+                            var span = ctx.Config.TableHeaderColumnSpanHandling && cell.LocalName == "th"
+                                ? Math.Max(1, ParseColSpan(cell))
+                                : 1;
 
-                            using (ctx.Open(mdCell))
+                            for (var s = 0; s < span; s++)
                             {
-                                ctx.ReadChildren(cell);
+                                var mdCell = new MdTableCell
+                                {
+                                    SourceTag = cell.LocalName,
+                                    Align = ParseAlign(cell),
+                                };
+
+                                using (ctx.Open(mdCell))
+                                {
+                                    var wasInCell = ctx.InTableCell;
+                                    ctx.InTableCell = true;
+                                    ctx.ReadChildren(cell);
+                                    ctx.InTableCell = wasInCell;
+                                }
+
+                                ctx.Emit(mdCell);
                             }
-
-                            ctx.Emit(mdCell);
                         }
                     }
 
@@ -750,6 +794,12 @@ namespace ReverseMarkdown.Readers
             }
 
             ctx.Emit(table);
+        }
+
+        private static int ParseColSpan(IElement cell)
+        {
+            var raw = cell.GetAttribute("colspan");
+            return int.TryParse(raw, out var span) && span > 0 ? span : 1;
         }
 
         private static ColumnAlignment ParseAlign(IElement cell)
