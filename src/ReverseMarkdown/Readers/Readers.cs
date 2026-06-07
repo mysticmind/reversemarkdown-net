@@ -559,6 +559,13 @@ namespace ReverseMarkdown.Readers
 
         public void Read(IElement element, ReaderContext ctx)
         {
+            // Treat <pre> (or <pre><code>) content as normal HTML rather than a code block.
+            if (ctx.Config.ConvertPreContentAsHtml)
+            {
+                ctx.ReadChildren(element.QuerySelector("code") ?? element);
+                return;
+            }
+
             var codeNode = element.QuerySelector("code") ?? element;
 
             var language = DetectLanguage(element, codeNode);
