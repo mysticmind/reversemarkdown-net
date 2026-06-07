@@ -176,7 +176,8 @@ namespace ReverseMarkdown {
         public virtual string Render(MarkdownDocument document, Config.MarkdownFlavor flavor)
         {
             var writer = WriterFactory.Create(flavor, Config);
-            return ApplyOutputLineEndings(writer.Write(document));
+            // Trim leading/trailing blank lines (e.g. from an empty <p></p> at the document edge).
+            return ApplyOutputLineEndings(writer.Write(document).Trim('\n', '\r'));
         }
 
         private string ApplyOutputLineEndings(string content)

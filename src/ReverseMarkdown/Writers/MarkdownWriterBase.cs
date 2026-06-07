@@ -512,7 +512,11 @@ namespace ReverseMarkdown.Writers
             // string is literal text, so its markdown-significant brackets are escaped.
             var alt = node.CaptionInlines is { Count: > 0 }
                 ? Capture(() => WriteInline(node.CaptionInlines))
-                : node.Alt.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
+                // A blank line in alt text would terminate the image; collapse any run of
+                // whitespace containing a newline to a single newline.
+                : System.Text.RegularExpressions.Regex.Replace(
+                    node.Alt.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]"),
+                    @"(?:[ \t]*\n[ \t]*)+", "\n");
             Buffer.Append("![").Append(alt).Append("](").Append(EncodeLinkDestination(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
             {
