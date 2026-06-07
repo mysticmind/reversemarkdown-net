@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ReverseMarkdown.Dom;
 using ReverseMarkdown.Helpers;
 
@@ -81,10 +82,156 @@ namespace ReverseMarkdown.Writers
 
         // v5 percent-encodes spaces and parentheses in a link href (rather than CommonMark's
         // backslash/<…> escaping), so the destination round-trips without breaking the ().
+        private bool _inLinkText;
+
+        // v5 escapes only the bracket delimiters in link text (so *, _ in a URL-like text stay
+        // literal); elsewhere it escapes emphasis delimiters and entity-encodes angle brackets so
+        // they aren't read as inline HTML.
+        protected override void AppendText(string text)
+        {
+            if (_inLinkText)
+            {
+                foreach (var c in text)
+                {
+                    if (c is '[' or ']')
+                    {
+                        Buffer.Append('\\');
+                    }
+
+                    Buffer.Append(c);
+                }
+
+                return;
+            }
+
+            // Content inside a literal backtick code span is verbatim (v5 un-escapes key chars
+            // there), so only escape outside backticks.
+            var inBackticks = false;
+            foreach (var c in text)
+            {
+                if (c == '`')
+                {
+                    inBackticks = !inBackticks;
+                    Buffer.Append(c);
+                }
+                else if (inBackticks)
+                {
+                    Buffer.Append(c);
+                }
+                else
+                {
+                    switch (c)
+                    {
+                        case '<': Buffer.Append("&lt;"); break;
+                        case '>': Buffer.Append("&gt;"); break;
+                        case '*':
+                        case '_': Buffer.Append('\\').Append(c); break;
+                        default: Buffer.Append(c); break;
+                    }
+                }
+            }
+        }
+
+        public override void Visit(MdParagraph node)
+        {
+            if (!Config.EscapeMarkdownLineStarts)
+            {
+                base.Visit(node);
+                return;
+            }
+
+            // Escape markdown block markers (#, -/*/+, N./N), setext rules) at the start of each
+            // line so literal paragraph text isn't reinterpreted as a heading/list/rule.
+            var text = Capture(() => WriteInline(node.Children));
+            Buffer.Append(EscapeMarkdownLineStarts(text));
+            TrimTrailingSpaces();
+        }
+
+        private static string EscapeMarkdownLineStarts(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return content;
+            }
+
+            var lines = content.Replace("\r\n", "\n").Split('\n');
+            for (var i = 0; i < lines.Length; i++)
+            {
+                lines[i] = EscapeLineStart(lines[i]);
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        private static string EscapeLineStart(string line)
+        {
+            if (string.IsNullOrEmpty(line))
+            {
+                return line;
+            }
+
+            var index = 0;
+            while (index < line.Length && line[index] == ' ' && index < 3)
+            {
+                index++;
+            }
+
+            if (index >= line.Length || line[index] == '\\')
+            {
+                return line;
+            }
+
+            var current = line[index];
+            if (IsSetextUnderline(line, index) || current == '#')
+            {
+                return line.Insert(index, "\\");
+            }
+
+            if (current is '-' or '*' or '+' && IsLineMarker(line, index))
+            {
+                return line.Insert(index, "\\");
+            }
+
+            if (char.IsDigit(current))
+            {
+                var digitEnd = index;
+                while (digitEnd < line.Length && char.IsDigit(line[digitEnd]))
+                {
+                    digitEnd++;
+                }
+
+                if (digitEnd < line.Length && line[digitEnd] is '.' or ')' && IsLineMarker(line, digitEnd))
+                {
+                    return line.Insert(digitEnd, "\\");
+                }
+            }
+
+            return line;
+        }
+
+        private static bool IsLineMarker(string line, int markerIndex)
+        {
+            var next = markerIndex + 1;
+            return next < line.Length && line[next] == ' ';
+        }
+
+        private static bool IsSetextUnderline(string line, int index)
+        {
+            var trimmed = line[index..].TrimEnd();
+            if (trimmed.Length < 3 || (trimmed[0] != '-' && trimmed[0] != '='))
+            {
+                return false;
+            }
+
+            return trimmed.All(c => c == trimmed[0]);
+        }
+
         public override void Visit(MdLink node)
         {
             // v5 trims the link text (e.g. a leading tab in the anchor content).
+            _inLinkText = true;
             var text = Capture(() => WriteInline(node.Children)).Trim();
+            _inLinkText = false;
             Buffer.Append('[').Append(text);
             Buffer.Append("](").Append(PercentEncodeHref(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
