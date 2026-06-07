@@ -1,5 +1,7 @@
-Whatever Inc.
+﻿Whatever Inc.
+
 Thanks for your enquiry.
+
 Section intro
 
 Article text

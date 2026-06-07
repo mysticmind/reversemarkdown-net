@@ -205,7 +205,10 @@ namespace ReverseMarkdown.Readers
                 }
             }
 
+            // <figure> is block-level: isolate its content as its own block.
+            ctx.FlushImplicitParagraph();
             ctx.ReadChildren(element);
+            ctx.FlushImplicitParagraph();
         }
     }
 
@@ -938,7 +941,19 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
+            // SuppressDivNewlines: each <div> contributes a soft line break instead of a block
+            // break, so a run of divs renders as single-newline-separated lines.
+            if (element.LocalName == "div" && ctx.Config.SuppressDivNewlines)
+            {
+                ctx.ReadChildren(element);
+                ctx.Emit(new MdLineBreak { Hard = false, SourceTag = element.LocalName });
+                return;
+            }
+
+            // div/section are block-level: isolate their content as its own block.
+            ctx.FlushImplicitParagraph();
             ctx.ReadChildren(element);
+            ctx.FlushImplicitParagraph();
         }
     }
 
@@ -978,7 +993,14 @@ namespace ReverseMarkdown.Readers
     /// </summary>
     public sealed class BypassReader : IMdReader
     {
-        public void Read(IElement element, ReaderContext ctx) => ctx.ReadChildren(element);
+        public void Read(IElement element, ReaderContext ctx)
+        {
+            // These wrappers (article/header/footer/main/nav/aside/figcaption) are block-level, so
+            // isolate their content in its own block rather than coalescing with siblings.
+            ctx.FlushImplicitParagraph();
+            ctx.ReadChildren(element);
+            ctx.FlushImplicitParagraph();
+        }
     }
 
     /// <summary>

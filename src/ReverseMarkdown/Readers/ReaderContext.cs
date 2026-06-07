@@ -116,6 +116,17 @@ namespace ReverseMarkdown.Readers
             }
         }
 
+        /// <summary>Close the current container's open implicit paragraph so following inline
+        /// content starts a new one. Block-level wrappers (div/section/aside/…) use this around
+        /// their content so adjacent wrappers render as separate blocks rather than running
+        /// together into one paragraph.</summary>
+        public void FlushImplicitParagraph()
+        {
+            var frame = _frames.Peek();
+            TrimTrailingWhitespace(frame.ImplicitParagraph);
+            frame.ImplicitParagraph = null;
+        }
+
         /// <summary>Read every child of <paramref name="node"/> into the current container.</summary>
         public void ReadChildren(INode node)
         {
