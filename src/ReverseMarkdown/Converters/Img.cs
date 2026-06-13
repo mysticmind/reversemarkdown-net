@@ -20,7 +20,7 @@ namespace ReverseMarkdown.Converters {
 
             var altAttribute = node.Attributes["alt"];
             var alt = node.GetAttributeValue("alt", string.Empty);
-            var src = node.GetAttributeValue("src", string.Empty);
+            var src = ResolveSource(node);
 
             // Check if this is a base64-encoded image
             bool isBase64Image = ImageUtils.IsValidBase64ImageData(src);
@@ -81,6 +81,48 @@ namespace ReverseMarkdown.Converters {
             }
 
             writer.Write(')');
+        }
+
+        /// <summary>
+        /// Returns the image source. When <see cref="Config.LazyImageSrcFallback"/> is enabled and the
+        /// <c>src</c> is empty or a <c>data:</c> placeholder (the fingerprint of JavaScript lazy-loading),
+        /// the first usable URL from <see cref="Config.LazyImageSourceAttributes"/> is used instead.
+        /// </summary>
+        private string ResolveSource(HtmlNode node)
+        {
+            var src = node.GetAttributeValue("src", string.Empty);
+
+            if (!Converter.Config.LazyImageSrcFallback || !IsPlaceholderSource(src)) {
+                return src;
+            }
+
+            foreach (var attributeName in Converter.Config.LazyImageSourceAttributes) {
+                var candidate = ExtractFirstUrl(node.GetAttributeValue(attributeName, string.Empty));
+                if (!string.IsNullOrEmpty(candidate) && !IsPlaceholderSource(candidate)) {
+                    return candidate;
+                }
+            }
+
+            return src;
+        }
+
+        private static bool IsPlaceholderSource(string src)
+        {
+            return string.IsNullOrWhiteSpace(src) ||
+                   src.TrimStart().StartsWith("data:", System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        // A srcset-style value is a comma-separated list of "url [descriptor]" candidates;
+        // take the first URL. For a plain src value this returns it unchanged.
+        private static string ExtractFirstUrl(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) {
+                return string.Empty;
+            }
+
+            var firstCandidate = value.Split(',')[0].Trim();
+            var spaceIndex = firstCandidate.IndexOf(' ');
+            return spaceIndex < 0 ? firstCandidate : firstCandidate.Substring(0, spaceIndex);
         }
 
         private void WriteTelegramFallback(TextWriter writer, string alt, string src, bool isBase64Image)
