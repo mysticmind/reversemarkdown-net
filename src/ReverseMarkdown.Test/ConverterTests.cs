@@ -130,6 +130,34 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenLinkTextContainsCodeSpanWithBrackets_ThenBracketsAreNotEscaped()
+        {
+            // https://github.com/mysticmind/reversemarkdown-net/issues/426
+            const string html =
+                "<a href=\"https://learn.microsoft.com/dotnet/api/system.runtime.interopservices.unmanagedcallersonlyattribute\"><code>[UnmanagedCallersOnly]</code></a>";
+
+            var converter = new Converter();
+
+            Assert.Equal(
+                "[`[UnmanagedCallersOnly]`](https://learn.microsoft.com/dotnet/api/system.runtime.interopservices.unmanagedcallersonlyattribute)",
+                converter.Convert(html)
+            );
+        }
+
+        [Fact]
+        public void WhenLinkTextContainsBracketsOutsideCodeSpan_ThenBracketsAreStillEscaped()
+        {
+            const string html = "<a href=\"https://example.com\">see [note] and <code>arr[i]</code></a>";
+
+            var converter = new Converter();
+
+            Assert.Equal(
+                @"[see \[note\] and `arr[i]`](https://example.com)",
+                converter.Convert(html)
+            );
+        }
+
+        [Fact]
         public void WhenCommonMarkTextContainsMarkdownLinkPattern_ThenEscapeOnlyPatternDelimiters()
         {
             const string html = "This is [a] and [label](https://example.com/path) with {plain} braces.";

@@ -42,19 +42,62 @@ public static partial class StringUtils {
     [GeneratedRegex(@"\r?\n\s*\r?\n", RegexOptions.Singleline)]
     private static partial Regex LinkTextRegex();
 
+    [GeneratedRegex(@"`+")]
+    private static partial Regex BackTickRunRegex();
+
     private static readonly StringReplaceValues _linkTextReplaceValues = new() {
         ["["] = @"\[",
         ["]"] = @"\]",
     };
 
     /// <summary>
-    /// Escape/clean characters which would break the [] section of a markdown []() link
+    /// Escape/clean characters which would break the [] section of a markdown []() link.
+    /// Square brackets inside inline code spans (delimited by backticks) are left untouched,
+    /// since they are not interpreted as link delimiters there.
     /// </summary>
     public static string EscapeLinkText(string rawText)
     {
-        return LinkTextRegex()
-            .Replace(rawText, Environment.NewLine)
-            .Replace(_linkTextReplaceValues);
+        var text = LinkTextRegex().Replace(rawText, Environment.NewLine);
+        return EscapeBracketsOutsideCodeSpans(text);
+    }
+
+    private static string EscapeBracketsOutsideCodeSpans(string text)
+    {
+        if (!text.Contains('`')) {
+            return text.Replace(_linkTextReplaceValues);
+        }
+
+        var builder = new StringBuilder(text.Length);
+        var index = 0;
+        while (index < text.Length) {
+            var openMatch = BackTickRunRegex().Match(text, index);
+            if (!openMatch.Success) {
+                builder.Append(text.Substring(index).Replace(_linkTextReplaceValues));
+                break;
+            }
+
+            // Escape brackets in the text preceding the code span.
+            builder.Append(text.Substring(index, openMatch.Index - index).Replace(_linkTextReplaceValues));
+
+            // Find the matching closing backtick run of the same length.
+            var closeMatch = openMatch.NextMatch();
+            while (closeMatch.Success && closeMatch.Value.Length != openMatch.Value.Length) {
+                closeMatch = closeMatch.NextMatch();
+            }
+
+            if (!closeMatch.Success) {
+                // Unbalanced backticks: treat the rest as ordinary text and escape it.
+                builder.Append(text.Substring(openMatch.Index).Replace(_linkTextReplaceValues));
+                break;
+            }
+
+            // Copy the code span (including delimiters) verbatim.
+            var spanEnd = closeMatch.Index + closeMatch.Length;
+            builder.Append(text, openMatch.Index, spanEnd - openMatch.Index);
+            index = spanEnd;
+        }
+
+        return builder.ToString();
     }
 
 
