@@ -180,6 +180,8 @@ Notes:
   * `Base64ImageHandling.SaveToFile` - Save base64-encoded images to disk and reference the saved file path in markdown. Requires `Base64ImageSaveDirectory` to be set
 * `Base64ImageSaveDirectory` - When `Base64Images` is set to `SaveToFile`, specifies the directory path where images should be saved
 * `Base64ImageFileNameGenerator` - When `Base64Images` is set to `SaveToFile`, this function generates a filename for each saved image. The function receives the image index (int) and MIME type (string), and should return a filename without extension. If not specified, images will be named as `image_0`, `image_1`, etc.
+* `LazyImageSrcFallback` - When enabled, an `<img>` whose `src` is empty or a `data:` placeholder (as used by JavaScript lazy-loading libraries) falls back to the first usable URL found in `LazyImageSourceAttributes`. Default is false, so `src` is always used as-is unless turned on
+* `LazyImageSourceAttributes` - Ordered list of attributes consulted (first usable wins) when `LazyImageSrcFallback` is enabled and `src` is empty or a `data:` placeholder. Defaults to `data-src`, `data-original`, `data-lazy-src`, `data-srcset`, `data-original-src` (`srcset`-style values use their first URL)
 
 ### Custom converter alias
 

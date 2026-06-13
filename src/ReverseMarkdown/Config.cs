@@ -229,6 +229,21 @@ namespace ReverseMarkdown
         /// </summary>
         public Func<int, string, string>? Base64ImageFileNameGenerator { get; set; }
 
+        /// <summary>
+        /// When enabled, an &lt;img&gt; whose <c>src</c> is empty or a <c>data:</c> placeholder
+        /// (as used by JavaScript lazy-loading libraries) falls back to the first usable URL found
+        /// in <see cref="LazyImageSourceAttributes"/>. Disabled by default, so the <c>src</c>
+        /// attribute is always used as-is unless this is turned on.
+        /// </summary>
+        public bool LazyImageSrcFallback { get; set; } = false;
+
+        /// <summary>
+        /// Ordered list of attributes consulted (first usable wins) when <see cref="LazyImageSrcFallback"/>
+        /// is enabled and the <c>src</c> attribute is empty or a <c>data:</c> placeholder.
+        /// </summary>
+        public List<string> LazyImageSourceAttributes { get; set; } =
+            ["data-src", "data-original", "data-lazy-src", "data-srcset", "data-original-src"];
+
 
         /// <summary>
         /// Determines whether url is allowed: WhitelistUriSchemes contains no elements or contains passed url.

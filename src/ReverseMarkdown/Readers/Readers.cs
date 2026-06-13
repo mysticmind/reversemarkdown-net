@@ -217,8 +217,8 @@ namespace ReverseMarkdown.Readers
     {
         public void Read(IElement element, ReaderContext ctx)
         {
-            var src = element.GetAttribute("src") ?? string.Empty;
             var config = ctx.Config;
+            var src = ResolveSource(element, config);
 
             // Only a well-formed image data URI counts as base64; a malformed/truncated data: URI
             // falls through to the scheme whitelist check (its scheme is "data"), matching v5.
@@ -260,6 +260,52 @@ namespace ReverseMarkdown.Readers
             }
 
             ctx.Emit(image);
+        }
+
+        /// <summary>
+        /// Returns the image source. When <see cref="Config.LazyImageSrcFallback"/> is enabled and the
+        /// <c>src</c> is empty or a <c>data:</c> placeholder (the fingerprint of JavaScript lazy-loading),
+        /// the first usable URL from <see cref="Config.LazyImageSourceAttributes"/> is used instead.
+        /// </summary>
+        private static string ResolveSource(IElement element, Config config)
+        {
+            var src = element.GetAttribute("src") ?? string.Empty;
+
+            if (!config.LazyImageSrcFallback || !IsPlaceholderSource(src))
+            {
+                return src;
+            }
+
+            foreach (var attributeName in config.LazyImageSourceAttributes)
+            {
+                var candidate = ExtractFirstUrl(element.GetAttribute(attributeName) ?? string.Empty);
+                if (!string.IsNullOrEmpty(candidate) && !IsPlaceholderSource(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            return src;
+        }
+
+        private static bool IsPlaceholderSource(string src)
+        {
+            return string.IsNullOrWhiteSpace(src) ||
+                   src.TrimStart().StartsWith("data:", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // A srcset-style value is a comma-separated list of "url [descriptor]" candidates;
+        // take the first URL. For a plain src value this returns it unchanged.
+        private static string ExtractFirstUrl(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            var firstCandidate = value.Split(',')[0].Trim();
+            var spaceIndex = firstCandidate.IndexOf(' ');
+            return spaceIndex < 0 ? firstCandidate : firstCandidate.Substring(0, spaceIndex);
         }
     }
 
