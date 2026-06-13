@@ -158,6 +158,21 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void WhenListItemHasInlineCodeBeforeNestedList_ThenSpaceAfterCodeIsPreserved()
+        {
+            // https://github.com/mysticmind/reversemarkdown-net/issues/428
+            const string html =
+                "<li>The <code>label</code> text is mandatory:<ul><li><code>TryDeleteType()</code> returns <code>false</code></li></ul></li>" +
+                "<li><code>AddItem</code> creates a new entry:<ul><li>default values</li><li>metadata</li></ul></li>";
+
+            var converter = new Converter(new Config { GithubFlavored = true });
+            var result = converter.Convert(html);
+
+            Assert.Contains("- The `label` text is mandatory:", result);
+            Assert.Contains("- `AddItem` creates a new entry:", result);
+        }
+
+        [Fact]
         public void WhenCommonMarkTextContainsMarkdownLinkPattern_ThenEscapeOnlyPatternDelimiters()
         {
             const string html = "This is [a] and [label](https://example.com/path) with {plain} braces.";

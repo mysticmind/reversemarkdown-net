@@ -17,9 +17,11 @@ namespace ReverseMarkdown.Converters {
             // Standardize whitespace before inner lists so that the following are equivalent
             //   <li>Foo<ul><li>...
             //   <li>Foo\n    <ul><li>...
-            foreach (var innerList in node.SelectNodes("//ul|//ol") ?? Enumerable.Empty<HtmlNode>()) {
+            // Only trim trailing whitespace: leading whitespace can be a significant
+            // separator after preceding inline content (e.g. "<code>x</code> <ul>").
+            foreach (var innerList in node.SelectNodes(".//ul|.//ol") ?? Enumerable.Empty<HtmlNode>()) {
                 if (innerList.PreviousSibling?.NodeType == HtmlNodeType.Text) {
-                    innerList.PreviousSibling.InnerHtml = innerList.PreviousSibling.InnerHtml.Trim(); // TODO optimize
+                    innerList.PreviousSibling.InnerHtml = innerList.PreviousSibling.InnerHtml.TrimEnd(); // TODO optimize
                 }
             }
 
