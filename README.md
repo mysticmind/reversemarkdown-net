@@ -1,6 +1,8 @@
 # Meet ReverseMarkdown
 
-<img src="assets/logo.png" alt="ReverseMarkdown logo" width="160" />
+<p align="center">
+  <img src="assets/logo.png" alt="ReverseMarkdown logo" width="160" />
+</p>
 
 [![Build status](https://github.com/mysticmind/reversemarkdown-net/actions/workflows/ci.yaml/badge.svg)](https://github.com/mysticmind/reversemarkdown-net/actions/workflows/ci.yaml) [![NuGet Version](https://badgen.net/nuget/v/reversemarkdown)](https://www.nuget.org/packages/ReverseMarkdown/)
 
