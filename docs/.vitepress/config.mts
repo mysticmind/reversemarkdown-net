@@ -23,6 +23,8 @@ export default defineConfig({
         dirs: ['samples'],
         include: /^sample_/,
         syntax: 'snippet-colon',
+        // Emit an anchor + "source" link under each snippet, pointing at the sample file on GitHub.
+        urlPrefix: 'https://github.com/mysticmind/reversemarkdown-net/blob/master',
       })
     },
   },
