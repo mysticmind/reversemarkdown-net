@@ -13,7 +13,7 @@ in addition to modern .NET (8/9/10).
 
 ## Dependencies
 
-- [AngleSharp](https://www.nuget.org/packages/AngleSharp/) — the HTML5-compliant parser used by
+- [AngleSharp](https://www.nuget.org/packages/AngleSharp/) - the HTML5-compliant parser used by
   the v6 conversion pipeline.
 
 On `netstandard2.0`, the library uses the source-only [Polyfill](https://www.nuget.org/packages/Polyfill/)

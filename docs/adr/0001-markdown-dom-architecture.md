@@ -1,4 +1,4 @@
-# ADR 0001 — Intermediate Markdown DOM for v6
+# ADR 0001 - Intermediate Markdown DOM for v6
 
 - Status: **Proposed**
 - Date: 2026-06-05
@@ -16,13 +16,13 @@ flavor branching is duplicated inside ~21 converters across ~63 sites.
 Two forces expose the limits of this design:
 
 1. **Flavor scaling.** Adding MultiMarkdown and Pandoc requires editing ~21 converters.
-   Each new flavor multiplies the branching — an N×M problem.
+   Each new flavor multiplies the branching - an N×M problem.
 2. **Issue #79.** Users want structured, *filterable* output ("return an object I can pick
    from", "filter what I don't want") rather than only a final string. The streaming design
    has no intermediate object to expose.
 
 The library already has the HTML half of an AST (HtmlAgilityPack's `HtmlNode` tree) but no
-Markdown AST — converters jump straight from HTML node to string.
+Markdown AST - converters jump straight from HTML node to string.
 
 ## Decision
 
@@ -46,7 +46,7 @@ unified.js (`hast` → `mdast` → stringify).
 - N×M → N+M. New flavor = one writer; new HTML feature = one reader benefiting all flavors.
 - Flavor branching leaves the converters and consolidates in writers.
 - Issue #79 is satisfied by the substrate, not a bolt-on: query/prune/reshape the tree,
-  then render — optionally to multiple flavors from one parse.
+  then render - optionally to multiple flavors from one parse.
 - Block separation/whitespace becomes a structural writer decision instead of scattered
   string patching and a global newline-collapse regex.
 - Readers and writers are stateless and individually unit-testable; the `AsyncLocal`

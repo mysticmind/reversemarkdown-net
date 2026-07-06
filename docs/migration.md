@@ -9,7 +9,7 @@ Existing code keeps compiling (with deprecation warnings guiding you to the new 
 - HTML is now parsed with **AngleSharp** (HTML5-compliant) instead of HtmlAgilityPack, and rendered
   through per-flavor writers over an intermediate Markdown DOM.
 - Custom converters written against the v5 `HtmlNode`/`IConverter` model no longer apply. Use the
-  v6 [reader/writer model](/extending) instead — `IMdReader` + `[MarkdownReader]`, or the
+  v6 [reader/writer model](/extending) instead - `IMdReader` + `[MarkdownReader]`, or the
   `Parse`/`Render` DOM.
 
 ## Config reorganization
@@ -44,7 +44,7 @@ Options are now grouped. The former flat properties are obsolete aliases:
 
 - **`Flavor`** (the `MarkdownFlavor` enum) is now the single, canonical flavor selector.
 - `SlackFlavored`, `TelegramMarkdownV2`, and `CommonMark` are **obsolete aliases** of `Flavor`.
-- **`GithubFlavored` stays distinct** — it produces clean GFM markdown on the default writer and is
+- **`GithubFlavored` stays distinct** - it produces clean GFM markdown on the default writer and is
   **not** the same as `Flavor = MarkdownFlavor.GitHub` (the CommonMark-based GitHub writer, which
   preserves raw HTML). See [GitHub](/flavors/github).
 

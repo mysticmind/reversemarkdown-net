@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/reversemarkdown-net/',
   lastUpdated: true,
   cleanUrls: true,
-  // Architecture Decision Records live under docs/adr but are internal — not site pages.
+  // Architecture Decision Records live under docs/adr but are internal - not site pages.
   srcExclude: ['adr/**'],
   head: [
     ['link', { rel: 'icon', href: '/reversemarkdown-net/logo.png' }],

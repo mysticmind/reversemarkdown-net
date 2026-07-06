@@ -15,9 +15,9 @@ The legacy `CommonMark = true` switch is an obsolete alias of `Flavor = Markdown
 
 These options apply when the CommonMark flavor is selected:
 
-- **`CommonMarkUseHtmlInlineTags`** *(default `true`)* — emit HTML for inline tags
+- **`CommonMarkUseHtmlInlineTags`** *(default `true`)* - emit HTML for inline tags
   (`em`/`strong`/`a`/`img`) to avoid delimiter edge cases.
-- **`CommonMarkIntrawordEmphasisSpacing`** *(default `false`)* — insert spaces to avoid intraword
+- **`CommonMarkIntrawordEmphasisSpacing`** *(default `false`)* - insert spaces to avoid intraword
   emphasis, so `he<strong>ll</strong>o` becomes `he **ll** o`.
 
 ```csharp

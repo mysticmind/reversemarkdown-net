@@ -18,7 +18,7 @@ var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.GitHub };
 
 ### `GithubFlavored = true`
 
-A legacy switch that produces **clean GFM markdown on the default writer** — `<br>`, `<pre>` →
+A legacy switch that produces **clean GFM markdown on the default writer** - `<br>`, `<pre>` →
 fenced code blocks, and task lists. Tables are always emitted as GFM regardless of this flag.
 
 ```csharp

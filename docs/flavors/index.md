@@ -21,7 +21,7 @@ var converter = new ReverseMarkdown.Converter(config);
 ## Legacy switches
 
 The boolean switches `SlackFlavored`, `TelegramMarkdownV2`, and `CommonMark` still work but are
-**obsolete aliases** of `Flavor` — prefer the enum.
+**obsolete aliases** of `Flavor` - prefer the enum.
 
 `GithubFlavored` is the exception: it is a distinct switch (GFM-style conversion on the default
 writer) and is **not** the same as `Flavor = MarkdownFlavor.GitHub`. See the

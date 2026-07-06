@@ -21,11 +21,11 @@ hero:
 
 features:
   - title: Seven flavors
-    details: Default, GitHub, CommonMark, Slack, Telegram, MultiMarkdown, and Pandoc — selected with a single Flavor enum.
+    details: Default, GitHub, CommonMark, Slack, Telegram, MultiMarkdown, and Pandoc - selected with a single Flavor enum.
   - title: Spec-compliant round-trips
     details: CommonMark and GitHub Flavored Markdown round-trip at 100% against canonical cmark-gfm; MultiMarkdown and Pandoc verified against canonical pandoc.
   - title: Extensible
     details: Plug in custom readers, alias tags, or transform the Markdown DOM directly via Parse/Render.
   - title: Broad framework support
-    details: Targets netstandard2.0, net8.0, net9.0, and net10.0 — runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity.
+    details: Targets netstandard2.0, net8.0, net9.0, and net10.0 - runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity.
 ---

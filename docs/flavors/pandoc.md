@@ -10,10 +10,10 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ## Native constructs
 
-- **Document metadata** — emitted as a YAML metadata block.
-- **Fenced divs** — `<div>` with attributes becomes a fenced div.
-- **Bracketed spans** — a classed/id'd `<span>` becomes a bracketed span.
-- **Definition lists** — `<dl>`/`<dt>`/`<dd>` render with `:` definition syntax.
+- **Document metadata** - emitted as a YAML metadata block.
+- **Fenced divs** - `<div>` with attributes becomes a fenced div.
+- **Bracketed spans** - a classed/id'd `<span>` becomes a bracketed span.
+- **Definition lists** - `<dl>`/`<dt>`/`<dd>` render with `:` definition syntax.
 - **Math** (`$..$` / `$$..$$`), **citations** (`<cite data-cite>`), **abbreviations**, and
   **line blocks**.
 - **Heading attributes** and **footnotes**.

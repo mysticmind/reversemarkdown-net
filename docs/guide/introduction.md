@@ -9,15 +9,15 @@ MultiMarkdown and Pandoc output flavors.
 
 ## Highlights
 
-- **Seven output flavors** — Default, GitHub, CommonMark, Slack, Telegram, MultiMarkdown, and
+- **Seven output flavors** - Default, GitHub, CommonMark, Slack, Telegram, MultiMarkdown, and
   Pandoc, chosen via the [`Flavor`](/configuration#flavor) enum.
-- **Spec-compliant round-trips** — CommonMark (651/651) and GitHub Flavored Markdown (672/672)
+- **Spec-compliant round-trips** - CommonMark (651/651) and GitHub Flavored Markdown (672/672)
   round-trip at 100% against canonical cmark-gfm; MultiMarkdown and Pandoc are verified against
   canonical `pandoc`.
-- **Filterable, structured output** — `Parse()` returns a mutable Markdown DOM you can traverse
+- **Filterable, structured output** - `Parse()` returns a mutable Markdown DOM you can traverse
   and transform before `Render()`, plus HTML pre-filtering via CSS selectors and predicates.
-- **Extensible** — plug in [custom readers](/extending#custom-readers), alias tags, or transform
+- **Extensible** - plug in [custom readers](/extending#custom-readers), alias tags, or transform
   the DOM directly.
-- **Broad framework support** — see [Supported Frameworks](/guide/supported-frameworks).
+- **Broad framework support** - see [Supported Frameworks](/guide/supported-frameworks).
 
 Using v5.x? See the [v5.x documentation](https://github.com/mysticmind/reversemarkdown-net/blob/5.x/README.md).

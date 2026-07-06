@@ -11,6 +11,6 @@ var converter = new ReverseMarkdown.Converter(config);
 The legacy `SlackFlavored = true` switch is an obsolete alias of `Flavor = MarkdownFlavor.Slack`.
 
 ::: warning
-Slack has no table syntax — a `<table>` raises an unsupported-tag exception under this flavor.
+Slack has no table syntax - a `<table>` raises an unsupported-tag exception under this flavor.
 The `Formatting.ListBulletChar` option is ignored for Slack, which always uses `•`.
 :::
