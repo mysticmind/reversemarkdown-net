@@ -8,6 +8,9 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/deploy-docs.yml'
+  # v5 docs live on the 5.x branch. A push there can't safely retrigger this master
+  # workflow, so redeploy the combined site (v6 at root + v5 at /v5/) via a manual run
+  # after updating v5 docs.
   workflow_dispatch:
 
 # Allow the GITHUB_TOKEN to deploy to GitHub Pages.
@@ -25,16 +28,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # --- v6 (latest) -> site root ---
+      - name: Checkout master (v6 docs)
+        uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
       - uses: actions/configure-pages@v5
-      - run: npm ci
-      - name: Build VitePress site
+      - name: Install v6 deps
+        run: npm ci
+      - name: Build v6 site (root)
         run: npm run docs:build
-      - uses: actions/upload-pages-artifact@v3
+
+      # --- v5 -> /v5/ sub-path ---
+      - name: Checkout 5.x (v5 docs)
+        uses: actions/checkout@v4
+        with:
+          ref: 5.x
+          path: v5-src
+      - name: Install v5 deps
+        working-directory: v5-src
+        run: npm ci
+      - name: Build v5 site (base /v5/)
+        working-directory: v5-src
+        run: npm run docs:build
+      - name: Place v5 build under /v5/
+        run: |
+          mkdir -p docs/.vitepress/dist/v5
+          cp -r v5-src/docs/.vitepress/dist/. docs/.vitepress/dist/v5/
+
+      - name: Upload combined Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: docs/.vitepress/dist
 
