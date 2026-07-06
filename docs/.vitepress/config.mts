@@ -16,11 +16,6 @@ export default defineConfig({
   themeConfig: {
     logo: '/logo.png',
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Flavors', link: '/flavors/' },
-      { text: 'Configuration', link: '/configuration' },
-      { text: 'Extending', link: '/extending' },
-      { text: 'NuGet', link: 'https://www.nuget.org/packages/ReverseMarkdown/' },
       {
         // Version switcher. This is the v5 site; v6 (latest) lives at the site root.
         text: 'v5.x',
@@ -29,6 +24,11 @@ export default defineConfig({
           { text: 'v5.x (current)', link: '/' },
         ],
       },
+      { text: 'Guide', link: '/guide/getting-started' },
+      { text: 'Flavors', link: '/flavors/' },
+      { text: 'Configuration', link: '/configuration' },
+      { text: 'Extending', link: '/extending' },
+      { text: 'NuGet', link: 'https://www.nuget.org/packages/ReverseMarkdown/' },
     ],
     sidebar: [
       {
