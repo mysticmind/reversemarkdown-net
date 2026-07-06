@@ -18,21 +18,28 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact-name: Linux
-          #- os: macos-11
-          # artifact-name: Darwin
-          #- os: windows-2022
-          #  artifact-name: Win64 
-    runs-on: ${{ matrix.os }} 
+          - os: windows-latest
+            artifact-name: Win64
+          #- os: macos-latest
+          #  artifact-name: Darwin
+    runs-on: ${{ matrix.os }}
     continue-on-error: true
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
-      - name: Install .NET 9.0.x
+      - name: Install .NET SDKs (8/9/10)
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
       - name: Display dotnet info
-        run: dotnet --list-sdks  
+        run: dotnet --list-sdks
+      # Build the library for every target framework (including netstandard2.0),
+      # so a break in the downlevel build is caught here rather than at publish time.
+      - name: Build library (all target frameworks)
+        run: dotnet build src/ReverseMarkdown/ReverseMarkdown.csproj -c Release
+      # Run the test suite across every test target framework (net8.0/net9.0/net10.0).
       - name: Run tests
-        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net9.0
-
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj -c Release
