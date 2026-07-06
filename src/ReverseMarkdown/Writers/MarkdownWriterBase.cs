@@ -524,10 +524,17 @@ namespace ReverseMarkdown.Writers
             Buffer.Append("</sub>");
         }
 
+        // True while rendering the text of a link/image ("[...]"): link text has its own escaping
+        // rules, so the CommonMark link-pattern escaping must not additionally rewrite it.
+        protected bool InLinkText { get; private set; }
+
         public virtual void Visit(MdLink node)
         {
             Buffer.Append('[');
+            var wasInLinkText = InLinkText;
+            InLinkText = true;
             WriteInline(node.Children);
+            InLinkText = wasInLinkText;
             Buffer.Append("](").Append(EncodeLinkDestination(node.Url));
             if (!string.IsNullOrEmpty(node.Title))
             {

@@ -114,7 +114,7 @@ namespace ReverseMarkdown.Test
                 return html;
             }
 
-            return Norm(angle.ParseDocument(html).Body!.InnerHtml);
+            return Norm(angle.ParseDocument(html.TrimEnd()).Body!.InnerHtml);
         }
 
 

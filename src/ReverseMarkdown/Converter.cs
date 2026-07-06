@@ -28,6 +28,13 @@ namespace ReverseMarkdown {
 
         public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
+            // The legacy CommonMark switch is equivalent to the CommonMark flavor (roundtrip-faithful
+            // reader + writer). Normalize it up front so the reader and writer agree on the flavor.
+            if (config.CommonMark && config.Flavor == Config.MarkdownFlavor.Default)
+            {
+                config.Flavor = Config.MarkdownFlavor.CommonMark;
+            }
+
             Config = config;
             _markdownDomReader = new MarkdownDomReader(Config, additionalAssemblies);
         }
@@ -93,6 +100,11 @@ namespace ReverseMarkdown {
         {
             html = html.ReplaceLineEndings("\n");
             html = Cleaner.FixUnclosedScriptStyle(html);
+
+            // Trailing whitespace after the last block is insignificant, but the HTML5 parser will
+            // reconstruct an unclosed formatting element (e.g. "<p>x <a></p>\n") around it, emitting
+            // a phantom trailing element. Trim it so that does not leak into the output.
+            html = html.TrimEnd();
 
             var document = _htmlParser.ParseDocument(html);
             var body = document.Body!;

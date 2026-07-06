@@ -72,56 +72,17 @@ namespace ReverseMarkdown.Writers
         // v5 inserts a space between two adjacent same-type emphasis runs so their delimiters
         // don't merge (*a**b* mis-parses; emit *a* *b*). Mixed types (em then strong) are left
         // untouched.
-        protected override string? InlineSeparator(MdInline previous, MdInline next)
-        {
-            // CommonMark intraword emphasis: an emphasis run sitting flush against a word character
-            // (e.g. he<strong>ll</strong>o) must be spaced out (he **ll** o) so the delimiters bind.
-            if (Config.CommonMark && Config.CommonMarkIntrawordEmphasisSpacing)
-            {
-                var boundaryIsWord = IsWordChar(LastChar(previous)) && IsWordChar(FirstChar(next));
-                if (boundaryIsWord && (IsEmphasisRun(next) || IsEmphasisRun(previous)))
-                {
-                    return " ";
-                }
-            }
-
-            return (previous, next) switch
+        protected override string? InlineSeparator(MdInline previous, MdInline next) =>
+            (previous, next) switch
             {
                 (MdEmphasis, MdEmphasis) => " ",
                 (MdStrong, MdStrong) => " ",
                 _ => null,
             };
-        }
 
         // v5 folds a continuation paragraph in a list item behind a blank line so it round-trips as
         // a separate paragraph rather than lazily merging into the item's first line.
         protected override bool BlankLineBeforeContinuationParagraph => true;
-
-        private static bool IsEmphasisRun(MdInline node) => node is MdEmphasis or MdStrong;
-
-        private static bool IsWordChar(char? value) => value.HasValue && char.IsLetterOrDigit(value.Value);
-
-        // Boundary text characters of an inline node (the last/first character of its flattened
-        // text content), used to detect word-character adjacency across an emphasis boundary.
-        private static char? LastChar(MdInline node) => FlattenText(node) is { Length: > 0 } s ? s[^1] : null;
-
-        private static char? FirstChar(MdInline node) => FlattenText(node) is { Length: > 0 } s ? s[0] : null;
-
-        private static string FlattenText(MdNode node)
-        {
-            if (node is MdText text)
-            {
-                return text.Value;
-            }
-
-            var sb = new System.Text.StringBuilder();
-            foreach (var child in node.EnumerateChildren())
-            {
-                sb.Append(FlattenText(child));
-            }
-
-            return sb.ToString();
-        }
 
         // v5 percent-encodes spaces and parentheses in a link href (rather than CommonMark's
         // backslash/<…> escaping), so the destination round-trips without breaking the ().
@@ -145,14 +106,6 @@ namespace ReverseMarkdown.Writers
                 }
 
                 return;
-            }
-
-            // CommonMark: a plain-text run that looks like a markdown link/image/reference (e.g.
-            // "[label](url)") must have only its pattern delimiters escaped so it round-trips as
-            // literal text; stray brackets/braces elsewhere (e.g. "[a]", "{plain}") stay literal.
-            if (Config.CommonMark)
-            {
-                text = EscapeCommonMarkPatternDelimiters(text);
             }
 
             // Content inside a literal backtick code span is verbatim (v5 un-escapes key chars
@@ -181,72 +134,6 @@ namespace ReverseMarkdown.Writers
                     }
                 }
             }
-        }
-
-        // CommonMark link/image/reference/definition patterns whose bracket & paren delimiters are
-        // escaped so literal text that resembles them does not render as a link (v5 Text.cs parity).
-        private static readonly System.Text.RegularExpressions.Regex CommonMarkInlineLinkOrImagePattern =
-            new(@"!?\[[^\]\r\n]*\]\([^\)\r\n]*\)", System.Text.RegularExpressions.RegexOptions.Compiled);
-
-        private static readonly System.Text.RegularExpressions.Regex CommonMarkReferenceLinkPattern =
-            new(@"\[[^\]\r\n]+\]\[[^\]\r\n]*\]", System.Text.RegularExpressions.RegexOptions.Compiled);
-
-        private static readonly System.Text.RegularExpressions.Regex CommonMarkLinkDefinitionPattern =
-            new(@"(?m)^ {0,3}\[[^\]\r\n]+\]:", System.Text.RegularExpressions.RegexOptions.Compiled);
-
-        private static bool IsCommonMarkDelimiter(char character) =>
-            character is '[' or ']' or '(' or ')' or '{' or '}';
-
-        private static string EscapeCommonMarkPatternDelimiters(string content)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                return content;
-            }
-
-            var shouldEscape = new bool[content.Length];
-            var hasDelimitersToEscape =
-                MarkCommonMarkPatternDelimiters(shouldEscape, content, CommonMarkInlineLinkOrImagePattern) |
-                MarkCommonMarkPatternDelimiters(shouldEscape, content, CommonMarkReferenceLinkPattern) |
-                MarkCommonMarkPatternDelimiters(shouldEscape, content, CommonMarkLinkDefinitionPattern);
-
-            if (!hasDelimitersToEscape)
-            {
-                return content;
-            }
-
-            var escaped = new System.Text.StringBuilder(content.Length);
-            for (var i = 0; i < content.Length; i++)
-            {
-                if (shouldEscape[i] && (i == 0 || content[i - 1] != '\\'))
-                {
-                    escaped.Append('\\');
-                }
-
-                escaped.Append(content[i]);
-            }
-
-            return escaped.ToString();
-        }
-
-        private static bool MarkCommonMarkPatternDelimiters(
-            bool[] shouldEscape, string content, System.Text.RegularExpressions.Regex pattern)
-        {
-            var foundDelimiters = false;
-            foreach (System.Text.RegularExpressions.Match match in pattern.Matches(content))
-            {
-                var end = match.Index + match.Length;
-                for (var i = match.Index; i < end; i++)
-                {
-                    if (IsCommonMarkDelimiter(content[i]))
-                    {
-                        shouldEscape[i] = true;
-                        foundDelimiters = true;
-                    }
-                }
-            }
-
-            return foundDelimiters;
         }
 
         public override void Visit(MdParagraph node)

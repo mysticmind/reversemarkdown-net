@@ -16,6 +16,24 @@ namespace ReverseMarkdown.Writers
 
         protected virtual bool EscapeAtSigns => Config.Flavor == Config.MarkdownFlavor.Pandoc;
 
+        // CommonMark intraword emphasis: an emphasis run sitting flush against a word character
+        // (e.g. he<strong>ll</strong>o) is spaced out (he **ll** o) so the delimiters bind.
+        protected override string? InlineSeparator(MdInline previous, MdInline next)
+        {
+            if (Config.CommonMarkIntrawordEmphasisSpacing)
+            {
+                var boundaryIsWord = CommonMarkText.IsWordChar(CommonMarkText.LastChar(previous)) &&
+                                     CommonMarkText.IsWordChar(CommonMarkText.FirstChar(next));
+                if (boundaryIsWord &&
+                    (CommonMarkText.IsEmphasisRun(next) || CommonMarkText.IsEmphasisRun(previous)))
+                {
+                    return " ";
+                }
+            }
+
+            return base.InlineSeparator(previous, next);
+        }
+
         protected override void WriteText(string value)
         {
             if (string.IsNullOrEmpty(value))
@@ -35,10 +53,25 @@ namespace ReverseMarkdown.Writers
                 .Replace("`", "\\`")
                 .Replace("*", "\\*")
                 .Replace("_", "\\_")
-                .Replace("[", "\\[")
-                .Replace("]", "\\]")
                 .Replace("<", "&lt;")
                 .Replace(">", "&gt;");
+
+            // Bracket escaping. Pure CommonMark escapes only the bracket/paren delimiters that form
+            // a link/image/reference pattern, so literal "[label](url)" round-trips as text while
+            // stray "[a]" / "(x)" / "{y}" stay literal (skipped inside link text, which already sits
+            // within "[...]"). GFM/Pandoc/MultiMarkdown give more brackets meaning (task lists,
+            // citations, shortcut references), so they escape every "[" / "]" to be safe.
+            if (Config.Flavor == Config.MarkdownFlavor.CommonMark)
+            {
+                if (!InLinkText)
+                {
+                    content = CommonMarkText.EscapePatternDelimiters(content);
+                }
+            }
+            else
+            {
+                content = content.Replace("[", "\\[").Replace("]", "\\]");
+            }
 
             content = EscapeLineStarts(content);
 
