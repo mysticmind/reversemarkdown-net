@@ -3,15 +3,23 @@
     <Description>ReverseMarkdown is a Html to Markdown converter library in c#</Description>
     <VersionPrefix>5.3.0</VersionPrefix>
     <Authors>Babu Annamalai</Authors>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
+    <PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <!-- Pack the project logo as the NuGet package icon. -->
+    <None Include="..\..\assets\logo.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- v6 uses AngleSharp's HTML5-compliant parser. -->
+    <PackageReference Include="AngleSharp" Version="1.5.2" />
+    <!-- Source-only polyfills so modern BCL/LINQ/Regex APIs compile on netstandard2.0. -->
+    <PackageReference Include="Polyfill" Version="10.11.2" PrivateAssets="all" />
   </ItemGroup>
   <!--SourceLink specific settings-->
   <PropertyGroup>
@@ -22,6 +30,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="all" />
   </ItemGroup>
 </Project>

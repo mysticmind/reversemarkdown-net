@@ -1,0 +1,227 @@
+using System.Text;
+using ReverseMarkdown.Dom;
+
+namespace ReverseMarkdown.Writers
+{
+    /// <summary>
+    /// CommonMark writer. Unlike the base flavor, text is rendered roundtrip-faithfully:
+    /// soft line breaks are preserved (not collapsed to spaces), markup-significant characters
+    /// are escaped, and line-start markers are escaped so literal text is not reinterpreted.
+    /// </summary>
+    public class CommonMarkWriter : MarkdownWriterBase
+    {
+        public CommonMarkWriter(Config config) : base(config)
+        {
+        }
+
+        protected virtual bool EscapeAtSigns => Config.Flavor == Config.MarkdownFlavor.Pandoc;
+
+        // CommonMark intraword emphasis: an emphasis run sitting flush against a word character
+        // (e.g. he<strong>ll</strong>o) is spaced out (he **ll** o) so the delimiters bind.
+        protected override string? InlineSeparator(MdInline previous, MdInline next)
+        {
+            if (Config.CommonMarkIntrawordEmphasisSpacing)
+            {
+                var boundaryIsWord = CommonMarkText.IsWordChar(CommonMarkText.LastChar(previous)) &&
+                                     CommonMarkText.IsWordChar(CommonMarkText.FirstChar(next));
+                if (boundaryIsWord &&
+                    (CommonMarkText.IsEmphasisRun(next) || CommonMarkText.IsEmphasisRun(previous)))
+                {
+                    return " ";
+                }
+            }
+
+            return base.InlineSeparator(previous, next);
+        }
+
+        protected override void WriteText(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return;
+            }
+
+            // CommonMark preserves significant whitespace in text (multiple spaces, tabs); only
+            // normalize CR out. Newlines stay as soft breaks.
+            var content = value.Replace("\r", string.Empty);
+
+            // Escape markup-significant characters so literal text round-trips. Ampersand first
+            // so a literal "&ouml;" isn't reinterpreted as an entity.
+            content = content
+                .Replace("&", "&amp;")
+                .Replace("\\", "\\\\")
+                .Replace("`", "\\`")
+                .Replace("*", "\\*")
+                .Replace("_", "\\_")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
+
+            // Bracket escaping. Pure CommonMark escapes only the bracket/paren delimiters that form
+            // a link/image/reference pattern, so literal "[label](url)" round-trips as text while
+            // stray "[a]" / "(x)" / "{y}" stay literal (skipped inside link text, which already sits
+            // within "[...]"). GFM/Pandoc/MultiMarkdown give more brackets meaning (task lists,
+            // citations, shortcut references), so they escape every "[" / "]" to be safe.
+            if (Config.Flavor == Config.MarkdownFlavor.CommonMark)
+            {
+                if (!InLinkText)
+                {
+                    content = CommonMarkText.EscapePatternDelimiters(content);
+                }
+            }
+            else
+            {
+                content = content.Replace("[", "\\[").Replace("]", "\\]");
+            }
+
+            content = EscapeLineStarts(content);
+
+            // "![" forms an image, so a literal "!" immediately before a link would wrongly become
+            // one; escape it. GitHub and Pandoc both apply this (a literal "!" in text is never an
+            // intended image — real images are MdImage nodes). Bare-URL autolinking is unaffected.
+            if (Config.Flavor is Config.MarkdownFlavor.GitHub or Config.MarkdownFlavor.Pandoc)
+            {
+                content = content.Replace("!", "\\!");
+            }
+
+            if (EscapeAtSigns)
+            {
+                content = content.Replace("@", "\\@");
+            }
+
+            // A blank line inside one text run must stay within the paragraph: encode as &#10;.
+            content = System.Text.RegularExpressions.Regex.Replace(
+                content, "\n{2,}", m => string.Concat(System.Linq.Enumerable.Repeat("&#10;", m.Value.Length)));
+
+            // Suppress redundant leading whitespace (space or newline) at a boundary so a
+            // preceding hard break ("  \n") isn't doubled into a paragraph split.
+            if (AtWhitespaceBoundary())
+            {
+                content = content.TrimStart(' ', '\n');
+
+                // A leading tab at a line start would be read as indented code; encode it.
+                var tabs = 0;
+                while (tabs < content.Length && content[tabs] == '\t')
+                {
+                    tabs++;
+                }
+
+                if (tabs > 0)
+                {
+                    content = string.Concat(System.Linq.Enumerable.Repeat("&#9;", tabs)) + content.Substring(tabs);
+                }
+            }
+
+            Buffer.Append(content);
+        }
+
+        // Escape leading block markers (#, list bullets/numbers, setext underlines) per line.
+        private static string EscapeLineStarts(string content)
+        {
+            if (string.IsNullOrEmpty(content) || content.IndexOf('\n') < 0 && !StartsWithMarker(content))
+            {
+                return StartsWithMarker(content) ? EscapeLine(content) : content;
+            }
+
+            var lines = content.Split('\n');
+            for (var i = 0; i < lines.Length; i++)
+            {
+                lines[i] = EscapeLine(lines[i]);
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        private static bool StartsWithMarker(string line)
+        {
+            var i = 0;
+            while (i < line.Length && i < 3 && line[i] == ' ')
+            {
+                i++;
+            }
+
+            if (i >= line.Length)
+            {
+                return false;
+            }
+
+            var c = line[i];
+            return c is '#' or '-' or '*' or '+' || char.IsDigit(c);
+        }
+
+        private static string EscapeLine(string line)
+        {
+            if (string.IsNullOrEmpty(line))
+            {
+                return line;
+            }
+
+            var index = 0;
+            while (index < line.Length && index < 3 && line[index] == ' ')
+            {
+                index++;
+            }
+
+            if (index >= line.Length)
+            {
+                return line;
+            }
+
+            var current = line[index];
+
+            if (current == '#')
+            {
+                return line.Insert(index, "\\");
+            }
+
+            if (current is '-' or '*' or '+')
+            {
+                // bullet marker (followed by space) or setext/thematic run
+                if (IsMarkerFollowedBySpace(line, index) || IsRepeatedRun(line, index, current))
+                {
+                    return line.Insert(index, "\\");
+                }
+            }
+
+            if (char.IsDigit(current))
+            {
+                var end = index;
+                while (end < line.Length && char.IsDigit(line[end]))
+                {
+                    end++;
+                }
+
+                if (end < line.Length && (line[end] == '.' || line[end] == ')') && IsMarkerFollowedBySpace(line, end))
+                {
+                    return line.Insert(end, "\\");
+                }
+            }
+
+            return line;
+        }
+
+        private static bool IsMarkerFollowedBySpace(string line, int markerIndex)
+        {
+            var next = markerIndex + 1;
+            return next < line.Length && line[next] == ' ';
+        }
+
+        private static bool IsRepeatedRun(string line, int index, char ch)
+        {
+            var trimmed = line[index..].TrimEnd();
+            if (trimmed.Length < 3)
+            {
+                return false;
+            }
+
+            foreach (var c in trimmed)
+            {
+                if (c != ch && c != ' ')
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+}

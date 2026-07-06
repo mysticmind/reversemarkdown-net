@@ -6,6 +6,7 @@ using ReverseMarkdown.Helpers;
 namespace ReverseMarkdown;
 
 public static partial class Cleaner {
+#if NET7_0_OR_GREATER
     [GeneratedRegex(@"\*(\s\*)+")]
     private static partial Regex SlackBoldCleaner();
 
@@ -14,6 +15,16 @@ public static partial class Cleaner {
 
     [GeneratedRegex(@"[\u0020\u00A0]")]
     private static partial Regex NonBreakingSpaces();
+#else
+    private static readonly Regex _slackBoldCleaner = new(@"\*(\s\*)+", RegexOptions.Compiled);
+    private static Regex SlackBoldCleaner() => _slackBoldCleaner;
+
+    private static readonly Regex _slackItalicCleaner = new(@"_(\s_)+", RegexOptions.Compiled);
+    private static Regex SlackItalicCleaner() => _slackItalicCleaner;
+
+    private static readonly Regex _nonBreakingSpaces = new(@"[  ]", RegexOptions.Compiled);
+    private static Regex NonBreakingSpaces() => _nonBreakingSpaces;
+#endif
 
     private static readonly StringReplaceValues TagBorders = new() {
         ["\n\t"] = string.Empty,
@@ -40,6 +51,17 @@ public static partial class Cleaner {
         content = FixUnclosedTag(content, "style");
         content = CleanTagBorders(content);
 
+        return content;
+    }
+
+    /// <summary>Strip unclosed &lt;script&gt;/&lt;style&gt; open tags before parsing. Left in place,
+    /// the HTML5 parser consumes the rest of the document as their raw-text content and the real
+    /// markup is lost. This is the minimal pre-parse fixup that does not touch text content (unlike
+    /// <see cref="PreTidy"/>), so it is safe on the CommonMark round-trip path.</summary>
+    public static string FixUnclosedScriptStyle(string content)
+    {
+        content = FixUnclosedTag(content, "script");
+        content = FixUnclosedTag(content, "style");
         return content;
     }
 

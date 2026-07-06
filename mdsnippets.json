@@ -1,4 +1,0 @@
-﻿{
-  "Convention": "InPlaceOverwrite",
-  "ExcludeMarkdownDirectories": [ "ReverseMarkdown.Test" ]
-}

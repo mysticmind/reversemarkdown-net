@@ -303,7 +303,8 @@ namespace ReverseMarkdown.Test
                 Assert.True(File.Exists(imageFiles[0]));
 
                 // Verify the markdown references the saved file path
-                Assert.Contains(imageFiles[0], result);
+                // v6 references the saved image by filename, not the absolute path.
+                Assert.Contains(Path.GetFileName(imageFiles[0]), result);
                 Assert.Contains("Before", result);
                 Assert.Contains("After", result);
                 Assert.Contains("![test]", result);
@@ -341,7 +342,8 @@ namespace ReverseMarkdown.Test
                 Assert.EndsWith(".jpg", imageFiles[0]);
 
                 // Verify the markdown references the saved file path
-                Assert.Contains(imageFiles[0], result);
+                // v6 references the saved image by filename, not the absolute path.
+                Assert.Contains(Path.GetFileName(imageFiles[0]), result);
                 Assert.Contains("![jpeg]", result);
             }
             finally
@@ -496,8 +498,9 @@ namespace ReverseMarkdown.Test
         public Task When_Underline_Tag_With_AliasConverter_Register_ThenConvertToItalics()
         {
             var html = LoadHtml("Underline_Tag_Alias");
-            var converter = new Converter();
-            converter.Register("u", new ReverseMarkdown.Converters.AliasConverter(converter, "em"));
+            var config = new Config();
+            config.TagAliases["u"] = "em";
+            var converter = new Converter(config);
             var result = converter.Convert(html);
             var settings = new VerifySettings();
             settings.DisableRequireUniquePrefix();

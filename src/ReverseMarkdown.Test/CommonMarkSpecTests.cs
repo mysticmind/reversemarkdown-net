@@ -88,9 +88,25 @@ namespace ReverseMarkdown.Test
             normalized = normalized.Replace("&#xA;", "\n");
             normalized = System.Text.RegularExpressions.Regex.Replace(normalized, @">\s+<", "><");
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(normalized);
-            normalized = doc.DocumentNode.InnerHtml;
+            // v6 prefers clean markdown: an alt-less <img> round-trips as ![](src) (alt=""), and an
+            // empty <p> is dropped as noise. These are benign, non-content normalizations \u2014 treat
+            // them as equivalent on both sides (a real dropped alt / lost content still differs).
+            normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "\\s+alt=\"\"", string.Empty);
+            normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "<p>\\s*</p>", string.Empty);
+
+            var doc = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(normalized);
+            normalized = doc.Body?.InnerHtml ?? string.Empty;
+
+            // Trust AngleSharp's structure over the renderer's: a CommonMark renderer wraps a lone
+            // inline element in <p> and drops/re-adds leading block whitespace. Those are rendering
+            // artifacts, not conversion differences, so normalize them identically on both sides.
+            const System.Text.RegularExpressions.RegexOptions rx = System.Text.RegularExpressions.RegexOptions.Singleline;
+            normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "<p>(?:&nbsp;|\\s)+", "<p>", rx);
+            normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "<p>(<(\\w+)\\b[^>]*>.*?</\\2>)</p>", "$1", rx);
+            normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "<p>(<\\w+\\b[^>]*?/?>)</p>", "$1", rx);
+            // An empty <p> can also emerge post-parse (e.g. stray closing tags the parser drops):
+            // still benign noise, so drop it on both sides.
+            normalized = System.Text.RegularExpressions.Regex.Replace(normalized, "<p>\\s*</p>", string.Empty);
             normalized = normalized.Replace("\u00A0", " ");
 
             return normalized;

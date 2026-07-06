@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>ReverseMarkdown.Benchmark.CompareBenchmark-20260606-181939</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, macOS Tahoe 26.2 (25C56) [Darwin 25.2.0]
+Apple M1, 1 CPU, 8 logical and 8 physical cores
+  [Host]     : .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+  Job-QAODSR : .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+</code></pre>
+<pre><code>Toolchain=.NET 9.0  
+</code></pre>
+
+<table>
+<thead><tr><th>Method      </th><th>FileName      </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th><th>Ratio</th><th>RatioSD</th><th>Baseline</th><th>Gen0</th><th>Gen1</th><th>Gen2</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>V5_HtmlAgilityPack</td><td>Files(...).html [26]</td><td>13.815 ms</td><td>0.1070 ms</td><td>0.0836 ms</td><td>13.839 ms</td><td>1.00</td><td>0.01</td><td>Yes</td><td>3046.8750</td><td>1078.1250</td><td>812.5000</td><td>20.79 MB</td><td>1.00</td>
+</tr><tr><td>V6_MarkdownDom</td><td>Files(...).html [26]</td><td>7.054 ms</td><td>0.0483 ms</td><td>0.0452 ms</td><td>7.055 ms</td><td>0.51</td><td>0.00</td><td>No</td><td>1195.3125</td><td>789.0625</td><td>398.4375</td><td>6.45 MB</td><td>0.31</td>
+</tr><tr><td>V5_HtmlAgilityPack</td><td>Files(...).html [25]</td><td>125.699 ms</td><td>2.4382 ms</td><td>3.0835 ms</td><td>125.778 ms</td><td>1.00</td><td>0.03</td><td>Yes</td><td>22000.0000</td><td>6000.0000</td><td>1333.3333</td><td>183.38 MB</td><td>1.00</td>
+</tr><tr><td>V6_MarkdownDom</td><td>Files(...).html [25]</td><td>81.260 ms</td><td>1.4334 ms</td><td>1.2706 ms</td><td>81.230 ms</td><td>0.65</td><td>0.02</td><td>No</td><td>8714.2857</td><td>4142.8571</td><td>2000.0000</td><td>58.07 MB</td><td>0.32</td>
+</tr><tr><td>V5_HtmlAgilityPack</td><td>Files/huge.html</td><td>584.083 ms</td><td>11.4164 ms</td><td>19.0742 ms</td><td>574.611 ms</td><td>1.00</td><td>0.05</td><td>Yes</td><td>90000.0000</td><td>14000.0000</td><td>3000.0000</td><td>779.31 MB</td><td>1.00</td>
+</tr><tr><td>V6_MarkdownDom</td><td>Files/huge.html</td><td>316.661 ms</td><td>6.2640 ms</td><td>11.9178 ms</td><td>311.576 ms</td><td>0.54</td><td>0.03</td><td>No</td><td>33000.0000</td><td>14000.0000</td><td>2000.0000</td><td>253.04 MB</td><td>0.32</td>
+</tr></tbody></table>
+</body>
+</html>
