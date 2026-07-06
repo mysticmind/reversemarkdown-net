@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+      - 5.x
   pull_request:
     branches:
       - master
+      - 5.x
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
