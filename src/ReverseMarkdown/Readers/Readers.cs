@@ -124,7 +124,7 @@ namespace ReverseMarkdown.Readers
             }
 
             // Smart href handling (v5 parity), only for a well-formed URL with a scheme.
-            if (config.SmartHrefHandling && UrlHelper.GetScheme(href).Length > 0 &&
+            if (config.Links.SmartHref && UrlHelper.GetScheme(href).Length > 0 &&
                 Uri.IsWellFormedUriString(href, UriKind.RelativeOrAbsolute))
             {
                 var text = element.TextContent.Trim();
@@ -225,7 +225,7 @@ namespace ReverseMarkdown.Readers
             var isBase64 = ImageUtils.IsValidBase64ImageData(src);
             if (isBase64)
             {
-                switch (config.Base64Images)
+                switch (config.Images.Base64Handling)
                 {
                     case Config.Base64ImageHandling.Skip:
                         return;
@@ -263,20 +263,20 @@ namespace ReverseMarkdown.Readers
         }
 
         /// <summary>
-        /// Returns the image source. When <see cref="Config.LazyImageSrcFallback"/> is enabled and the
+        /// Returns the image source. When <see cref="Config.ImageOptions.LazySrcFallback"/> is enabled and the
         /// <c>src</c> is empty or a <c>data:</c> placeholder (the fingerprint of JavaScript lazy-loading),
-        /// the first usable URL from <see cref="Config.LazyImageSourceAttributes"/> is used instead.
+        /// the first usable URL from <see cref="Config.ImageOptions.LazySourceAttributes"/> is used instead.
         /// </summary>
         private static string ResolveSource(IElement element, Config config)
         {
             var src = element.GetAttribute("src") ?? string.Empty;
 
-            if (!config.LazyImageSrcFallback || !IsPlaceholderSource(src))
+            if (!config.Images.LazySrcFallback || !IsPlaceholderSource(src))
             {
                 return src;
             }
 
-            foreach (var attributeName in config.LazyImageSourceAttributes)
+            foreach (var attributeName in config.Images.LazySourceAttributes)
             {
                 var candidate = ExtractFirstUrl(element.GetAttribute(attributeName) ?? string.Empty);
                 if (!string.IsNullOrEmpty(candidate) && !IsPlaceholderSource(candidate))
@@ -314,7 +314,7 @@ namespace ReverseMarkdown.Readers
     {
         public static string? Save(string dataUri, Config config, ReaderContext ctx)
         {
-            if (string.IsNullOrEmpty(config.Base64ImageSaveDirectory))
+            if (string.IsNullOrEmpty(config.Images.Base64Directory))
             {
                 return null;
             }
@@ -339,11 +339,11 @@ namespace ReverseMarkdown.Readers
             }
 
             var index = ctx.NextImageIndex();
-            var name = config.Base64ImageFileNameGenerator?.Invoke(index, mime) ?? $"image_{index}";
+            var name = config.Images.Base64FileName?.Invoke(index, mime) ?? $"image_{index}";
             var fileName = name + "." + ExtensionFor(mime);
 
-            System.IO.Directory.CreateDirectory(config.Base64ImageSaveDirectory);
-            System.IO.File.WriteAllBytes(System.IO.Path.Combine(config.Base64ImageSaveDirectory, fileName), bytes);
+            System.IO.Directory.CreateDirectory(config.Images.Base64Directory);
+            System.IO.File.WriteAllBytes(System.IO.Path.Combine(config.Images.Base64Directory, fileName), bytes);
             return fileName;
         }
 
@@ -621,7 +621,7 @@ namespace ReverseMarkdown.Readers
         public void Read(IElement element, ReaderContext ctx)
         {
             // Treat <pre> (or <pre><code>) content as normal HTML rather than a code block.
-            if (ctx.Config.ConvertPreContentAsHtml)
+            if (ctx.Config.Formatting.PreAsHtml)
             {
                 ctx.ReadChildren(element.QuerySelector("code") ?? element);
                 return;
@@ -640,7 +640,7 @@ namespace ReverseMarkdown.Readers
             // Last resort: the configured default GFM language.
             if (string.IsNullOrEmpty(language))
             {
-                language = ctx.Config.DefaultCodeBlockLanguage;
+                language = ctx.Config.Formatting.DefaultCodeBlockLanguage;
                 languageIsAttribute = false;
             }
 
@@ -853,7 +853,7 @@ namespace ReverseMarkdown.Readers
                             // A header cell spanning columns is repeated once per spanned column
                             // (v5 TableHeaderColumnSpanHandling); re-read its content per copy so the
                             // cells are independent nodes.
-                            var span = ctx.Config.TableHeaderColumnSpanHandling && cell.LocalName == "th"
+                            var span = ctx.Config.Tables.HeaderColumnSpans && cell.LocalName == "th"
                                 ? Math.Max(1, ParseColSpan(cell))
                                 : 1;
 
@@ -1011,7 +1011,7 @@ namespace ReverseMarkdown.Readers
 
             // SuppressDivNewlines: each <div> contributes a soft line break instead of a block
             // break, so a run of divs renders as single-newline-separated lines.
-            if (element.LocalName == "div" && ctx.Config.SuppressDivNewlines)
+            if (element.LocalName == "div" && ctx.Config.Formatting.SuppressDivNewlines)
             {
                 ctx.ReadChildren(element);
                 ctx.Emit(new MdLineBreak { Hard = false, SourceTag = element.LocalName });

@@ -29,14 +29,14 @@ public class Snippets
 
         var config = new ReverseMarkdown.Config
         {
-            // Include the unknown tag completely in the result (default as well)
-            UnknownTags = Config.UnknownTagsOption.PassThrough,
             // generate GitHub flavoured markdown, supported for BR, PRE and table tags
             GithubFlavored = true,
+            // Include the unknown tag completely in the result (default as well)
+            Tags = { Unknown = Config.UnknownTagsOption.PassThrough },
             // will ignore all comments
-            RemoveComments = true,
+            Formatting = { RemoveComments = true },
             // remove markdown output for links where appropriate
-            SmartHrefHandling = true
+            Links = { SmartHref = true },
         };
 
         var converter = new ReverseMarkdown.Converter(config);
@@ -64,7 +64,7 @@ public class Snippets
 
         var config = new ReverseMarkdown.Config
         {
-            Base64Images = Config.Base64ImageHandling.Skip
+            Images = { Base64Handling = Config.Base64ImageHandling.Skip },
         };
         var converter = new ReverseMarkdown.Converter(config);
         string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
@@ -81,8 +81,11 @@ public class Snippets
 
         var config = new ReverseMarkdown.Config
         {
-            Base64Images = Config.Base64ImageHandling.SaveToFile,
-            Base64ImageSaveDirectory = "/path/to/images"
+            Images =
+            {
+                Base64Handling = Config.Base64ImageHandling.SaveToFile,
+                Base64Directory = "/path/to/images",
+            },
         };
         var converter = new ReverseMarkdown.Converter(config);
         string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
@@ -100,13 +103,16 @@ public class Snippets
 
         var config = new ReverseMarkdown.Config
         {
-            Base64Images = Config.Base64ImageHandling.SaveToFile,
-            Base64ImageSaveDirectory = "/path/to/images",
-            Base64ImageFileNameGenerator = (index, mimeType) => 
+            Images =
             {
-                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                return $"converted_{timestamp}_{index}";
-            }
+                Base64Handling = Config.Base64ImageHandling.SaveToFile,
+                Base64Directory = "/path/to/images",
+                Base64FileName = (index, mimeType) =>
+                {
+                    var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                    return $"converted_{timestamp}_{index}";
+                },
+            },
         };
         var converter = new ReverseMarkdown.Converter(config);
         // Images will be saved as: converted_20260108_143022_0.png, converted_20260108_143022_1.jpg, etc.

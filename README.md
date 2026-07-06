@@ -15,10 +15,15 @@ If you have used and benefitted from this library. Please feel free to sponsor m
 - Improved performance with optimized text writer approach and O(1) ancestor lookups
 
 **Markdown flavors**
-- GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config(githubFlavoured:true);`. By default the table will always be converted to Github flavored markdown immaterial of this flag
-- Slack Flavoured Markdown conversion. Use `var config = new ReverseMarkdown.Config { SlackFlavored = true };`
-- Telegram MarkdownV2 conversion. Use `var config = new ReverseMarkdown.Config { TelegramMarkdownV2 = true };`
-- CommonMark-focused output with opt-in flags to preserve compatibility. Use `var config = new ReverseMarkdown.Config { CommonMark = true };` This mode may emit inline HTML for tricky emphasis/link cases unless you disable `CommonMarkUseHtmlInlineTags`.
+
+Select a flavor with `Flavor` (a `MarkdownFlavor` enum): `Default`, `GitHub`, `CommonMark`, `Slack`, `Telegram`, `MultiMarkdown`, or `Pandoc`.
+
+- Slack. `var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.Slack };`
+- Telegram MarkdownV2. `var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.Telegram };`
+- CommonMark-focused output. `var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.CommonMark };` It may emit inline HTML for tricky emphasis/link cases unless you disable `CommonMarkUseHtmlInlineTags`.
+- GitHub Flavoured Markdown conversion for br, pre, tasklists, and table. Use `var config = new ReverseMarkdown.Config { GithubFlavored = true };`. By default the table is always converted to GitHub flavored markdown regardless of this flag. (`GithubFlavored` produces clean GFM markdown on the default writer; `Flavor = MarkdownFlavor.GitHub` selects the CommonMark-based GitHub writer, which preserves raw HTML — they are different.)
+
+The legacy `SlackFlavored`, `TelegramMarkdownV2`, and `CommonMark` boolean switches still work but are obsolete aliases of `Flavor`.
 
 **Tables**
 - Support for nested tables (converted as HTML inside markdown)
@@ -75,14 +80,14 @@ The conversion can also be customized:
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    // Include the unknown tag completely in the result (default as well)
-    UnknownTags = Config.UnknownTagsOption.PassThrough,
     // generate GitHub flavoured markdown, supported for BR, PRE and table tags
     GithubFlavored = true,
+    // Include the unknown tag completely in the result (default as well)
+    Tags = { Unknown = Config.UnknownTagsOption.PassThrough },
     // will ignore all comments
-    RemoveComments = true,
+    Formatting = { RemoveComments = true },
     // remove markdown output for links where appropriate
-    SmartHrefHandling = true
+    Links = { SmartHref = true },
 };
 
 var converter = new ReverseMarkdown.Converter(config);
@@ -95,19 +100,19 @@ To treat `<pre>` (and `<pre><code>`) content as normal HTML instead of code bloc
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    ConvertPreContentAsHtml = true
+    Formatting = { PreAsHtml = true }
 };
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
-If you need to preserve markdown-like text as literal content (for example `# Heading` or `- Item`), either enable `EscapeMarkdownLineStarts` or use `CommonMark`:
+If you need to preserve markdown-like text as literal content (for example `# Heading` or `- Item`), either enable `Formatting.EscapeLineStarts` or use the CommonMark flavor:
 
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    EscapeMarkdownLineStarts = true,
-    // or CommonMark = true
+    Formatting = { EscapeLineStarts = true },
+    // or Flavor = MarkdownFlavor.CommonMark
 };
 
 var converter = new ReverseMarkdown.Converter(config);
@@ -115,12 +120,12 @@ var converter = new ReverseMarkdown.Converter(config);
 
 ### Telegram MarkdownV2 mode
 
-When `TelegramMarkdownV2` is enabled, ReverseMarkdown applies Telegram-compatible formatting and escaping rules:
+When the Telegram flavor is enabled, ReverseMarkdown applies Telegram-compatible formatting and escaping rules:
 
 ```cs
 var converter = new ReverseMarkdown.Converter(new ReverseMarkdown.Config
 {
-    TelegramMarkdownV2 = true
+    Flavor = MarkdownFlavor.Telegram
 });
 
 var html = "This is <strong>bold</strong>, <em>italic</em>, <del>strikethrough</del> and <a href=\"https://example.com/path_(one)?q=1)2\">a_b[c]</a>";
@@ -138,54 +143,66 @@ Notes:
 
 ## Configuration options
 
-* `DefaultCodeBlockLanguage` - Option to set the default code block language for Github style markdown if class based language markers are not available
-* `GithubFlavored` - Github style markdown for br, pre and table. Default is false
-* `SlackFlavored` - Slack style markdown formatting. When enabled, uses `*` for bold, `_` for italic, `~` for strikethrough, and `•` for list bullets. Default is false
-* `TelegramMarkdownV2` - Telegram MarkdownV2 formatting and escaping rules. When enabled, output escapes Telegram-reserved characters and uses Telegram-compatible emphasis and link syntax. For unsupported Telegram constructs, ReverseMarkdown falls back to readable text (`<img>` to link label, `<table>` to preformatted block, `<sup>` to caret notation).
-* `CommonMark` - Enable CommonMark-focused output rules. Default is false
-* `CommonMarkUseHtmlInlineTags` - When CommonMark is enabled, emit HTML for inline tags (`em`, `strong`, `a`, `img`) to avoid delimiter edge cases. Default is true
-* `CommonMarkIntrawordEmphasisSpacing` - When CommonMark is enabled, insert spaces to avoid intraword emphasis. Default is false
-  * Note: CommonMark is best used on its own. Combining `CommonMark` with `GithubFlavored` can produce mixed output; keep them separate unless you explicitly want that behavior.
-* `EscapeMarkdownLineStarts` - Escape markdown line starts (headings, lists, block markers) in plain text output. Default is false
-  * Note: If you need to preserve markdown-like text as literal content, enable `EscapeMarkdownLineStarts` or use `CommonMark`.
-* `OutputLineEnding` - Output line endings used in generated markdown. Default is `Environment.NewLine`
-* `CleanupUnnecessarySpaces` - Cleanup unnecessary spaces in the output. Default is true
-* `SuppressDivNewlines` - Removes prefixed newlines from `div` tags. Default is false
-* `ConvertPreContentAsHtml` - Treat `<pre>` (and `<pre><code>`) content as normal HTML instead of a code block. Default is false
-* `ListBulletChar` - Allows you to change the bullet character. Default value is `-`. Some systems expect the bullet character to be `*` rather than `-`, this config allows you to change it. Note: This option is ignored when `SlackFlavored` is enabled
-* `RemoveComments` - Remove comment tags with text. Default is false
-* `SmartHrefHandling` - How to handle `<a>` tag href attribute
-  * `false` - Outputs `[{name}]({href}{title})` even if the name and href is identical. This is the default option.
-  * `true` - If the name and href equals, outputs just the `name`. Note that if the Uri is not well formed as per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring) (i.e string is not correctly escaped like `http://example.com/path/file name.docx`) then markdown syntax will be used anyway.
+Options are organized into groups on `Config`. The former flat properties still work but are obsolete and forward to the grouped members shown below.
 
-    If `href` contains `http/https` protocol, and `name` doesn't but otherwise are the same, output `href` only
+**Flavor**
 
-    If `tel:` or `mailto:` scheme, but afterwards identical with name, output `name` only.
-* `UnknownTags` - handle unknown tags.
-  * `UnknownTagsOption.PassThrough` - Include the unknown tag completely into the result. That is, the tag along with the text will be left in output. This is the default
-  * `UnknownTagsOption.Drop` - Drop the unknown tag and its content
-  * `UnknownTagsOption.Bypass` - Ignore the unknown tag but try to convert its content
-  * `UnknownTagsOption.Raise` - Raise an error to let you know
-* `UnknownTagsReplacer` - Optional replacements for unknown tags. Key is tag name and value is the markdown wrapper used as prefix/suffix around converted content (example: `{ ["u"] = "*" }`).
-* `TagAliases` - Optional alias map to treat a tag as another tag during conversion (example: `{ ["u"] = "em" }`).
-* `PassThroughTags` - Pass a list of tags to pass through as-is without any processing.
-* `WhitelistUriSchemes` - Specify which schemes (without trailing colon) are to be allowed for `<a>` and `<img>` tags. Others will be bypassed (output text or nothing). By default allows everything.
+* `Flavor` - the Markdown flavor to produce (`MarkdownFlavor` enum): `Default`, `GitHub`, `CommonMark`, `Slack`, `Telegram`, `MultiMarkdown`, `Pandoc`. This is the single, canonical flavor selector; `SlackFlavored`/`TelegramMarkdownV2`/`CommonMark` are obsolete aliases.
+* `GithubFlavored` - GitHub-style conversion (br, pre → fenced code, task lists) on the default writer. Tables are always GFM regardless. Distinct from `Flavor = MarkdownFlavor.GitHub`, which selects the CommonMark-based GitHub writer (preserves raw HTML). Default is false
+* `CommonMarkUseHtmlInlineTags` - when the CommonMark flavor is selected, emit HTML for inline tags (`em`, `strong`, `a`, `img`) to avoid delimiter edge cases. Default is true
+* `CommonMarkIntrawordEmphasisSpacing` - when the CommonMark flavor is selected, insert spaces to avoid intraword emphasis. Default is false
 
-  If `string.Empty` provided and when `href` or `src` schema couldn't be determined - whitelists
+**`Formatting`** - output formatting
 
-  Schema is determined by `Uri` class, with exception when url begins with `/` (file schema) and `//` (http schema)
-* `TableWithoutHeaderRowHandling` - handle table without header rows
-  * `TableWithoutHeaderRowHandlingOption.Default` - First row will be used as header row (default)
-  * `TableWithoutHeaderRowHandlingOption.EmptyRow` - An empty row will be added as the header row
-* `TableHeaderColumnSpanHandling` - Set this flag to handle or process table header column with column spans. Default is true
-* `Base64Images` - Control how base64-encoded images (inline data URIs) are handled during conversion
-  * `Base64ImageHandling.Include` - Include base64-encoded images in the markdown output as-is (default behavior)
-  * `Base64ImageHandling.Skip` - Skip/ignore base64-encoded images entirely
-  * `Base64ImageHandling.SaveToFile` - Save base64-encoded images to disk and reference the saved file path in markdown. Requires `Base64ImageSaveDirectory` to be set
-* `Base64ImageSaveDirectory` - When `Base64Images` is set to `SaveToFile`, specifies the directory path where images should be saved
-* `Base64ImageFileNameGenerator` - When `Base64Images` is set to `SaveToFile`, this function generates a filename for each saved image. The function receives the image index (int) and MIME type (string), and should return a filename without extension. If not specified, images will be named as `image_0`, `image_1`, etc.
-* `LazyImageSrcFallback` - When enabled, an `<img>` whose `src` is empty or a `data:` placeholder (as used by JavaScript lazy-loading libraries) falls back to the first usable URL found in `LazyImageSourceAttributes`. Default is false, so `src` is always used as-is unless turned on
-* `LazyImageSourceAttributes` - Ordered list of attributes consulted (first usable wins) when `LazyImageSrcFallback` is enabled and `src` is empty or a `data:` placeholder. Defaults to `data-src`, `data-original`, `data-lazy-src`, `data-srcset`, `data-original-src` (`srcset`-style values use their first URL)
+* `Formatting.CleanupSpaces` - clean up unnecessary spaces in the output. Default is true
+* `Formatting.SuppressDivNewlines` - remove prefixed newlines from `div` tags. Default is false
+* `Formatting.RemoveComments` - remove comment tags with text. Default is false
+* `Formatting.PreAsHtml` - treat `<pre>` (and `<pre><code>`) content as normal HTML instead of a code block. Default is false
+* `Formatting.EscapeLineStarts` - escape markdown line starts (headings, lists, block markers) in plain text output. Default is false
+* `Formatting.OutputLineEnding` - output line endings used in generated markdown. Default is `Environment.NewLine`
+* `Formatting.ListBulletChar` - the unordered-list bullet character. Default is `-` (some systems expect `*`). Ignored for the Slack flavor, which always uses `•`
+* `Formatting.DefaultCodeBlockLanguage` - default GFM code block language if class-based language markers are not available
+
+**`Links`** - link handling
+
+* `Links.SmartHref` - how to handle an `<a>` href
+  * `false` (default) - outputs `[{name}]({href}{title})` even if name and href are identical
+  * `true` - if name and href are equal, outputs just the `name` (with http/https and tel:/mailto: refinements). If the Uri is not well formed per [`Uri.IsWellFormedUriString`](https://docs.microsoft.com/en-us/dotnet/api/system.uri.iswellformeduristring), markdown syntax is used anyway
+* `Links.WhitelistedSchemes` - schemes (without trailing colon) allowed for `<a>`/`<img>`. Others are bypassed. Empty (default) allows everything
+
+**`Tables`** - table handling
+
+* `Tables.WithoutHeaderRow` - handle a table without a header row
+  * `TableWithoutHeaderRowHandlingOption.Default` - first row is used as the header row (default)
+  * `TableWithoutHeaderRowHandlingOption.EmptyRow` - an empty row is added as the header row
+* `Tables.HeaderColumnSpans` - handle table header columns with column spans. Default is true
+
+**`Tags`** - tag handling
+
+* `Tags.Unknown` - handle unknown tags
+  * `UnknownTagsOption.PassThrough` - include the unknown tag completely (tag plus text). Default
+  * `UnknownTagsOption.Drop` - drop the unknown tag and its content
+  * `UnknownTagsOption.Bypass` - ignore the unknown tag but convert its content
+  * `UnknownTagsOption.Raise` - raise an error
+* `Tags.Replacer` - optional markdown wrappers for unknown tags. Key is the tag name, value is the wrapper used as prefix/suffix (example: `{ ["u"] = "*" }`)
+* `Tags.Aliases` - optional alias map to treat a tag as another tag (example: `{ ["u"] = "em" }`)
+* `Tags.PassThrough` - tags to pass through as-is without any processing
+
+**`Images`** - image handling
+
+* `Images.Base64Handling` - how base64-encoded images (inline data URIs) are handled
+  * `Base64ImageHandling.Include` - include them as-is (default)
+  * `Base64ImageHandling.Skip` - skip/ignore them entirely
+  * `Base64ImageHandling.SaveToFile` - save to disk and reference the saved path. Requires `Images.Base64Directory`
+* `Images.Base64Directory` - directory to save images to when `Base64Handling` is `SaveToFile`
+* `Images.Base64FileName` - function generating a filename (without extension) from the image index (int) and MIME type (string). Defaults to `image_0`, `image_1`, …
+* `Images.LazySrcFallback` - when enabled, an `<img>` whose `src` is empty or a `data:` placeholder falls back to the first usable URL in `Images.LazySourceAttributes`. Default is false
+* `Images.LazySourceAttributes` - ordered attributes consulted (first usable wins) when `LazySrcFallback` is enabled. Defaults to `data-src`, `data-original`, `data-lazy-src`, `data-srcset`, `data-original-src`
+
+**`Html`** - pre-filtering (v6 Markdown DOM path)
+
+* `Html.ExcludeSelectors` - CSS selectors whose matching elements are removed before conversion
+* `Html.ElementFilters` - predicate filters; an element for which any predicate returns true is removed
 
 ### Custom converter alias
 
@@ -224,7 +241,7 @@ To ignore base64-encoded images entirely:
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    Base64Images = Config.Base64ImageHandling.Skip
+    Images = { Base64Handling = Config.Base64ImageHandling.Skip },
 };
 var converter = new ReverseMarkdown.Converter(config);
 string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
@@ -243,8 +260,11 @@ To extract and save base64-encoded images to disk:
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    Base64Images = Config.Base64ImageHandling.SaveToFile,
-    Base64ImageSaveDirectory = "/path/to/images"
+    Images =
+    {
+        Base64Handling = Config.Base64ImageHandling.SaveToFile,
+        Base64Directory = "/path/to/images",
+    },
 };
 var converter = new ReverseMarkdown.Converter(config);
 string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
@@ -252,7 +272,7 @@ string result = converter.Convert(html);
 // Output: ![Sample Image](/path/to/images/image_0.png)
 // Image file saved to: /path/to/images/image_0.png
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L80-L93' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSaveToFile' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L80-L96' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSaveToFile' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 **Custom Filename Generator**
@@ -264,18 +284,21 @@ You can provide a custom filename generator for saved images:
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    Base64Images = Config.Base64ImageHandling.SaveToFile,
-    Base64ImageSaveDirectory = "/path/to/images",
-    Base64ImageFileNameGenerator = (index, mimeType) => 
+    Images =
     {
-        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        return $"converted_{timestamp}_{index}";
-    }
+        Base64Handling = Config.Base64ImageHandling.SaveToFile,
+        Base64Directory = "/path/to/images",
+        Base64FileName = (index, mimeType) =>
+        {
+            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+            return $"converted_{timestamp}_{index}";
+        },
+    },
 };
 var converter = new ReverseMarkdown.Converter(config);
 // Images will be saved as: converted_20260108_143022_0.png, converted_20260108_143022_1.jpg, etc.
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L99-L114' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageCustomFilename' title='Start of snippet'>anchor</a></sup>
+<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L102-L120' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageCustomFilename' title='Start of snippet'>anchor</a></sup>
 <!-- endSnippet -->
 
 **Supported Image Formats:**
@@ -288,6 +311,12 @@ var converter = new ReverseMarkdown.Converter(config);
 - SVG (`image/svg+xml`)
 
 ## Breaking Changes
+
+### v6.0.0
+
+**Config reorganization (backward-compatible):**
+* Options are now grouped: `Config.Images`, `Config.Links`, `Config.Tables`, `Config.Tags`, `Config.Html` and `Config.Formatting`. The former flat properties still work but are marked `[Obsolete]` and forward to the grouped members; they will be removed in a future major version.
+* `Flavor` (the `MarkdownFlavor` enum) is now the single, canonical flavor selector. `SlackFlavored`, `TelegramMarkdownV2` and `CommonMark` are obsolete aliases of it. `GithubFlavored` remains a distinct switch (GFM conversion on the default writer), not the same as `Flavor = MarkdownFlavor.GitHub`.
 
 ### v5.0.0
 

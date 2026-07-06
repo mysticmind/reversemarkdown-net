@@ -156,7 +156,7 @@ namespace ReverseMarkdown.Readers
                     ReadElement(element, ctx);
                     break;
                 case IComment comment
-                    when Config.PreservesInlineRawHtml(_config.Flavor) && !_config.RemoveComments:
+                    when Config.PreservesInlineRawHtml(_config.Flavor) && !_config.Formatting.RemoveComments:
                     // CommonMark preserves HTML comments (incl. AngleSharp-normalized PIs/decls).
                     ctx.Emit(new MdRawInline("<!--" + comment.Data + "-->") { SourceTag = "#comment" });
                     break;
@@ -179,7 +179,7 @@ namespace ReverseMarkdown.Readers
             var tag = element.LocalName;
 
             // Explicit pass-through list wins over everything (mirrors v5 Lookup order).
-            if (_config.PassThroughTags.Contains(tag))
+            if (_config.Tags.PassThrough.Contains(tag))
             {
                 EmitRaw(element, ctx);
                 return;
@@ -252,7 +252,7 @@ namespace ReverseMarkdown.Readers
             }
 
             // Unknown-tag replacer: wrap converted content with the configured markdown string.
-            if (_config.UnknownTagsReplacer.TryGetValue(tag, out var wrapper))
+            if (_config.Tags.Replacer.TryGetValue(tag, out var wrapper))
             {
                 ctx.Emit(new MdRawInline(wrapper) { SourceTag = tag });
                 ctx.ReadChildren(element);
@@ -260,7 +260,7 @@ namespace ReverseMarkdown.Readers
                 return;
             }
 
-            switch (_config.UnknownTags)
+            switch (_config.Tags.Unknown)
             {
                 case Config.UnknownTagsOption.PassThrough:
                     EmitRaw(element, ctx);
@@ -305,7 +305,7 @@ namespace ReverseMarkdown.Readers
 
             var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { tag };
             var current = tag;
-            while (_config.TagAliases.TryGetValue(current, out var target) && !string.IsNullOrWhiteSpace(target))
+            while (_config.Tags.Aliases.TryGetValue(current, out var target) && !string.IsNullOrWhiteSpace(target))
             {
                 if (!visited.Add(target))
                 {

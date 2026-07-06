@@ -138,7 +138,7 @@ namespace ReverseMarkdown.Writers
 
         public override void Visit(MdParagraph node)
         {
-            if (!Config.EscapeMarkdownLineStarts)
+            if (!Config.Formatting.EscapeLineStarts)
             {
                 base.Visit(node);
                 return;

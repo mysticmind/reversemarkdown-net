@@ -26,7 +26,8 @@ namespace ReverseMarkdown.Writers
         protected virtual string StrongDelimiter => "**";
         protected virtual string EmphasisDelimiter => "*";
         protected virtual string StrikethroughDelimiter => "~~";
-        protected virtual string UnorderedBullet => Config.ListBulletChar.ToString();
+        protected virtual string UnorderedBullet =>
+            Config.Flavor == Config.MarkdownFlavor.Slack ? "•" : Config.Formatting.ListBulletChar.ToString();
 
         public virtual string Write(MarkdownDocument document)
         {
@@ -239,7 +240,7 @@ namespace ReverseMarkdown.Writers
             // A table with no marked header row: by default the first row becomes the header;
             // with EmptyRow handling, a synthetic empty header is added and every row is body.
             if (!node.Rows.Any(r => r.IsHeader) &&
-                Config.TableWithoutHeaderRowHandling == Config.TableWithoutHeaderRowHandlingOption.EmptyRow)
+                Config.Tables.WithoutHeaderRow == Config.TableWithoutHeaderRowHandlingOption.EmptyRow)
             {
                 WriteEmptyHeaderRow(columns);
                 Buffer.Append('\n');

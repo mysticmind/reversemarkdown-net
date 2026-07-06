@@ -28,28 +28,15 @@ namespace ReverseMarkdown {
 
         public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
-            // The legacy CommonMark switch is equivalent to the CommonMark flavor (roundtrip-faithful
-            // reader + writer). Normalize it up front so the reader and writer agree on the flavor.
-            if (config.CommonMark && config.Flavor == Config.MarkdownFlavor.Default)
-            {
-                config.Flavor = Config.MarkdownFlavor.CommonMark;
-            }
-
             Config = config;
             _markdownDomReader = new MarkdownDomReader(Config, additionalAssemblies);
         }
 
         public Config Config { get; protected set; }
 
-        /// <summary>
-        /// The flavor actually used to render. The legacy boolean switches
-        /// (<see cref="Config.SlackFlavored"/>, <see cref="Config.TelegramMarkdownV2"/>) select
-        /// their dedicated writer; otherwise <see cref="Config.Flavor"/> applies.
-        /// </summary>
-        internal Config.MarkdownFlavor EffectiveFlavor =>
-            Config.SlackFlavored ? Config.MarkdownFlavor.Slack
-            : Config.TelegramMarkdownV2 ? Config.MarkdownFlavor.Telegram
-            : Config.Flavor;
+        /// <summary>The flavor used to render. The legacy boolean switches map into
+        /// <see cref="Config.Flavor"/>, so it is the single source of truth.</summary>
+        internal Config.MarkdownFlavor EffectiveFlavor => Config.Flavor;
 
         public virtual string Convert(string html)
         {
@@ -152,7 +139,7 @@ namespace ReverseMarkdown {
         // before reading (HTML-side filtering for issue #79).
         private void ApplyHtmlFilters(AngleSharp.Dom.IElement root)
         {
-            foreach (var selector in Config.HtmlExcludeSelectors)
+            foreach (var selector in Config.Html.ExcludeSelectors)
             {
                 if (string.IsNullOrWhiteSpace(selector))
                 {
@@ -165,10 +152,10 @@ namespace ReverseMarkdown {
                 }
             }
 
-            if (Config.HtmlElementFilters.Count > 0)
+            if (Config.Html.ElementFilters.Count > 0)
             {
                 var toRemove = root.QuerySelectorAll("*")
-                    .Where(e => Config.HtmlElementFilters.Any(f => f(e)))
+                    .Where(e => Config.Html.ElementFilters.Any(f => f(e)))
                     .ToList();
                 foreach (var element in toRemove)
                 {
@@ -195,9 +182,9 @@ namespace ReverseMarkdown {
 
         private string ApplyOutputLineEndings(string content)
         {
-            var lineEnding = string.IsNullOrEmpty(Config.OutputLineEnding)
+            var lineEnding = string.IsNullOrEmpty(Config.Formatting.OutputLineEnding)
                 ? Environment.NewLine
-                : Config.OutputLineEnding;
+                : Config.Formatting.OutputLineEnding;
             return content.ReplaceLineEndings(lineEnding);
         }
 
