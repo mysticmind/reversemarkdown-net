@@ -670,7 +670,7 @@ namespace ReverseMarkdown.Writers
 
     /// <summary>
     /// Maps a <see cref="Config.MarkdownFlavor"/> to a writer. Flavors without a dedicated
-    /// writer yet fall back to <see cref="DefaultWriter"/> (tracked in docs/v6/migration.md).
+    /// writer fall back to <see cref="DefaultWriter"/>.
     /// </summary>
     public static class WriterFactory
     {

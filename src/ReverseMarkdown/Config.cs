@@ -10,7 +10,7 @@ namespace ReverseMarkdown
         /// EXPERIMENTAL (v6): CSS selectors whose matching elements are removed from the HTML
         /// before conversion via the Markdown DOM path (<see cref="Converter.Parse"/>).
         /// e.g. "div.advertisement, aside.related". HTML-side filtering — operates on classes/ids
-        /// that do not survive into Markdown. See docs/v6/. Does not affect <see cref="Converter.Convert"/>.
+        /// that do not survive into Markdown. Does not affect <see cref="Converter.Convert"/>.
         /// </summary>
         public HashSet<string> HtmlExcludeSelectors { get; } = new();
 
@@ -27,7 +27,7 @@ namespace ReverseMarkdown
         /// <summary>
         /// EXPERIMENTAL (v6): selects the writer used by the Markdown DOM render path
         /// (<see cref="Converter.Parse"/> / <see cref="Converter.Render(Dom.MarkdownDocument)"/>).
-        /// Does not affect the v5 <see cref="Converter.Convert"/> path. See docs/v6/.
+        /// Does not affect the v5 <see cref="Converter.Convert"/> path.
         /// </summary>
         public MarkdownFlavor Flavor { get; set; } = MarkdownFlavor.Default;
 

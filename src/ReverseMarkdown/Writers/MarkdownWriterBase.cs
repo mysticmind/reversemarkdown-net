@@ -9,7 +9,7 @@ namespace ReverseMarkdown.Writers
     /// Base for flavor writers. Implements CommonMark-ish defaults; flavor writers override
     /// only the node renderings that differ and the <see cref="Degrade"/> hook for nodes the
     /// flavor cannot represent natively. Block separation is structural (decided here), not
-    /// encoded in the tree — see docs/v6/architecture.md §5.
+    /// encoded in the tree.
     /// </summary>
     public abstract class MarkdownWriterBase : IMdVisitor, IMarkdownWriter
     {

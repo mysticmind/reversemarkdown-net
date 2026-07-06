@@ -19,8 +19,7 @@ Two pressures motivated the change:
    carries scar tissue from its quirks (`When_DeeplyNestedParagraphs_WithMalformedHTML_…`,
    `When_ManySequentialUnclosedParagraphs`, `When_UnclosedParagraphsWithSpansAndTextNodes`).
 2. **CSS selectors for issue #79.** We deferred a Fizzler dependency for HTML-side
-   filtering (ADR/decision in docs/v6). A spec parser with native `QuerySelectorAll` removes
-   the need for Fizzler entirely.
+   filtering. A spec parser with native `QuerySelectorAll` removes the need for Fizzler entirely.
 
 ## Decision
 

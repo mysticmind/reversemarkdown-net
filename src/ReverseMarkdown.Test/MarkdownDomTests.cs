@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ReverseMarkdown.Test
 {
-    // Phase A scaffolding tests for the v6 Markdown DOM path. See docs/v6/.
+    // Phase A scaffolding tests for the v6 Markdown DOM path.
     public class MarkdownDomTests
     {
         private static string Norm(string s) => s.Replace("\r\n", "\n").Trim();

@@ -77,5 +77,4 @@ unified.js (`hast` → `mdast` → stringify).
    the library to Markdig's block/inline model (built for Markdown→X, not X→Markdown) and a
    large dependency. A purpose-built, minimal node set is lighter and fits HTML→MD better.
 
-Decision: option in this ADR (purpose-built Markdown DOM). Detail in
-[`docs/v6/`](../v6/README.md).
+Decision: option in this ADR (purpose-built Markdown DOM).

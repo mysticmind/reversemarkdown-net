@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 namespace ReverseMarkdown.Test
 {
     /// <summary>
-    /// Dual-run parity harness (docs/v6/migration.md). Runs the v5 <see cref="Converter.Convert"/>
+    /// Dual-run parity harness. Runs the v5 <see cref="Converter.Convert"/>
     /// path and the v6 <c>Render(Parse(...))</c> path over a corpus and classifies each diff.
     /// Per the v6 decision, byte parity is NOT a goal — this harness gates only SEMANTIC
     /// regressions and dropped content, not whitespace. It also prints a progress report.
@@ -126,7 +126,7 @@ namespace ReverseMarkdown.Test
                 _output.WriteLine($"   v5: {Inline(v5)}");
                 _output.WriteLine($"   v6: {Inline(v6)}");
 
-                // The one strict gate (docs/v6/migration.md): content may not disappear.
+                // The one strict gate: content may not disappear.
                 if (!PreservesContent(v5, v6, out var detail))
                 {
                     failures.Add($"DROPPED  | {html}\n         | {detail}");
