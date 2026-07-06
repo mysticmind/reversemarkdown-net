@@ -19,3 +19,6 @@ Thumbs.db
 node_modules/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+
+# BenchmarkDotNet output
+BenchmarkDotNet.Artifacts/
