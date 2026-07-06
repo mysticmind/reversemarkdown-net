@@ -9,7 +9,12 @@
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
+    <PackageIcon>logo.png</PackageIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Pack the project logo as the NuGet package icon. -->
+    <None Include="..\..\assets\logo.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
   <ItemGroup>
     <!-- v6 uses AngleSharp's HTML5-compliant parser. -->
     <PackageReference Include="AngleSharp" Version="1.5.2" />
