@@ -40,6 +40,15 @@ export default defineConfig({
       { text: 'Extending', link: '/extending' },
       { text: 'Migrate from v5', link: '/migration' },
       { text: 'NuGet', link: 'https://www.nuget.org/packages/ReverseMarkdown/' },
+      {
+        // Version switcher. This site is the latest (v6). Older majors keep their own docs;
+        // v5 currently points at its branch README until/unless it gets a versioned sub-path.
+        text: 'v6.x',
+        items: [
+          { text: 'v6.x (latest)', link: '/' },
+          { text: 'v5.x', link: 'https://github.com/mysticmind/reversemarkdown-net/blob/5.x/README.md' },
+        ],
+      },
     ],
     sidebar: [
       {
