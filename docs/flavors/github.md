@@ -12,18 +12,14 @@ There are two distinct GitHub-oriented options, and they behave differently:
 Selects the dedicated, CommonMark-based **GitHub writer**. It is round-trip-faithful and
 **preserves raw HTML** for constructs it cannot represent as clean markdown.
 
-```csharp
-var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.GitHub };
-```
+snippet: sample_github_flavor
 
 ### `GithubFlavored = true`
 
 A legacy switch that produces **clean GFM markdown on the default writer** - `<br>`, `<pre>` →
 fenced code blocks, and task lists. Tables are always emitted as GFM regardless of this flag.
 
-```csharp
-var config = new ReverseMarkdown.Config { GithubFlavored = true };
-```
+snippet: sample_github_flavored
 
 ::: tip Which should I use?
 Use `GithubFlavored = true` if you want tidy GFM markdown (fenced code, pipe tables, task lists).

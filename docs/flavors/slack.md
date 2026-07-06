@@ -3,10 +3,7 @@
 The Slack flavor produces Slack-compatible message formatting: `*` for bold, `_` for italic,
 `~` for strikethrough, and `•` for list bullets.
 
-```csharp
-var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.Slack };
-var converter = new ReverseMarkdown.Converter(config);
-```
+snippet: sample_slack
 
 The legacy `SlackFlavored = true` switch is an obsolete alias of `Flavor = MarkdownFlavor.Slack`.
 

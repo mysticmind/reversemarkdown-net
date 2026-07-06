@@ -9,6 +9,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
+    "@radarleaf/markdown-it-region-snippets": "^1.2.0",
     "vitepress": "^1.6.3"
   }
 }

@@ -78,21 +78,7 @@ Output formatting.
 
 ### Base64 image examples
 
-```csharp
-// Skip base64 images
-var skip = new Config { Images = { Base64Handling = Config.Base64ImageHandling.Skip } };
-
-// Save base64 images to disk
-var save = new Config
-{
-    Images =
-    {
-        Base64Handling = Config.Base64ImageHandling.SaveToFile,
-        Base64Directory = "/path/to/images",
-        Base64FileName = (index, mime) => $"image_{index}",
-    },
-};
-```
+snippet: sample_base64
 
 ## `Html`
 
@@ -102,8 +88,4 @@ HTML pre-filtering (v6 Markdown DOM path).
 - **`Html.ElementFilters`** - predicate filters; an element for which any predicate returns true is
   removed.
 
-```csharp
-var config = new ReverseMarkdown.Config();
-config.Html.ExcludeSelectors.Add("div.advertisement, aside.related");
-config.Html.ElementFilters.Add(el => el.ClassList.Contains("tracking"));
-```
+snippet: sample_html_filters

@@ -40,6 +40,10 @@ jobs:
       # so a break in the downlevel build is caught here rather than at publish time.
       - name: Build library (all target frameworks)
         run: dotnet build src/ReverseMarkdown/ReverseMarkdown.csproj -c Release
+      # Build the documentation samples so the code shown in the docs (via region snippets)
+      # is guaranteed to compile against the current API.
+      - name: Build documentation samples
+        run: dotnet build samples/ReverseMarkdown.Samples/ReverseMarkdown.Samples.csproj -c Release
       # Run the test suite across every test target framework (net8.0/net9.0/net10.0).
       - name: Run tests
         run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj -c Release

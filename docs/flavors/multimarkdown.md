@@ -3,10 +3,7 @@
 The MultiMarkdown (MMD) flavor produces [MultiMarkdown](https://fletcherpenney.net/multimarkdown/)
 output, including its extended constructs.
 
-```csharp
-var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.MultiMarkdown };
-var converter = new ReverseMarkdown.Converter(config);
-```
+snippet: sample_mmd
 
 ## Extended constructs
 

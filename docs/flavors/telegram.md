@@ -3,17 +3,7 @@
 The Telegram flavor produces [Telegram MarkdownV2](https://core.telegram.org/bots/api#markdownv2-style)
 with its formatting and escaping rules.
 
-```csharp
-var converter = new ReverseMarkdown.Converter(new ReverseMarkdown.Config
-{
-    Flavor = MarkdownFlavor.Telegram
-});
-
-var html = "This is <strong>bold</strong>, <em>italic</em>, <del>strikethrough</del> " +
-           "and <a href=\"https://example.com/path_(one)?q=1)2\">a_b[c]</a>";
-var result = converter.Convert(html);
-// This is *bold*, _italic_, ~strikethrough~ and [a\_b\[c\]](https://example.com/path_(one\)?q=1\)2)
-```
+snippet: sample_telegram
 
 The legacy `TelegramMarkdownV2 = true` switch is an obsolete alias of
 `Flavor = MarkdownFlavor.Telegram`.

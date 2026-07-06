@@ -1,4 +1,9 @@
 import { defineConfig } from 'vitepress'
+import { fileURLToPath, URL } from 'node:url'
+import { regionSnippetPlugin } from '@radarleaf/markdown-it-region-snippets'
+
+// Repo root, so the snippet plugin can scan the samples project.
+const rootDir = fileURLToPath(new URL('../..', import.meta.url))
 
 // Deployed to GitHub Pages at https://mysticmind.github.io/reversemarkdown-net/
 export default defineConfig({
@@ -9,6 +14,18 @@ export default defineConfig({
   cleanUrls: true,
   // Architecture Decision Records live under docs/adr but are internal - not site pages.
   srcExclude: ['adr/**'],
+  markdown: {
+    // Expand `snippet: sample_*` markers from #region blocks in samples/*.cs so the docs
+    // always show real, compiled source. https://www.npmjs.com/package/@radarleaf/markdown-it-region-snippets
+    config(md) {
+      md.use(regionSnippetPlugin, {
+        rootDir,
+        dirs: ['samples'],
+        include: /^sample_/,
+        syntax: 'snippet-colon',
+      })
+    },
+  },
   head: [
     ['link', { rel: 'icon', href: '/reversemarkdown-net/logo.png' }],
   ],

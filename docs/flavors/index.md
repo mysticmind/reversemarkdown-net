@@ -3,10 +3,7 @@
 Select the Markdown flavor to produce with the `Flavor` property (a `MarkdownFlavor` enum). This
 is the single, canonical flavor selector:
 
-```csharp
-var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.CommonMark };
-var converter = new ReverseMarkdown.Converter(config);
-```
+snippet: sample_flavor_select
 
 | Flavor | What it produces |
 | --- | --- |

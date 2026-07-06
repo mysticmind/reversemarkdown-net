@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Documentation samples: methods/locals exist only so the snippets compile against the
+         real API. Suppress "unused" and obsolete-usage noise. -->
+    <NoWarn>CS0219;CS0168;CS8321;CS0618;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseMarkdown\ReverseMarkdown.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -3,10 +3,7 @@
 The Pandoc flavor produces [Pandoc Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown),
 including its native constructs.
 
-```csharp
-var config = new ReverseMarkdown.Config { Flavor = MarkdownFlavor.Pandoc };
-var converter = new ReverseMarkdown.Converter(config);
-```
+snippet: sample_pandoc
 
 ## Native constructs
 
