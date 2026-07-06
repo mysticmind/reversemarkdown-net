@@ -9,7 +9,6 @@ public class Snippets
     [Fact]
     public async Task Usage()
     {
-        #region Usage
 
         var converter = new ReverseMarkdown.Converter();
 
@@ -17,15 +16,12 @@ public class Snippets
 
         string result = converter.Convert(html);
 
-        #endregion
-
         await Verifier.Verify(result);
     }
 
     [Fact]
     public void UsageWithConfig()
     {
-        #region UsageWithConfig
 
         var config = new ReverseMarkdown.Config
         {
@@ -41,26 +37,22 @@ public class Snippets
 
         var converter = new ReverseMarkdown.Converter(config);
 
-        #endregion
     }
 
     [Fact]
     public void Base64ImageInclude()
     {
-        #region Base64ImageInclude
 
         var converter = new ReverseMarkdown.Converter();
         string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
         string result = converter.Convert(html);
         // Output: ![Sample Image](data:image/png;base64,iVBORw0KGg...)
 
-        #endregion
     }
 
     [Fact]
     public void Base64ImageSkip()
     {
-        #region Base64ImageSkip
 
         var config = new ReverseMarkdown.Config
         {
@@ -71,13 +63,11 @@ public class Snippets
         string result = converter.Convert(html);
         // Output: (empty - image is skipped)
 
-        #endregion
     }
 
     [Fact]
     public void Base64ImageSaveToFile()
     {
-        #region Base64ImageSaveToFile
 
         var config = new ReverseMarkdown.Config
         {
@@ -93,13 +83,11 @@ public class Snippets
         // Output: ![Sample Image](/path/to/images/image_0.png)
         // Image file saved to: /path/to/images/image_0.png
 
-        #endregion
     }
 
     [Fact]
     public void Base64ImageCustomFilename()
     {
-        #region Base64ImageCustomFilename
 
         var config = new ReverseMarkdown.Config
         {
@@ -117,6 +105,5 @@ public class Snippets
         var converter = new ReverseMarkdown.Converter(config);
         // Images will be saved as: converted_20260108_143022_0.png, converted_20260108_143022_1.jpg, etc.
 
-        #endregion
     }
 }

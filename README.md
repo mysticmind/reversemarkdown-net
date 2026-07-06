@@ -51,8 +51,6 @@ ReverseMarkdown targets `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0`. The
 
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and build it yourself.
 
-<!-- snippet: Usage -->
-<a id='snippet-Usage'></a>
 ```cs
 var converter = new ReverseMarkdown.Converter();
 
@@ -60,23 +58,15 @@ string html = "This a sample <strong>paragraph</strong> from <a href=\"http://te
 
 string result = converter.Convert(html);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L12-L20' title='Snippet source file'>snippet source</a> | <a href='#snippet-Usage' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 Will result in:
 
-<!-- snippet: Snippets.Usage.verified.txt -->
-<a id='snippet-Snippets.Usage.verified.txt'></a>
 ```txt
 This a sample **paragraph** from [my site](http://test.com)
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.Usage.verified.txt#L1-L1' title='Snippet source file'>snippet source</a> | <a href='#snippet-Snippets.Usage.verified.txt' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 The conversion can also be customized:
 
-<!-- snippet: UsageWithConfig -->
-<a id='snippet-UsageWithConfig'></a>
 ```cs
 var config = new ReverseMarkdown.Config
 {
@@ -92,8 +82,6 @@ var config = new ReverseMarkdown.Config
 
 var converter = new ReverseMarkdown.Converter(config);
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L28-L44' title='Snippet source file'>snippet source</a> | <a href='#snippet-UsageWithConfig' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 To treat `<pre>` (and `<pre><code>`) content as normal HTML instead of code blocks:
 
@@ -221,23 +209,17 @@ ReverseMarkdown provides flexible options for handling base64-encoded images (in
 
 By default, base64-encoded images are included in the markdown output as-is:
 
-<!-- snippet: Base64ImageInclude -->
-<a id='snippet-Base64ImageInclude'></a>
 ```cs
 var converter = new ReverseMarkdown.Converter();
 string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Image\"/>";
 string result = converter.Convert(html);
 // Output: ![Sample Image](data:image/png;base64,iVBORw0KGg...)
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L50-L57' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageInclude' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 **Skip Base64 Images**
 
 To ignore base64-encoded images entirely:
 
-<!-- snippet: Base64ImageSkip -->
-<a id='snippet-Base64ImageSkip'></a>
 ```cs
 var config = new ReverseMarkdown.Config
 {
@@ -248,15 +230,11 @@ string html = "<img src=\"data:image/png;base64,iVBORw0KGg...\" alt=\"Sample Ima
 string result = converter.Convert(html);
 // Output: (empty - image is skipped)
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L63-L74' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSkip' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 **Save Base64 Images to Disk**
 
 To extract and save base64-encoded images to disk:
 
-<!-- snippet: Base64ImageSaveToFile -->
-<a id='snippet-Base64ImageSaveToFile'></a>
 ```cs
 var config = new ReverseMarkdown.Config
 {
@@ -272,15 +250,11 @@ string result = converter.Convert(html);
 // Output: ![Sample Image](/path/to/images/image_0.png)
 // Image file saved to: /path/to/images/image_0.png
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L80-L96' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageSaveToFile' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 **Custom Filename Generator**
 
 You can provide a custom filename generator for saved images:
 
-<!-- snippet: Base64ImageCustomFilename -->
-<a id='snippet-Base64ImageCustomFilename'></a>
 ```cs
 var config = new ReverseMarkdown.Config
 {
@@ -298,8 +272,6 @@ var config = new ReverseMarkdown.Config
 var converter = new ReverseMarkdown.Converter(config);
 // Images will be saved as: converted_20260108_143022_0.png, converted_20260108_143022_1.jpg, etc.
 ```
-<sup><a href='/src/ReverseMarkdown.Test/Snippets.cs#L102-L120' title='Snippet source file'>snippet source</a> | <a href='#snippet-Base64ImageCustomFilename' title='Start of snippet'>anchor</a></sup>
-<!-- endSnippet -->
 
 **Supported Image Formats:**
 - PNG (`image/png`)
