@@ -20,9 +20,15 @@ namespace ReverseMarkdown
         /// logic CSS selectors cannot express.
         /// </summary>
         public List<Func<IElement, bool>> HtmlElementFilters { get; } = new();
+        /// <summary>How unknown (unsupported) tags are handled. Default is
+        /// <see cref="UnknownTagsOption.PassThrough"/>.</summary>
         public UnknownTagsOption UnknownTags { get; set; } = UnknownTagsOption.PassThrough;
 
-        public bool GithubFlavored { get; set; } = false;
+        // ---- Markdown flavor selection ----
+        // <see cref="Flavor"/> is the canonical selector. The boolean switches below are the legacy
+        // (v5) API: SlackFlavored / TelegramMarkdownV2 / CommonMark resolve to the matching
+        // MarkdownFlavor at conversion time. GithubFlavored is the exception — it keeps its v5
+        // behavior on the default writer and is not equivalent to MarkdownFlavor.GitHub.
 
         /// <summary>
         /// EXPERIMENTAL (v6): selects the writer used by the Markdown DOM render path
@@ -42,6 +48,35 @@ namespace ReverseMarkdown
             Pandoc
         }
 
+        /// <summary>Legacy GitHub Flavored Markdown switch: enables GFM handling for br, pre, task
+        /// lists and tables on the default conversion path (tables are always emitted as GFM
+        /// regardless). Distinct from <see cref="MarkdownFlavor.GitHub"/>, which selects the
+        /// dedicated GitHub writer on the v6 render path.</summary>
+        public bool GithubFlavored { get; set; } = false;
+
+        /// <summary>Legacy Slack-flavored Markdown switch (resolved to
+        /// <see cref="MarkdownFlavor.Slack"/>).</summary>
+        public bool SlackFlavored { get; set; } = false;
+
+        /// <summary>Legacy Telegram MarkdownV2 switch (resolved to
+        /// <see cref="MarkdownFlavor.Telegram"/>).</summary>
+        public bool TelegramMarkdownV2 { get; set; } = false;
+
+        /// <summary>Legacy CommonMark switch (resolved to <see cref="MarkdownFlavor.CommonMark"/>):
+        /// enables CommonMark-compatible output.</summary>
+        public bool CommonMark { get; set; } = false;
+
+        /// <summary>
+        /// When CommonMark is enabled, insert spaces to avoid intraword emphasis
+        /// (<c>he&lt;strong&gt;ll&lt;/strong&gt;o</c> becomes <c>he **ll** o</c>).
+        /// </summary>
+        public bool CommonMarkIntrawordEmphasisSpacing { get; set; } = false;
+
+        /// <summary>
+        /// When CommonMark is enabled, emit HTML for inline tags (em/strong/a/img) to avoid delimiter edge cases.
+        /// </summary>
+        public bool CommonMarkUseHtmlInlineTags { get; set; } = true;
+
         /// <summary>Flavors built on CommonMark that share its text handling (escaping, soft
         /// breaks) and inline/block raw-HTML passthrough. GFM and MultiMarkdown qualify (both
         /// preserve raw HTML); Pandoc does not, since it renders div/span as fenced divs/spans.</summary>
@@ -55,28 +90,6 @@ namespace ReverseMarkdown
         internal static bool PreservesInlineRawHtml(MarkdownFlavor flavor) =>
             IsCommonMarkBased(flavor) || flavor is MarkdownFlavor.MultiMarkdown;
 
-        public bool SlackFlavored { get; set; } = false;
-
-        /// <summary>
-        /// Telegram MarkdownV2 conversion.
-        /// </summary>
-        public bool TelegramMarkdownV2 { get; set; } = false;
-
-        /// <summary>
-        /// Enable CommonMark compatible emphasis handling (avoid intraword emphasis by inserting spaces).
-        /// </summary>
-        public bool CommonMark { get; set; } = false;
-
-        /// <summary>
-        /// When CommonMark is enabled, insert spaces to avoid intraword emphasis.
-        /// </summary>
-        public bool CommonMarkIntrawordEmphasisSpacing { get; set; } = false;
-
-        /// <summary>
-        /// When CommonMark is enabled, emit HTML for inline tags (em/strong/a/img) to avoid delimiter edge cases.
-        /// </summary>
-        public bool CommonMarkUseHtmlInlineTags { get; set; } = true;
-
         /// <summary>
         /// Escape markdown line starts (headings, lists, block markers) in plain text output.
         /// </summary>
@@ -88,8 +101,10 @@ namespace ReverseMarkdown
         /// </summary>
         public string OutputLineEnding { get; set; } = Environment.NewLine;
 
+        /// <summary>Remove the leading newlines that a <c>div</c> would otherwise introduce. Default is false.</summary>
         public bool SuppressDivNewlines { get; set; } = false;
 
+        /// <summary>Remove HTML comments (and their text) from the output. Default is false.</summary>
         public bool RemoveComments { get; set; } = false;
 
         /// <summary>
@@ -113,6 +128,8 @@ namespace ReverseMarkdown
         /// </summary>
         public bool SmartHrefHandling { get; set; } = false;
 
+        /// <summary>How a table without a header row is handled. Default is
+        /// <see cref="TableWithoutHeaderRowHandlingOption.Default"/> (first row becomes the header).</summary>
         public TableWithoutHeaderRowHandlingOption TableWithoutHeaderRowHandling { get; set; } =
             TableWithoutHeaderRowHandlingOption.Default;
 
@@ -211,6 +228,7 @@ namespace ReverseMarkdown
         /// </summary>
         public bool TableHeaderColumnSpanHandling { get; set; } = true;
 
+        /// <summary>Clean up unnecessary spaces in the output. Default is true.</summary>
         public bool CleanupUnnecessarySpaces { get; set; } = true;
 
         /// <summary>
