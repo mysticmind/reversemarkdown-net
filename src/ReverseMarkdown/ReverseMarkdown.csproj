@@ -12,7 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- v6 uses AngleSharp's HTML5-compliant parser. -->
-    <PackageReference Include="AngleSharp" Version="1.1.2" />
+    <PackageReference Include="AngleSharp" Version="1.5.2" />
     <!-- Source-only polyfills so modern BCL/LINQ/Regex APIs compile on netstandard2.0. -->
     <PackageReference Include="Polyfill" Version="10.11.2" PrivateAssets="all" />
   </ItemGroup>
@@ -25,6 +25,6 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.103" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="all" />
   </ItemGroup>
 </Project>
