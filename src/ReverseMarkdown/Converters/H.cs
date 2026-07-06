@@ -67,7 +67,7 @@ namespace ReverseMarkdown.Converters {
             var hashCount = content.Length - 1 - index;
             var escapedHashes = new string('#', hashCount);
             escapedHashes = escapedHashes.Replace("#", "\\#");
-            return content[..(index + 1)] + escapedHashes;
+            return content.Substring(0, index + 1) + escapedHashes;
         }
     }
 }

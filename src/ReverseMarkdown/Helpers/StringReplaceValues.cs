@@ -12,6 +12,7 @@ internal class StringReplaceValues : Dictionary<string, string> {
 
     private Regex Regex => _regex ??= new Regex($"{string.Join("|", this.Keys.Select(Regex.Escape))}", RegexOptions.Compiled);
 
+#if NET7_0_OR_GREATER
     public string Replace(string input)
     {
         var offset = 0;
@@ -29,4 +30,25 @@ internal class StringReplaceValues : Dictionary<string, string> {
 
         return sb?.ToString() ?? input;
     }
+#else
+    // Regex.EnumerateMatches (and StringBuilder.Append(ReadOnlySpan<char>)) are not available
+    // on netstandard2.0/net46, so fall back to Regex.Matches and substring-based appends.
+    public string Replace(string input)
+    {
+        var offset = 0;
+        StringBuilder? sb = null;
+        foreach (Match match in Regex.Matches(input)) {
+            sb ??= new StringBuilder(input.Length);
+            sb.Append(input.Substring(offset, match.Index - offset));
+            sb.Append(this[match.Value]);
+            offset = match.Index + match.Length;
+        }
+
+        if (sb is not null && offset != input.Length) {
+            sb.Append(input.Substring(offset, input.Length - offset));
+        }
+
+        return sb?.ToString() ?? input;
+    }
+#endif
 }

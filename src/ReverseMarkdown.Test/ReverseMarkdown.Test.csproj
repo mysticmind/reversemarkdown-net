@@ -1,23 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <!--
+      The suite runs on every framework the library supports, so the downlevel builds
+      (net48 -> net46, net6.0 -> netstandard2.0) get full runtime coverage. Verify was
+      removed in favour of plain assertions / checked-in snapshot files so the tests can
+      run on net48 and net6.0 without framework-specific tooling.
+    -->
+    <TargetFrameworks>net48;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
     <LangVersion>preview</LangVersion>
+    <SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="Markdig" Version="1.0.0" />
+  </ItemGroup>
+
+  <!-- Modern frameworks: latest test tooling. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="coverlet.collector" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Verify.Xunit" Version="31.12.5" />
-    <PackageReference Include="Markdig" Version="1.0.0" />
+  </ItemGroup>
+
+  <!-- Downlevel frameworks: last test tooling that supports the net48/net6.0 hosts.
+       coverlet.collector is intentionally omitted here: its transitive
+       Microsoft.Diagnostics.NETCore.Client wants Microsoft.Bcl.AsyncInterfaces 9.0,
+       which isn't deployed on the net6.0 host and silently breaks test discovery. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- net48 lacks an in-box System.Text.Json and .NET Framework reference assemblies. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,12 +70,6 @@
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.Bug294_Table_bug_with_row_superfluous_newlines.verified.md">
-      <DependentUpon>ConverterTests.cs</DependentUpon>
-    </None>
-    <None Update="ConverterTests.Check_Converter_With_Unknown_Tag_Raise_Option.verified.txt">
-      <DependentUpon>ConverterTests.cs</DependentUpon>
-    </None>
-    <None Update="ConverterTests.Check_Converter_With_Unknown_Tag_Raise_Option.DotNet6_0.received.txt">
       <DependentUpon>ConverterTests.cs</DependentUpon>
     </None>
     <None Update="ConverterTests.When_Anchor_Text_with_Underscore_Do_Not_Escape.verified.md">

@@ -39,11 +39,20 @@ public static partial class StringUtils {
     }
 
 
+#if NET7_0_OR_GREATER
     [GeneratedRegex(@"\r?\n\s*\r?\n", RegexOptions.Singleline)]
     private static partial Regex LinkTextRegex();
 
     [GeneratedRegex(@"`+")]
     private static partial Regex BackTickRunRegex();
+#else
+    private static readonly Regex _linkTextRegex =
+        new(@"\r?\n\s*\r?\n", RegexOptions.Singleline | RegexOptions.Compiled);
+    private static Regex LinkTextRegex() => _linkTextRegex;
+
+    private static readonly Regex _backTickRunRegex = new(@"`+", RegexOptions.Compiled);
+    private static Regex BackTickRunRegex() => _backTickRunRegex;
+#endif
 
     private static readonly StringReplaceValues _linkTextReplaceValues = new() {
         ["["] = @"\[",

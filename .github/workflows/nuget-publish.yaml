@@ -19,11 +19,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install .NET 9.0.x
+      - name: Install .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
 
+      # Packs all target frameworks: net46;netstandard2.0;net8.0;net9.0;net10.0.
+      # net46 is built on Linux via the Microsoft.NETFramework.ReferenceAssemblies package.
       - name: Run Pack
         run: dotnet pack src/ReverseMarkdown/ReverseMarkdown.csproj -c Release
         shell: bash

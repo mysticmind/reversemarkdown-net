@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using VerifyTests;
-using VerifyXunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,13 +12,24 @@ namespace ReverseMarkdown.Test
     public class ConverterTests
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private readonly VerifySettings _verifySettings;
 
         public ConverterTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _verifySettings = new VerifySettings();
-            _verifySettings.DisableRequireUniquePrefix();
+        }
+
+        // Reads a checked-in snapshot file (formerly compared by Verify) and normalises
+        // line endings + trailing newline so it can be asserted on every target framework.
+        private static string LoadVerified(string testName, string extension)
+        {
+            var path = Path.Combine(GetProjectDirectory().FullName,
+                $"ConverterTests.{testName}.verified.{extension}");
+            return Normalize(File.ReadAllText(path));
+        }
+
+        private static string Normalize(string text)
+        {
+            return text.Replace("\r\n", "\n").Replace("\r", "\n").TrimEnd('\n');
         }
 
         private static readonly Lazy<Dictionary<string, string>> CaseHtmlById = new(() =>
@@ -197,7 +206,7 @@ namespace ReverseMarkdown.Test
 
             var result = converter.Convert(html);
 
-            Assert.Equal(result, result.ReplaceLineEndings("\n"));
+            Assert.Equal(result, result.Replace("\r\n", "\n").Replace("\r", "\n"));
             Assert.DoesNotContain("\r", result);
         }
 
@@ -591,15 +600,14 @@ namespace ReverseMarkdown.Test
         
 
         [Fact]
-        public Task When_Underline_Tag_With_AliasConverter_Register_ThenConvertToItalics()
+        public void When_Underline_Tag_With_AliasConverter_Register_ThenConvertToItalics()
         {
             var html = LoadHtml("Underline_Tag_Alias");
             var converter = new Converter();
             converter.Register("u", new ReverseMarkdown.Converters.AliasConverter(converter, "em"));
             var result = converter.Convert(html);
-            var settings = new VerifySettings();
-            settings.DisableRequireUniquePrefix();
-            return Verifier.Verify(result, settings: settings, extension: "md");
+            var expected = LoadVerified(nameof(When_Underline_Tag_With_AliasConverter_Register_ThenConvertToItalics), "md");
+            Assert.Equal(expected, Normalize(result));
         }
 
         
@@ -611,7 +619,7 @@ namespace ReverseMarkdown.Test
         
 
         [Fact]
-        public Task Check_Converter_With_Unknown_Tag_Raise_Option()
+        public void Check_Converter_With_Unknown_Tag_Raise_Option()
         {
             var html = LoadHtml("Unknown_Tag_Raise");
             var config = new Config
@@ -619,8 +627,8 @@ namespace ReverseMarkdown.Test
                 UnknownTags = Config.UnknownTagsOption.Raise
             };
             var converter = new Converter(config);
-            return Verifier.Throws(() => converter.Convert(html), settings: _verifySettings)
-                .IgnoreMember<Exception>(e => e.StackTrace);
+            var ex = Assert.Throws<UnknownTagException>(() => converter.Convert(html));
+            Assert.Equal("Unknown tag: unknown-tag", ex.Message);
         }
 
         
@@ -936,7 +944,10 @@ namespace ReverseMarkdown.Test
                 return cases;
             }
 
-            var tags = filter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var tags = filter.Split(',')
+                .Select(tag => tag.Trim())
+                .Where(tag => tag.Length > 0)
+                .ToArray();
             return cases.Where(testCase => testCase.Tags.Any(tag => tags.Contains(tag, StringComparer.OrdinalIgnoreCase)));
         }
 
@@ -958,11 +969,11 @@ namespace ReverseMarkdown.Test
 
             var expected = File.ReadAllText(path);
             if (expected.EndsWith("\r\n", StringComparison.Ordinal)) {
-                return expected[..^2];
+                return expected.Substring(0, expected.Length - 2);
             }
 
             if (expected.EndsWith("\n", StringComparison.Ordinal)) {
-                return expected[..^1];
+                return expected.Substring(0, expected.Length - 1);
             }
 
             return expected;
