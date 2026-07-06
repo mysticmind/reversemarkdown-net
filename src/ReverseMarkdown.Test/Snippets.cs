@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
 using ReverseMarkdown;
-using VerifyXunit;
 using Xunit;
 
 public class Snippets
 {
     [Fact]
-    public async Task Usage()
+    public void Usage()
     {
         #region Usage
 
@@ -19,7 +17,7 @@ public class Snippets
 
         #endregion
 
-        await Verifier.Verify(result);
+        Assert.Equal("This a sample **paragraph** from [my site](http://test.com)", result);
     }
 
     [Fact]

@@ -24,9 +24,9 @@ namespace ReverseMarkdown.Converters {
                 var content = node.InnerHtml;
                 var fence = CreateCommonMarkCodeFence(content);
                 writer.Write(fence);
-                var needsBacktickPadding = content.Length > 0 && (content[0] == '`' || content[^1] == '`');
+                var needsBacktickPadding = content.Length > 0 && (content[0] == '`' || content[content.Length - 1] == '`');
                 var needsWhitespacePadding = content.Length > 0 &&
-                                            (char.IsWhiteSpace(content[0]) || char.IsWhiteSpace(content[^1]));
+                                            (char.IsWhiteSpace(content[0]) || char.IsWhiteSpace(content[content.Length - 1]));
                 var needsPadding = needsBacktickPadding || needsWhitespacePadding;
 
                 if (needsPadding) {

@@ -12,27 +12,53 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
 
 jobs:
-  job:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact-name: Linux
-          #- os: macos-11
-          # artifact-name: Darwin
-          #- os: windows-2022
-          #  artifact-name: Win64 
-    runs-on: ${{ matrix.os }} 
-    continue-on-error: true
+  # Compiles every target framework (including the downlevel net46 and netstandard2.0
+  # builds) and runs the full test suite on every framework that can execute on Linux.
+  # net6.0 resolves the library's netstandard2.0 build, so that build is fully tested.
+  build-and-test:
+    runs-on: ubuntu-latest
     steps:
-      - name: checkout repo
+      - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Install .NET 9.0.x
+      - name: Install .NET SDKs
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            9.0.x
+            10.0.x
       - name: Display dotnet info
-        run: dotnet --list-sdks  
-      - name: Run tests
-        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net9.0
+        run: dotnet --list-sdks
+      # Build all target frameworks: net46;netstandard2.0;net8.0;net9.0;net10.0.
+      # net46 is built on Linux via the Microsoft.NETFramework.ReferenceAssemblies package.
+      - name: Build library (all target frameworks)
+        run: dotnet build src/ReverseMarkdown/ReverseMarkdown.csproj -c Release
+      - name: Test net6.0 (netstandard2.0 build)
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net6.0 -c Release
+      - name: Test net8.0
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net8.0 -c Release
+      - name: Test net9.0
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net9.0 -c Release
+      - name: Test net10.0
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net10.0 -c Release
 
+  # Runs the full suite on real .NET Framework so the net46 build is exercised at runtime
+  # (net48 -> library net46 build). Windows-only, since .NET Framework cannot run on Linux.
+  net-framework:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Install .NET SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            9.0.x
+      - name: Display dotnet info
+        run: dotnet --list-sdks
+      - name: Test net48 (net46 build)
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net48 -c Release
+      - name: Test net6.0 (netstandard2.0 build)
+        run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj --framework net6.0 -c Release

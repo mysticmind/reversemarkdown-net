@@ -3,7 +3,7 @@
     <Description>ReverseMarkdown is a Html to Markdown converter library in c#</Description>
     <VersionPrefix>5.4.0</VersionPrefix>
     <Authors>Babu Annamalai</Authors>
-    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net46;netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
@@ -12,6 +12,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+  </ItemGroup>
+  <!-- Reference assemblies so the net46 target can be built on non-Windows hosts (CI/macOS/Linux). -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
   <!--SourceLink specific settings-->
   <PropertyGroup>

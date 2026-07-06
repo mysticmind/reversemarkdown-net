@@ -37,6 +37,7 @@ namespace ReverseMarkdown.Converters {
             ["%3E"] = "&gt;",
         };
 
+#if NET7_0_OR_GREATER
         [GeneratedRegex(@"`.*?`")]
         private static partial Regex BackTicks();
 
@@ -48,6 +49,22 @@ namespace ReverseMarkdown.Converters {
 
         [GeneratedRegex(@"(?m)^ {0,3}\[[^\]\r\n]+\]:")]
         private static partial Regex CommonMarkLinkDefinitionPattern();
+#else
+        private static readonly Regex _backTicks = new(@"`.*?`", RegexOptions.Compiled);
+        private static Regex BackTicks() => _backTicks;
+
+        private static readonly Regex _commonMarkInlineLinkOrImagePattern =
+            new(@"!?\[[^\]\r\n]*\]\([^\)\r\n]*\)", RegexOptions.Compiled);
+        private static Regex CommonMarkInlineLinkOrImagePattern() => _commonMarkInlineLinkOrImagePattern;
+
+        private static readonly Regex _commonMarkReferenceLinkPattern =
+            new(@"\[[^\]\r\n]+\]\[[^\]\r\n]*\]", RegexOptions.Compiled);
+        private static Regex CommonMarkReferenceLinkPattern() => _commonMarkReferenceLinkPattern;
+
+        private static readonly Regex _commonMarkLinkDefinitionPattern =
+            new(@"(?m)^ {0,3}\[[^\]\r\n]+\]:", RegexOptions.Compiled);
+        private static Regex CommonMarkLinkDefinitionPattern() => _commonMarkLinkDefinitionPattern;
+#endif
 
         #endregion
 
@@ -447,7 +464,7 @@ namespace ReverseMarkdown.Converters {
 
         private static bool IsSetextUnderline(string line, int index)
         {
-            var trimmed = line[index..].TrimEnd();
+            var trimmed = line.Substring(index).TrimEnd();
             if (trimmed.Length < 3) {
                 return false;
             }

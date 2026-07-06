@@ -12,10 +12,22 @@ public static class StringExtensions {
             .Trim();
     }
 
+#if NET6_0_OR_GREATER
     internal static LineSplitEnumerator ReadLines(this string content)
     {
         return new LineSplitEnumerator(content);
     }
+#else
+    // LineSplitEnumerator relies on ReadOnlySpan<char>, which we avoid on netstandard2.0/net46.
+    // StringReader.ReadLine splits on \r, \n and \r\n with identical line semantics.
+    internal static System.Collections.Generic.IEnumerable<string> ReadLines(this string content)
+    {
+        using var reader = new System.IO.StringReader(content);
+        while (reader.ReadLine() is { } line) {
+            yield return line;
+        }
+    }
+#endif
 
     internal static string Replace(this string content, StringReplaceValues replacements)
     {
