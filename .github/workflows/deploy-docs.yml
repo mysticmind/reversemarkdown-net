@@ -31,16 +31,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout v6 source (master)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: master
           path: v6-src
       - name: Checkout v5 source (5.x)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: 5.x
           path: v5-src
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
