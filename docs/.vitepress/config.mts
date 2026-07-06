@@ -34,12 +34,6 @@ export default defineConfig({
   themeConfig: {
     logo: '/logo.png',
     nav: [
-      { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'Flavors', link: '/flavors/' },
-      { text: 'Configuration', link: '/configuration' },
-      { text: 'Extending', link: '/extending' },
-      { text: 'Migrate from v5', link: '/migration' },
-      { text: 'NuGet', link: 'https://www.nuget.org/packages/ReverseMarkdown/' },
       {
         // Version switcher. This site is the latest (v6) at the root; v5 is deployed
         // under the /v5/ sub-path (built from the 5.x branch by the deploy workflow).
@@ -49,6 +43,12 @@ export default defineConfig({
           { text: 'v5.x', link: 'https://mysticmind.github.io/reversemarkdown-net/v5/' },
         ],
       },
+      { text: 'Guide', link: '/guide/getting-started' },
+      { text: 'Flavors', link: '/flavors/' },
+      { text: 'Configuration', link: '/configuration' },
+      { text: 'Extending', link: '/extending' },
+      { text: 'Migrate from v5', link: '/migration' },
+      { text: 'NuGet', link: 'https://www.nuget.org/packages/ReverseMarkdown/' },
     ],
     sidebar: [
       {
