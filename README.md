@@ -38,6 +38,10 @@ If you have used and benefitted from this library. Please feel free to sponsor m
 - Configurable list bullets and default code block language
 - Comment removal and optional whitespace cleanup
 
+## Supported frameworks
+
+ReverseMarkdown targets `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0`. The `netstandard2.0` target means it also runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity, in addition to modern .NET.
+
 ## Usage
 
 Install the package from NuGet using `Install-Package ReverseMarkdown` or clone the repository and build it yourself.
@@ -296,7 +300,7 @@ var converter = new ReverseMarkdown.Converter(config);
 
 **Target Framework Changes:**
 
-* Removed support for legacy and end-of-life .NET versions. Only actively supported .NET versions are now targeted i.e. .NET 8, .NET 9 and .NET 10.
+* Removed support for legacy and end-of-life .NET versions. Only actively supported .NET versions are now targeted i.e. .NET 8, .NET 9 and .NET 10. (v6 re-added a `netstandard2.0` target — see [Supported frameworks](#supported-frameworks).)
 
 ### v2.0.0
 
