@@ -2,12 +2,12 @@ name: Deploy Docs
 
 # Builds the combined documentation site and deploys it to GitHub Pages:
 #   v6 (latest) at the root, v5 under /v5/.
-# The v6 source lives on master and the v5 source on the 5.x branch. This identical
-# workflow lives on BOTH branches and always checks out both refs explicitly, so a
-# push to either branch redeploys the whole site - no cross-branch dispatch or PAT needed.
+# The v6 source lives on master and the v5 source on the 5.x branch; this workflow
+# checks out both refs explicitly. It runs only on master (or a manual dispatch), so
+# updating v5 docs on the 5.x branch requires a manual run to redeploy the site.
 on:
   push:
-    branches: [master, 5.x]
+    branches: [master]
     paths:
       - 'docs/**'
       - 'package.json'
