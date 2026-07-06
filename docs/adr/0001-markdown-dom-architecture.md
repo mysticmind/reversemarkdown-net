@@ -15,8 +15,8 @@ flavor branching is duplicated inside ~21 converters across ~63 sites.
 
 Two forces expose the limits of this design:
 
-1. **Flavor scaling.** Adding MultiMarkdown and Pandoc (`PLANNING-MMD-PANDOC.md`) requires
-   editing ~21 converters. Each new flavor multiplies the branching — an N×M problem.
+1. **Flavor scaling.** Adding MultiMarkdown and Pandoc requires editing ~21 converters.
+   Each new flavor multiplies the branching — an N×M problem.
 2. **Issue #79.** Users want structured, *filterable* output ("return an object I can pick
    from", "filter what I don't want") rather than only a final string. The streaming design
    has no intermediate object to expose.
@@ -69,7 +69,7 @@ unified.js (`hast` → `mdast` → stringify).
 
 ## Alternatives considered
 
-1. **Keep v5; add MMD/Pandoc via more flags** (`PLANNING-MMD-PANDOC.md` as written).
+1. **Keep v5; add MMD/Pandoc via more flags.**
    Lower immediate effort, but compounds the N×M branching and does **not** address #79.
 2. **HTML-side filtering only.** Solves #79's class-based filtering cheaply, but yields no
    Markdown-level structured output and no flavor-scaling benefit.
