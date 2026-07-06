@@ -1,0 +1,81 @@
+name: Deploy Docs
+
+# Builds the combined documentation site and deploys it to GitHub Pages:
+#   v6 (latest) at the root, v5 under /v5/.
+# The v6 source lives on master and the v5 source on the 5.x branch. This identical
+# workflow lives on BOTH branches and always checks out both refs explicitly, so a
+# push to either branch redeploys the whole site - no cross-branch dispatch or PAT needed.
+on:
+  push:
+    branches: [master, 5.x]
+    paths:
+      - 'docs/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
+
+# Allow the GITHUB_TOKEN to deploy to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; don't cancel in-progress runs.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout v6 source (master)
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: v6-src
+      - name: Checkout v5 source (5.x)
+        uses: actions/checkout@v4
+        with:
+          ref: 5.x
+          path: v5-src
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            v6-src/package-lock.json
+            v5-src/package-lock.json
+      - uses: actions/configure-pages@v5
+      - name: Build v6 site (root)
+        working-directory: v6-src
+        run: |
+          npm ci
+          npm run docs:build
+      - name: Build v5 site (base /v5/)
+        working-directory: v5-src
+        run: |
+          npm ci
+          npm run docs:build
+      - name: Assemble combined site
+        run: |
+          rm -rf _site
+          cp -r v6-src/docs/.vitepress/dist _site
+          mkdir -p _site/v5
+          cp -r v5-src/docs/.vitepress/dist/. _site/v5/
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
