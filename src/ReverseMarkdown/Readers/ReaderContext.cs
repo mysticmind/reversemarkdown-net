@@ -39,6 +39,12 @@ namespace ReverseMarkdown.Readers
         /// <summary>True when the current container accepts inline content directly.</summary>
         public bool CurrentAcceptsInline => Current is IInlineSink;
 
+        /// <summary>True when inline content is currently flowing: either the container accepts
+        /// inline directly, or a block-level container has an open implicit paragraph accruing
+        /// inline. Whitespace-only text is content in this state (e.g. a whitespace <span> between
+        /// two inline runs) rather than droppable block-separator whitespace.</summary>
+        public bool InInlineFlow => CurrentAcceptsInline || _frames.Peek().ImplicitParagraph is not null;
+
         /// <summary>When true, inline elements are converted to markdown rather than passed through
         /// as raw HTML — used while reading a figcaption captured as an image's alt, where the
         /// content must be markdown (e.g. a link as <c>[x](y)</c>, not raw <c>&lt;a&gt;</c>).</summary>

@@ -92,6 +92,7 @@ namespace ReverseMarkdown {
         private MarkdownDocument Parse(string html, bool collectMetadata)
         {
             html = html.ReplaceLineEndings("\n");
+            html = Cleaner.FixUnclosedScriptStyle(html);
 
             var document = _htmlParser.ParseDocument(html);
             var body = document.Body!;

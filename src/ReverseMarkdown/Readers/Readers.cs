@@ -513,6 +513,16 @@ namespace ReverseMarkdown.Readers
                 ctx.ReadChildren(element);
             }
 
+            if (quote.Children.Count == 0 && !Config.IsCommonMarkBased(ctx.Config.Flavor))
+            {
+                // An empty <blockquote> has no content, so clean-output flavors emit nothing rather
+                // than a bare ">". It is still block-level, so close any open paragraph to break the
+                // surrounding inline flow (text before and after become separate paragraphs).
+                // CommonMark/GFM keep it: a bare ">" round-trips back to <blockquote></blockquote>.
+                ctx.FlushImplicitParagraph();
+                return;
+            }
+
             ctx.Emit(quote);
         }
     }
@@ -576,9 +586,14 @@ namespace ReverseMarkdown.Readers
         {
             var item = new MdListItem { SourceTag = element.LocalName };
 
-            // Task list item: a leading <input type="checkbox"> becomes [ ] / [x].
+            // Task list item: a leading <input type="checkbox"> becomes [ ] / [x], but only under
+            // GitHub-flavored Markdown. Otherwise the <input> is left in place to pass through as
+            // raw HTML (v5 parity: task-list syntax is a GFM extension).
+            var githubFlavored = ctx.Config.GithubFlavored ||
+                ctx.Config.Flavor == Config.MarkdownFlavor.GitHub;
             var firstElement = element.Children.FirstOrDefault();
-            if (firstElement is { LocalName: "input" } &&
+            if (githubFlavored &&
+                firstElement is { LocalName: "input" } &&
                 string.Equals(firstElement.GetAttribute("type"), "checkbox", StringComparison.OrdinalIgnoreCase))
             {
                 item.Checked = firstElement.HasAttribute("checked");

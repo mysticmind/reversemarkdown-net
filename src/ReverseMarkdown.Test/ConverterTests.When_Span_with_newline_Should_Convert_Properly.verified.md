@@ -1,2 +1,1 @@
-﻿**2 sets**
-30 mountain climbers
+﻿**2 sets** 30 mountain climbers

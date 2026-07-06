@@ -127,9 +127,16 @@ namespace ReverseMarkdown.Dom
             {
                 Items.Add(item);
             }
+            else if (Items.Count > 0)
+            {
+                // Stray non-li block that is a direct child of the list (e.g. a <p> or nested
+                // <ol>/<ul> placed between <li>s rather than inside one): attach it to the
+                // preceding item as continuation content, matching how browsers associate it.
+                ((IBlockSink)Items[Items.Count - 1]).Add(block);
+            }
             else
             {
-                // Stray non-li block inside a list: wrap it in an item to keep the tree valid.
+                // No preceding item: wrap it in an item to keep the tree valid.
                 var wrapper = new MdListItem();
                 ((IBlockSink)wrapper).Add(block);
                 Items.Add(wrapper);

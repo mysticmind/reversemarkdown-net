@@ -323,16 +323,44 @@ namespace ReverseMarkdown.Readers
             return null;
         }
 
+        // Inline-level HTML elements: when passed through raw at block level (e.g. a root-level
+        // <img> in a PassThroughTags run), they are still inline flow and must coalesce into the
+        // surrounding implicit paragraph rather than break out as their own HTML block.
+        private static readonly HashSet<string> InlineLevelTags = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "a", "abbr", "b", "bdi", "bdo", "br", "cite", "code", "data", "dfn", "em", "i", "img",
+            "input", "kbd", "label", "mark", "q", "s", "samp", "small", "span", "strong", "sub",
+            "sup", "time", "u", "var", "wbr", "button", "select", "textarea",
+        };
+
+        // HTML boolean attributes serialize bare (e.g. "disabled", not disabled=""). AngleSharp's
+        // OuterHtml always emits name="" form; minimize the known booleans back to bare so raw
+        // passthrough matches conventional HTML (v5/HtmlAgilityPack parity).
+        private static readonly HashSet<string> BooleanAttributes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "checked", "disabled", "selected", "readonly", "multiple", "required", "autofocus",
+            "hidden", "novalidate", "formnovalidate", "async", "defer", "ismap", "loop", "muted",
+            "controls", "autoplay", "default", "open", "reversed", "nomodule", "itemscope",
+        };
+
+        private static readonly Regex BooleanAttributeRegex = new(
+            @"\s([a-zA-Z][a-zA-Z0-9-]*)=""""", RegexOptions.Compiled);
+
+        private static string MinimizeBooleanAttributes(string html) =>
+            BooleanAttributeRegex.Replace(html, m =>
+                BooleanAttributes.Contains(m.Groups[1].Value) ? " " + m.Groups[1].Value : m.Value);
+
         // Emit verbatim HTML via the escape hatch, choosing inline vs block by context.
         private static void EmitRaw(IElement element, ReaderContext ctx)
         {
-            if (ctx.CurrentAcceptsInline)
+            var html = MinimizeBooleanAttributes(element.OuterHtml);
+            if (ctx.CurrentAcceptsInline || InlineLevelTags.Contains(element.LocalName))
             {
-                ctx.Emit(new MdRawInline(element.OuterHtml) { SourceTag = element.LocalName });
+                ctx.Emit(new MdRawInline(html) { SourceTag = element.LocalName });
             }
             else
             {
-                ctx.Emit(new MdHtmlBlock(element.OuterHtml) { SourceTag = element.LocalName });
+                ctx.Emit(new MdHtmlBlock(html) { SourceTag = element.LocalName });
             }
         }
 
@@ -341,8 +369,9 @@ namespace ReverseMarkdown.Readers
             // AngleSharp already decodes entities into Data.
             var value = text.Data;
 
-            // Drop whitespace-only text between block elements; keep it inside inline content.
-            if (string.IsNullOrWhiteSpace(value) && !ctx.CurrentAcceptsInline)
+            // Drop whitespace-only text between block elements; keep it inside inline content
+            // (including a block container with an open implicit paragraph still accruing inline).
+            if (string.IsNullOrWhiteSpace(value) && !ctx.InInlineFlow)
             {
                 return;
             }

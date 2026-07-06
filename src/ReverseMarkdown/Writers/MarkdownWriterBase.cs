@@ -355,6 +355,38 @@ namespace ReverseMarkdown.Writers
 
         public virtual void Visit(MdDefinitionList node)
         {
+            // CommonMark has no definition-list syntax, so a <dl> renders as a nested bullet list:
+            // each <dt> is a top-level bullet and its following <dd> descriptions are indented child
+            // bullets. Pandoc/MultiMarkdown override this with their native ":" definition syntax.
+            var first = true;
+            foreach (var item in node.Items)
+            {
+                if (!first)
+                {
+                    Buffer.Append('\n');
+                }
+
+                first = false;
+
+                if (item is MdDefinitionTerm term)
+                {
+                    Buffer.Append("- ");
+                    WriteInline(term.Children);
+                    TrimTrailingSpaces();
+                }
+                else if (item is MdDefinitionDescription desc)
+                {
+                    var inner = Capture(() => WriteItemBlocks(desc.Children))
+                        .Replace("\r\n", " ").Replace('\n', ' ').Trim();
+                    Buffer.Append("    - ").Append(inner);
+                }
+            }
+        }
+
+        // Render a <dl> in Pandoc/MultiMarkdown ":" definition-list syntax, dispatching each term/
+        // description through Visit(MdDefinitionTerm)/Visit(MdDefinitionDescription).
+        protected void WriteColonDefinitionList(MdDefinitionList node)
+        {
             var first = true;
             foreach (var item in node.Items)
             {
@@ -620,9 +652,12 @@ namespace ReverseMarkdown.Writers
                 if (i > 0)
                 {
                     // Loose items always blank-line between blocks; a tight item joins with a single
-                    // newline. Some flavors (Pandoc) lazily fold a tight blockquote/code/heading
-                    // onto the previous paragraph, so they force a blank line before such a block.
-                    var forceBlank = ForceBlankLineBeforeItemBlock && list[i] is not MdList;
+                    // newline. Flavors that fold continuation paragraphs (v5 default) force a blank
+                    // before a continuation <p> so it does not lazily merge into the previous one;
+                    // Pandoc additionally forces one before other non-list blocks (blockquote/code).
+                    var forceBlank =
+                        (BlankLineBeforeContinuationParagraph && list[i] is MdParagraph) ||
+                        (ForceBlankLineBeforeItemBlock && list[i] is not MdList);
                     Buffer.Append(!tight || forceBlank ? "\n\n" : "\n");
                 }
 
@@ -634,6 +669,12 @@ namespace ReverseMarkdown.Writers
         /// (blockquote, code, heading, extra paragraph). CommonMark/GFM keep them attached with a
         /// single newline; Pandoc folds them as lazy continuations unless a blank line separates.</summary>
         protected virtual bool ForceBlankLineBeforeItemBlock => false;
+
+        /// <summary>Whether a continuation paragraph (a second+ <c>&lt;p&gt;</c> block in a list
+        /// item) is separated from the preceding block by a blank line even in a tight list. The v5
+        /// default writer does this so a folded continuation paragraph round-trips; CommonMark/GFM
+        /// leave it to their loose-list detection.</summary>
+        protected virtual bool BlankLineBeforeContinuationParagraph => false;
 
         /// <summary>Whether a list item whose first child is a non-paragraph block (e.g. a fenced
         /// code block) puts the marker on its own line, with the block fully indented below. Pandoc
@@ -675,21 +716,27 @@ namespace ReverseMarkdown.Writers
                 }
             });
 
-            var core = inner.Trim(' ');
+            var core = inner.Trim(' ', '\t', '\r', '\n');
             if (core.Length == 0)
             {
                 Buffer.Append(inner);
                 return;
             }
 
-            if (inner.Length > 0 && inner[0] == ' ')
+            // Leading/trailing whitespace shifts outside the delimiters, but a run containing a
+            // newline (e.g. a leading/trailing <br> inside the emphasis) is dropped rather than
+            // shifted — emphasis delimiters can't abut a line break.
+            var leadingWs = inner.Substring(0, inner.Length - inner.TrimStart(' ', '\t', '\r', '\n').Length);
+            var trailingWs = inner.Substring(inner.TrimEnd(' ', '\t', '\r', '\n').Length);
+
+            if (leadingWs.Length > 0 && !leadingWs.Contains('\n'))
             {
                 Buffer.Append(' ');
             }
 
             Buffer.Append(delimiter).Append(core).Append(delimiter);
 
-            if (inner.Length > 0 && inner[^1] == ' ')
+            if (trailingWs.Length > 0 && !trailingWs.Contains('\n'))
             {
                 Buffer.Append(' ');
             }

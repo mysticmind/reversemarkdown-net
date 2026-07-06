@@ -54,6 +54,17 @@ public static partial class Cleaner {
         return content;
     }
 
+    /// <summary>Strip unclosed &lt;script&gt;/&lt;style&gt; open tags before parsing. Left in place,
+    /// the HTML5 parser consumes the rest of the document as their raw-text content and the real
+    /// markup is lost. This is the minimal pre-parse fixup that does not touch text content (unlike
+    /// <see cref="PreTidy"/>), so it is safe on the CommonMark round-trip path.</summary>
+    public static string FixUnclosedScriptStyle(string content)
+    {
+        content = FixUnclosedTag(content, "script");
+        content = FixUnclosedTag(content, "style");
+        return content;
+    }
+
     private static string FixUnclosedTag(string content, string tagName)
     {
         if (string.IsNullOrWhiteSpace(content)) {
