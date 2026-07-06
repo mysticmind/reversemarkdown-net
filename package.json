@@ -1,0 +1,14 @@
+{
+  "name": "reversemarkdown-docs-v5",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Documentation site for ReverseMarkdown v5 (.NET HTML to Markdown converter).",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}

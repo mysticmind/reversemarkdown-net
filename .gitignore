@@ -14,3 +14,8 @@ Thumbs.db
 .idea
 *.received.*
 .DS_Store
+
+# VitePress docs site
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
