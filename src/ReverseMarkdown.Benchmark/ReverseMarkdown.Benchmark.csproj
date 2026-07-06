@@ -10,12 +10,14 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
-    <!--<PackageReference Include="ReverseMarkdown" Version="4.7.1" />-->
+    <!-- Benchmarks the published ReverseMarkdown package. Swap the version between runs to compare
+         releases (e.g. v5 vs v6): edit this version, or pass -p:RMVersion=5.5.0. -->
+    <PackageReference Include="ReverseMarkdown" Version="$(RMVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
-  </ItemGroup>
+  <PropertyGroup>
+    <RMVersion Condition="'$(RMVersion)' == ''">6.0.0</RMVersion>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Update="Files\1000-paragraphs.html">

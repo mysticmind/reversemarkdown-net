@@ -1,14 +1,15 @@
 using BenchmarkDotNet.Attributes;
 
-
 namespace ReverseMarkdown.Benchmark;
 
+// Benchmarks the published ReverseMarkdown package (version set in the csproj / -p:RMVersion).
+// The Convert(string) API is identical across v5 and v6, so the same benchmark runs for both;
+// run once per version and compare the results.
 [MemoryDiagnoser]
-[BaselineColumn]
 public class CompareBenchmark
 {
     private string _html = null!;
-    private Converter _converter = null!;
+    private ReverseMarkdown.Converter _converter = null!;
 
     [Params(
         "Files/1000-paragraphs.html",
@@ -20,11 +21,11 @@ public class CompareBenchmark
     public void Setup()
     {
         _html = FileHelper.ReadFile(FileName);
-        _converter = new Converter(new ReverseMarkdown.Config());
+        _converter = new ReverseMarkdown.Converter(new ReverseMarkdown.Config());
     }
 
-    [Benchmark(Baseline = true)]
-    public string V6_AngleSharpMarkdownDom()
+    [Benchmark]
+    public string Convert()
     {
         return _converter.Convert(_html);
     }

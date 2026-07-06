@@ -47,6 +47,7 @@ export default defineConfig({
         items: [
           { text: 'Introduction', link: '/guide/introduction' },
           { text: 'Getting Started', link: '/guide/getting-started' },
+          { text: 'Performance', link: '/guide/performance' },
           { text: 'Supported Frameworks', link: '/guide/supported-frameworks' },
         ],
       },

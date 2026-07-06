@@ -53,11 +53,34 @@ var converter = new ReverseMarkdown.Converter(config);
 - **Tables, links, and images** - nested tables and captions, smart href handling, URI-scheme whitelisting, and base64 image handling (include / skip / save to disk).
 - **Broad framework support** - targets `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0` (runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity).
 
+## Performance
+
+v6 replaces the v5 HtmlAgilityPack engine with an AngleSharp HTML5 parser feeding a Markdown DOM
+and per-flavor writers. It is roughly **2–2.6× faster** than v5 and allocates about **2.7× less
+memory**.
+
+<p align="center">
+  <img src="benchmark-v5-v6.png" alt="ReverseMarkdown v5 vs v6 performance" width="720" />
+</p>
+
+Measured with BenchmarkDotNet on .NET 9.0 (Apple M1), comparing published `ReverseMarkdown` 5.5.0
+vs 6.0.0 on the same inputs (lower is better):
+
+| Fixture         | Mean time v5 → v6                  | Allocated v5 → v6            |
+| --------------- | ---------------------------------- | --------------------------- |
+| 1000 paragraphs | 13.7 → **5.2 ms** (2.6× faster)    | 21 → **7 MB** (2.8× less)   |
+| 10k paragraphs  | 119.1 → **63.1 ms** (1.9× faster)  | 183 → **67 MB** (2.7× less) |
+| huge.html       | 540.6 → **244.3 ms** (2.2× faster) | 779 → **288 MB** (2.7× less)|
+
+See the [Performance guide](https://mysticmind.github.io/reversemarkdown-net/guide/performance) for
+details and how to reproduce the benchmark.
+
 ## Documentation
 
 The full guide lives at **[mysticmind.github.io/reversemarkdown-net](https://mysticmind.github.io/reversemarkdown-net/)**:
 
 - [Getting Started](https://mysticmind.github.io/reversemarkdown-net/guide/getting-started)
+- [Performance](https://mysticmind.github.io/reversemarkdown-net/guide/performance)
 - [Flavors](https://mysticmind.github.io/reversemarkdown-net/flavors/)
 - [Configuration reference](https://mysticmind.github.io/reversemarkdown-net/configuration)
 - [Extending (custom readers, recipes)](https://mysticmind.github.io/reversemarkdown-net/extending)
