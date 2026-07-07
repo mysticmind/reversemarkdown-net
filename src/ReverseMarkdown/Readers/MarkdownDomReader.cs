@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -20,10 +21,16 @@ namespace ReverseMarkdown.Readers
         private readonly Dictionary<string, IMdReader> _readers = new(StringComparer.OrdinalIgnoreCase);
         private readonly Config _config;
 
-        public MarkdownDomReader(Config config) : this(config, null)
+        // Trimming/AOT-safe: registers only the built-in readers, no reflection. Add custom
+        // readers with <see cref="Register"/>.
+        public MarkdownDomReader(Config config)
         {
+            _config = config;
+            RegisterDefaults();
         }
 
+        [RequiresUnreferencedCode("Scans the given assemblies for [MarkdownReader] reader types via reflection; those types may be removed by the trimmer. Register custom readers explicitly with Register instead.")]
+        [RequiresDynamicCode("Instantiates discovered reader types via Activator.CreateInstance.")]
         public MarkdownDomReader(Config config, params Assembly[]? additionalAssemblies)
         {
             _config = config;
@@ -37,6 +44,8 @@ namespace ReverseMarkdown.Readers
             }
         }
 
+        [RequiresUnreferencedCode("Scans assemblies for [MarkdownReader] reader types via reflection.")]
+        [RequiresDynamicCode("Instantiates discovered reader types via Activator.CreateInstance.")]
         private void RegisterFromAssemblies(IEnumerable<Assembly> assemblies)
         {
             foreach (var assembly in assemblies)

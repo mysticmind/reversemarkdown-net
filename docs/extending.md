@@ -19,6 +19,27 @@ Register it by passing the assembly to the converter:
 
 snippet: sample_custom_reader_wire
 
+### Trimming and Native AOT
+
+ReverseMarkdown is trim- and [Native AOT](https://learn.microsoft.com/dotnet/core/deploying/native-aot/)-compatible.
+The default conversion path uses no reflection.
+
+The `[MarkdownReader]` + assembly form above discovers readers by **scanning assemblies with
+reflection**, which the trimmer can remove and Native AOT cannot analyze. Those overloads are marked
+`[RequiresUnreferencedCode]` / `[RequiresDynamicCode]`, so the analyzer will warn if you use them in
+a trimmed/AOT app.
+
+Under trimming or AOT, register readers **explicitly** instead - no attribute, no assembly, no
+reflection:
+
+```cs
+var converter = new ReverseMarkdown.Converter();
+converter.RegisterReader("mark", new HighlightReader());
+```
+
+`RegisterReader` overrides the built-in reader for that tag, exactly like the scanned form. Call it
+before converting; it is not safe to call concurrently with a conversion.
+
 ### Recipe: convert only a whitelist of tags, rest as plain text
 
 Register a reader that reads an element's children (which strips the tag but keeps its text) for
