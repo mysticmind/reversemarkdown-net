@@ -20,6 +20,8 @@ MultiMarkdown and Pandoc output flavors.
   the DOM directly.
 - **Fast and lean** - roughly 2–2.6× faster than v5 with ~2.7× less allocation; see
   [Performance](/guide/performance).
+- **Trimming and Native AOT ready** - the default path uses no reflection; see
+  [Supported Frameworks](/guide/supported-frameworks#trimming-and-native-aot).
 - **Broad framework support** - see [Supported Frameworks](/guide/supported-frameworks).
 
 Using v5.x? See the [v5.x documentation](https://github.com/mysticmind/reversemarkdown-net/blob/5.x/README.md).
