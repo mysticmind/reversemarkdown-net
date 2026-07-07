@@ -25,3 +25,6 @@ BenchmarkDotNet.Artifacts/
 
 # Local combined docs preview (scripts/preview-docs.sh)
 _preview/
+
+# Marketing drafts (not part of the library)
+marketing/
