@@ -38,5 +38,26 @@ namespace ReverseMarkdown.Test
             var md = converter.Render(converter.Parse("<p>a <mark>b</mark> c</p>"));
             Assert.Equal("a <mark>b</mark> c", Norm(md));
         }
+
+        [Fact]
+        public void Custom_reader_can_be_registered_explicitly_without_scanning()
+        {
+            // Trimming/AOT-safe path: no assembly scanning, no [MarkdownReader] discovery.
+            var converter = new Converter(new Config());
+            converter.RegisterReader("mark", new HighlightReader());
+
+            var md = converter.Render(converter.Parse("<p>a <mark>b</mark> c</p>"));
+            Assert.Equal("a ==b== c", Norm(md));
+        }
+
+        [Fact]
+        public void RegisterReader_overrides_a_built_in_reader()
+        {
+            var converter = new Converter(new Config());
+            converter.RegisterReader("b", new HighlightReader());
+
+            var md = converter.Render(converter.Parse("<p>a <b>b</b> c</p>"));
+            Assert.Equal("a ==b== c", Norm(md));
+        }
     }
 }

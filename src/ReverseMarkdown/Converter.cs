@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -22,17 +23,31 @@ namespace ReverseMarkdown {
         {
         }
 
-        public Converter(Config config) : this(config, null)
+        // Trimming/AOT-safe: uses the built-in readers only. Add custom readers with RegisterReader.
+        public Converter(Config config)
         {
+            Config = config;
+            _markdownDomReader = new MarkdownDomReader(config);
         }
 
+        [RequiresUnreferencedCode("Scans the given assemblies for [MarkdownReader] reader types via reflection; those types may be removed by the trimmer. Use RegisterReader to add custom readers under trimming/AOT.")]
+        [RequiresDynamicCode("Instantiates discovered reader types via Activator.CreateInstance.")]
         public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
             Config = config;
-            _markdownDomReader = new MarkdownDomReader(Config, additionalAssemblies);
+            _markdownDomReader = additionalAssemblies is { Length: > 0 }
+                ? new MarkdownDomReader(config, additionalAssemblies)
+                : new MarkdownDomReader(config);
         }
 
         public Config Config { get; protected set; }
+
+        /// <summary>
+        /// Registers a custom <see cref="IMdReader"/> for a tag, overriding any built-in reader for
+        /// that tag. This is the trimming/Native-AOT-safe way to add custom readers (no assembly
+        /// scanning). Call before converting; not safe to call concurrently with conversion.
+        /// </summary>
+        public void RegisterReader(string tag, IMdReader reader) => _markdownDomReader.Register(tag, reader);
 
         /// <summary>The flavor used to render. The legacy boolean switches map into
         /// <see cref="Config.Flavor"/>, so it is the single source of truth.</summary>

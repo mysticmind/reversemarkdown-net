@@ -47,3 +47,28 @@ jobs:
       # Run the test suite across every test target framework (net8.0/net9.0/net10.0).
       - name: Run tests
         run: dotnet test src/ReverseMarkdown.Test/ReverseMarkdown.Test.csproj -c Release
+
+  # Prove the library stays trim/Native-AOT compatible: publish a small app with PublishAot,
+  # fail on any trim (IL2xxx) or AOT (IL3xxx) warning, then run the native binary.
+  aot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v5
+      - name: Install .NET SDK (10)
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Install Native AOT prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+      - name: AOT publish (fail on trim/AOT warnings)
+        run: |
+          set -o pipefail
+          dotnet publish tools/ReverseMarkdown.AotSmoke/ReverseMarkdown.AotSmoke.csproj \
+            -c Release -r linux-x64 2>&1 | tee aot.log
+          if grep -Eq "warning IL[23][0-9]{3}" aot.log; then
+            echo "::error::Trim/AOT (IL2xxx/IL3xxx) warnings found - library is not AOT-clean."
+            exit 1
+          fi
+      - name: Run the Native AOT binary
+        run: ./tools/ReverseMarkdown.AotSmoke/bin/Release/net10.0/linux-x64/native/ReverseMarkdown.AotSmoke
