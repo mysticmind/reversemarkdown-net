@@ -52,6 +52,7 @@ var converter = new ReverseMarkdown.Converter(config);
 - **Extensible** - custom readers (`IMdReader` + `[MarkdownReader]`), tag aliases, and a `Parse`/`Render` Markdown DOM for direct transformation.
 - **Tables, links, and images** - nested tables and captions, smart href handling, URI-scheme whitelisting, and base64 image handling (include / skip / save to disk).
 - **Broad framework support** - targets `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0` (runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity).
+- **Trimming and Native AOT ready** - the default conversion path uses no reflection; add custom readers with `RegisterReader` under trimming/AOT. See [Supported Frameworks](https://mysticmind.github.io/reversemarkdown-net/guide/supported-frameworks#trimming-and-native-aot).
 
 ## Performance
 
