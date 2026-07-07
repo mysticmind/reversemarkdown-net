@@ -28,4 +28,8 @@ features:
     details: Plug in custom readers, alias tags, or transform the Markdown DOM directly via Parse/Render.
   - title: Broad framework support
     details: Targets netstandard2.0, net8.0, net9.0, and net10.0 - runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity.
+  - title: Trimming & Native AOT ready
+    details: The default conversion path uses no reflection, so it publishes clean under trimming and Native AOT. Add custom readers with RegisterReader. CI fails on any trim/AOT warning.
+    link: /guide/supported-frameworks#trimming-and-native-aot
+    linkText: How it works
 ---
