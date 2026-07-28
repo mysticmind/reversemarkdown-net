@@ -848,7 +848,10 @@ namespace ReverseMarkdown.Test
         private static string LoadExpected(CaseData testCase)
         {
             if (!string.IsNullOrWhiteSpace(testCase.Expected)) {
-                return testCase.Expected;
+                // Inline expectations are authored with "\n"; the converter emits the platform
+                // line ending, so normalize before comparing (file-based expectations get this
+                // from the checkout).
+                return testCase.Expected.ReplaceLineEndings();
             }
 
             if (string.IsNullOrWhiteSpace(testCase.ExpectedFile)) {
