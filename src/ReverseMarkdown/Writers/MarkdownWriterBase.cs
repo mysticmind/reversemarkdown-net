@@ -814,7 +814,10 @@ namespace ReverseMarkdown.Writers
 
         private protected void TrimTrailingSpaces()
         {
-            while (Buffer.Length > 0 && (Buffer[^1] == ' ' || Buffer[^1] == '\n'))
+            // Never trim below the current capture's start: whitespace before it (such as the
+            // blank line separating sibling blocks) belongs to the enclosing render, not to
+            // this node, and removing it would leave the capture with a negative length.
+            while (Buffer.Length > _captureFloor && (Buffer[^1] == ' ' || Buffer[^1] == '\n'))
             {
                 Buffer.Length--;
             }
@@ -900,12 +903,26 @@ namespace ReverseMarkdown.Writers
             return sb.ToString();
         }
 
+        // Offset in Buffer where the innermost active Capture began; text below it is off limits
+        // to trimming while that capture renders. Zero when no capture is in progress.
+        private int _captureFloor;
+
         /// <summary>Render via <paramref name="render"/> and return the produced text without
         /// leaving it in the buffer — used for post-processing (e.g. blockquote line prefixes).</summary>
         protected string Capture(System.Action render)
         {
             var start = Buffer.Length;
-            render();
+            var outerFloor = _captureFloor;
+            _captureFloor = start;
+            try
+            {
+                render();
+            }
+            finally
+            {
+                _captureFloor = outerFloor;
+            }
+
             var text = Buffer.ToString(start, Buffer.Length - start);
             Buffer.Length = start;
             return text;
