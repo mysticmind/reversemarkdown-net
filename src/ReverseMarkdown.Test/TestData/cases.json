@@ -1169,6 +1169,26 @@
     }
   },
   {
+    "id": "Bug432_AdjacentEmptyBlockquotes",
+    "html": "<div>\n    <blockquote>\n        <p></p>\n    </blockquote>\n    <blockquote>\n        <p></p>\n    </blockquote>\n</div>",
+    "expected": ">\n\n>"
+  },
+  {
+    "id": "Bug432_EmptyBlockquoteBetweenParagraphs",
+    "html": "<p>before</p><blockquote><p></p></blockquote><p>after</p>",
+    "expected": "before\n\n>\n\nafter"
+  },
+  {
+    "id": "Bug432_EmptyParagraphInNestedBlockquote",
+    "html": "<blockquote><p>a</p><blockquote><p></p></blockquote></blockquote>",
+    "expected": "> a\n>\n> >"
+  },
+  {
+    "id": "Bug432_AdjacentEmptyParagraphListItems",
+    "html": "<ul><li><p></p></li><li><p></p></li></ul>",
+    "expected": "- \n\n- "
+  },
+  {
     "id": "SlackFlavored_Bold",
     "html": "<b>test</b> | <strong>test</strong>",
     "expectedFile": "ConverterTests.SlackFlavored_Bold.verified.md",
