@@ -1,7 +1,7 @@
 # Meet ReverseMarkdown
 
 <p align="center">
-  <img src="assets/logo.png" alt="ReverseMarkdown logo" width="160" />
+  <img src="https://raw.githubusercontent.com/mysticmind/reversemarkdown-net/master/assets/logo.png" alt="ReverseMarkdown logo" width="160" />
 </p>
 
 [![Build status](https://github.com/mysticmind/reversemarkdown-net/actions/workflows/ci.yaml/badge.svg)](https://github.com/mysticmind/reversemarkdown-net/actions/workflows/ci.yaml) [![NuGet Version](https://badgen.net/nuget/v/reversemarkdown)](https://www.nuget.org/packages/ReverseMarkdown/) [![Docs](https://img.shields.io/badge/docs-vitepress-brightgreen)](https://mysticmind.github.io/reversemarkdown-net/)
@@ -62,7 +62,7 @@ and per-flavor writers. It is roughly **2–2.6× faster** than v5 and allocates
 memory**.
 
 <p align="center">
-  <img src="benchmark-v5-v6.png" alt="ReverseMarkdown v5 vs v6 performance" width="720" />
+  <img src="https://raw.githubusercontent.com/mysticmind/reversemarkdown-net/master/benchmark-v5-v6.png" alt="ReverseMarkdown v5 vs v6 performance" width="720" />
 </p>
 
 Measured with BenchmarkDotNet on .NET 9.0 (Apple M1), comparing published `ReverseMarkdown` 5.5.0
