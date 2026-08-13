@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Documentation samples: methods/locals exist only so the snippets compile against the
+         real API. Suppress "unused" and obsolete-usage noise. -->
+    <NoWarn>CS0219;CS0168;CS8321;CS0618;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReverseMarkdown\ReverseMarkdown.csproj" />
+    <!-- Kept in a separate samples project on purpose: AngleSharp.Css is an optional, opt-in
+         dependency that ReverseMarkdown itself does not reference. Taking it would add
+         Activator.CreateInstance trim warnings and end the library's Native AOT guarantee, so the
+         docs show how a consumer wires it up rather than shipping it by default. -->
+    <PackageReference Include="AngleSharp.Css" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>

@@ -34,10 +34,7 @@ The one reflection-based feature is the `[MarkdownReader]` + assembly-scanning f
 `[RequiresUnreferencedCode]` / `[RequiresDynamicCode]` and will produce analyzer warnings under
 trimming/AOT. Register readers explicitly instead - no reflection:
 
-```cs
-var converter = new ReverseMarkdown.Converter();
-converter.RegisterReader("mark", new HighlightReader());
-```
+snippet: sample_register_reader
 
 See [Trimming and Native AOT](/extending#trimming-and-native-aot) in the extending guide for details.
 

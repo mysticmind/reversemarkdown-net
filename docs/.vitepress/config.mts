@@ -46,6 +46,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Flavors', link: '/flavors/' },
       { text: 'Configuration', link: '/configuration' },
+      { text: 'Preprocessing', link: '/preprocessing' },
       { text: 'Extending', link: '/extending' },
       { text: 'Migrate from v5', link: '/migration' },
       { text: 'NuGet', link: 'https://www.nuget.org/packages/ReverseMarkdown/' },
@@ -76,6 +77,7 @@ export default defineConfig({
         text: 'Reference',
         items: [
           { text: 'Configuration', link: '/configuration' },
+          { text: 'HTML Preprocessing', link: '/preprocessing' },
           { text: 'Extending', link: '/extending' },
           { text: 'Migrate from v5', link: '/migration' },
         ],
