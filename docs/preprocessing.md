@@ -19,48 +19,154 @@ were added**, each one seeing the result of the previous step: `Rename("h1", "h2
 
 ## Removing content
 
-| Method | Effect |
-| ------ | ------ |
-| `Remove(selector)` | Removes matching elements and their content. |
-| `RemoveWhere(predicate)` | Removes elements for which the predicate returns true, for conditions a selector cannot express. |
-| `KeepOnly(selector)` | Reduces the document to the matching elements, dropping everything else. If nothing matches, the document is left untouched, so a typo cannot silently empty the output. |
-| `RemoveComments()` | Drops HTML comments from the source. |
-| `RemoveEmptyElements(selector = "p, div, span")` | Removes matching elements with no text and no meaningful content. Nested wrappers collapse in one pass; elements holding images, tables or line breaks are kept. |
+At a glance: [`Remove`](#remove) | [`RemoveWhere`](#removewhere) | [`KeepOnly`](#keeponly) |
+[`RemoveComments`](#removecomments) | [`RemoveEmptyElements`](#removeemptyelements)
+
+### Remove
+
+`Remove(selector)` removes matching elements and their content.
+
+snippet: sample_step_remove
+
+### RemoveWhere
+
+`RemoveWhere(predicate)` removes elements for which the predicate returns true, for conditions a
+CSS selector cannot express.
+
+snippet: sample_step_removewhere
+
+### KeepOnly
+
+`KeepOnly(selector)` reduces the document to the matching elements, dropping everything else. Nested
+matches are kept via their outermost match rather than duplicated. If nothing matches, the document
+is left untouched, so a typo cannot silently empty the output.
+
+snippet: sample_step_keeponly
+
+### RemoveComments
+
+`RemoveComments()` drops HTML comments from the source. Unlike `Formatting.RemoveComments`, which
+works on the conversion output, this removes them before anything else runs.
+
+snippet: sample_step_removecomments
+
+### RemoveEmptyElements
+
+`RemoveEmptyElements(selector = "p, div, span")` removes matching elements with no text and no
+meaningful content. Nested wrappers collapse in one pass; elements holding images, tables or line
+breaks are kept.
+
+snippet: sample_step_removeempty
 
 ## Transforming elements and content
 
-| Method | Effect |
-| ------ | ------ |
-| `Rename(selector, tagName)` | Changes the tag, keeping attributes and children. `Rename("h1", "h2")`, `Rename("b", "strong")`. |
-| `Unwrap(selector)` | Removes the element but keeps its children. `Unwrap("span, font")` strips styling wrappers; `Unwrap("a")` keeps link text without the link. |
-| `Wrap(selector, tagName)` | Wraps matching elements in a new element. `Wrap("table", "figure")`. |
-| `ReplaceWith(selector, html)` | Replaces the element **and** its content with an HTML fragment. |
-| `ReplaceWithText(selector, text)` | Replaces the element with a text node (inserted as content, so it is escaped like any other text). |
-| `Transform(selector, action)` | Runs your action against every match. The escape hatch for rewriting attributes, moving nodes and anything else. |
-| `ReplaceText(find, replacement)` | Ordinal text replacement across the document's text nodes. |
-| `ReplaceText(regex, replacement)` | Regex text replacement. |
+At a glance: [`Rename`](#rename) | [`Unwrap`](#unwrap) | [`Wrap`](#wrap) |
+[`ReplaceWith`](#replacewith) | [`ReplaceWithText`](#replacewithtext) | [`Transform`](#transform) |
+[`ReplaceText`](#replacetext)
 
-Both `ReplaceText` overloads skip text inside `<script>` and `<style>`, but not inside
-`<pre>`/`<code>`.
+### Rename
+
+`Rename(selector, tagName)` changes the tag, keeping attributes and children.
+
+snippet: sample_step_rename
+
+### Unwrap
+
+`Unwrap(selector)` removes the element but keeps its children. `Unwrap("span, font")` strips styling
+wrappers; `Unwrap("a")` keeps link text without the link.
+
+snippet: sample_step_unwrap
+
+### Wrap
+
+`Wrap(selector, tagName)` wraps matching elements in a new element.
+
+snippet: sample_step_wrap
+
+### ReplaceWith
+
+`ReplaceWith(selector, html)` replaces the element **and** its content with an HTML fragment.
+
+snippet: sample_step_replacewith
+
+### ReplaceWithText
+
+`ReplaceWithText(selector, text)` replaces the element with a text node. The text is inserted as
+content, not markup, so it is escaped like any other text.
+
+snippet: sample_step_replacewithtext
+
+### Transform
+
+`Transform(selector, action)` runs your action against every match: the escape hatch for rewriting
+attributes, moving nodes and anything else.
+
+snippet: sample_step_transform
+
+### ReplaceText
+
+`ReplaceText(find, replacement)` does an ordinal replacement across the document's text nodes.
+
+snippet: sample_step_replacetext
+
+`ReplaceText(regex, replacement)` takes a `Regex` instead.
+
+snippet: sample_step_replacetext_regex
+
+Both overloads skip text inside `<script>` and `<style>`, but not inside `<pre>`/`<code>`.
 
 ## Stripping styles, scripts and attributes
 
-| Method | Effect |
-| ------ | ------ |
-| `RemoveStyles()` | Everything styling: inline `style` attributes, `<style>` elements and stylesheet `<link>` elements. |
-| `RemoveInlineStyles(selector = "*")` | Only inline `style` attributes. |
-| `RemoveStyleSheets()` | Only `<style>` and stylesheet `<link>` elements. |
-| `RemoveScripts()` | `<script>` and `<noscript>` elements plus inline `on*` event handler attributes. |
-| `RemoveClasses(selector = "*")` | `class` attributes. |
-| `RemoveAttributes(selector, params names)` | Named attributes. A name ending in `*` is a prefix match, so `RemoveAttributes("*", "data-*")` removes all data attributes. |
+At a glance: [`RemoveStyles`](#removestyles) | [`RemoveInlineStyles`](#removeinlinestyles) |
+[`RemoveStyleSheets`](#removestylesheets) | [`RemoveScripts`](#removescripts) |
+[`RemoveClasses`](#removeclasses) | [`RemoveAttributes`](#removeattributes)
 
-Steps run against the whole parsed document, so `RemoveStyles()` also reaches the `<style>` and
-`<link>` elements the HTML5 parser hoists into `<head>`.
+Steps run against the whole parsed document, so these also reach the `<style>` and `<link>` elements
+the HTML5 parser hoists into `<head>`.
+
+### RemoveStyles
+
+`RemoveStyles()` removes everything styling: inline `style` attributes, `<style>` elements and
+stylesheet `<link>` elements.
+
+snippet: sample_step_removestyles
+
+### RemoveInlineStyles
+
+`RemoveInlineStyles(selector = "*")` removes only inline `style` attributes.
+
+snippet: sample_step_removeinlinestyles
+
+### RemoveStyleSheets
+
+`RemoveStyleSheets()` removes only `<style>` and stylesheet `<link>` elements.
+
+snippet: sample_step_removestylesheets
+
+### RemoveScripts
+
+`RemoveScripts()` removes `<script>` and `<noscript>` elements plus inline `on*` event handler
+attributes.
+
+snippet: sample_step_removescripts
+
+### RemoveClasses
+
+`RemoveClasses(selector = "*")` removes `class` attributes.
+
+snippet: sample_step_removeclasses
 
 ::: warning
-Fenced code block languages are detected from classes such as `language-cs`. Use a selector like
-`RemoveClasses(":not(pre):not(code)")` if you strip classes and want to keep them.
+Fenced code block languages are detected from classes such as `language-cs`, so pass a selector like
+`":not(pre):not(code)"` (as above) if you strip classes and want to keep them.
 :::
+
+### RemoveAttributes
+
+`RemoveAttributes(selector, params names)` removes named attributes. A name ending in `*` is a prefix
+match, so `"data-*"` removes all data attributes.
+
+snippet: sample_step_removeattributes
 
 ## Working with styles
 
@@ -68,20 +174,36 @@ Formatting that only exists as CSS is lost in translation unless you recover it 
 and Google Docs exports are the usual offenders: they emit `<span style="font-weight:700">` instead
 of `<strong>`.
 
-| Method | Effect |
-| ------ | ------ |
-| `ConvertInlineStylesToTags()` | Promotes inline formatting to semantic tags: a bold `font-weight` becomes `<strong>`, an italic `font-style` becomes `<em>`, a line-through `text-decoration` becomes `<del>`. |
-| `RemoveHidden()` | Drops elements hidden by an inline `display: none` / `visibility: hidden`, or by the `hidden` attribute. Email preheader text is the classic case. |
+At a glance: [`ConvertInlineStylesToTags`](#convertinlinestylestotags) | [`RemoveHidden`](#removehidden) |
+[`InlineStyle`](#the-inlinestyle-helper)
+
+### ConvertInlineStylesToTags
+
+`ConvertInlineStylesToTags()` promotes inline formatting to semantic tags: a bold `font-weight`
+becomes `<strong>`, an italic `font-style` becomes `<em>`, and a line-through `text-decoration`
+becomes `<del>`.
+
+snippet: sample_step_convertinlinestyles
+
+It strips the declarations it consumes, so it is idempotent and leaves unrelated ones (`color`,
+`margin`) untouched. Pair it with `Unwrap` to shed the wrappers once they have done their job:
 
 snippet: sample_preprocess_styles
 
-`ConvertInlineStylesToTags` strips the declarations it consumes, so it is idempotent and leaves
-unrelated ones (`color`, `margin`) untouched. The `InlineStyle` static helper exposes the same
-reading primitives for your own steps: `Get`, `Has`, `IsBold`, `IsItalic`, `IsStruckThrough` and
-`IsHidden`. It parses the `style` attribute directly, and correctly ignores separators inside values
-such as `url(data:image/png;base64,...)`.
+### RemoveHidden
 
-snippet: sample_preprocess_style_predicate
+`RemoveHidden()` drops elements hidden by an inline `display: none` / `visibility: hidden`, or by the
+`hidden` attribute. Email preheader text is the classic case.
+
+snippet: sample_step_removehidden
+
+### The InlineStyle helper
+
+`InlineStyle` exposes the same reading primitives for your own steps: `Get`, `Has`, `IsBold`,
+`IsItalic`, `IsStruckThrough` and `IsHidden`. It parses the `style` attribute directly, and correctly
+ignores separators inside values such as `url(data:image/png;base64,...)`.
+
+snippet: sample_step_inlinestyle_helper
 
 ### Styles from stylesheets (AngleSharp.Css)
 
@@ -117,6 +239,10 @@ snippet: sample_preprocess_css_hidden
 so links and images survive out of their original page. Absolute URLs (including `data:` and
 `mailto:`) and in-page `#anchor` references are left alone; protocol-relative `//host/path` values
 pick up the base scheme.
+
+snippet: sample_step_resolverelativeurls
+
+A fuller extraction pipeline, converting just the article body of a scraped page:
 
 snippet: sample_preprocess_extract
 
