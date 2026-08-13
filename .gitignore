@@ -28,3 +28,6 @@ _preview/
 
 # Marketing drafts (not part of the library)
 marketing/
+
+# Benchmark corpus (third-party fixtures, fetched by scripts/fetch-benchmark-corpus.sh)
+src/ReverseMarkdown.Benchmark/Files/corpus/

@@ -12,7 +12,13 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.15.8" />
     <!-- Benchmarks the published ReverseMarkdown package. Swap the version between runs to compare
          releases (e.g. v5 vs v6): edit this version, or pass -p:RMVersion=5.5.0. -->
-    <PackageReference Include="ReverseMarkdown" Version="$(RMVersion)" />
+    <PackageReference Include="ReverseMarkdown" Version="$(RMVersion)"
+                      Condition="'$(UseLocalReverseMarkdown)' != 'true'" />
+    <!-- Measure the working tree instead of a published package, which is what you want when
+         checking whether a change helped: -p:UseLocalReverseMarkdown=true -->
+    <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj"
+                      SetTargetFramework="TargetFramework=net9.0"
+                      Condition="'$(UseLocalReverseMarkdown)' == 'true'" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -27,6 +33,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Files\huge.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- Corpus fetched by scripts/fetch-benchmark-corpus.sh; gitignored, so the glob may be empty. -->
+    <None Include="Files\corpus\*.html" LinkBase="Files\corpus">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,5 +1,37 @@
 # Benchmark Results for ReverseMarkdown
 
+## Running the benchmarks
+
+```bash
+# One-time: fetch the real-world corpus (third-party fixtures, gitignored)
+./scripts/fetch-benchmark-corpus.sh
+
+# Quick throughput summary in MB/s of input HTML, per size group (seconds to run)
+dotnet run -c Release --project src/ReverseMarkdown.Benchmark -- throughput
+
+# Full BenchmarkDotNet run over the corpus, with allocations per fixture
+dotnet run -c Release --project src/ReverseMarkdown.Benchmark -- --filter '*Corpus*'
+```
+
+By default the benchmark project measures the **published** ReverseMarkdown package, which is what
+you want for release-to-release comparisons (`-p:RMVersion=5.5.0`). To measure your working tree
+instead - the usual case when checking whether a change helped - add:
+
+```bash
+-p:UseLocalReverseMarkdown=true
+```
+
+### The corpus
+
+`scripts/fetch-benchmark-corpus.sh` downloads the fixtures the mdream project publishes: Wikipedia
+articles, framework documentation and MDN pages, which exercise the converter far more realistically
+than synthetic input. They are grouped by size (`clean_small`, `clean_medium`, `clean_large`) so a
+regression can be attributed to a size class instead of being averaged away.
+
+The corpus is third-party content and is not committed; the directory is gitignored.
+
+---
+
 **Legends**
 
 ```
