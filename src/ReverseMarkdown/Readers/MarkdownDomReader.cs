@@ -195,9 +195,17 @@ namespace ReverseMarkdown.Readers
             }
 
             // A nested table or list inside a table cell has no markdown representation, so emit it
-            // as compacted raw HTML (v5 leaves it as-is, single-spaced between tags).
+            // as compacted raw HTML (v5 leaves it as-is, single-spaced between tags), unless the
+            // caller opted lists into inline text instead.
             if (ctx.InTableCell && tag is "table" or "ol" or "ul")
             {
+                if (tag is not "table" &&
+                    _config.Tables.CellListHandling == Config.TableCellListHandlingOption.InlineText)
+                {
+                    ReadCellListAsInlineText(element, ctx);
+                    return;
+                }
+
                 ctx.Emit(new MdHtmlBlock(CompactNestedHtml(element.OuterHtml)) { SourceTag = tag });
                 return;
             }
@@ -287,6 +295,60 @@ namespace ReverseMarkdown.Readers
         // Compact nested-in-table HTML to a single line (v5 CompactHtmlForMarkdown): drop line
         // endings, collapse inter-tag whitespace to one space, and strip the <tbody> the HTML5
         // parser auto-inserts (v5's HAP serialization didn't add it).
+        /// <summary>
+        /// Flattens a list inside a table cell into inline text: one item per line, each prefixed
+        /// with its bullet or number, with the item's own content converted to markdown. The cell
+        /// writer turns those newlines into <c>&lt;br&gt;</c>.
+        /// </summary>
+        private void ReadCellListAsInlineText(IElement list, ReaderContext ctx)
+        {
+            // Nested list: flow into the paragraph the outer list already opened, so its items keep
+            // separating on the same line breaks instead of starting a second block.
+            if (ctx.CurrentAcceptsInline)
+            {
+                ReadCellListItems(list, ctx);
+                return;
+            }
+
+            var paragraph = new MdParagraph { SourceTag = list.LocalName };
+            using (ctx.Open(paragraph))
+            {
+                ReadCellListItems(list, ctx);
+            }
+
+            ctx.Emit(paragraph);
+        }
+
+        private void ReadCellListItems(IElement list, ReaderContext ctx)
+        {
+            var ordered = list.LocalName == "ol";
+            var number = ordered && int.TryParse(list.GetAttribute("start"), out var start) ? start : 1;
+
+            foreach (var item in list.Children)
+            {
+                if (!string.Equals(item.LocalName, "li", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Separate from whatever is already in the cell paragraph, including the items of an
+                // enclosing list when this one is nested.
+                if (ctx.Current.EnumerateChildren().Any())
+                {
+                    ctx.Emit(new MdLineBreak());
+                }
+
+                // Raw, not text: the marker is structure we generate, so it must not pick up the
+                // escaping that source text gets (a '*' bullet would come out as "\*").
+                var marker = ordered
+                    ? $"{number++}. "
+                    : $"{_config.Formatting.ListBulletChar} ";
+                ctx.Emit(new MdRawInline(marker) { SourceTag = list.LocalName });
+
+                ctx.ReadChildren(item);
+            }
+        }
+
         private static string CompactNestedHtml(string html)
         {
             html = html.Replace("\r\n", string.Empty).Replace("\n", string.Empty);

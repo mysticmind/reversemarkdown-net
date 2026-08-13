@@ -24,6 +24,27 @@ public static class Configuration
         _ = (skip, save);
     }
 
+    public static string CellListsAsText()
+    {
+        #region sample_cell_list_handling
+        // A Markdown table cell cannot hold a real list, so by default the source HTML is kept.
+        // InlineText flattens it instead: one item per line, separated by <br>.
+        var config = new Config
+        {
+            Tables = { CellListHandling = Config.TableCellListHandlingOption.InlineText },
+        };
+
+        var markdown = new Converter(config).Convert(
+            "<table><tr><th>Steps</th></tr><tr><td>" +
+            "<ol><li><strong>Submit</strong> the request</li><li>Wait for approval</li></ol>" +
+            "</td></tr></table>");
+        // | Steps |
+        // | --- |
+        // | 1. **Submit** the request<br>2. Wait for approval |
+        #endregion
+        return markdown;
+    }
+
     public static void HtmlFilters()
     {
         #region sample_html_filters

@@ -120,6 +120,12 @@ namespace ReverseMarkdown.Test
                 "[docs](https://example.com/docs) and ![a](https://example.com/guide/img/a.png) and [top](#top)",
                 Norm(PreprocessingSteps.ResolveRelativeUrls()));
 
+        [Fact]
+        public void CellListHandling_sample() =>
+            Assert.Equal(
+                "| Steps |\n| --- |\n| 1. **Submit** the request<br>2. Wait for approval |",
+                Norm(Configuration.CellListsAsText()));
+
         // ---- Coverage guards ----
 
         // Every sample method asserted above.
