@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using ReverseMarkdown.Dom;
+using ReverseMarkdown.Preprocessing;
 
 namespace ReverseMarkdown.Readers
 {
@@ -199,14 +200,24 @@ namespace ReverseMarkdown.Readers
             // caller opted lists into inline text instead.
             if (ctx.InTableCell && tag is "table" or "ol" or "ul")
             {
-                if (tag is not "table" &&
-                    _config.Tables.CellListHandling == Config.TableCellListHandlingOption.InlineText)
+                var handling = _config.Tables.CellListHandling;
+                if (tag is not "table" && handling == Config.TableCellListHandlingOption.InlineText)
                 {
                     ReadCellListAsInlineText(element, ctx);
                     return;
                 }
 
-                ctx.Emit(new MdHtmlBlock(CompactNestedHtml(element.OuterHtml)) { SourceTag = tag });
+                // Clean a detached copy so the source document the caller may still be holding (via
+                // Parse) is left untouched.
+                var html = element.OuterHtml;
+                if (handling == Config.TableCellListHandlingOption.CleanHtml &&
+                    element.Clone(deep: true) is IElement copy)
+                {
+                    PresentationalMarkup.Clean(copy, includeRoot: true);
+                    html = copy.OuterHtml;
+                }
+
+                ctx.Emit(new MdHtmlBlock(CompactNestedHtml(html)) { SourceTag = tag });
                 return;
             }
 

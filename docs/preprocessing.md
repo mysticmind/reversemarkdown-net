@@ -201,6 +201,10 @@ general helper to cells with a descendant selector:
 
 snippet: sample_step_tablecell_scoped
 
+`Tables.CellListHandling = TableCellListHandlingOption.CleanHtml` does the same cleanup as part of
+conversion, with no pipeline at all, and covers a nested `<table>` too. Use the preprocessing step
+when you want to vary the cleanup; use the option when the defaults suit you.
+
 ### Option 2: drop the HTML, flatten to text
 
 `Tables.CellListHandling = TableCellListHandlingOption.InlineText` renders a cell list as inline
