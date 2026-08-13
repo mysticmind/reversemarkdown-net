@@ -313,6 +313,50 @@ public static class PreprocessingSteps
         return markdown;
     }
 
+    // ---- Table cells ----
+
+    public static string SimplifyTableCellHtml()
+    {
+        #region sample_step_simplifytablecellhtml
+        var config = new Config();
+        config.Preprocess.SimplifyTableCellHtml();
+
+        // A list inside a table cell has no Markdown form, so it is kept as raw HTML. This trims
+        // that retained HTML down to its structure.
+        var markdown = new Converter(config).Convert(
+            "<table><tr><th>Policy</th></tr><tr><td>" +
+            "<ol class=\"customList\"><li><p class=\"noSpacing\">" +
+            "<span style=\"font-size:17px\">First point</span></p></li>" +
+            "<li><p><span style=\"font-size:17px\">Second point</span></p></li></ol>" +
+            "</td></tr></table>");
+        // | Policy |
+        // | --- |
+        // | <ol><li>First point</li><li>Second point</li></ol> |
+        #endregion
+        return markdown;
+    }
+
+    public static string TableCellScopedCleanup()
+    {
+        #region sample_step_tablecell_scoped
+        // A different trade-off: scope any general helper to table cells with a descendant selector.
+        var config = new Config();
+        config.Preprocess
+            .Unwrap("td span, th span")
+            .RemoveAttributes("td *, th *", "class", "style", "data-*");
+
+        var markdown = new Converter(config).Convert(
+            "<table><tr><th>Policy</th></tr><tr><td>" +
+            "<ol class=\"customList\"><li><p class=\"noSpacing\">" +
+            "<span style=\"font-size:17px\">First point</span></p></li></ol>" +
+            "</td></tr></table>");
+        // | Policy |
+        // | --- |
+        // | <ol><li><p>First point</p></li></ol> |
+        #endregion
+        return markdown;
+    }
+
     // ---- URLs ----
 
     public static string ResolveRelativeUrls()
