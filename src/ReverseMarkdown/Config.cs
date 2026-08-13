@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AngleSharp.Dom;
+using ReverseMarkdown.Preprocessing;
 
 namespace ReverseMarkdown
 {
@@ -66,6 +67,22 @@ namespace ReverseMarkdown
 
         /// <summary>HTML pre-filtering options (v6 Markdown DOM path).</summary>
         public HtmlFilterOptions Html { get; } = new();
+
+        /// <summary>
+        /// Transformations applied to the source HTML before it is converted: removing elements,
+        /// renaming or replacing them, stripping styles and scripts, and so on. Steps run in the
+        /// order they are added, before the <see cref="Html"/> filters.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// config.Preprocess
+        ///       .RemoveScripts()
+        ///       .RemoveStyles()
+        ///       .Remove("nav, footer")
+        ///       .Rename("b", "strong");
+        /// </code>
+        /// </example>
+        public HtmlPreprocessor Preprocess { get; } = new();
 
         /// <summary>Output formatting options (whitespace, line endings, bullets, code blocks).</summary>
         public FormattingOptions Formatting { get; } = new();
