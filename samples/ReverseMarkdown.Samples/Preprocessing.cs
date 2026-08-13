@@ -69,15 +69,6 @@ public static class Preprocessing
         _ = config;
     }
 
-    public static void InlineStylePredicate()
-    {
-        var config = new Config();
-        #region sample_preprocess_style_predicate
-        // InlineStyle reads the style attribute for your own steps.
-        config.Preprocess.RemoveWhere(e => InlineStyle.Get(e, "color") == "red");
-        #endregion
-    }
-
     public static void CustomStep()
     {
         #region sample_preprocess_custom

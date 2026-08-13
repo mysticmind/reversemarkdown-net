@@ -30,6 +30,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReverseMarkdown\ReverseMarkdown.csproj" />
+    <!-- The documentation samples are asserted here, so the outputs shown in the docs cannot
+         drift from what the code actually produces. -->
+    <ProjectReference Include="..\..\samples\ReverseMarkdown.Samples\ReverseMarkdown.Samples.csproj" />
   </ItemGroup>
 
   <ItemGroup>
