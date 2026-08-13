@@ -168,6 +168,33 @@ match, so `"data-*"` removes all data attributes.
 
 snippet: sample_step_removeattributes
 
+## Table cells
+
+A nested table or list inside a `<td>`/`<th>` has no Markdown representation - GitHub Flavored
+Markdown tables hold simple inline content only, and emitting a real list inside a cell would break
+the table. ReverseMarkdown therefore keeps those elements as **raw HTML**, which is correct but
+verbatim: every `class`, inline `style` and editor wrapper from the source comes along with it.
+Output from CKEditor, SharePoint or Word can leave a cell looking like this:
+
+```html
+<ol class="customList"><li><p class="noSpacing" data-text-type="noSpacing">
+<span style="font-size:17px" data-fontsize="17px">First point</span></p></li></ol>
+```
+
+`SimplifyTableCellHtml()` trims that back to its structure. Inside table cells it unwraps `<span>`
+and `<font>`, unwraps a `<p>` that is a list item's only child, and drops `class`, `style` and
+`data-*` attributes. Content outside tables is untouched.
+
+snippet: sample_step_simplifytablecellhtml
+
+This matters most when the Markdown is going to be read rather than rendered - RAG indexing, LLM
+prompts, diffing - where the attribute noise is pure token cost.
+
+It reshapes the source only, so it does not change *which* elements are retained as HTML. For a
+different trade-off, scope any general helper to cells with a descendant selector:
+
+snippet: sample_step_tablecell_scoped
+
 ## Working with styles
 
 Formatting that only exists as CSS is lost in translation unless you recover it first. Word, Outlook

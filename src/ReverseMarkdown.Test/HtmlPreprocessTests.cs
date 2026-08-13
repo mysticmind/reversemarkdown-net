@@ -470,6 +470,69 @@ namespace ReverseMarkdown.Test
             Assert.False(element.HasAttribute("style"));
         }
 
+        // ---- Table cells (issue #435) ----
+
+        // A nested list inside a table cell has no markdown form, so the reader keeps the source
+        // OuterHtml verbatim - classes, inline styles and editor wrappers included.
+        private const string CellListHtml =
+            "<table><tr><th>Head</th></tr><tr><td>" +
+            "<ol class=\"customList\"><li><p class=\"noSpacing\" data-text-type=\"noSpacing\">" +
+            "<span style=\"font-size:17px\" data-fontsize=\"17px\">Item one</span></p></li>" +
+            "<li><p><span style=\"font-size:17px\">Item two</span></p></li></ol>" +
+            "</td></tr></table>";
+
+        [Fact]
+        public void Retained_cell_html_keeps_editor_noise_without_preprocessing()
+        {
+            var md = Norm(new Converter(new Config()).Convert(CellListHtml));
+
+            Assert.Contains("class=\"customList\"", md);
+            Assert.Contains("style=\"font-size:17px\"", md);
+            Assert.Contains("data-fontsize", md);
+        }
+
+        [Fact]
+        public void SimplifyTableCellHtml_trims_retained_cell_html_to_its_structure()
+        {
+            var md = Convert(CellListHtml, p => p.SimplifyTableCellHtml());
+
+            Assert.Equal("| Head |\n| --- |\n| <ol><li>Item one</li><li>Item two</li></ol> |", md);
+        }
+
+        [Fact]
+        public void SimplifyTableCellHtml_keeps_multi_block_list_items_intact()
+        {
+            // Two paragraphs in one item: the <p> wrappers carry meaning here, so they stay.
+            var md = Convert(
+                "<table><tr><th>Head</th></tr><tr><td><ul><li><p>first</p><p>second</p></li></ul></td></tr></table>",
+                p => p.SimplifyTableCellHtml());
+
+            Assert.Contains("<li><p>first</p><p>second</p></li>", md);
+        }
+
+        [Fact]
+        public void SimplifyTableCellHtml_leaves_content_outside_tables_alone()
+        {
+            var config = new Config();
+            config.Preprocess.SimplifyTableCellHtml();
+            var converter = new Converter(config);
+
+            var html = converter.Preprocess("<p class=\"keep\"><span style=\"color:red\">outside</span></p>");
+
+            Assert.Contains("class=\"keep\"", html);
+            Assert.Contains("<span style=\"color:red\">", html);
+        }
+
+        [Fact]
+        public void Cell_html_can_also_be_cleaned_with_the_general_helpers()
+        {
+            // CSS descendant selectors scope any helper to table cells, for a different trade-off.
+            var md = Convert(CellListHtml,
+                p => p.Unwrap("td span, th span").RemoveAttributes("td *, th *", "class", "style", "data-*"));
+
+            Assert.Equal("| Head |\n| --- |\n| <ol><li><p>Item one</p></li><li><p>Item two</p></li></ol> |", md);
+        }
+
         // ---- URLs ----
 
         [Fact]

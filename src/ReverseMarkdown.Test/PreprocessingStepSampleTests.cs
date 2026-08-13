@@ -98,6 +98,20 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void InlineStyle_helper_sample() => Assert.Equal("Kept.", Norm(PreprocessingSteps.InlineStyleHelper()));
 
+        // ---- Table cells ----
+
+        [Fact]
+        public void SimplifyTableCellHtml_sample() =>
+            Assert.Equal(
+                "| Policy |\n| --- |\n| <ol><li>First point</li><li>Second point</li></ol> |",
+                Norm(PreprocessingSteps.SimplifyTableCellHtml()));
+
+        [Fact]
+        public void TableCellScopedCleanup_sample() =>
+            Assert.Equal(
+                "| Policy |\n| --- |\n| <ol><li><p>First point</p></li></ol> |",
+                Norm(PreprocessingSteps.TableCellScopedCleanup()));
+
         // ---- URLs ----
 
         [Fact]
@@ -115,7 +129,8 @@ namespace ReverseMarkdown.Test
             "RemoveClasses", "RemoveComments", "RemoveEmptyElements", "RemoveHidden", "RemoveInlineStyles",
             "RemoveScripts", "RemoveStyleSheets", "RemoveStyles", "RemoveWhere", "Rename",
             "ReplaceTextOrdinal", "ReplaceTextRegex", "ReplaceWith", "ReplaceWithText",
-            "ResolveRelativeUrls", "Transform", "Unwrap", "Wrap"
+            "ResolveRelativeUrls", "SimplifyTableCellHtml", "TableCellScopedCleanup", "Transform",
+            "Unwrap", "Wrap"
         ];
 
         // Every HtmlPreprocessor helper that a worked example above demonstrates.
@@ -124,7 +139,7 @@ namespace ReverseMarkdown.Test
             "ConvertInlineStylesToTags", "KeepOnly", "Remove", "RemoveAttributes", "RemoveClasses",
             "RemoveComments", "RemoveEmptyElements", "RemoveHidden", "RemoveInlineStyles", "RemoveScripts",
             "RemoveStyleSheets", "RemoveStyles", "RemoveWhere", "Rename", "ReplaceText", "ReplaceWith",
-            "ReplaceWithText", "ResolveRelativeUrls", "Transform", "Unwrap", "Wrap"
+            "ReplaceWithText", "ResolveRelativeUrls", "SimplifyTableCellHtml", "Transform", "Unwrap", "Wrap"
         ];
 
         [Fact]

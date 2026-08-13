@@ -202,20 +202,25 @@ public sealed partial class HtmlPreprocessor
         {
             foreach (var element in root.QuerySelectorAll(selector).ToList())
             {
-                var parent = element.Parent;
-                if (parent is null)
-                {
-                    continue;
-                }
-
-                foreach (var child in element.ChildNodes.ToArray())
-                {
-                    parent.InsertBefore(child, element);
-                }
-
-                element.Remove();
+                UnwrapElement(element);
             }
         });
+    }
+
+    private static void UnwrapElement(IElement element)
+    {
+        var parent = element.Parent;
+        if (parent is null)
+        {
+            return;
+        }
+
+        foreach (var child in element.ChildNodes.ToArray())
+        {
+            parent.InsertBefore(child, element);
+        }
+
+        element.Remove();
     }
 
     /// <summary>
@@ -548,6 +553,54 @@ public sealed partial class HtmlPreprocessor
         }
 
         element.AppendChild(wrapper);
+    }
+
+    /// <summary>
+    /// Strips the presentational noise out of table cells: unwraps <c>&lt;span&gt;</c> and
+    /// <c>&lt;font&gt;</c>, unwraps a <c>&lt;p&gt;</c> that is a list item's only child, and removes
+    /// <c>class</c>, <c>style</c> and <c>data-*</c> attributes from everything inside a
+    /// <c>&lt;td&gt;</c>/<c>&lt;th&gt;</c>.
+    /// </summary>
+    /// <remarks>
+    /// A nested table or list inside a table cell has no Markdown representation, so it is kept as
+    /// raw HTML - verbatim, which means every class, inline style and wrapper from the source comes
+    /// with it. Editors such as CKEditor and SharePoint produce a lot of those. This trims the
+    /// retained HTML down to its structure, which matters when the Markdown is fed to something that
+    /// reads it (RAG indexing, LLM prompts) rather than rendered.
+    /// <para>
+    /// It only reshapes the source, so it changes nothing about which elements are retained as HTML.
+    /// For a different trade-off, compose the general helpers with a cell-scoped selector, for
+    /// example <c>RemoveAttributes("td *, th *", "style")</c>.
+    /// </para>
+    /// </remarks>
+    public HtmlPreprocessor SimplifyTableCellHtml()
+    {
+        return Add("SimplifyTableCellHtml", root =>
+        {
+            foreach (var cell in root.QuerySelectorAll("td, th").ToList())
+            {
+                foreach (var wrapper in cell.QuerySelectorAll("span, font").ToList())
+                {
+                    UnwrapElement(wrapper);
+                }
+
+                // <li><p>text</p></li> is how several editors emit list items; the paragraph carries
+                // no meaning once it is the item's only content, and it survives into the retained
+                // HTML. Left alone when the item holds several blocks, where it does carry meaning.
+                foreach (var paragraph in cell.QuerySelectorAll("li > p").ToList())
+                {
+                    if (paragraph.ParentElement?.Children.Length == 1)
+                    {
+                        UnwrapElement(paragraph);
+                    }
+                }
+
+                foreach (var element in cell.QuerySelectorAll("*").ToList())
+                {
+                    RemoveMatchingAttributes(element, ["class", "style", "data-*"]);
+                }
+            }
+        });
     }
 
     // ---- URLs ----
