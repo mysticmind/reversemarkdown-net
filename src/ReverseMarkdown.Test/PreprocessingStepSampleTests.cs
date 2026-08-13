@@ -126,6 +126,12 @@ namespace ReverseMarkdown.Test
                 "| Steps |\n| --- |\n| 1. **Submit** the request<br>2. Wait for approval |",
                 Norm(Configuration.CellListsAsText()));
 
+        [Fact]
+        public void CellListRawHtml_sample() =>
+            Assert.Equal(
+                "| Steps |\n| --- |\n| <ol class=\"customList\"><li>Submit the request</li></ol> |",
+                Norm(Configuration.CellListsAsRawHtml()));
+
         // ---- Coverage guards ----
 
         // Every sample method asserted above.

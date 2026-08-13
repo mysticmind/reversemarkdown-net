@@ -164,12 +164,14 @@ namespace ReverseMarkdown
 
             /// <summary>
             /// How a list nested inside a table cell is rendered. A Markdown table cell cannot hold
-            /// a real list, so the choice is between keeping the source HTML and flattening the list
-            /// into inline text. Default is
-            /// <see cref="TableCellListHandlingOption.RawHtml"/>.
+            /// a real list, so the choice is between keeping the list as HTML and flattening it into
+            /// inline text. Default is <see cref="TableCellListHandlingOption.CleanHtml"/>: still a
+            /// real list, without the source's presentational markup. Use
+            /// <see cref="TableCellListHandlingOption.RawHtml"/> for the pre-6.2 behaviour of
+            /// copying the source markup verbatim.
             /// </summary>
             public TableCellListHandlingOption CellListHandling { get; set; } =
-                TableCellListHandlingOption.RawHtml;
+                TableCellListHandlingOption.CleanHtml;
         }
 
         /// <summary>Tag handling options.</summary>
@@ -263,9 +265,10 @@ namespace ReverseMarkdown
         public enum TableCellListHandlingOption
         {
             /// <summary>
-            /// Keep the list as raw HTML, exactly as it appeared in the source (default). Renders
-            /// as a real list in anything that allows HTML in table cells, at the cost of carrying
-            /// the source markup - classes, inline styles and wrappers included - into the output.
+            /// Keep the list as raw HTML, exactly as it appeared in the source. Renders as a real
+            /// list in anything that allows HTML in table cells, at the cost of carrying the source
+            /// markup - classes, inline styles and wrappers included - into the output. This was the
+            /// default before 6.2.
             /// </summary>
             RawHtml,
 
@@ -274,7 +277,9 @@ namespace ReverseMarkdown
             /// once the source stylesheet is gone: <c>class</c>, <c>style</c> and <c>data-*</c>
             /// attributes, <c>&lt;span&gt;</c>/<c>&lt;font&gt;</c> wrappers, and a <c>&lt;p&gt;</c>
             /// that is a list item's only child. Still renders as a real list, without carrying the
-            /// editor noise. Also applies to a nested <c>&lt;table&gt;</c>.
+            /// editor noise. Also applies to a nested <c>&lt;table&gt;</c>. This is the default:
+            /// those attributes are meaningless once the source stylesheet is gone, and every other
+            /// conversion path already drops them.
             /// </summary>
             CleanHtml,
 
