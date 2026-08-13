@@ -340,11 +340,7 @@ public static class PreprocessingSteps
     {
         #region sample_step_tablecell_scoped
         // A different trade-off: scope any general helper to table cells with a descendant selector.
-        // RawHtml keeps the source markup verbatim, so the helpers below are what cleans it.
-        var config = new Config
-        {
-            Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
-        };
+        var config = new Config();
         config.Preprocess
             .Unwrap("td span, th span")
             .RemoveAttributes("td *, th *", "class", "style", "data-*");

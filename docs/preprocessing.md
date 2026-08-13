@@ -175,27 +175,28 @@ Markdown tables hold simple inline content only, and emitting a real list inside
 the table. ReverseMarkdown therefore keeps those elements as HTML. `Tables.CellListHandling` decides
 what that HTML looks like.
 
-### `CleanHtml` (default)
+### `RawHtml` (default)
 
-The list is kept as a real list, with the presentational markup stripped: `class`, `style` and
-`data-*` attributes, `<span>`/`<font>` wrappers, and a `<p>` that is a list item's only child. Those
-attributes reference a stylesheet that no longer exists, and every other conversion path already
-drops them. A nested `<table>` is cleaned the same way.
-
-So editor output like this:
+The source markup is copied verbatim, which is faithful but brings every `class`, inline `style` and
+editor wrapper with it. Output from CKEditor, SharePoint or Word can leave a cell looking like this:
 
 ```html
 <ol class="customList"><li><p class="noSpacing" data-text-type="noSpacing">
 <span style="font-size:17px" data-fontsize="17px">First point</span></p></li></ol>
 ```
 
-converts to `<ol><li>First point</li></ol>`.
+### `CleanHtml`
 
-::: tip Changed in 6.2
-Before 6.2 the source markup was copied verbatim, which is now `RawHtml`. Set it explicitly if you
-need an exact copy of the source:
+Keeps the list as a real list, with the presentational markup stripped: `class`, `style` and
+`data-*` attributes, `<span>`/`<font>` wrappers, and a `<p>` that is a list item's only child. Those
+attributes reference a stylesheet the Markdown does not carry, and every other conversion path
+already drops them. A nested `<table>` is cleaned the same way.
 
-snippet: sample_cell_list_rawhtml
+snippet: sample_cell_list_cleanhtml
+
+::: tip
+This is usually what you want, and it is a candidate for becoming the default in the next major
+version. It is opt-in for now because it changes existing output.
 :::
 
 ### `InlineText`
@@ -221,13 +222,12 @@ touch, or to combine it with other steps.
 
 snippet: sample_step_simplifytablecellhtml
 
-For a different trade-off, scope any general helper to cells with a descendant selector - here
-against `RawHtml`, so the helpers are what does the cleaning:
+For a different trade-off, scope any general helper to cells with a descendant selector:
 
 snippet: sample_step_tablecell_scoped
 
-**Which to pick.** Keep the default if the Markdown gets rendered: the list still renders as a list.
-Choose `InlineText` if it gets read, for Markdown with no HTML in it. They compose with
+**Which to pick.** `CleanHtml` if the Markdown gets rendered: the list still renders as a list,
+without the noise. `InlineText` if it gets read, for Markdown with no HTML in it. Both compose with
 preprocessing, which runs first.
 
 ## Working with styles

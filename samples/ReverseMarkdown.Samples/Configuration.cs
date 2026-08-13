@@ -45,21 +45,23 @@ public static class Configuration
         return markdown;
     }
 
-    public static string CellListsAsRawHtml()
+    public static string CellListsAsCleanHtml()
     {
-        #region sample_cell_list_rawhtml
-        // The pre-6.2 behaviour: copy the source markup into the cell verbatim.
+        #region sample_cell_list_cleanhtml
+        // Keep the list as a real list, but drop the markup that means nothing without the
+        // source stylesheet.
         var config = new Config
         {
-            Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
+            Tables = { CellListHandling = Config.TableCellListHandlingOption.CleanHtml },
         };
 
         var markdown = new Converter(config).Convert(
             "<table><tr><th>Steps</th></tr><tr><td>" +
-            "<ol class=\"customList\"><li>Submit the request</li></ol></td></tr></table>");
+            "<ol class=\"customList\"><li><p class=\"noSpacing\">" +
+            "<span style=\"font-size:17px\">Submit the request</span></p></li></ol></td></tr></table>");
         // | Steps |
         // | --- |
-        // | <ol class="customList"><li>Submit the request</li></ol> |
+        // | <ol><li>Submit the request</li></ol> |
         #endregion
         return markdown;
     }
