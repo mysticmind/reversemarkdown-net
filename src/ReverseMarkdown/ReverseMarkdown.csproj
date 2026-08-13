@@ -14,7 +14,11 @@
     <IsAotCompatible Condition="!$(TargetFramework.StartsWith('netstandard'))">true</IsAotCompatible>
     <PackageProjectUrl>https://github.com/mysticmind/reversemarkdown-net</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
+    <!-- Grouped for discoverability: the task and its synonyms, the output flavors, the engine and
+         its trim/AOT story, and the common use cases. Kept to terms the library genuinely serves -
+         "sanitizer" and "ai"/"llm" are deliberately absent: the first implies XSS-safe sanitizing
+         this library does not do, the second is too broad to be a useful match. -->
+    <PackageTags>htmltomarkdown;html2markdown;html-to-markdown;html2md;htmltomd;converthtml;htmlconverter;markdownconverter;html;html5;markdown;md;converter;conversion;commonmark;gfm;githubflavoredmarkdown;multimarkdown;pandoc;slack;telegram;anglesharp;aot;nativeaot;trimming;scraping;rag</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <!-- Shown as the readme on the nuget.org package page. -->
     <PackageReadmeFile>README.md</PackageReadmeFile>
