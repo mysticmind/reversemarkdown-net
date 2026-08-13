@@ -5,15 +5,27 @@ using ReverseMarkdown;
 using ReverseMarkdown.Dom;
 using ReverseMarkdown.Readers;
 
-var converter = new Converter(new Config { GithubFlavored = true });
+var config = new Config { GithubFlavored = true };
+
+// Exercise the HTML preprocessing pipeline (delegate-backed steps, no reflection).
+config.Preprocess
+    .RemoveScripts()
+    .RemoveStyles()
+    .Remove("div.ad")
+    .Rename("b", "strong");
+
+var converter = new Converter(config);
 
 // Exercise the AOT-safe custom-reader API (no assembly scanning).
 converter.RegisterReader("mark", new HighlightReader());
 
 const string html = """
+    <style>h1 { color: red }</style>
     <h1>Title</h1>
-    <p>Hello <strong>AOT</strong> from <a href="http://x.com">link</a> <mark>hi</mark></p>
+    <div class="ad">spam</div>
+    <p>Hello <b>AOT</b> from <a href="http://x.com">link</a> <mark>hi</mark></p>
     <ul><li>one</li><li>two</li></ul>
+    <script>track()</script>
     """;
 
 var md = converter.Convert(html);
@@ -24,7 +36,9 @@ var ok =
     md.Contains("**AOT**") &&
     md.Contains("[link](http://x.com)") &&
     md.Contains("==hi==") &&
-    md.Contains("- one");
+    md.Contains("- one") &&
+    !md.Contains("spam") &&
+    !md.Contains("track()");
 
 if (!ok)
 {

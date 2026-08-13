@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using AngleSharp;
 using AngleSharp.Html.Parser;
 using ReverseMarkdown.Dom;
 using ReverseMarkdown.Readers;
@@ -16,7 +17,7 @@ namespace ReverseMarkdown {
     /// </summary>
     public class Converter {
         // AngleSharp parser and Markdown DOM reader are reusable across parses.
-        private readonly HtmlParser _htmlParser = new();
+        private readonly HtmlParser _htmlParser;
         private readonly MarkdownDomReader _markdownDomReader;
 
         public Converter() : this(new Config())
@@ -27,6 +28,37 @@ namespace ReverseMarkdown {
         public Converter(Config config)
         {
             Config = config;
+            _htmlParser = new HtmlParser();
+            _markdownDomReader = new MarkdownDomReader(config);
+        }
+
+        /// <summary>
+        /// Creates a converter that parses HTML in the given AngleSharp browsing context, so
+        /// preprocessing steps can use AngleSharp extensions the library does not depend on. The
+        /// canonical case is <c>AngleSharp.Css</c>, which adds the CSS cascade and makes
+        /// <c>ComputeCurrentStyle()</c> usable inside a custom step:
+        /// <code>
+        /// var context = BrowsingContext.New(Configuration.Default.WithCss());
+        /// var config = new Config();
+        /// config.Preprocess.RemoveWhere(e =&gt; e.ComputeCurrentStyle().GetPropertyValue("display") == "none");
+        /// var converter = new Converter(config, context);
+        /// </code>
+        /// </summary>
+        /// <remarks>
+        /// The context is used for every parse. Two caveats: AngleSharp fetches external resources
+        /// if your configuration registers a requester, and a shared browsing context is not
+        /// guaranteed safe for concurrent parsing, so give each thread its own converter and context
+        /// if you convert in parallel.
+        /// </remarks>
+        public Converter(Config config, IBrowsingContext context)
+        {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            Config = config;
+            _htmlParser = new HtmlParser(new HtmlParserOptions(), context);
             _markdownDomReader = new MarkdownDomReader(config);
         }
 
@@ -35,6 +67,7 @@ namespace ReverseMarkdown {
         public Converter(Config config, params Assembly[]? additionalAssemblies)
         {
             Config = config;
+            _htmlParser = new HtmlParser();
             _markdownDomReader = additionalAssemblies is { Length: > 0 }
                 ? new MarkdownDomReader(config, additionalAssemblies)
                 : new MarkdownDomReader(config);
@@ -56,6 +89,19 @@ namespace ReverseMarkdown {
         public virtual string Convert(string html)
         {
             var flavor = EffectiveFlavor;
+
+            // Slack inspects the raw markup for orphan table parts and the CommonMark-based flavors
+            // pass raw HTML blocks straight through, so for those the preprocessing steps have to be
+            // materialized back into HTML before those checks run. Every other flavor applies them
+            // in-DOM during Parse, without the extra round-trip.
+            var preprocessed = false;
+            if (Config.Preprocess.HasSteps &&
+                (flavor == Config.MarkdownFlavor.Slack || Config.IsCommonMarkBased(flavor)))
+            {
+                html = Preprocess(html);
+                preprocessed = true;
+            }
+
             if (flavor == Config.MarkdownFlavor.Slack)
             {
                 // Slack has no tables. A well-formed <table> raises in the writer (MdTable), but the
@@ -86,21 +132,56 @@ namespace ReverseMarkdown {
                 }
             }
 
-            return Render(Parse(html, collectMetadata: EmitsMetadata(flavor)), flavor);
+            return Render(Parse(html, collectMetadata: EmitsMetadata(flavor), alreadyPreprocessed: preprocessed), flavor);
+        }
+
+        /// <summary>
+        /// Applies the configured <see cref="Config.Preprocess"/> steps to <paramref name="html"/>
+        /// and returns the transformed HTML. <see cref="Convert"/> and <see cref="Parse(string)"/>
+        /// do this for you; call it directly to inspect, cache or further process the preprocessed
+        /// markup. Returns the input unchanged when no steps are configured.
+        /// </summary>
+        public virtual string Preprocess(string html)
+        {
+            if (!Config.Preprocess.HasSteps)
+            {
+                return html;
+            }
+
+            var normalized = Config.Preprocess.ApplyText(html.ReplaceLineEndings("\n"));
+            var document = _htmlParser.ParseDocument(Cleaner.FixUnclosedScriptStyle(normalized));
+            Config.Preprocess.Apply(document.DocumentElement!);
+            EnsureDocumentStructure(document);
+
+            // Give back markup shaped like the input: a fragment stays a fragment so that the
+            // flavor-level raw-HTML checks in Convert still see what the caller passed in. Only when
+            // the parser produced a real <head> (title/meta, which the metadata collector needs) is
+            // the full document serialized.
+            return document.Head is { HasChildNodes: true }
+                ? document.DocumentElement!.OuterHtml
+                : document.Body!.InnerHtml;
         }
 
         /// <summary>
         /// Parse HTML into a mutable <see cref="MarkdownDocument"/> you can traverse, filter and
-        /// reshape before rendering. Uses AngleSharp's HTML5-compliant parser.
+        /// reshape before rendering. Uses AngleSharp's HTML5-compliant parser. Any configured
+        /// <see cref="Config.Preprocess"/> steps run first.
         /// </summary>
         public virtual MarkdownDocument Parse(string html)
         {
-            return Parse(html, collectMetadata: true);
+            return Parse(html, collectMetadata: true, alreadyPreprocessed: false);
         }
 
-        private MarkdownDocument Parse(string html, bool collectMetadata)
+        private MarkdownDocument Parse(string html, bool collectMetadata, bool alreadyPreprocessed)
         {
             html = html.ReplaceLineEndings("\n");
+            if (!alreadyPreprocessed)
+            {
+                // Text steps see normalized line endings, and run before the parser can discard or
+                // reinterpret markup they might need to repair.
+                html = Config.Preprocess.ApplyText(html);
+            }
+
             html = Cleaner.FixUnclosedScriptStyle(html);
 
             // Trailing whitespace after the last block is insignificant, but the HTML5 parser will
@@ -109,6 +190,14 @@ namespace ReverseMarkdown {
             html = html.TrimEnd();
 
             var document = _htmlParser.ParseDocument(html);
+            if (!alreadyPreprocessed)
+            {
+                // Runs against the document element so steps can reach both <head> (hoisted styles,
+                // scripts, metadata) and <body>.
+                Config.Preprocess.Apply(document.DocumentElement!);
+                EnsureDocumentStructure(document);
+            }
+
             var body = document.Body!;
             ApplyHtmlFilters(body);
             var markdownDocument = _markdownDomReader.Read(body);
@@ -118,6 +207,18 @@ namespace ReverseMarkdown {
             }
 
             return markdownDocument;
+        }
+
+        // The built-in steps never detach <html>/<head>/<body>, but a custom step can. Fail with an
+        // explanation rather than the NullReferenceException the reader would otherwise throw.
+        private static void EnsureDocumentStructure(AngleSharp.Dom.IDocument document)
+        {
+            if (document.DocumentElement is null || document.Body is null)
+            {
+                throw new InvalidOperationException(
+                    "A preprocessing step removed the document structure. Steps must leave the " +
+                    "<html>, <head> and <body> elements in place; remove their contents instead.");
+            }
         }
 
         private static bool EmitsMetadata(Config.MarkdownFlavor flavor) =>
