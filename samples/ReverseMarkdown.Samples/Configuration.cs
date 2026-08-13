@@ -45,6 +45,25 @@ public static class Configuration
         return markdown;
     }
 
+    public static string CellListsAsRawHtml()
+    {
+        #region sample_cell_list_rawhtml
+        // The pre-6.2 behaviour: copy the source markup into the cell verbatim.
+        var config = new Config
+        {
+            Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
+        };
+
+        var markdown = new Converter(config).Convert(
+            "<table><tr><th>Steps</th></tr><tr><td>" +
+            "<ol class=\"customList\"><li>Submit the request</li></ol></td></tr></table>");
+        // | Steps |
+        // | --- |
+        // | <ol class="customList"><li>Submit the request</li></ol> |
+        #endregion
+        return markdown;
+    }
+
     public static void HtmlFilters()
     {
         #region sample_html_filters

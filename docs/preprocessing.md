@@ -172,58 +172,63 @@ snippet: sample_step_removeattributes
 
 A nested table or list inside a `<td>`/`<th>` has no Markdown representation - GitHub Flavored
 Markdown tables hold simple inline content only, and emitting a real list inside a cell would break
-the table. ReverseMarkdown therefore keeps those elements as **raw HTML**, which is correct but
-verbatim: every `class`, inline `style` and editor wrapper from the source comes along with it.
-Output from CKEditor, SharePoint or Word can leave a cell looking like this:
+the table. ReverseMarkdown therefore keeps those elements as HTML. `Tables.CellListHandling` decides
+what that HTML looks like.
+
+### `CleanHtml` (default)
+
+The list is kept as a real list, with the presentational markup stripped: `class`, `style` and
+`data-*` attributes, `<span>`/`<font>` wrappers, and a `<p>` that is a list item's only child. Those
+attributes reference a stylesheet that no longer exists, and every other conversion path already
+drops them. A nested `<table>` is cleaned the same way.
+
+So editor output like this:
 
 ```html
 <ol class="customList"><li><p class="noSpacing" data-text-type="noSpacing">
 <span style="font-size:17px" data-fontsize="17px">First point</span></p></li></ol>
 ```
 
-You have two independent levers, and which one fits depends on whether the Markdown will be
-**rendered** or **read**.
+converts to `<ol><li>First point</li></ol>`.
 
-### Option 1: keep the HTML, drop the noise
+::: tip Changed in 6.2
+Before 6.2 the source markup was copied verbatim, which is now `RawHtml`. Set it explicitly if you
+need an exact copy of the source:
 
-`SimplifyTableCellHtml()` trims that back to its structure. Inside table cells it unwraps `<span>`
-and `<font>`, unwraps a `<p>` that is a list item's only child, and drops `class`, `style` and
-`data-*` attributes. Content outside tables is untouched.
+snippet: sample_cell_list_rawhtml
+:::
 
-snippet: sample_step_simplifytablecellhtml
+### `InlineText`
 
-This matters most when the Markdown is going to be read rather than rendered - RAG indexing, LLM
-prompts, diffing - where the attribute noise is pure token cost.
-
-It reshapes the source only, so it does not change *which* elements are retained as HTML - the list
-still renders as a real list anywhere HTML is allowed in cells. To vary the trade-off, scope any
-general helper to cells with a descendant selector:
-
-snippet: sample_step_tablecell_scoped
-
-`Tables.CellListHandling = TableCellListHandlingOption.CleanHtml` does the same cleanup as part of
-conversion, with no pipeline at all, and covers a nested `<table>` too. Use the preprocessing step
-when you want to vary the cleanup; use the option when the defaults suit you.
-
-### Option 2: drop the HTML, flatten to text
-
-`Tables.CellListHandling = TableCellListHandlingOption.InlineText` renders a cell list as inline
-text instead: one item per line separated by `<br>`, each prefixed with its bullet or number, with
-the item content converted to Markdown.
+Renders the list as inline text instead: one item per line separated by `<br>`, each prefixed with
+its bullet or number, with the item content converted to Markdown.
 
 snippet: sample_cell_list_handling
 
-This is a conversion option rather than a preprocessing step, so it needs no pipeline at all and
-handles the editor noise on its own - `<ol class="c"><li><p><span style="...">First</span></p></li></ol>`
-becomes `1. First`. It honours an `<ol start="n">` and `Formatting.ListBulletChar`.
+This leaves no HTML in the output at all, which suits Markdown that is read rather than rendered -
+RAG indexing, LLM prompts, plain-text diffing. It honours an `<ol start="n">` and
+`Formatting.ListBulletChar`.
 
 It is lossy by design: the list stops being a list, and nested lists are flattened to one level.
-Nested `<table>` elements are unaffected and stay raw HTML, since flattening a table to text would
-lose its shape entirely.
+Nested `<table>` elements are unaffected and stay HTML, since flattening a table to text would lose
+its shape entirely.
 
-**Which to pick.** If the Markdown gets rendered, keep option 1: the list still renders as a list.
-If it gets read - RAG indexing, LLM prompts, plain-text diffing - option 2 gives you Markdown with
-no HTML in it at all. They compose: preprocessing runs first, so you can use both.
+### Shaping it yourself
+
+`SimplifyTableCellHtml()` applies the same cleanup as `CleanHtml`, but as a preprocessing step over
+the source document. Reach for it when you want the cleanup to reach content the option does not
+touch, or to combine it with other steps.
+
+snippet: sample_step_simplifytablecellhtml
+
+For a different trade-off, scope any general helper to cells with a descendant selector - here
+against `RawHtml`, so the helpers are what does the cleaning:
+
+snippet: sample_step_tablecell_scoped
+
+**Which to pick.** Keep the default if the Markdown gets rendered: the list still renders as a list.
+Choose `InlineText` if it gets read, for Markdown with no HTML in it. They compose with
+preprocessing, which runs first.
 
 ## Working with styles
 

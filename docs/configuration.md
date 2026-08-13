@@ -50,12 +50,12 @@ Output formatting.
 - **`Tables.HeaderColumnSpans`** - handle table header columns with column spans. Default `true`.
 - **`Tables.CellListHandling`** - how a list nested inside a table cell is rendered. A Markdown table
   cell cannot hold a real list, so the choice is between keeping the source HTML and flattening it.
+  - `TableCellListHandlingOption.CleanHtml` *(default, changed in 6.2)* - keep the list as HTML,
+    minus the presentational noise (`class`, `style`, `data-*`, `<span>`/`<font>` wrappers, and a
+    `<p>` that is a list item's only child). Still a real list. Also applies to a nested `<table>`.
   - `TableCellListHandlingOption.RawHtml` - keep the list as raw HTML, exactly as it appeared in the
-    source (default). Renders as a real list wherever HTML is allowed in cells, but carries the
-    source's classes, inline styles and wrappers into the output.
-  - `TableCellListHandlingOption.CleanHtml` - keep the list as HTML, minus the presentational noise
-    (`class`, `style`, `data-*`, `<span>`/`<font>` wrappers, and a `<p>` that is a list item's only
-    child). Still a real list. Also applies to a nested `<table>`.
+    source. The pre-6.2 default. Carries the source's classes, inline styles and wrappers into the
+    output.
   - `TableCellListHandlingOption.InlineText` - flatten to inline text: one item per line separated by
     `<br>`, each prefixed with its bullet or number. Lossy, but free of HTML. See
     [Table cells](/preprocessing#table-cells).

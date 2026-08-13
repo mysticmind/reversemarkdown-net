@@ -4,6 +4,27 @@ v6 is a rewrite of the conversion engine, but the public surface stays largely s
 the old `Config` members remain as `[Obsolete]` shims that forward to the new grouped members.
 Existing code keeps compiling (with deprecation warnings guiding you to the new API).
 
+## Behaviour changes in 6.2
+
+**Lists inside table cells are cleaned by default.** A list (or table) nested in a `<td>`/`<th>` has
+no Markdown form, so it is kept as HTML. Before 6.2 that HTML was copied from the source verbatim,
+carrying every `class`, inline `style` and editor wrapper with it. The new default,
+`Tables.CellListHandling = CleanHtml`, keeps the list but strips that presentational markup - those
+attributes reference a stylesheet the Markdown does not have, and every other conversion path
+already drops them.
+
+```
+before 6.2:  | <ol class="customList"><li><p class="noSpacing"><span style="font-size:17px">First</span></p></li></ol> |
+6.2 default: | <ol><li>First</li></ol> |
+```
+
+To keep the old output, ask for it explicitly:
+
+snippet: sample_cell_list_rawhtml
+
+`InlineText` is also available if you would rather have no HTML at all. See
+[Table cells](/preprocessing#table-cells).
+
 ## Engine
 
 - HTML is now parsed with **AngleSharp** (HTML5-compliant) instead of HtmlAgilityPack, and rendered

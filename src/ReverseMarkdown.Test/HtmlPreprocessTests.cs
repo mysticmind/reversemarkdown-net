@@ -482,9 +482,23 @@ namespace ReverseMarkdown.Test
             "</td></tr></table>";
 
         [Fact]
-        public void Retained_cell_html_keeps_editor_noise_without_preprocessing()
+        public void Retained_cell_html_is_cleaned_by_default()
         {
             var md = Norm(new Converter(new Config()).Convert(CellListHtml));
+
+            Assert.Equal("| Head |\n| --- |\n| <ol><li>Item one</li><li>Item two</li></ol> |", md);
+        }
+
+        [Fact]
+        public void RawHtml_keeps_the_source_markup_verbatim()
+        {
+            // The pre-6.2 behaviour, still available for callers who want an exact copy.
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
+            };
+
+            var md = Norm(new Converter(config).Convert(CellListHtml));
 
             Assert.Contains("class=\"customList\"", md);
             Assert.Contains("style=\"font-size:17px\"", md);
@@ -494,7 +508,14 @@ namespace ReverseMarkdown.Test
         [Fact]
         public void SimplifyTableCellHtml_trims_retained_cell_html_to_its_structure()
         {
-            var md = Convert(CellListHtml, p => p.SimplifyTableCellHtml());
+            // Against RawHtml, so this proves the step's own cleanup rather than the default's.
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
+            };
+            config.Preprocess.SimplifyTableCellHtml();
+
+            var md = Norm(new Converter(config).Convert(CellListHtml));
 
             Assert.Equal("| Head |\n| --- |\n| <ol><li>Item one</li><li>Item two</li></ol> |", md);
         }
@@ -527,8 +548,16 @@ namespace ReverseMarkdown.Test
         public void Cell_html_can_also_be_cleaned_with_the_general_helpers()
         {
             // CSS descendant selectors scope any helper to table cells, for a different trade-off.
-            var md = Convert(CellListHtml,
-                p => p.Unwrap("td span, th span").RemoveAttributes("td *, th *", "class", "style", "data-*"));
+            // Against RawHtml, so the general helpers are what does the cleaning here.
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
+            };
+            config.Preprocess
+                .Unwrap("td span, th span")
+                .RemoveAttributes("td *, th *", "class", "style", "data-*");
+
+            var md = Norm(new Converter(config).Convert(CellListHtml));
 
             Assert.Equal("| Head |\n| --- |\n| <ol><li><p>Item one</p></li><li><p>Item two</p></li></ol> |", md);
         }
@@ -667,10 +696,10 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void CellListHandling_defaults_to_RawHtml()
+        public void CellListHandling_defaults_to_CleanHtml()
         {
             var config = new Config();
-            Assert.Equal(Config.TableCellListHandlingOption.RawHtml, config.Tables.CellListHandling);
+            Assert.Equal(Config.TableCellListHandlingOption.CleanHtml, config.Tables.CellListHandling);
 
             var md = Norm(new Converter(config).Convert(
                 "<table><tr><th>H</th></tr><tr><td><ol><li>first</li></ol></td></tr></table>"));
