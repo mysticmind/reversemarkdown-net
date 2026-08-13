@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -296,13 +297,67 @@ namespace ReverseMarkdown {
             return ApplyOutputLineEndings(writer.Write(document).Trim('\n', '\r'));
         }
 
-        private string ApplyOutputLineEndings(string content)
+        /// <summary>
+        /// Converts HTML and writes the Markdown to <paramref name="output"/>, without building the
+        /// result as a string first. Prefer this when the Markdown is headed for a file, a response
+        /// stream or another writer: on a large document it avoids a full-size copy of the output.
+        /// </summary>
+        public virtual void Convert(string html, TextWriter output)
         {
-            var lineEnding = string.IsNullOrEmpty(Config.Formatting.OutputLineEnding)
+            if (output is null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            var flavor = EffectiveFlavor;
+
+            // The flavor short-circuits below return their result directly rather than rendering a
+            // document, so they have no buffer to stream.
+            if (flavor == Config.MarkdownFlavor.Slack || Config.IsCommonMarkBased(flavor))
+            {
+                output.Write(Convert(html));
+                return;
+            }
+
+            Render(Parse(html, collectMetadata: EmitsMetadata(flavor), alreadyPreprocessed: false), flavor, output);
+        }
+
+        /// <summary>
+        /// Renders a <see cref="MarkdownDocument"/> to <paramref name="output"/> using the writer
+        /// selected by <see cref="Config.Flavor"/>, without materializing the result as a string.
+        /// </summary>
+        public virtual void Render(MarkdownDocument document, TextWriter output) =>
+            Render(document, EffectiveFlavor, output);
+
+        /// <summary>
+        /// Renders a <see cref="MarkdownDocument"/> to <paramref name="output"/> in the given
+        /// flavor, without materializing the result as a string.
+        /// </summary>
+        public virtual void Render(MarkdownDocument document, Config.MarkdownFlavor flavor, TextWriter output)
+        {
+            if (output is null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            var writer = WriterFactory.Create(flavor, Config);
+
+            // A custom IMarkdownWriter has no buffer to stream from, so fall back to the string path.
+            if (writer is not MarkdownWriterBase bufferedWriter)
+            {
+                output.Write(ApplyOutputLineEndings(writer.Write(document).Trim('\n', '\r')));
+                return;
+            }
+
+            MarkdownOutput.WriteTo(bufferedWriter.WriteToBuffer(document), output, OutputLineEnding);
+        }
+
+        private string OutputLineEnding =>
+            string.IsNullOrEmpty(Config.Formatting.OutputLineEnding)
                 ? Environment.NewLine
                 : Config.Formatting.OutputLineEnding;
-            return content.ReplaceLineEndings(lineEnding);
-        }
+
+        private string ApplyOutputLineEndings(string content) => content.ReplaceLineEndings(OutputLineEnding);
 
         private static bool LooksLikeCommonMarkHtmlBlock(string html)
         {

@@ -29,7 +29,14 @@ namespace ReverseMarkdown.Writers
         protected virtual string UnorderedBullet =>
             Config.Flavor == Config.MarkdownFlavor.Slack ? "•" : Config.Formatting.ListBulletChar.ToString();
 
-        public virtual string Write(MarkdownDocument document)
+        public virtual string Write(MarkdownDocument document) => WriteToBuffer(document).ToString();
+
+        /// <summary>
+        /// Renders into the internal buffer and hands it back without materializing a string, so a
+        /// caller streaming to a <see cref="System.IO.TextWriter"/> can avoid a full-size copy of
+        /// the output. The buffer belongs to this writer and is valid until the next render.
+        /// </summary>
+        internal StringBuilder WriteToBuffer(MarkdownDocument document)
         {
             Buffer.Clear();
             WritePreamble(document);
@@ -42,7 +49,7 @@ namespace ReverseMarkdown.Writers
                 footnote.Accept(this);
             }
 
-            return Buffer.ToString();
+            return Buffer;
         }
 
         public virtual void Visit(MarkdownDocument node) => WriteBlocks(node.Children);
