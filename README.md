@@ -37,7 +37,7 @@ With configuration and a flavor:
 ```cs
 var config = new ReverseMarkdown.Config
 {
-    Flavor = MarkdownFlavor.GitHub,
+    Flavor = Config.MarkdownFlavor.GitHub,
     Formatting = { RemoveComments = true },
     Links = { SmartHref = true },
 };
@@ -45,13 +45,28 @@ var config = new ReverseMarkdown.Config
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
+Real-world HTML often needs cleaning up first. `Config.Preprocess` is a chainable pipeline applied
+to the source markup before it converts:
+
+```cs
+var config = new ReverseMarkdown.Config();
+config.Preprocess
+    .RemoveScripts()                        // <script>/<noscript> and on* handlers
+    .RemoveStyles()                         // style attributes, <style>, stylesheet <link>
+    .Remove("nav, footer, .advertisement")  // drop page chrome
+    .Unwrap("span, font")                   // keep the text, lose the wrapper
+    .Rename("b", "strong");
+
+var markdown = new ReverseMarkdown.Converter(config).Convert(html);
+```
+
 ## Features
 
 - **Seven output flavors** - Default, GitHub, CommonMark, Slack, Telegram, MultiMarkdown, and Pandoc, selected via the `Flavor` enum.
 - **Spec-compliant round-trips** - CommonMark and GitHub Flavored Markdown round-trip at 100% against canonical cmark-gfm; MultiMarkdown and Pandoc verified against canonical pandoc.
-- **HTML preprocessing** - clean up the source before it converts with a chainable pipeline: remove or unwrap elements, rename or replace them, strip styles, scripts and attributes, resolve relative URLs. See [HTML Preprocessing](https://mysticmind.github.io/reversemarkdown-net/preprocessing).
+- **HTML preprocessing** - clean up the source before it converts with a chainable pipeline of 23 helpers: remove or unwrap elements, rename or replace them, strip styles, scripts and attributes, recover formatting from inline CSS (Word/Outlook exports), and resolve relative URLs. Plug in your own steps too. See [HTML Preprocessing](https://mysticmind.github.io/reversemarkdown-net/preprocessing).
 - **Extensible** - custom readers (`IMdReader` + `[MarkdownReader]`), tag aliases, and a `Parse`/`Render` Markdown DOM for direct transformation.
-- **Tables, links, and images** - nested tables and captions, smart href handling, URI-scheme whitelisting, and base64 image handling (include / skip / save to disk).
+- **Tables, links, and images** - nested tables and captions, configurable handling for lists inside table cells, smart href handling, URI-scheme whitelisting, and base64 image handling (include / skip / save to disk).
 - **Broad framework support** - targets `netstandard2.0`, `net8.0`, `net9.0`, and `net10.0` (runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity).
 - **Trimming and Native AOT ready** - the default conversion path uses no reflection; add custom readers with `RegisterReader` under trimming/AOT. See [Supported Frameworks](https://mysticmind.github.io/reversemarkdown-net/guide/supported-frameworks#trimming-and-native-aot).
 
@@ -85,6 +100,7 @@ The full guide lives at **[mysticmind.github.io/reversemarkdown-net](https://mys
 - [Performance](https://mysticmind.github.io/reversemarkdown-net/guide/performance)
 - [Flavors](https://mysticmind.github.io/reversemarkdown-net/flavors/)
 - [Configuration reference](https://mysticmind.github.io/reversemarkdown-net/configuration)
+- [HTML Preprocessing](https://mysticmind.github.io/reversemarkdown-net/preprocessing)
 - [Extending (custom readers, recipes)](https://mysticmind.github.io/reversemarkdown-net/extending)
 - [Migrating from v5](https://mysticmind.github.io/reversemarkdown-net/migration)
 
