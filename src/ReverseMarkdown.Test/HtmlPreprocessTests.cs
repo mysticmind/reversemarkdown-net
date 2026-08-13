@@ -533,6 +533,113 @@ namespace ReverseMarkdown.Test
             Assert.Equal("| Head |\n| --- |\n| <ol><li><p>Item one</p></li><li><p>Item two</p></li></ol> |", md);
         }
 
+        // ---- Tables.CellListHandling (issue #435) ----
+
+        private static string ConvertCellLists(string html, char bullet = '-')
+        {
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.InlineText },
+                Formatting = { ListBulletChar = bullet },
+            };
+            return Norm(new Converter(config).Convert(html));
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_flattens_an_ordered_list()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><ol><li>first</li><li>second</li></ol></td></tr></table>");
+
+            Assert.Equal("| H |\n| --- |\n| 1. first<br>2. second |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_converts_item_content_to_markdown()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><ul><li><strong>bold</strong> item</li>" +
+                "<li><a href=\"http://x.com\">link</a></li></ul></td></tr></table>");
+
+            Assert.Equal("| H |\n| --- |\n| - **bold** item<br>- [link](http://x.com) |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_honours_the_ol_start_attribute()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><ol start=\"3\"><li>three</li><li>four</li></ol></td></tr></table>");
+
+            Assert.Equal("| H |\n| --- |\n| 3. three<br>4. four |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_uses_the_configured_bullet_unescaped()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><ul><li>a</li><li>b</li></ul></td></tr></table>", bullet: '*');
+
+            Assert.Equal("| H |\n| --- |\n| * a<br>* b |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_flattens_nested_lists()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><ul><li>top<ul><li>inner</li></ul></li>" +
+                "<li>second</li></ul></td></tr></table>");
+
+            Assert.Equal("| H |\n| --- |\n| - top<br>- inner<br>- second |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_keeps_preceding_blocks_separate()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><p>Intro:</p><ol><li>one</li></ol></td></tr></table>");
+
+            Assert.Equal("| H |\n| --- |\n| Intro:<br><br>1. one |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_strips_editor_noise_without_preprocessing()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><ol class=\"c\"><li><p class=\"n\">" +
+                "<span style=\"font-size:17px\">First</span></p></li></ol></td></tr></table>");
+
+            Assert.Equal("| H |\n| --- |\n| 1. First |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_leaves_nested_tables_as_raw_html()
+        {
+            var md = ConvertCellLists(
+                "<table><tr><th>H</th></tr><tr><td><table><tr><td>inner</td></tr></table></td></tr></table>");
+
+            Assert.Contains("<table><tr><td>inner</td></tr></table>", md);
+        }
+
+        [Fact]
+        public void CellListHandling_defaults_to_RawHtml()
+        {
+            var config = new Config();
+            Assert.Equal(Config.TableCellListHandlingOption.RawHtml, config.Tables.CellListHandling);
+
+            var md = Norm(new Converter(config).Convert(
+                "<table><tr><th>H</th></tr><tr><td><ol><li>first</li></ol></td></tr></table>"));
+
+            Assert.Contains("<ol><li>first</li></ol>", md);
+        }
+
+        [Fact]
+        public void CellListHandling_InlineText_leaves_lists_outside_tables_alone()
+        {
+            var md = ConvertCellLists("<ul><li>a</li><li>b</li></ul>");
+
+            Assert.Equal("- a\n- b", md);
+        }
+
         // ---- URLs ----
 
         [Fact]

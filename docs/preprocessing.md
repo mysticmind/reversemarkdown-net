@@ -181,6 +181,11 @@ Output from CKEditor, SharePoint or Word can leave a cell looking like this:
 <span style="font-size:17px" data-fontsize="17px">First point</span></p></li></ol>
 ```
 
+You have two independent levers, and which one fits depends on whether the Markdown will be
+**rendered** or **read**.
+
+### Option 1: keep the HTML, drop the noise
+
 `SimplifyTableCellHtml()` trims that back to its structure. Inside table cells it unwraps `<span>`
 and `<font>`, unwraps a `<p>` that is a list item's only child, and drops `class`, `style` and
 `data-*` attributes. Content outside tables is untouched.
@@ -190,10 +195,31 @@ snippet: sample_step_simplifytablecellhtml
 This matters most when the Markdown is going to be read rather than rendered - RAG indexing, LLM
 prompts, diffing - where the attribute noise is pure token cost.
 
-It reshapes the source only, so it does not change *which* elements are retained as HTML. For a
-different trade-off, scope any general helper to cells with a descendant selector:
+It reshapes the source only, so it does not change *which* elements are retained as HTML - the list
+still renders as a real list anywhere HTML is allowed in cells. To vary the trade-off, scope any
+general helper to cells with a descendant selector:
 
 snippet: sample_step_tablecell_scoped
+
+### Option 2: drop the HTML, flatten to text
+
+`Tables.CellListHandling = TableCellListHandlingOption.InlineText` renders a cell list as inline
+text instead: one item per line separated by `<br>`, each prefixed with its bullet or number, with
+the item content converted to Markdown.
+
+snippet: sample_cell_list_handling
+
+This is a conversion option rather than a preprocessing step, so it needs no pipeline at all and
+handles the editor noise on its own - `<ol class="c"><li><p><span style="...">First</span></p></li></ol>`
+becomes `1. First`. It honours an `<ol start="n">` and `Formatting.ListBulletChar`.
+
+It is lossy by design: the list stops being a list, and nested lists are flattened to one level.
+Nested `<table>` elements are unaffected and stay raw HTML, since flattening a table to text would
+lose its shape entirely.
+
+**Which to pick.** If the Markdown gets rendered, keep option 1: the list still renders as a list.
+If it gets read - RAG indexing, LLM prompts, plain-text diffing - option 2 gives you Markdown with
+no HTML in it at all. They compose: preprocessing runs first, so you can use both.
 
 ## Working with styles
 

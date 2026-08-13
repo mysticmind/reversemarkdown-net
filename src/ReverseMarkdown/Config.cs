@@ -161,6 +161,15 @@ namespace ReverseMarkdown
 
             /// <summary>Handle table header columns that use column spans. Default is true.</summary>
             public bool HeaderColumnSpans { get; set; } = true;
+
+            /// <summary>
+            /// How a list nested inside a table cell is rendered. A Markdown table cell cannot hold
+            /// a real list, so the choice is between keeping the source HTML and flattening the list
+            /// into inline text. Default is
+            /// <see cref="TableCellListHandlingOption.RawHtml"/>.
+            /// </summary>
+            public TableCellListHandlingOption CellListHandling { get; set; } =
+                TableCellListHandlingOption.RawHtml;
         }
 
         /// <summary>Tag handling options.</summary>
@@ -248,6 +257,26 @@ namespace ReverseMarkdown
 
             /// <summary>An empty row is added as the header row.</summary>
             EmptyRow
+        }
+
+        /// <summary>How a list nested inside a table cell is rendered.</summary>
+        public enum TableCellListHandlingOption
+        {
+            /// <summary>
+            /// Keep the list as raw HTML, exactly as it appeared in the source (default). Renders
+            /// as a real list in anything that allows HTML in table cells, at the cost of carrying
+            /// the source markup - classes, inline styles and wrappers included - into the output.
+            /// </summary>
+            RawHtml,
+
+            /// <summary>
+            /// Flatten the list into inline text: one item per line separated by <c>&lt;br&gt;</c>,
+            /// each prefixed with its bullet or number, with the item content converted to Markdown.
+            /// Lossy (the list stops being a list, and nesting is flattened) but free of HTML, which
+            /// suits output that is read rather than rendered. Nested <c>&lt;table&gt;</c> elements
+            /// are unaffected and stay raw HTML.
+            /// </summary>
+            InlineText
         }
 
         public enum Base64ImageHandling

@@ -48,6 +48,15 @@ Output formatting.
   - `TableWithoutHeaderRowHandlingOption.Default` - first row is used as the header (default).
   - `TableWithoutHeaderRowHandlingOption.EmptyRow` - an empty header row is added.
 - **`Tables.HeaderColumnSpans`** - handle table header columns with column spans. Default `true`.
+- **`Tables.CellListHandling`** - how a list nested inside a table cell is rendered. A Markdown table
+  cell cannot hold a real list, so the choice is between keeping the source HTML and flattening it.
+  - `TableCellListHandlingOption.RawHtml` - keep the list as raw HTML, as it appeared in the source
+    (default). Renders as a real list wherever HTML is allowed in cells.
+  - `TableCellListHandlingOption.InlineText` - flatten to inline text: one item per line separated by
+    `<br>`, each prefixed with its bullet or number. Lossy, but free of HTML. See
+    [Table cells](/preprocessing#table-cells).
+
+snippet: sample_cell_list_handling
 
 ## `Tags`
 
