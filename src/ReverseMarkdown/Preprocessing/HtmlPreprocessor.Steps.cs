@@ -579,26 +579,8 @@ public sealed partial class HtmlPreprocessor
         {
             foreach (var cell in root.QuerySelectorAll("td, th").ToList())
             {
-                foreach (var wrapper in cell.QuerySelectorAll("span, font").ToList())
-                {
-                    UnwrapElement(wrapper);
-                }
-
-                // <li><p>text</p></li> is how several editors emit list items; the paragraph carries
-                // no meaning once it is the item's only content, and it survives into the retained
-                // HTML. Left alone when the item holds several blocks, where it does carry meaning.
-                foreach (var paragraph in cell.QuerySelectorAll("li > p").ToList())
-                {
-                    if (paragraph.ParentElement?.Children.Length == 1)
-                    {
-                        UnwrapElement(paragraph);
-                    }
-                }
-
-                foreach (var element in cell.QuerySelectorAll("*").ToList())
-                {
-                    RemoveMatchingAttributes(element, ["class", "style", "data-*"]);
-                }
+                // The cell's own attributes never reach the output, so only its contents are cleaned.
+                PresentationalMarkup.Clean(cell, includeRoot: false);
             }
         });
     }

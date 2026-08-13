@@ -621,6 +621,52 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
+        public void CellListHandling_CleanHtml_keeps_the_list_but_drops_the_noise()
+        {
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.CleanHtml },
+            };
+
+            var md = Norm(new Converter(config).Convert(CellListHtml));
+
+            Assert.Equal("| Head |\n| --- |\n| <ol><li>Item one</li><li>Item two</li></ol> |", md);
+        }
+
+        [Fact]
+        public void CellListHandling_CleanHtml_also_cleans_a_nested_table()
+        {
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.CleanHtml },
+            };
+
+            var md = Norm(new Converter(config).Convert(
+                "<table><tr><th>H</th></tr><tr><td><table class=\"inner\"><tr><td style=\"color:red\">" +
+                "<span>x</span></td></tr></table></td></tr></table>"));
+
+            Assert.Contains("<table><tr><td>x</td></tr></table>", md);
+            Assert.DoesNotContain("class=", md);
+        }
+
+        [Fact]
+        public void CellListHandling_CleanHtml_does_not_mutate_the_parsed_document()
+        {
+            // The reader cleans a detached copy, so a caller holding the document via Parse still
+            // sees the original markup.
+            var config = new Config
+            {
+                Tables = { CellListHandling = Config.TableCellListHandlingOption.CleanHtml },
+            };
+            var converter = new Converter(config);
+
+            converter.Render(converter.Parse(CellListHtml));
+            var second = Norm(converter.Convert(CellListHtml));
+
+            Assert.Equal("| Head |\n| --- |\n| <ol><li>Item one</li><li>Item two</li></ol> |", second);
+        }
+
+        [Fact]
         public void CellListHandling_defaults_to_RawHtml()
         {
             var config = new Config();

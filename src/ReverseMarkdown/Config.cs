@@ -270,6 +270,15 @@ namespace ReverseMarkdown
             RawHtml,
 
             /// <summary>
+            /// Keep the list as HTML, but strip the presentational markup that carries no meaning
+            /// once the source stylesheet is gone: <c>class</c>, <c>style</c> and <c>data-*</c>
+            /// attributes, <c>&lt;span&gt;</c>/<c>&lt;font&gt;</c> wrappers, and a <c>&lt;p&gt;</c>
+            /// that is a list item's only child. Still renders as a real list, without carrying the
+            /// editor noise. Also applies to a nested <c>&lt;table&gt;</c>.
+            /// </summary>
+            CleanHtml,
+
+            /// <summary>
             /// Flatten the list into inline text: one item per line separated by <c>&lt;br&gt;</c>,
             /// each prefixed with its bullet or number, with the item content converted to Markdown.
             /// Lossy (the list stops being a list, and nesting is flattened) but free of HTML, which
