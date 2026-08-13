@@ -32,10 +32,9 @@ a trimmed/AOT app.
 Under trimming or AOT, register readers **explicitly** instead - no attribute, no assembly, no
 reflection:
 
-```cs
-var converter = new ReverseMarkdown.Converter();
-converter.RegisterReader("mark", new HighlightReader());
-```
+snippet: sample_highlight_reader
+
+snippet: sample_register_reader
 
 `RegisterReader` overrides the built-in reader for that tag, exactly like the scanned form. Call it
 before converting; it is not safe to call concurrently with a conversion.

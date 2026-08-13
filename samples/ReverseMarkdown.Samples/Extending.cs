@@ -27,6 +27,20 @@ public class StripToTextReader : IMdReader
 }
 #endregion
 
+#region sample_highlight_reader
+// Render <mark> as ==highlighted==. No [MarkdownReader] attribute: this one is registered
+// explicitly, so nothing has to be discovered by reflection.
+public class HighlightReader : IMdReader
+{
+    public void Read(AngleSharp.Dom.IElement element, ReaderContext ctx)
+    {
+        ctx.Emit(new MdRawInline("==") { SourceTag = element.LocalName });
+        ctx.ReadChildren(element);
+        ctx.Emit(new MdRawInline("==") { SourceTag = element.LocalName });
+    }
+}
+#endregion
+
 public static class Extending
 {
     public static void Alias()
@@ -42,6 +56,16 @@ public static class Extending
     {
         #region sample_custom_reader_wire
         var converter = new Converter(new Config(), typeof(PlainLinkReader).Assembly);
+        #endregion
+        _ = converter;
+    }
+
+    public static void RegisterReaderExplicitly()
+    {
+        #region sample_register_reader
+        // Trimming / Native AOT safe: no attribute, no assembly scanning, no reflection.
+        var converter = new Converter();
+        converter.RegisterReader("mark", new HighlightReader());
         #endregion
         _ = converter;
     }

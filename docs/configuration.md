@@ -89,3 +89,12 @@ HTML pre-filtering (v6 Markdown DOM path).
   removed.
 
 snippet: sample_html_filters
+
+## `Preprocess`
+
+An ordered pipeline of transformations applied to the source HTML before conversion: removing
+elements, renaming or replacing them, stripping styles and scripts, rewriting URLs and more. Steps
+run in the order they are added, before the `Html` filters above. See
+[HTML Preprocessing](/preprocessing) for the full reference.
+
+snippet: sample_preprocess

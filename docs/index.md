@@ -24,6 +24,10 @@ features:
     details: Default, GitHub, CommonMark, Slack, Telegram, MultiMarkdown, and Pandoc - selected with a single Flavor enum.
   - title: Spec-compliant round-trips
     details: CommonMark and GitHub Flavored Markdown round-trip at 100% against canonical cmark-gfm; MultiMarkdown and Pandoc verified against canonical pandoc.
+  - title: HTML preprocessing
+    details: Shape the source markup before it converts - remove or unwrap elements, rename and replace them, strip styles and scripts, resolve relative URLs.
+    link: /preprocessing
+    linkText: See the pipeline
   - title: Extensible
     details: Plug in custom readers, alias tags, or transform the Markdown DOM directly via Parse/Render.
   - title: Broad framework support
