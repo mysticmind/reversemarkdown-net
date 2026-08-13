@@ -16,10 +16,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>htmltomarkdown;html2markdown;converthtml;htmlconverter;html;converter;markdown</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
+    <!-- Shown as the readme on the nuget.org package page. -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <!-- Pack the project logo as the NuGet package icon. -->
     <None Include="..\..\assets\logo.png" Pack="true" PackagePath="\" Visible="false" />
+    <!-- Pack the repo README as the package readme. Its images use absolute raw.githubusercontent
+         URLs because nuget.org cannot resolve repo-relative paths. -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
   <ItemGroup>
     <!-- v6 uses AngleSharp's HTML5-compliant parser. -->
