@@ -482,23 +482,10 @@ namespace ReverseMarkdown.Test
             "</td></tr></table>";
 
         [Fact]
-        public void Retained_cell_html_is_cleaned_by_default()
+        public void Retained_cell_html_keeps_editor_noise_by_default()
         {
+            // The default copies the source markup verbatim; CleanHtml and InlineText are opt-in.
             var md = Norm(new Converter(new Config()).Convert(CellListHtml));
-
-            Assert.Equal("| Head |\n| --- |\n| <ol><li>Item one</li><li>Item two</li></ol> |", md);
-        }
-
-        [Fact]
-        public void RawHtml_keeps_the_source_markup_verbatim()
-        {
-            // The pre-6.2 behaviour, still available for callers who want an exact copy.
-            var config = new Config
-            {
-                Tables = { CellListHandling = Config.TableCellListHandlingOption.RawHtml },
-            };
-
-            var md = Norm(new Converter(config).Convert(CellListHtml));
 
             Assert.Contains("class=\"customList\"", md);
             Assert.Contains("style=\"font-size:17px\"", md);
@@ -696,10 +683,10 @@ namespace ReverseMarkdown.Test
         }
 
         [Fact]
-        public void CellListHandling_defaults_to_CleanHtml()
+        public void CellListHandling_defaults_to_RawHtml()
         {
             var config = new Config();
-            Assert.Equal(Config.TableCellListHandlingOption.CleanHtml, config.Tables.CellListHandling);
+            Assert.Equal(Config.TableCellListHandlingOption.RawHtml, config.Tables.CellListHandling);
 
             var md = Norm(new Converter(config).Convert(
                 "<table><tr><th>H</th></tr><tr><td><ol><li>first</li></ol></td></tr></table>"));

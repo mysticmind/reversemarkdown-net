@@ -127,10 +127,10 @@ namespace ReverseMarkdown.Test
                 Norm(Configuration.CellListsAsText()));
 
         [Fact]
-        public void CellListRawHtml_sample() =>
+        public void CellListCleanHtml_sample() =>
             Assert.Equal(
-                "| Steps |\n| --- |\n| <ol class=\"customList\"><li>Submit the request</li></ol> |",
-                Norm(Configuration.CellListsAsRawHtml()));
+                "| Steps |\n| --- |\n| <ol><li>Submit the request</li></ol> |",
+                Norm(Configuration.CellListsAsCleanHtml()));
 
         // ---- Coverage guards ----
 
