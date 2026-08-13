@@ -1,8 +1,6 @@
 # Meet ReverseMarkdown
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mysticmind/reversemarkdown-net/master/assets/logo.png" alt="ReverseMarkdown logo" width="160" />
-</p>
+![ReverseMarkdown logo](https://raw.githubusercontent.com/mysticmind/reversemarkdown-net/master/assets/logo.png)
 
 [![Build status](https://github.com/mysticmind/reversemarkdown-net/actions/workflows/ci.yaml/badge.svg)](https://github.com/mysticmind/reversemarkdown-net/actions/workflows/ci.yaml) [![NuGet Version](https://badgen.net/nuget/v/reversemarkdown)](https://www.nuget.org/packages/ReverseMarkdown/) [![Docs](https://img.shields.io/badge/docs-vitepress-brightgreen)](https://mysticmind.github.io/reversemarkdown-net/)
 
@@ -12,8 +10,9 @@ ReverseMarkdown is a HTML to Markdown converter library in C#. v6 uses AngleShar
 
 > **Using v5.x?** See the [v5.x documentation](https://github.com/mysticmind/reversemarkdown-net/blob/5.x/README.md).
 
-If you have used and benefitted from this library. Please feel free to sponsor me!<br>
-<a href="https://github.com/sponsors/mysticmind" target="_blank"><img height="30" style="border:0px;height:36px;" src="https://img.shields.io/static/v1?label=GitHub Sponsor&message=%E2%9D%A4&logo=GitHub" border="0" alt="GitHub Sponsor" /></a>
+If you have used and benefitted from this library, please feel free to sponsor me!
+
+[![GitHub Sponsor](https://img.shields.io/static/v1?label=GitHub%20Sponsor&message=%E2%9D%A4&logo=GitHub)](https://github.com/sponsors/mysticmind)
 
 ## Install
 
@@ -76,9 +75,7 @@ v6 replaces the v5 HtmlAgilityPack engine with an AngleSharp HTML5 parser feedin
 and per-flavor writers. It is roughly **2–2.6× faster** than v5 and allocates about **2.7× less
 memory**.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mysticmind/reversemarkdown-net/master/benchmark-v5-v6.png" alt="ReverseMarkdown v5 vs v6 performance" width="720" />
-</p>
+![ReverseMarkdown v5 vs v6 performance](https://raw.githubusercontent.com/mysticmind/reversemarkdown-net/master/benchmark-v5-v6.png)
 
 Measured with BenchmarkDotNet on .NET 9.0 (Apple M1), comparing published `ReverseMarkdown` 5.5.0
 vs 6.0.0 on the same inputs (lower is better):
