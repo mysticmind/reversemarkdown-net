@@ -381,17 +381,13 @@ namespace ReverseMarkdown.Writers
         // MultiMarkdown supports native definition lists ("Term\n:   Definition").
         public override void Visit(MdDefinitionList node) => WriteColonDefinitionList(node);
 
-        public override string Write(MarkdownDocument document)
+        // MMD abbreviation definitions are appended at the document end.
+        protected override void WritePostamble(MarkdownDocument document)
         {
-            base.Write(document); // leaves the rendered document in Buffer
-
-            // MMD abbreviation definitions are appended at the document end.
             foreach (var abbreviation in document.Meta.Abbreviations)
             {
                 Buffer.Append("\n\n*[").Append(abbreviation.Key).Append("]: ").Append(abbreviation.Value);
             }
-
-            return Buffer.ToString();
         }
 
         public override void Visit(MdSubscript node) => Wrap("~", node.Children);

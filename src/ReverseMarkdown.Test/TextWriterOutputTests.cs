@@ -102,6 +102,26 @@ namespace ReverseMarkdown.Test
             Assert.Equal(converter.Render(document, Config.MarkdownFlavor.Pandoc), writer.ToString());
         }
 
+        // Trailing content a flavor appends after the body must reach the streamed output too. A
+        // MultiMarkdown converter keeps <abbr> as raw HTML, so the definitions only appear when the
+        // document was parsed under another flavor - which is why the every-flavor test missed it.
+        [Fact]
+        public void Streamed_MultiMarkdown_render_keeps_abbreviation_definitions()
+        {
+            var converter = new Converter(new Config());
+            var document = converter.Parse(
+                "<p>The <abbr title=\"HyperText Markup Language\">HTML</abbr> spec.</p>" +
+                "<p>Uses <abbr title=\"Cascading Style Sheets\">CSS</abbr> too.</p>");
+
+            using var writer = new StringWriter();
+            converter.Render(document, Config.MarkdownFlavor.MultiMarkdown, writer);
+
+            var expected = converter.Render(document, Config.MarkdownFlavor.MultiMarkdown);
+            Assert.Equal(expected, writer.ToString());
+            Assert.Contains("*[HTML]: HyperText Markup Language", writer.ToString());
+            Assert.Contains("*[CSS]: Cascading Style Sheets", writer.ToString());
+        }
+
         [Fact]
         public void Preprocessing_applies_on_the_streamed_path()
         {
