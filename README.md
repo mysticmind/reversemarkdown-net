@@ -44,6 +44,14 @@ var config = new ReverseMarkdown.Config
 var converter = new ReverseMarkdown.Converter(config);
 ```
 
+To write the Markdown to a file, a response stream or any other `TextWriter` without building it
+as a string first, pass the writer:
+
+```cs
+using var file = new StreamWriter("page.md");
+converter.Convert(html, file);
+```
+
 Real-world HTML often needs cleaning up first. `Config.Preprocess` is a chainable pipeline applied
 to the source markup before it converts:
 
