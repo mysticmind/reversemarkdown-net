@@ -1,3 +1,4 @@
+using System.IO;
 using ReverseMarkdown;
 using MarkdownFlavor = ReverseMarkdown.Config.MarkdownFlavor;
 
@@ -36,6 +37,27 @@ public static class Basics
         };
 
         var converter = new Converter(config);
+        #endregion
+    }
+
+    public static void StreamToWriter(string html)
+    {
+        #region sample_stream_to_writer
+        var converter = new Converter();
+
+        // Renders straight into the writer: the Markdown is never held as one string.
+        using var file = new StreamWriter("page.md");
+        converter.Convert(html, file);
+        #endregion
+    }
+
+    public static void RenderToWriter(string html, TextWriter output)
+    {
+        #region sample_render_to_writer
+        var converter = new Converter();
+
+        var document = converter.Parse(html);
+        converter.Render(document, output);
         #endregion
     }
 }
