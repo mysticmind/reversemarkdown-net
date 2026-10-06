@@ -25,6 +25,14 @@
     <RMVersion Condition="'$(RMVersion)' == ''">6.0.0</RMVersion>
   </PropertyGroup>
 
+  <!-- BenchmarkDotNet rebuilds this project in a child process that does not inherit -p: switches,
+       so without this the benchmarks would silently measure the default package. Program.cs reads
+       these back and forwards them to that build. -->
+  <ItemGroup>
+    <AssemblyMetadata Include="RMVersion" Value="$(RMVersion)" />
+    <AssemblyMetadata Include="UseLocalReverseMarkdown" Value="$(UseLocalReverseMarkdown)" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="Files\1000-paragraphs.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

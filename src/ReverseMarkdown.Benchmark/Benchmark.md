@@ -30,6 +30,36 @@ regression can be attributed to a size class instead of being averaged away.
 
 The corpus is third-party content and is not committed; the directory is gitignored.
 
+## Real-world corpus: 6.2.1 vs 6.3.0
+
+The published 6.2.1 package against the 6.3.0 working tree (`-p:RMVersion=6.2.1` and
+`-p:UseLocalReverseMarkdown=true`), default flavor, `--filter '*Corpus*'`. Lower is better.
+
+```
+BenchmarkDotNet v0.15.8, macOS Tahoe 26.6.2 (25G83) [Darwin 25.6.0]
+Apple M1, 1 CPU, 8 logical and 8 physical cores
+.NET SDK 10.0.101
+  [Host]           : .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+  LibraryUnderTest : .NET 9.0.0 (9.0.0, 9.0.24.52809), Arm64 RyuJIT armv8.0-a
+```
+
+| Fixture                       | Group        | Size    | Mean 6.2.1 | Mean 6.3.0 | Change | Allocated 6.2.1 | Allocated 6.3.0 | Change |
+|------------------------------ |------------- |--------:|-----------:|-----------:|-------:|----------------:|----------------:|-------:|
+| nuxt-example.html             | clean_small  |  3.5 KB |   80.81 μs |   68.18 μs |   -16% |        133.9 KB |        105.6 KB |   -21% |
+| vuejs-docs.html               | clean_medium |  110 KB |   4.915 ms |   4.785 ms |    -3% |         4.82 MB |         3.30 MB |   -32% |
+| wikipedia-small.html          | clean_medium |  162 KB |   7.936 ms |   8.082 ms |    +2% |         7.70 MB |         6.19 MB |   -20% |
+| mdn-array.html                | clean_medium |  230 KB |  12.608 ms |  10.370 ms |   -18% |        17.68 MB |         8.01 MB |   -55% |
+| react-learn.html              | clean_medium |  259 KB |  11.399 ms |  10.818 ms |    -5% |        13.99 MB |         6.97 MB |   -50% |
+| github-markdown-complete.html | clean_medium |  420 KB |  13.304 ms |  10.555 ms |   -21% |        24.68 MB |        10.48 MB |   -58% |
+| wikipedia-largest.html        | clean_large  | 1.77 MB | 198.341 ms | 189.931 ms |    -4% |       222.51 MB |       198.64 MB |   -11% |
+
+The whole difference is the script/style cleanup pass, which used to copy the rest of the document
+once per `<script>` or `<style>` open tag. Pages with many of those tags gain the most: allocations
+roughly halve on `mdn-array`, `react-learn` and `github-markdown-complete`. Time changes under about
+5% are within run-to-run noise on this machine (the 99.9% confidence interval is around 2% of the
+mean), so `vuejs-docs`, `wikipedia-small`, `react-learn` and `wikipedia-largest` should be read as
+unchanged in speed; the allocation figures are deterministic.
+
 ---
 
 **Legends**
