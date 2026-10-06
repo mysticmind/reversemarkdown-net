@@ -19,7 +19,7 @@ namespace ReverseMarkdown.Writers
         /// </summary>
         /// <remarks>
         /// The recognized separators match <c>string.ReplaceLineEndings</c>: CRLF, CR, LF, FF, NEL
-        /// (U+0085), LS (U+2028) and PS (U+2029). <c>MarkdownOutputTests</c> asserts this produces
+        /// (U+0085), LS (U+2028) and PS (U+2029). <c>TextWriterOutputTests</c> asserts this produces
         /// byte-identical output to the string path.
         /// </remarks>
         public static void WriteTo(StringBuilder buffer, TextWriter output, string lineEnding)

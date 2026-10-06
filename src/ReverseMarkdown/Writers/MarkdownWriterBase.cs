@@ -49,6 +49,7 @@ namespace ReverseMarkdown.Writers
                 footnote.Accept(this);
             }
 
+            WritePostamble(document);
             return Buffer;
         }
 
@@ -805,6 +806,16 @@ namespace ReverseMarkdown.Writers
 
         /// <summary>Emit document-level preamble (e.g. metadata / YAML frontmatter). Default: none.</summary>
         protected virtual void WritePreamble(MarkdownDocument document)
+        {
+        }
+
+        /// <summary>
+        /// Emit document-level trailing content, after the body and footnote definitions (e.g. MMD
+        /// abbreviation definitions). Default: none. Override this rather than <see cref="Write"/>:
+        /// the <see cref="System.IO.TextWriter"/> path renders through the buffer and never calls
+        /// <see cref="Write"/>, so anything appended there would be missing from streamed output.
+        /// </summary>
+        protected virtual void WritePostamble(MarkdownDocument document)
         {
         }
 
