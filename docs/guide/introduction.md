@@ -18,6 +18,9 @@ MultiMarkdown and Pandoc output flavors.
   and transform before `Render()`, plus HTML pre-filtering via CSS selectors and predicates.
 - **Extensible** - plug in [custom readers](/extending#custom-readers), alias tags, or transform
   the DOM directly.
+- **Write to a `TextWriter`** - `Convert` and `Render` can write straight to a file or any other
+  `TextWriter`, skipping the full-size output string; see
+  [Writing to a TextWriter](/guide/getting-started#writing-to-a-textwriter).
 - **Fast and lean** - roughly 2–2.6× faster than v5 with ~2.7× less allocation; see
   [Performance](/guide/performance).
 - **Trimming and Native AOT ready** - the default path uses no reflection; see
