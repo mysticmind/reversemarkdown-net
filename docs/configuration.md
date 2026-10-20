@@ -27,7 +27,8 @@ Output formatting.
   a code block. Default `false`.
 - **`Formatting.EscapeLineStarts`** - escape markdown line starts (headings, lists, block markers)
   in plain-text output. Default `false`.
-- **`Formatting.OutputLineEnding`** - output line endings. Default `Environment.NewLine`.
+- **`Formatting.OutputLineEnding`** - output line endings, applied to both the string and the
+  [`TextWriter`](/guide/getting-started#writing-to-a-textwriter) output. Default `Environment.NewLine`.
 - **`Formatting.ListBulletChar`** - the unordered-list bullet character. Default `-` (some systems
   expect `*`). Ignored for the Slack flavor, which always uses `•`.
 - **`Formatting.DefaultCodeBlockLanguage`** - default GFM code block language when class-based

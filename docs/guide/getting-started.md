@@ -35,14 +35,25 @@ snippet: sample_with_config
 
 ## Writing to a TextWriter
 
-`Convert` returns the Markdown as a string. When the output is headed for a file, an HTTP response
-or any other `TextWriter`, pass the writer instead and the Markdown is written to it directly:
+`Convert` returns the Markdown as a string. When the output is headed for a file or any other
+`TextWriter`, pass the writer instead and the Markdown is written to it directly:
 
 snippet: sample_stream_to_writer
 
 The output is identical to the string overload, including trimming and the configured
-`Formatting.OutputLineEnding`. The gain is peak memory, not speed: the full Markdown string is never
-allocated, which matters on large documents.
+`Formatting.OutputLineEnding`. The gain is peak memory, not speed: the converter still renders into
+an internal buffer, but it skips the full-size copies the string overload makes to produce the final
+string, which matters on large documents.
+
+Only the output side streams. The HTML input is still a string, and it is parsed into an in-memory
+document before anything is written.
+
+The converter writes to the writer but does not flush, close or dispose it; that stays with the
+caller (the `using` above does it for a file).
+
+There is no async overload, so the writes are synchronous. ASP.NET Core disallows synchronous writes
+to the response body by default, so passing a writer over `Response.Body` throws an
+`InvalidOperationException` once its buffer fills. Convert to a string or a file there instead.
 
 `Render` has the same overload for a document you have already parsed (see
 [Extending](/extending)):

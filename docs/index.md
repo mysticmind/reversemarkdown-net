@@ -30,6 +30,10 @@ features:
     linkText: See the pipeline
   - title: Extensible
     details: Plug in custom readers, alias tags, or transform the Markdown DOM directly via Parse/Render.
+  - title: Write to a TextWriter
+    details: Convert and Render can write straight to a file or any other TextWriter, skipping the full-size output string on large documents.
+    link: /guide/getting-started#writing-to-a-textwriter
+    linkText: How to use it
   - title: Broad framework support
     details: Targets netstandard2.0, net8.0, net9.0, and net10.0 - runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity.
   - title: Trimming & Native AOT ready
