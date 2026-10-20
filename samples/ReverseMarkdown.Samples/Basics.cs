@@ -1,4 +1,6 @@
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using ReverseMarkdown;
 using MarkdownFlavor = ReverseMarkdown.Config.MarkdownFlavor;
 
@@ -58,6 +60,18 @@ public static class Basics
 
         var document = converter.Parse(html);
         converter.Render(document, output);
+        #endregion
+    }
+
+    public static async Task ConvertAsync(string html, Stream responseBody, CancellationToken cancellationToken)
+    {
+        #region sample_convert_async
+        var converter = new Converter();
+
+        // For a stream that disallows synchronous writes, such as an ASP.NET Core response body.
+        // leaveOpen: the stream belongs to the caller; disposing the writer flushes it asynchronously.
+        await using var writer = new StreamWriter(responseBody, leaveOpen: true);
+        await converter.ConvertAsync(html, writer, cancellationToken);
         #endregion
     }
 }

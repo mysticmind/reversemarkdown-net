@@ -51,17 +51,26 @@ document before anything is written.
 The converter writes to the writer but does not flush, close or dispose it; that stays with the
 caller (the `using` above does it for a file).
 
-There is no async overload, so the writes are synchronous. ASP.NET Core disallows synchronous writes
-to the response body by default, so passing a writer over `Response.Body` throws an
-`InvalidOperationException` once its buffer fills. Convert to a string or a file there instead.
-
 `Render` has the same overload for a document you have already parsed (see
 [Extending](/extending)):
 
 snippet: sample_render_to_writer
 
-One exception: with the Slack, CommonMark and GitHub flavors, `Convert(html, writer)` still builds
-the string internally before writing it out. The output is correct, but there is no memory saving.
+One exception: with the Slack, CommonMark and GitHub flavors, `Convert(html, writer)` and
+`ConvertAsync` still build the string internally before writing it out. The output is correct, but
+there is no memory saving.
+
+### Writing asynchronously
+
+The overloads above write synchronously. ASP.NET Core disallows synchronous writes to the response
+body by default, so a writer over `Response.Body` throws an `InvalidOperationException` once its
+buffer fills. Use `ConvertAsync` there, which awaits every write and takes a `CancellationToken`:
+
+snippet: sample_convert_async
+
+Parsing and rendering still run synchronously before the first write; only the output is
+asynchronous. The output is identical to the other overloads, and `RenderAsync` covers a document
+you have already parsed.
 
 See [Configuration](/configuration) for the full option reference and [Flavors](/flavors/) for the
 available output flavors.
