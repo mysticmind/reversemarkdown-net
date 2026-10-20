@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace ReverseMarkdown.Test
@@ -13,6 +16,13 @@ namespace ReverseMarkdown.Test
         {
             using var writer = new StringWriter();
             converter.Convert(html, writer);
+            return writer.ToString();
+        }
+
+        private static async Task<string> ViaWriterAsync(Converter converter, string html)
+        {
+            await using var writer = new StringWriter();
+            await converter.ConvertAsync(html, writer);
             return writer.ToString();
         }
 
@@ -153,6 +163,159 @@ namespace ReverseMarkdown.Test
             var converter = new Converter(new Config());
 
             Assert.Equal(converter.Convert(html), ViaWriter(converter, html));
+        }
+
+        [Fact]
+        public void A_line_ending_split_across_output_blocks_comes_out_whole()
+        {
+            // 8191 characters fill the 8 KB output block to one short of full, so the two-character
+            // line ending after them has to be split across two blocks.
+            var html = $"<p>{new string('a', 8191)}</p><p>b</p>";
+            var converter = new Converter(new Config { Formatting = { OutputLineEnding = "\r\n" } });
+
+            Assert.Equal(converter.Convert(html), ViaWriter(converter, html));
+        }
+
+        [Theory]
+        [MemberData(nameof(Documents))]
+        public async Task Async_output_matches_the_string_output(string html)
+        {
+            var converter = new Converter(new Config());
+
+            Assert.Equal(converter.Convert(html), await ViaWriterAsync(converter, html));
+        }
+
+        [Theory]
+        [InlineData(Config.MarkdownFlavor.Default)]
+        [InlineData(Config.MarkdownFlavor.GitHub)]
+        [InlineData(Config.MarkdownFlavor.CommonMark)]
+        [InlineData(Config.MarkdownFlavor.Slack)]
+        [InlineData(Config.MarkdownFlavor.Telegram)]
+        [InlineData(Config.MarkdownFlavor.MultiMarkdown)]
+        [InlineData(Config.MarkdownFlavor.Pandoc)]
+        public async Task Async_output_matches_for_every_flavor(Config.MarkdownFlavor flavor)
+        {
+            const string html =
+                "<h1>Title</h1><p>Body <strong>bold</strong> <em>italic</em> " +
+                "<a href=\"http://x.com\">link</a></p><ul><li>one</li><li>two</li></ul>";
+            var converter = new Converter(new Config { Flavor = flavor });
+
+            Assert.Equal(converter.Convert(html), await ViaWriterAsync(converter, html));
+        }
+
+        [Theory]
+        [InlineData("\n")]
+        [InlineData("\r\n")]
+        public async Task Async_output_matches_across_blocks_for_each_line_ending(string lineEnding)
+        {
+            var html = string.Concat(Enumerable.Range(0, 2000)
+                .Select(i => $"<p>Paragraph {i} with enough text to push past the block size.</p>"));
+            var converter = new Converter(new Config { Formatting = { OutputLineEnding = lineEnding } });
+
+            Assert.Equal(converter.Convert(html), await ViaWriterAsync(converter, html));
+        }
+
+        [Fact]
+        public async Task RenderAsync_overloads_match_the_string_render()
+        {
+            var converter = new Converter(new Config());
+            var document = converter.Parse(
+                "<h1>T</h1><p>The <abbr title=\"HyperText Markup Language\">HTML</abbr> spec.</p>");
+
+            await using var implicitFlavor = new StringWriter();
+            await converter.RenderAsync(document, implicitFlavor);
+            Assert.Equal(converter.Render(document), implicitFlavor.ToString());
+
+            await using var explicitFlavor = new StringWriter();
+            await converter.RenderAsync(document, Config.MarkdownFlavor.MultiMarkdown, explicitFlavor);
+            Assert.Equal(converter.Render(document, Config.MarkdownFlavor.MultiMarkdown), explicitFlavor.ToString());
+            Assert.Contains("*[HTML]: HyperText Markup Language", explicitFlavor.ToString());
+        }
+
+        // The point of the async overloads: a writer that rejects synchronous I/O, like an ASP.NET
+        // Core response body, must only ever see async writes.
+        [Theory]
+        [InlineData(Config.MarkdownFlavor.Default)]
+        [InlineData(Config.MarkdownFlavor.GitHub)]
+        [InlineData(Config.MarkdownFlavor.Slack)]
+        [InlineData(Config.MarkdownFlavor.MultiMarkdown)]
+        public async Task Async_output_makes_no_synchronous_writes(Config.MarkdownFlavor flavor)
+        {
+            var html = string.Concat(Enumerable.Range(0, 2000).Select(i => $"<p>Paragraph {i}.</p>"));
+            var converter = new Converter(new Config { Flavor = flavor });
+            var writer = new AsyncOnlyWriter();
+
+            await converter.ConvertAsync(html, writer);
+
+            Assert.Equal(converter.Convert(html), writer.ToString());
+        }
+
+        [Fact]
+        public async Task Async_output_honours_a_cancelled_token()
+        {
+            var converter = new Converter(new Config());
+            using var cancelled = new CancellationTokenSource();
+            cancelled.Cancel();
+            await using var writer = new StringWriter();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => converter.ConvertAsync("<p>x</p>", writer, cancelled.Token));
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => converter.RenderAsync(converter.Parse("<p>x</p>"), writer, cancelled.Token));
+            Assert.Equal("", writer.ToString());
+        }
+
+        [Fact]
+        public void A_null_writer_is_rejected_by_the_async_overloads_before_any_work()
+        {
+            var converter = new Converter(new Config());
+
+            // Thrown by the call itself rather than stored in the returned task, so the task is
+            // discarded on purpose.
+            Assert.IsType<ArgumentNullException>(Record.Exception(() => { _ = converter.ConvertAsync("<p>x</p>", null!); }));
+            Assert.IsType<ArgumentNullException>(
+                Record.Exception(() => { _ = converter.RenderAsync(converter.Parse("<p>x</p>"), null!); }));
+        }
+
+        // Throws on every synchronous write, the way an ASP.NET Core response body does by default.
+        private sealed class AsyncOnlyWriter : TextWriter
+        {
+            private readonly StringBuilder _written = new();
+
+            public override Encoding Encoding => Encoding.UTF8;
+
+            public override void Write(char value) => throw SyncWrite();
+            public override void Write(char[] buffer, int index, int count) => throw SyncWrite();
+            public override void Write(string? value) => throw SyncWrite();
+
+            public override Task WriteAsync(char value)
+            {
+                _written.Append(value);
+                return Task.CompletedTask;
+            }
+
+            public override Task WriteAsync(string? value)
+            {
+                _written.Append(value);
+                return Task.CompletedTask;
+            }
+
+            public override Task WriteAsync(char[] buffer, int index, int count)
+            {
+                _written.Append(buffer, index, count);
+                return Task.CompletedTask;
+            }
+
+            public override Task WriteAsync(ReadOnlyMemory<char> buffer, CancellationToken cancellationToken = default)
+            {
+                _written.Append(buffer.Span);
+                return Task.CompletedTask;
+            }
+
+            public override string ToString() => _written.ToString();
+
+            private static InvalidOperationException SyncWrite() =>
+                new("Synchronous writes are disallowed.");
         }
     }
 }

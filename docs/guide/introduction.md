@@ -19,7 +19,8 @@ MultiMarkdown and Pandoc output flavors.
 - **Extensible** - plug in [custom readers](/extending#custom-readers), alias tags, or transform
   the DOM directly.
 - **Write to a `TextWriter`** - `Convert` and `Render` can write straight to a file or any other
-  `TextWriter`, skipping the full-size output string; see
+  `TextWriter`, skipping the full-size output string, with async overloads for an ASP.NET Core
+  response; see
   [Writing to a TextWriter](/guide/getting-started#writing-to-a-textwriter).
 - **Fast and lean** - roughly 2–2.6× faster than v5 with ~2.7× less allocation; see
   [Performance](/guide/performance).

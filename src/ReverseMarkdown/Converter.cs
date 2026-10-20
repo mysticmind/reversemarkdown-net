@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Html.Parser;
 using ReverseMarkdown.Dom;
@@ -351,6 +353,79 @@ namespace ReverseMarkdown {
             }
 
             MarkdownOutput.WriteTo(bufferedWriter.WriteToBuffer(document), output, OutputLineEnding);
+        }
+
+        /// <summary>
+        /// Converts HTML and writes the Markdown to <paramref name="output"/> asynchronously, without
+        /// building the result as a string first. Parsing and rendering run synchronously; only the
+        /// writes are awaited, so this suits writers that disallow synchronous I/O, such as an
+        /// ASP.NET Core response body.
+        /// </summary>
+        public virtual Task ConvertAsync(string html, TextWriter output, CancellationToken cancellationToken = default)
+        {
+            if (output is null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            return ConvertCoreAsync(html, output, cancellationToken);
+        }
+
+        private async Task ConvertCoreAsync(string html, TextWriter output, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var flavor = EffectiveFlavor;
+
+            // Same short-circuit as Convert(html, TextWriter): these flavors have no buffer to stream.
+            if (flavor == Config.MarkdownFlavor.Slack || Config.IsCommonMarkBased(flavor))
+            {
+                await MarkdownOutput.WriteAsync(output, Convert(html), cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            var document = Parse(html, collectMetadata: EmitsMetadata(flavor), alreadyPreprocessed: false);
+            await RenderCoreAsync(document, flavor, output, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Renders a <see cref="MarkdownDocument"/> to <paramref name="output"/> asynchronously, using
+        /// the writer selected by <see cref="Config.Flavor"/>.
+        /// </summary>
+        public virtual Task RenderAsync(MarkdownDocument document, TextWriter output, CancellationToken cancellationToken = default) =>
+            RenderAsync(document, EffectiveFlavor, output, cancellationToken);
+
+        /// <summary>
+        /// Renders a <see cref="MarkdownDocument"/> to <paramref name="output"/> asynchronously, in
+        /// the given flavor.
+        /// </summary>
+        public virtual Task RenderAsync(
+            MarkdownDocument document, Config.MarkdownFlavor flavor, TextWriter output, CancellationToken cancellationToken = default)
+        {
+            if (output is null)
+            {
+                throw new ArgumentNullException(nameof(output));
+            }
+
+            return RenderCoreAsync(document, flavor, output, cancellationToken);
+        }
+
+        private async Task RenderCoreAsync(
+            MarkdownDocument document, Config.MarkdownFlavor flavor, TextWriter output, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var writer = WriterFactory.Create(flavor, Config);
+
+            // Every built-in writer derives from MarkdownWriterBase, so this only guards against a
+            // writer without a buffer to stream from; it falls back to the string path.
+            if (writer is not MarkdownWriterBase bufferedWriter)
+            {
+                var markdown = ApplyOutputLineEndings(writer.Write(document).Trim('\n', '\r'));
+                await MarkdownOutput.WriteAsync(output, markdown, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
+            await MarkdownOutput.WriteToAsync(bufferedWriter.WriteToBuffer(document), output, OutputLineEnding, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private string OutputLineEnding =>
