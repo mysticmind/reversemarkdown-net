@@ -342,7 +342,8 @@ namespace ReverseMarkdown {
 
             var writer = WriterFactory.Create(flavor, Config);
 
-            // A custom IMarkdownWriter has no buffer to stream from, so fall back to the string path.
+            // Every built-in writer derives from MarkdownWriterBase, so this only guards against a
+            // writer without a buffer to stream from; it falls back to the string path.
             if (writer is not MarkdownWriterBase bufferedWriter)
             {
                 output.Write(ApplyOutputLineEndings(writer.Write(document).Trim('\n', '\r')));
