@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="850" viewBox="0 0 920 850" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">ReverseMarkdown 6.2.1 vs 6.3.0 on real-world pages</title>
+<desc id="d">Percentage change from 6.2.1 to 6.3.0 per fixture. Allocated memory: nuxt-example -21%, vuejs-docs -32%, wikipedia-small -20%, mdn-array -55%, react-learn -50%, github-markdown-complete -58%, wikipedia-largest -11%. Mean time: nuxt-example -16%, vuejs-docs -3%, wikipedia-small +2%, mdn-array -18%, react-learn -5%, github-markdown-complete -21%, wikipedia-largest -4%.</desc>
+<rect width="920" height="850" fill="#ffffff"/>
+<text x="40" y="52" font-size="24" font-weight="800" fill="#1E293B">ReverseMarkdown 6.2.1 vs 6.3.0 on real-world pages</text>
+<text x="40" y="76" font-size="13" fill="#64748B">BenchmarkDotNet, .NET 9.0, Apple M1, default flavor. Pages from the mdream corpus.</text>
+<text x="40" y="96" font-size="13" fill="#64748B">Allocations are deterministic; timings vary by a few percent between runs.</text>
+<text x="40" y="150" font-size="17" font-weight="700" fill="#1E293B">Allocated memory</text>
+<text x="860" y="150" font-size="12" fill="#64748B" text-anchor="end">change vs 6.2.1, lower is better</text>
+<line x1="387.5" y1="168" x2="387.5" y2="420" stroke="#E2E8F0" stroke-width="1"/>
+<line x1="522.5" y1="168" x2="522.5" y2="420" stroke="#E2E8F0" stroke-width="1"/>
+<line x1="657.5" y1="168" x2="657.5" y2="420" stroke="#E2E8F0" stroke-width="1"/>
+<text x="300" y="190.5" font-size="13" fill="#1E293B" text-anchor="end">nuxt-example <tspan fill="#64748B">3.5 KB</tspan></text>
+<path d="M792.5,176.0 H653.8 Q649.8,176.0 649.8,180.0 V192.0 Q649.8,196.0 653.8,196.0 H792.5 Z" fill="#0D8D85"/>
+<text x="643.8" y="190.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−21%</text>
+<text x="300" y="226.5" font-size="13" fill="#1E293B" text-anchor="end">vuejs-docs <tspan fill="#64748B">110 KB</tspan></text>
+<path d="M792.5,212.0 H583.6 Q579.6,212.0 579.6,216.0 V228.0 Q579.6,232.0 583.6,232.0 H792.5 Z" fill="#0D8D85"/>
+<text x="573.6" y="226.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−32%</text>
+<text x="300" y="262.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-small <tspan fill="#64748B">162 KB</tspan></text>
+<path d="M792.5,248.0 H664.1 Q660.1,248.0 660.1,252.0 V264.0 Q660.1,268.0 664.1,268.0 H792.5 Z" fill="#0D8D85"/>
+<text x="654.1" y="262.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−20%</text>
+<text x="300" y="298.5" font-size="13" fill="#1E293B" text-anchor="end">mdn-array <tspan fill="#64748B">230 KB</tspan></text>
+<path d="M792.5,284.0 H427.3 Q423.3,284.0 423.3,288.0 V300.0 Q423.3,304.0 427.3,304.0 H792.5 Z" fill="#0D8D85"/>
+<text x="417.3" y="298.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−55%</text>
+<text x="300" y="334.5" font-size="13" fill="#1E293B" text-anchor="end">react-learn <tspan fill="#64748B">259 KB</tspan></text>
+<path d="M792.5,320.0 H457.8 Q453.8,320.0 453.8,324.0 V336.0 Q453.8,340.0 457.8,340.0 H792.5 Z" fill="#0D8D85"/>
+<text x="447.8" y="334.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−50%</text>
+<text x="300" y="370.5" font-size="13" fill="#1E293B" text-anchor="end">github-markdown-complete <tspan fill="#64748B">420 KB</tspan></text>
+<path d="M792.5,356.0 H408.1 Q404.1,356.0 404.1,360.0 V372.0 Q404.1,376.0 408.1,376.0 H792.5 Z" fill="#0D8D85"/>
+<text x="398.1" y="370.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−58%</text>
+<text x="300" y="406.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-largest <tspan fill="#64748B">1.77 MB</tspan></text>
+<path d="M792.5,392.0 H724.1 Q720.1,392.0 720.1,396.0 V408.0 Q720.1,412.0 724.1,412.0 H792.5 Z" fill="#0D8D85"/>
+<text x="714.1" y="406.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−11%</text>
+<line x1="792.5" y1="164" x2="792.5" y2="424" stroke="#475569" stroke-width="1.5"/>
+<text x="387.5" y="440" font-size="12" fill="#64748B" text-anchor="middle">−60%</text>
+<text x="522.5" y="440" font-size="12" fill="#64748B" text-anchor="middle">−40%</text>
+<text x="657.5" y="440" font-size="12" fill="#64748B" text-anchor="middle">−20%</text>
+<text x="792.5" y="440" font-size="12" fill="#64748B" text-anchor="middle">0%</text>
+<text x="40" y="496" font-size="17" font-weight="700" fill="#1E293B">Mean execution time</text>
+<text x="860" y="496" font-size="12" fill="#64748B" text-anchor="end">change vs 6.2.1, lower is better</text>
+<rect x="758.8" y="514" width="67.5" height="252" fill="#EEF2F6"/>
+<line x1="387.5" y1="514" x2="387.5" y2="766" stroke="#E2E8F0" stroke-width="1"/>
+<line x1="522.5" y1="514" x2="522.5" y2="766" stroke="#E2E8F0" stroke-width="1"/>
+<line x1="657.5" y1="514" x2="657.5" y2="766" stroke="#E2E8F0" stroke-width="1"/>
+<text x="300" y="536.5" font-size="13" fill="#1E293B" text-anchor="end">nuxt-example <tspan fill="#64748B">3.5 KB</tspan></text>
+<path d="M792.5,522.0 H691.0 Q687.0,522.0 687.0,526.0 V538.0 Q687.0,542.0 691.0,542.0 H792.5 Z" fill="#0D8D85"/>
+<text x="681.0" y="536.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−16%</text>
+<text x="300" y="572.5" font-size="13" fill="#1E293B" text-anchor="end">vuejs-docs <tspan fill="#64748B">110 KB</tspan></text>
+<path d="M792.5,558.0 H778.6 Q774.6,558.0 774.6,562.0 V574.0 Q774.6,578.0 778.6,578.0 H792.5 Z" fill="#0D8D85"/>
+<text x="768.6" y="572.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−3%</text>
+<text x="300" y="608.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-small <tspan fill="#64748B">162 KB</tspan></text>
+<path d="M792.5,594.0 H800.9 Q804.9,594.0 804.9,598.0 V610.0 Q804.9,614.0 800.9,614.0 H792.5 Z" fill="#0D8D85"/>
+<text x="810.9" y="608.5" font-size="12" font-weight="700" fill="#1E293B">+2%</text>
+<text x="300" y="644.5" font-size="13" fill="#1E293B" text-anchor="end">mdn-array <tspan fill="#64748B">230 KB</tspan></text>
+<path d="M792.5,630.0 H676.7 Q672.7,630.0 672.7,634.0 V646.0 Q672.7,650.0 676.7,650.0 H792.5 Z" fill="#0D8D85"/>
+<text x="666.7" y="644.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−18%</text>
+<text x="300" y="680.5" font-size="13" fill="#1E293B" text-anchor="end">react-learn <tspan fill="#64748B">259 KB</tspan></text>
+<path d="M792.5,666.0 H762.1 Q758.1,666.0 758.1,670.0 V682.0 Q758.1,686.0 762.1,686.0 H792.5 Z" fill="#0D8D85"/>
+<text x="752.1" y="680.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−5%</text>
+<text x="300" y="716.5" font-size="13" fill="#1E293B" text-anchor="end">github-markdown-complete <tspan fill="#64748B">420 KB</tspan></text>
+<path d="M792.5,702.0 H657.0 Q653.0,702.0 653.0,706.0 V718.0 Q653.0,722.0 657.0,722.0 H792.5 Z" fill="#0D8D85"/>
+<text x="647.0" y="716.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−21%</text>
+<text x="300" y="752.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-largest <tspan fill="#64748B">1.77 MB</tspan></text>
+<path d="M792.5,738.0 H767.9 Q763.9,738.0 763.9,742.0 V754.0 Q763.9,758.0 767.9,758.0 H792.5 Z" fill="#0D8D85"/>
+<text x="757.9" y="752.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−4%</text>
+<line x1="792.5" y1="510" x2="792.5" y2="770" stroke="#475569" stroke-width="1.5"/>
+<text x="387.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">−60%</text>
+<text x="522.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">−40%</text>
+<text x="657.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">−20%</text>
+<text x="792.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">0%</text>
+<text x="792.5" y="804" font-size="12" fill="#64748B" text-anchor="middle">shaded: ±5%, within run-to-run noise</text>
+</svg>
