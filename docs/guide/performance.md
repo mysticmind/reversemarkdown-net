@@ -30,6 +30,8 @@ corpus of real pages instead (Wikipedia articles, framework documentation and MD
 cleanup pass that handles unclosed `<script>` and `<style>` tags copied the rest of the document once
 per tag, so pages with many of them paid for it on every conversion. That pass is now linear.
 
+![ReverseMarkdown 6.2.1 vs 6.3.0: percentage change per real-world page](/benchmark-6.2.1-6.3.0.svg)
+
 Published 6.2.1 against 6.3.0, default flavor, .NET 9.0 on an Apple M1. Lower is better.
 
 | Fixture                       | Size    | Mean time 6.2.1 → 6.3.0       | Allocated 6.2.1 → 6.3.0         |
