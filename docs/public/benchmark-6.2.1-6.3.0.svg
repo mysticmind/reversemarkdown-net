@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="920" height="850" viewBox="0 0 920 850" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">ReverseMarkdown 6.2.1 vs 6.3.0 on real-world pages</title>
-<desc id="d">Percentage change from 6.2.1 to 6.3.0 per fixture. Allocated memory: nuxt-example -21%, vuejs-docs -32%, wikipedia-small -20%, mdn-array -55%, react-learn -50%, github-markdown-complete -58%, wikipedia-largest -11%. Mean time: nuxt-example -16%, vuejs-docs -3%, wikipedia-small +2%, mdn-array -18%, react-learn -5%, github-markdown-complete -21%, wikipedia-largest -4%.</desc>
+<desc id="d">Percentage change from 6.2.1 to 6.3.0 per fixture. Allocated memory: nuxt-example -21%, vuejs-docs -32%, wikipedia-small -20%, mdn-array -55%, react-learn -50%, github-markdown-complete -58%, wikipedia-largest -11%. Mean time: nuxt-example -13%, vuejs-docs -2%, wikipedia-small -1%, mdn-array -1%, react-learn -3%, github-markdown-complete -15%, wikipedia-largest +1%.</desc>
 <rect width="920" height="850" fill="#ffffff"/>
 <text x="40" y="52" font-size="24" font-weight="800" fill="#1E293B">ReverseMarkdown 6.2.1 vs 6.3.0 on real-world pages</text>
-<text x="40" y="76" font-size="13" fill="#64748B">BenchmarkDotNet, .NET 9.0, Apple M1, default flavor. Pages from the mdream corpus.</text>
+<text x="40" y="76" font-size="13" fill="#64748B">BenchmarkDotNet, .NET 9.0, Apple M1, default flavor, three launches each. Pages from the mdream corpus.</text>
 <text x="40" y="96" font-size="13" fill="#64748B">Allocations are deterministic; timings vary by a few percent between runs.</text>
 <text x="40" y="150" font-size="17" font-weight="700" fill="#1E293B">Allocated memory</text>
 <text x="860" y="150" font-size="12" fill="#64748B" text-anchor="end">change vs 6.2.1, lower is better</text>
@@ -11,23 +11,23 @@
 <line x1="522.5" y1="168" x2="522.5" y2="420" stroke="#E2E8F0" stroke-width="1"/>
 <line x1="657.5" y1="168" x2="657.5" y2="420" stroke="#E2E8F0" stroke-width="1"/>
 <text x="300" y="190.5" font-size="13" fill="#1E293B" text-anchor="end">nuxt-example <tspan fill="#64748B">3.5 KB</tspan></text>
-<path d="M792.5,176.0 H653.8 Q649.8,176.0 649.8,180.0 V192.0 Q649.8,196.0 653.8,196.0 H792.5 Z" fill="#0D8D85"/>
-<text x="643.8" y="190.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−21%</text>
+<path d="M792.5,176.0 H653.9 Q649.9,176.0 649.9,180.0 V192.0 Q649.9,196.0 653.9,196.0 H792.5 Z" fill="#0D8D85"/>
+<text x="643.9" y="190.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−21%</text>
 <text x="300" y="226.5" font-size="13" fill="#1E293B" text-anchor="end">vuejs-docs <tspan fill="#64748B">110 KB</tspan></text>
-<path d="M792.5,212.0 H583.6 Q579.6,212.0 579.6,216.0 V228.0 Q579.6,232.0 583.6,232.0 H792.5 Z" fill="#0D8D85"/>
-<text x="573.6" y="226.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−32%</text>
+<path d="M792.5,212.0 H582.9 Q578.9,212.0 578.9,216.0 V228.0 Q578.9,232.0 582.9,232.0 H792.5 Z" fill="#0D8D85"/>
+<text x="572.9" y="226.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−32%</text>
 <text x="300" y="262.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-small <tspan fill="#64748B">162 KB</tspan></text>
-<path d="M792.5,248.0 H664.1 Q660.1,248.0 660.1,252.0 V264.0 Q660.1,268.0 664.1,268.0 H792.5 Z" fill="#0D8D85"/>
-<text x="654.1" y="262.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−20%</text>
+<path d="M792.5,248.0 H664.2 Q660.2,248.0 660.2,252.0 V264.0 Q660.2,268.0 664.2,268.0 H792.5 Z" fill="#0D8D85"/>
+<text x="654.2" y="262.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−20%</text>
 <text x="300" y="298.5" font-size="13" fill="#1E293B" text-anchor="end">mdn-array <tspan fill="#64748B">230 KB</tspan></text>
-<path d="M792.5,284.0 H427.3 Q423.3,284.0 423.3,288.0 V300.0 Q423.3,304.0 427.3,304.0 H792.5 Z" fill="#0D8D85"/>
-<text x="417.3" y="298.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−55%</text>
+<path d="M792.5,284.0 H427.1 Q423.1,284.0 423.1,288.0 V300.0 Q423.1,304.0 427.1,304.0 H792.5 Z" fill="#0D8D85"/>
+<text x="417.1" y="298.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−55%</text>
 <text x="300" y="334.5" font-size="13" fill="#1E293B" text-anchor="end">react-learn <tspan fill="#64748B">259 KB</tspan></text>
-<path d="M792.5,320.0 H457.8 Q453.8,320.0 453.8,324.0 V336.0 Q453.8,340.0 457.8,340.0 H792.5 Z" fill="#0D8D85"/>
-<text x="447.8" y="334.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−50%</text>
+<path d="M792.5,320.0 H457.6 Q453.6,320.0 453.6,324.0 V336.0 Q453.6,340.0 457.6,340.0 H792.5 Z" fill="#0D8D85"/>
+<text x="447.6" y="334.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−50%</text>
 <text x="300" y="370.5" font-size="13" fill="#1E293B" text-anchor="end">github-markdown-complete <tspan fill="#64748B">420 KB</tspan></text>
-<path d="M792.5,356.0 H408.1 Q404.1,356.0 404.1,360.0 V372.0 Q404.1,376.0 408.1,376.0 H792.5 Z" fill="#0D8D85"/>
-<text x="398.1" y="370.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−58%</text>
+<path d="M792.5,356.0 H408.2 Q404.2,356.0 404.2,360.0 V372.0 Q404.2,376.0 408.2,376.0 H792.5 Z" fill="#0D8D85"/>
+<text x="398.2" y="370.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−58%</text>
 <text x="300" y="406.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-largest <tspan fill="#64748B">1.77 MB</tspan></text>
 <path d="M792.5,392.0 H724.1 Q720.1,392.0 720.1,396.0 V408.0 Q720.1,412.0 724.1,412.0 H792.5 Z" fill="#0D8D85"/>
 <text x="714.1" y="406.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−11%</text>
@@ -43,30 +43,30 @@
 <line x1="522.5" y1="514" x2="522.5" y2="766" stroke="#E2E8F0" stroke-width="1"/>
 <line x1="657.5" y1="514" x2="657.5" y2="766" stroke="#E2E8F0" stroke-width="1"/>
 <text x="300" y="536.5" font-size="13" fill="#1E293B" text-anchor="end">nuxt-example <tspan fill="#64748B">3.5 KB</tspan></text>
-<path d="M792.5,522.0 H691.0 Q687.0,522.0 687.0,526.0 V538.0 Q687.0,542.0 691.0,542.0 H792.5 Z" fill="#0D8D85"/>
-<text x="681.0" y="536.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−16%</text>
+<path d="M792.5,522.0 H705.6 Q701.6,522.0 701.6,526.0 V538.0 Q701.6,542.0 705.6,542.0 H792.5 Z" fill="#0D8D85"/>
+<text x="695.6" y="536.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−13%</text>
 <text x="300" y="572.5" font-size="13" fill="#1E293B" text-anchor="end">vuejs-docs <tspan fill="#64748B">110 KB</tspan></text>
-<path d="M792.5,558.0 H778.6 Q774.6,558.0 774.6,562.0 V574.0 Q774.6,578.0 778.6,578.0 H792.5 Z" fill="#0D8D85"/>
-<text x="768.6" y="572.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−3%</text>
+<path d="M792.5,558.0 H785.3 Q781.3,558.0 781.3,562.0 V574.0 Q781.3,578.0 785.3,578.0 H792.5 Z" fill="#0D8D85"/>
+<text x="775.3" y="572.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−2%</text>
 <text x="300" y="608.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-small <tspan fill="#64748B">162 KB</tspan></text>
-<path d="M792.5,594.0 H800.9 Q804.9,594.0 804.9,598.0 V610.0 Q804.9,614.0 800.9,614.0 H792.5 Z" fill="#0D8D85"/>
-<text x="810.9" y="608.5" font-size="12" font-weight="700" fill="#1E293B">+2%</text>
+<path d="M792.5,594.0 H789.2 Q785.9,594.0 785.9,597.3 V610.7 Q785.9,614.0 789.2,614.0 H792.5 Z" fill="#0D8D85"/>
+<text x="779.9" y="608.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−1%</text>
 <text x="300" y="644.5" font-size="13" fill="#1E293B" text-anchor="end">mdn-array <tspan fill="#64748B">230 KB</tspan></text>
-<path d="M792.5,630.0 H676.7 Q672.7,630.0 672.7,634.0 V646.0 Q672.7,650.0 676.7,650.0 H792.5 Z" fill="#0D8D85"/>
-<text x="666.7" y="644.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−18%</text>
+<path d="M792.5,630.0 H789.8 Q787.1,630.0 787.1,632.7 V647.3 Q787.1,650.0 789.8,650.0 H792.5 Z" fill="#0D8D85"/>
+<text x="781.1" y="644.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−1%</text>
 <text x="300" y="680.5" font-size="13" fill="#1E293B" text-anchor="end">react-learn <tspan fill="#64748B">259 KB</tspan></text>
-<path d="M792.5,666.0 H762.1 Q758.1,666.0 758.1,670.0 V682.0 Q758.1,686.0 762.1,686.0 H792.5 Z" fill="#0D8D85"/>
-<text x="752.1" y="680.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−5%</text>
+<path d="M792.5,666.0 H776.4 Q772.4,666.0 772.4,670.0 V682.0 Q772.4,686.0 776.4,686.0 H792.5 Z" fill="#0D8D85"/>
+<text x="766.4" y="680.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−3%</text>
 <text x="300" y="716.5" font-size="13" fill="#1E293B" text-anchor="end">github-markdown-complete <tspan fill="#64748B">420 KB</tspan></text>
-<path d="M792.5,702.0 H657.0 Q653.0,702.0 653.0,706.0 V718.0 Q653.0,722.0 657.0,722.0 H792.5 Z" fill="#0D8D85"/>
-<text x="647.0" y="716.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−21%</text>
+<path d="M792.5,702.0 H692.4 Q688.4,702.0 688.4,706.0 V718.0 Q688.4,722.0 692.4,722.0 H792.5 Z" fill="#0D8D85"/>
+<text x="682.4" y="716.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−15%</text>
 <text x="300" y="752.5" font-size="13" fill="#1E293B" text-anchor="end">wikipedia-largest <tspan fill="#64748B">1.77 MB</tspan></text>
-<path d="M792.5,738.0 H767.9 Q763.9,738.0 763.9,742.0 V754.0 Q763.9,758.0 767.9,758.0 H792.5 Z" fill="#0D8D85"/>
-<text x="757.9" y="752.5" font-size="12" font-weight="700" fill="#1E293B" text-anchor="end">−4%</text>
+<path d="M792.5,738.0 H795.1 Q797.7,738.0 797.7,740.6 V755.4 Q797.7,758.0 795.1,758.0 H792.5 Z" fill="#0D8D85"/>
+<text x="803.7" y="752.5" font-size="12" font-weight="700" fill="#1E293B">+1%</text>
 <line x1="792.5" y1="510" x2="792.5" y2="770" stroke="#475569" stroke-width="1.5"/>
 <text x="387.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">−60%</text>
 <text x="522.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">−40%</text>
 <text x="657.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">−20%</text>
 <text x="792.5" y="786" font-size="12" fill="#64748B" text-anchor="middle">0%</text>
-<text x="792.5" y="804" font-size="12" fill="#64748B" text-anchor="middle">shaded: ±5%, within run-to-run noise</text>
+<text x="792.5" y="804" font-size="12" fill="#64748B" text-anchor="middle">shaded: ±5%, treated as unchanged</text>
 </svg>
