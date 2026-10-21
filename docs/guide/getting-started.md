@@ -52,7 +52,7 @@ The converter writes to the writer but does not flush, close or dispose it; that
 caller (the `using` above does it for a file).
 
 `Render` has the same overload for a document you have already parsed (see
-[Extending](/extending)):
+[Transform the Markdown DOM](/extending#transform-the-markdown-dom)):
 
 snippet: sample_render_to_writer
 
