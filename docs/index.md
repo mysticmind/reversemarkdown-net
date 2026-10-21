@@ -34,6 +34,10 @@ features:
     details: Convert and Render can write straight to a file or any other TextWriter, skipping the full-size output string on large documents.
     link: /guide/getting-started#writing-to-a-textwriter
     linkText: How to use it
+  - title: Fast and lean
+    details: Roughly 2 to 2.6× faster than v5 with about 2.7× less memory. 6.3.0 cuts allocations by up to 58% on real-world pages.
+    link: /guide/performance
+    linkText: See the benchmarks
   - title: Broad framework support
     details: Targets netstandard2.0, net8.0, net9.0, and net10.0 - runs on .NET Framework 4.6.1+, .NET Core 2.0+, Mono, and Unity.
   - title: Trimming & Native AOT ready
