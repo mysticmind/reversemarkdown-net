@@ -44,10 +44,15 @@ Published 6.2.1 against 6.3.0, default flavor, .NET 9.0 on an Apple M1. Lower is
 | github-markdown-complete.html | 420 KB  | 13.30 → **10.56 ms** (-21%)   | 24.68 → **10.48 MB** (-58%)     |
 | wikipedia-largest.html        | 1.77 MB | 198.3 → **189.9 ms** (-4%)    | 222.5 → **198.6 MB** (-11%)     |
 
-Allocations drop on every page, by about half on the script-heavy ones. Time changes under about 5%
-are within run-to-run noise, so read those pages as unchanged in speed; the allocation figures are
-deterministic. 6.3.0 also adds [TextWriter overloads](/guide/getting-started#writing-to-a-textwriter),
-which lower peak memory further by never building the output as one string.
+Allocations drop on every page, by about half on the script-heavy ones, and they are deterministic.
+Times are not: the same version varies by several percent between runs, so read any time change under
+about 5% as unchanged. That includes the +2% on `wikipedia-small`. Nothing in 6.3.0 adds work on that
+path, and alternating runs of the two versions put 6.3.0 level with 6.2.1 or slightly ahead. The page
+has fewer `<script>` and `<style>` tags than the big winners, so the fix saves it about 1.5 MB of
+copying (the -20% allocation), which is too little time to show above the noise.
+
+6.3.0 also adds [TextWriter overloads](/guide/getting-started#writing-to-a-textwriter), which lower
+peak memory further by skipping the full-size output string.
 
 ## Reproducing the benchmarks
 
