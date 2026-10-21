@@ -32,24 +32,23 @@ per tag, so pages with many of them paid for it on every conversion. That pass i
 
 ![ReverseMarkdown 6.2.1 vs 6.3.0: percentage change per real-world page](/benchmark-6.2.1-6.3.0.svg)
 
-Published 6.2.1 against 6.3.0, default flavor, .NET 9.0 on an Apple M1. Lower is better.
+Published 6.2.1 against 6.3.0, default flavor, .NET 9.0 on an Apple M1, three launches each. Lower
+is better.
 
 | Fixture                       | Size    | Mean time 6.2.1 → 6.3.0       | Allocated 6.2.1 → 6.3.0         |
 | ----------------------------- | ------: | ----------------------------- | ------------------------------- |
-| nuxt-example.html             | 3.5 KB  | 80.8 → **68.2 μs** (-16%)     | 133.9 → **105.6 KB** (-21%)     |
-| vuejs-docs.html               | 110 KB  | 4.92 → **4.79 ms** (-3%)      | 4.82 → **3.30 MB** (-32%)       |
-| wikipedia-small.html          | 162 KB  | 7.94 → **8.08 ms** (+2%)      | 7.70 → **6.19 MB** (-20%)       |
-| mdn-array.html                | 230 KB  | 12.61 → **10.37 ms** (-18%)   | 17.68 → **8.01 MB** (-55%)      |
-| react-learn.html              | 259 KB  | 11.40 → **10.82 ms** (-5%)    | 13.99 → **6.97 MB** (-50%)      |
-| github-markdown-complete.html | 420 KB  | 13.30 → **10.56 ms** (-21%)   | 24.68 → **10.48 MB** (-58%)     |
-| wikipedia-largest.html        | 1.77 MB | 198.3 → **189.9 ms** (-4%)    | 222.5 → **198.6 MB** (-11%)     |
+| nuxt-example.html             | 3.5 KB  | 72.7 → **62.9 μs** (-13%)     | 133.9 → **105.6 KB** (-21%)     |
+| vuejs-docs.html               | 110 KB  | 4.39 → **4.32 ms** (-2%)      | 4.82 → **3.30 MB** (-32%)       |
+| wikipedia-small.html          | 162 KB  | 7.49 → **7.42 ms** (-1%)      | 7.70 → **6.19 MB** (-20%)       |
+| mdn-array.html                | 230 KB  | 9.77 → **9.69 ms** (-1%)      | 17.68 → **8.00 MB** (-55%)      |
+| react-learn.html              | 259 KB  | 10.32 → **10.01 ms** (-3%)    | 13.99 → **6.97 MB** (-50%)      |
+| github-markdown-complete.html | 420 KB  | 11.57 → **9.79 ms** (-15%)    | 24.68 → **10.48 MB** (-58%)     |
+| wikipedia-largest.html        | 1.77 MB | 175.1 → **176.4 ms** (+1%)    | 222.5 → **198.6 MB** (-11%)     |
 
-Allocations drop on every page, by about half on the script-heavy ones, and they are deterministic.
-Times are not: the same version varies by several percent between runs, so read any time change under
-about 5% as unchanged. That includes the +2% on `wikipedia-small`. Nothing in 6.3.0 adds work on that
-path, and alternating runs of the two versions put 6.3.0 level with 6.2.1 or slightly ahead. The page
-has fewer `<script>` and `<style>` tags than the big winners, so the fix saves it about 1.5 MB of
-copying (the -20% allocation), which is too little time to show above the noise.
+Allocations drop on every page, by about half on the script-heavy ones. Time improves clearly on
+`github-markdown-complete` (-15%) and `nuxt-example` (-13%). Every other page is within ±3%, which is
+inside run-to-run noise, so read those as unchanged in speed. Fewer allocations still mean less
+garbage-collection work, which adds up when a service converts many documents.
 
 6.3.0 also adds [TextWriter overloads](/guide/getting-started#writing-to-a-textwriter), which lower
 peak memory further by skipping the full-size output string.
@@ -79,8 +78,12 @@ a quick throughput summary or the full BenchmarkDotNet run:
 # Quick summary in MB/s of input HTML, per size group (takes seconds)
 dotnet run -c Release --project src/ReverseMarkdown.Benchmark -- throughput
 
-# Full BenchmarkDotNet run over the corpus, with allocations per fixture
-dotnet run -c Release --project src/ReverseMarkdown.Benchmark -- --filter '*Corpus*'
+# Full BenchmarkDotNet run over the corpus, with allocations per fixture. Three launches
+# (separate processes) so the reported error includes launch-to-launch variance.
+dotnet run -c Release --project src/ReverseMarkdown.Benchmark -- --filter '*Corpus*' --launchCount 3
 ```
 
-Numbers vary with hardware and runtime; compare runs made on the same machine.
+Numbers vary with hardware and runtime; compare runs made on the same machine. BenchmarkDotNet's
+error column covers only the launches it ran, so a single launch understates the variance between
+runs; that is what `--launchCount 3` is for. Allocations need no repeats: they are identical on every
+run.
