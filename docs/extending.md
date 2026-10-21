@@ -62,3 +62,11 @@ For anything the reader hooks don't cover, `converter.Parse(html)` returns a mut
 `MarkdownDocument` you can traverse and transform before `converter.Render(document)`.
 
 snippet: sample_parse_render
+
+`Render` also writes a transformed document straight to a `TextWriter`, with `RenderAsync` for
+writers that disallow synchronous I/O:
+
+snippet: sample_render_to_writer
+
+See [Writing to a TextWriter](/guide/getting-started#writing-to-a-textwriter) for how the output
+matches the string overload and when to use the async form.
