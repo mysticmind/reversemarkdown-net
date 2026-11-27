@@ -74,18 +74,22 @@ namespace ReverseMarkdown.Readers
             {
                 // A block nested inside an inline element (e.g. <del><p>..</p></del>, which the HTML
                 // parser does allow) cannot hold a block. Degrade by flattening the block's own
-                // inline content into the inline container rather than throwing.
+                // inline content into the inline container rather than throwing. The block's edges
+                // are word boundaries, so its text must not run into the text around it.
+                frame.PendingBlockBreak = true;
                 foreach (var child in new List<MdNode>(block.EnumerateChildren()))
                 {
                     if (child is MdInline childInline)
                     {
-                        inlineSink.Add(childInline);
+                        AddInline(frame, inlineSink, childInline);
                     }
                     else if (child is MdBlock childBlock)
                     {
                         Emit(childBlock);
                     }
                 }
+
+                frame.PendingBlockBreak = true;
             }
             else
             {
@@ -105,7 +109,7 @@ namespace ReverseMarkdown.Readers
             switch (frame.Container)
             {
                 case IInlineSink inlineSink:
-                    inlineSink.Add(inline);
+                    AddInline(frame, inlineSink, inline);
                     break;
                 case IBlockSink blockSink:
                     if (frame.ImplicitParagraph is null)
@@ -131,6 +135,72 @@ namespace ReverseMarkdown.Readers
             var frame = _frames.Peek();
             TrimTrailingWhitespace(frame.ImplicitParagraph);
             frame.ImplicitParagraph = null;
+
+            // A block-level wrapper read straight into an inline container (e.g. <a><div>..</div>
+            // <div>..</div></a>) has no paragraph to close; its edges are still word boundaries.
+            if (frame.Container is IInlineSink)
+            {
+                frame.PendingBlockBreak = true;
+            }
+        }
+
+        // Add an inline to an inline container. After a block boundary flattened into that
+        // container, separate the text on either side with a space, unless one side already
+        // has whitespace there or there is no text before it (a leading block needs none).
+        private static void AddInline(Frame frame, IInlineSink sink, MdInline inline)
+        {
+            if (frame.PendingBlockBreak)
+            {
+                var next = EdgeIsWhitespace(inline, atEnd: false);
+                if (next is null)
+                {
+                    // No text in this inline; the boundary still applies to what follows it.
+                    sink.Add(inline);
+                    return;
+                }
+
+                frame.PendingBlockBreak = false;
+                if (next == false && EdgeIsWhitespace(frame.Container, atEnd: true) == false)
+                {
+                    sink.Add(new MdText(" "));
+                }
+            }
+
+            sink.Add(inline);
+        }
+
+        // Whether the first (or last) character of a node's inline content is whitespace, or null
+        // when the node has no content at that edge (an empty run or an empty container).
+        private static bool? EdgeIsWhitespace(MdNode node, bool atEnd)
+        {
+            switch (node)
+            {
+                case MdText text:
+                    return text.Value.Length == 0
+                        ? null
+                        : char.IsWhiteSpace(atEnd ? text.Value[^1] : text.Value[0]);
+                case MdLineBreak:
+                    return true;
+                case IInlineSink:
+                    var children = new List<MdNode>(node.EnumerateChildren());
+                    if (atEnd)
+                    {
+                        children.Reverse();
+                    }
+
+                    foreach (var child in children)
+                    {
+                        if (EdgeIsWhitespace(child, atEnd) is { } edge)
+                        {
+                            return edge;
+                        }
+                    }
+
+                    return null;
+                default:
+                    // Images, code spans, raw HTML, math: visible content that is not whitespace.
+                    return false;
+            }
         }
 
         /// <summary>Read every child of <paramref name="node"/> into the current container.</summary>
@@ -171,6 +241,10 @@ namespace ReverseMarkdown.Readers
             public MdNode Container { get; }
 
             public MdParagraph? ImplicitParagraph { get; set; }
+
+            /// <summary>True when a block boundary was flattened into this inline container and
+            /// the next text added to it still needs separating from the text before it.</summary>
+            public bool PendingBlockBreak { get; set; }
         }
 
         private sealed class Scope : IDisposable
