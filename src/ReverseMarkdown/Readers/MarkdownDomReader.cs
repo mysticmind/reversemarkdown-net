@@ -184,6 +184,12 @@ namespace ReverseMarkdown.Readers
             "sub", "sup", "span", "abbr", "cite", "mark", "small", "q", "u", "kbd", "samp", "var",
         };
 
+        // Inline tags with no visible effect of their own (see ReadElement).
+        private static readonly HashSet<string> SemanticOnlyTags = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "time", "data", "bdi", "bdo",
+        };
+
         private void ReadElement(IElement element, ReaderContext ctx)
         {
             var tag = element.LocalName;
@@ -285,6 +291,16 @@ namespace ReverseMarkdown.Readers
                 ctx.Emit(new MdRawInline(wrapper) { SourceTag = tag });
                 ctx.ReadChildren(element);
                 ctx.Emit(new MdRawInline(wrapper) { SourceTag = tag });
+                return;
+            }
+
+            // Semantic-only inline tags carry machine-readable data or text direction but change
+            // nothing visible, so their text is their whole content. Flavors that keep raw HTML
+            // round-trip them; the others have no markdown for them, so unwrap to the text rather
+            // than leave raw HTML behind (an explicit PassThrough, Replacer or reader still wins).
+            if (SemanticOnlyTags.Contains(tag) && !Config.PreservesInlineRawHtml(_config.Flavor))
+            {
+                ctx.ReadChildren(element);
                 return;
             }
 

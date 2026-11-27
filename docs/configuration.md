@@ -70,6 +70,10 @@ snippet: sample_cell_list_cleanhtml
   - `UnknownTagsOption.Drop` - drop the tag and its content.
   - `UnknownTagsOption.Bypass` - ignore the tag but convert its content.
   - `UnknownTagsOption.Raise` - raise an error.
+
+  `time`, `data`, `bdi` and `bdo` change nothing visible, so they are not treated as unknown:
+  flavors that keep raw HTML (CommonMark, GitHub, MultiMarkdown) pass them through, and the
+  others keep only their text. Add one to `Tags.PassThrough` to keep it as HTML everywhere.
 - **`Tags.Replacer`** - optional markdown wrappers for unknown tags. Key = tag name, value =
   prefix/suffix wrapper. Example: `{ ["u"] = "*" }`.
 - **`Tags.Aliases`** - treat a tag as another tag. Example: `{ ["u"] = "em" }`.

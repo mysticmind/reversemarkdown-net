@@ -115,6 +115,16 @@ namespace ReverseMarkdown.Readers
             }
 
             var config = ctx.Config;
+            var cleanFlavor = !Config.PreservesInlineRawHtml(config.Flavor);
+
+            // An <a> without href (<a name="top">, <a id="x">) is a named target, not a link. Flavors
+            // that keep raw HTML round-trip it; the others have no markdown for it, so keep only its
+            // content rather than writing a link to nothing ([]()).
+            if (cleanFlavor && !element.HasAttribute("href"))
+            {
+                ctx.ReadChildren(element);
+                return;
+            }
 
             // Scheme not whitelisted: bypass to plain content (v5 behavior).
             if (!config.IsSchemeWhitelisted(UrlHelper.GetScheme(href)))
@@ -160,7 +170,44 @@ namespace ReverseMarkdown.Readers
                 ctx.ReadChildren(element);
             }
 
+            // A link with nothing visible inside (no text, image, code, ...) has nothing to click and
+            // would leave a bare [](href) behind, e.g. the empty <a> the HTML parser leaves in a <p>
+            // when a <div> inside the link closes that paragraph. Keep its whitespace and line
+            // breaks, drop the link itself.
+            if (cleanFlavor && !HasVisibleContent(link))
+            {
+                foreach (var child in link.Children.ToList())
+                {
+                    child.Remove();
+                    ctx.Emit(child);
+                }
+
+                return;
+            }
+
             ctx.Emit(link);
+        }
+
+        private static bool HasVisibleContent(MdNode node)
+        {
+            foreach (var child in node.EnumerateChildren())
+            {
+                var visible = child switch
+                {
+                    MdText text => !string.IsNullOrWhiteSpace(text.Value),
+                    MdLineBreak => false,
+                    IInlineSink => HasVisibleContent(child),
+                    // Images, code spans, raw HTML, math: content in their own right.
+                    _ => true,
+                };
+
+                if (visible)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
